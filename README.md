@@ -9,17 +9,20 @@ results belong to `deksden-com/dd-eval` and must not be copied here.
 
 ## Current state
 
-This is the intentional zero checkpoint:
+`checkpoint-00-initial` preserves the intentional zero checkpoint. The current
+`main` branch has the initialized project Memory Bank but still has no
+application foundation:
 
 - no application code;
 - no package workspace;
 - no database schema;
 - no product features;
-- no project Memory Bank.
+- an initialized project Memory Bank with the project-local `dd-flow` pack.
 
-The next action is to initialize the project Memory Bank with `mb-init`. The
-initialization must describe the current repository honestly rather than import
-the complete future product roadmap.
+The next action is to run the full `protocol -> specify -> plan -> code ->
+readiness -> merge` lifecycle for `checkpoint-01-foundation`. Foundation work
+must remain limited to the approved stage and must not import the complete
+future product roadmap as implemented behavior.
 
 ## Initial project direction
 

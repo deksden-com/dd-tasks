@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/version-report@1",
+  "title": "dd-flow version report",
+  "description": "Small read-only JSON contract for dd-flow version --json.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["ok", "schema_id", "cli"],
+  "properties": {
+    "ok": { "const": true },
+    "schema_id": { "const": "dd-flow/version-report@1" },
+    "cli": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["package_name", "version"],
+      "properties": {
+        "package_name": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

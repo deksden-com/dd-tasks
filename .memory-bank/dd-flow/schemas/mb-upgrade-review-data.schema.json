@@ -1,0 +1,813 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/mb-upgrade-review-data@1",
+  "title": "mb-upgrade 05-review data",
+  "description": "Canonical data contract for review-data.json produced by mb-upgrade stage 05-review.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "schema_id",
+    "review",
+    "overall",
+    "aspects",
+    "findings",
+    "evidence",
+    "defs",
+    "verification",
+    "dashboard"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "schema_id": {
+      "const": "dd-flow/mb-upgrade-review-data@1"
+    },
+    "review": {
+      "$ref": "#/definitions/review"
+    },
+    "overall": {
+      "$ref": "#/definitions/overall"
+    },
+    "aspects": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": {
+        "$ref": "#/definitions/aspect"
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/finding"
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/evidence"
+      }
+    },
+    "defs": {
+      "$ref": "#/definitions/defs"
+    },
+    "verification": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/verification"
+      }
+    },
+    "dashboard": {
+      "$ref": "#/definitions/dashboard"
+    }
+  },
+  "definitions": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "optionalString": {
+      "type": "string"
+    },
+    "path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "run_id",
+        "generated_at",
+        "target_project",
+        "target_language",
+        "reviewed_upgrade_path",
+        "reviewed_branch",
+        "reviewed_commit",
+        "integration_branch",
+        "source_integrated_review_path",
+        "final_report_path",
+        "aspect_coverage_path",
+        "dashboard_template"
+      ],
+      "properties": {
+        "run_id": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "target_project": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "target_language": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "reviewed_upgrade_path": {
+          "$ref": "#/definitions/path"
+        },
+        "reviewed_branch": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "reviewed_commit": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "integration_branch": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "source_integrated_review_path": {
+          "$ref": "#/definitions/path"
+        },
+        "final_report_path": {
+          "$ref": "#/definitions/path"
+        },
+        "aspect_coverage_path": {
+          "$ref": "#/definitions/path"
+        },
+        "dashboard_template": {
+          "$ref": "#/definitions/path"
+        },
+        "active_def_index_path": {
+          "$ref": "#/definitions/optionalString"
+        },
+        "active_def_index_note": {
+          "$ref": "#/definitions/optionalString"
+        }
+      }
+    },
+    "overall": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "verdict",
+        "verdict_label",
+        "verdict_note",
+        "score_total",
+        "score_max",
+        "score_label",
+        "blockers",
+        "blocker_summary",
+        "delivery_state",
+        "next_action"
+      ],
+      "properties": {
+        "verdict": {
+          "enum": [
+            "accepted",
+            "accepted_with_deferrals",
+            "failed",
+            "blocked"
+          ]
+        },
+        "verdict_label": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "verdict_note": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "score_total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "score_max": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "score_label": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "blockers": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "blocker_summary": {
+          "$ref": "#/definitions/optionalString"
+        },
+        "delivery_state": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "next_action": {
+          "$ref": "#/definitions/nonEmptyString"
+        }
+      }
+    },
+    "aspectId": {
+      "enum": [
+        "01-goal-and-delivery",
+        "02-knowledge-preservation",
+        "03-canonical-structure",
+        "04-target-coverage",
+        "05-path-traceability",
+        "06-def-settlement",
+        "07-verification-quality",
+        "08-git-merge-delivery",
+        "09-report-quality",
+        "10-agent-process-quality"
+      ]
+    },
+    "aspect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "order",
+        "label",
+        "reviewer",
+        "score",
+        "verdict",
+        "report_path",
+        "short_summary",
+        "primary_finding",
+        "finding_preview",
+        "detail_tooltip",
+        "def_badges",
+        "severity_counts",
+        "evidence_summary",
+        "findings"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/aspectId"
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "label": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "reviewer": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "verdict": {
+          "enum": [
+            "strong_pass",
+            "pass",
+            "weak_pass",
+            "fail",
+            "blocked",
+            "not_applicable"
+          ]
+        },
+        "report_path": {
+          "$ref": "#/definitions/path"
+        },
+        "short_summary": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "primary_finding": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "finding_preview": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "detail_tooltip": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "def_badges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/defBadge"
+          }
+        },
+        "severity_counts": {
+          "$ref": "#/definitions/severityCounts"
+        },
+        "evidence_summary": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/nonEmptyString"
+          }
+        },
+        "findings": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^FIND-MBU-REVIEW-[0-9]{3}$"
+          }
+        }
+      }
+    },
+    "severityCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "blocking",
+        "major",
+        "minor",
+        "informational"
+      ],
+      "properties": {
+        "blocking": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "major": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "minor": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "informational": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "display_order",
+        "aspect_id",
+        "severity",
+        "severity_label",
+        "title",
+        "problem",
+        "impact",
+        "next_action",
+        "status_label",
+        "evidence",
+        "tracking"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^FIND-MBU-REVIEW-[0-9]{3}$"
+        },
+        "display_order": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "aspect_id": {
+          "$ref": "#/definitions/aspectId"
+        },
+        "severity": {
+          "enum": [
+            "blocking",
+            "major",
+            "minor",
+            "informational"
+          ]
+        },
+        "severity_label": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "title": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "problem": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "impact": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "next_action": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "status_label": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/evidence"
+          }
+        },
+        "tracking": {
+          "$ref": "#/definitions/tracking"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "severity": {
+                "enum": [
+                  "blocking",
+                  "major"
+                ]
+              }
+            },
+            "required": [
+              "severity"
+            ]
+          },
+          "then": {
+            "properties": {
+              "tracking": {
+                "properties": {
+                  "status": {
+                    "not": {
+                      "const": "report_only"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "tracking": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "label",
+        "badge_kind",
+        "def_id",
+        "def_path",
+        "reason"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "created_def",
+            "updated_def",
+            "existing_def",
+            "fixed_before_report",
+            "explicitly_not_tracked",
+            "report_only"
+          ]
+        },
+        "label": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "badge_kind": {
+          "enum": [
+            "created",
+            "updated",
+            "existing",
+            "fixed",
+            "not_tracked",
+            "report"
+          ]
+        },
+        "def_id": {
+          "type": "string"
+        },
+        "def_path": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "reason_code": {
+          "enum": [
+            "non_target",
+            "superseded",
+            "false_positive",
+            "already_fixed"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "created_def",
+                  "updated_def",
+                  "existing_def"
+                ]
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "def_id": {
+                "pattern": "^DEF-[A-Z0-9-]+$"
+              },
+              "def_path": {
+                "minLength": 1
+              }
+            },
+            "required": [
+              "def_id",
+              "def_path"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "explicitly_not_tracked"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "reason": {
+                "minLength": 1
+              }
+            },
+            "required": [
+              "reason",
+              "reason_code"
+            ]
+          }
+        }
+      ]
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "label",
+        "path",
+        "summary"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "file",
+            "command",
+            "git",
+            "dashboard",
+            "schema",
+            "note"
+          ]
+        },
+        "label": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "path": {
+          "$ref": "#/definitions/optionalString"
+        },
+        "summary": {
+          "$ref": "#/definitions/nonEmptyString"
+        }
+      }
+    },
+    "defBadge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "label",
+        "kind"
+      ],
+      "properties": {
+        "label": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "kind": {
+          "enum": [
+            "created",
+            "updated",
+            "existing",
+            "fixed",
+            "not_tracked",
+            "report"
+          ]
+        }
+      }
+    },
+    "defs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "created",
+        "updated",
+        "existing"
+      ],
+      "properties": {
+        "created": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/defRef"
+          }
+        },
+        "updated": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/defRef"
+          }
+        },
+        "existing": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/defRef"
+          }
+        }
+      }
+    },
+    "defRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "path",
+        "finding_ids",
+        "summary",
+        "discoverability"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^DEF-[A-Z0-9-]+$"
+        },
+        "path": {
+          "$ref": "#/definitions/path"
+        },
+        "finding_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^FIND-MBU-REVIEW-[0-9]{3}$"
+          }
+        },
+        "summary": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "discoverability": {
+          "$ref": "#/definitions/nonEmptyString"
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "label",
+        "status",
+        "summary"
+      ],
+      "properties": {
+        "label": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "status": {
+          "enum": [
+            "passed",
+            "failed",
+            "blocked",
+            "not_run"
+          ]
+        },
+        "summary": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "command": {
+          "$ref": "#/definitions/optionalString"
+        },
+        "path": {
+          "$ref": "#/definitions/optionalString"
+        }
+      }
+    },
+    "dashboard": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kicker",
+        "title",
+        "lead",
+        "meta",
+        "top_signals",
+        "tooltips",
+        "timeline"
+      ],
+      "properties": {
+        "kicker": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "title": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "lead": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "meta": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/metaItem"
+          }
+        },
+        "top_signals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/topSignal"
+          }
+        },
+        "tooltips": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "quality_profile",
+            "aspect_review",
+            "timeline",
+            "verification"
+          ],
+          "properties": {
+            "quality_profile": {
+              "$ref": "#/definitions/nonEmptyString"
+            },
+            "aspect_review": {
+              "$ref": "#/definitions/nonEmptyString"
+            },
+            "timeline": {
+              "$ref": "#/definitions/nonEmptyString"
+            },
+            "verification": {
+              "$ref": "#/definitions/nonEmptyString"
+            }
+          }
+        },
+        "timeline": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/timelineItem"
+          }
+        }
+      }
+    },
+    "metaItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "label",
+        "value"
+      ],
+      "properties": {
+        "label": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "value": {
+          "$ref": "#/definitions/nonEmptyString"
+        }
+      }
+    },
+    "topSignal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "label",
+        "text"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "good",
+            "warn",
+            "bad"
+          ]
+        },
+        "label": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "text": {
+          "$ref": "#/definitions/nonEmptyString"
+        }
+      }
+    },
+    "timelineItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "label",
+        "text"
+      ],
+      "properties": {
+        "label": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "text": {
+          "$ref": "#/definitions/nonEmptyString"
+        }
+      }
+    }
+  },
+  "x-dd-flow-semantic-checks": [
+    "aspects must contain each mandatory aspect id exactly once",
+    "aspect findings must reference existing finding ids",
+    "finding aspect_id must reference an existing aspect id",
+    "accepted verdict cannot coexist with unresolved blocking findings",
+    "major explicitly_not_tracked reason_code must be one of non_target, superseded, false_positive, already_fixed",
+    "created/updated DEFs must be discoverable by active DEF preflight or documented active_def_index_note"
+  ]
+}

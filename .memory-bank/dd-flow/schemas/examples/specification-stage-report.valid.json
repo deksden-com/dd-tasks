@@ -1,0 +1,114 @@
+{
+  "schema_id": "dd-flow/specification-stage-report@1",
+  "run": {
+    "run_id": "RUN-001-demo",
+    "run_index": "~/.dd-flow/projects/PRJ-001-demo/runs/RUN-001-demo/run-index.json"
+  },
+  "stage": {
+    "name": "specify",
+    "dir": "01-specify",
+    "status": "done"
+  },
+  "project": {
+    "id": "PRJ-001-demo",
+    "title": "Demo project"
+  },
+  "subject": {
+    "id": "PRT-001-demo",
+    "title": "Demo protocol"
+  },
+  "overall": {
+    "verdict": "specified_ready_for_plan",
+    "summary": "Problem space is clear enough for planning.",
+    "next_action": "run plan.md"
+  },
+  "breadcrumbs": [
+    {
+      "label": "Run",
+      "href": "../run-index.json",
+      "status": "active"
+    },
+    {
+      "label": "Specification",
+      "href": "stage-report.html",
+      "status": "done"
+    }
+  ],
+  "specification": {
+    "problem": "The task needs a clear entrypoint before planning.",
+    "goal": "Define a stable specification handoff.",
+    "actors": ["user", "agent"],
+    "functional_requirements": ["Create a specification report before plan."],
+    "nonfunctional_requirements": ["Keep reports navigable."],
+    "constraints": ["Do not start code before planning gates."],
+    "in_scope": ["specification report", "task profile"],
+    "out_of_scope": ["deployment"],
+    "acceptance_criteria": ["Plan can read the specification report."],
+    "verification_plan": "Validate JSON schema and report breadcrumbs."
+  },
+  "questions": [
+    {
+      "id": "Q-001",
+      "status": "closed",
+      "question": "Should this task use full planning?",
+      "why_it_matters": "Planning depth controls whether the agent can safely move to solution-space work.",
+      "options": [
+        {
+          "id": "A",
+          "label": "Full planning",
+          "impact": "Creates full plan evidence before implementation."
+        },
+        {
+          "id": "B",
+          "label": "Compact planning",
+          "impact": "Acceptable only for local low-risk changes."
+        }
+      ],
+      "recommendation": "A",
+      "recommendation_rationale": "The task changes flow contracts and should leave explicit evidence.",
+      "answer": "Yes.",
+      "answered_at": "2026-06-25",
+      "source": "user"
+    }
+  ],
+  "raw_intake": {
+    "status": "captured",
+    "path": ".memory-bank/protocol/PRT-001-demo/intake/user-input.md",
+    "summary": "Substantive user input was saved before specification normalization."
+  },
+  "knowledge_extraction": {
+    "mode": "subagent",
+    "status": "done",
+    "summary": "Knowledge candidates were extracted without writing active Memory Bank files.",
+    "candidates_path": "~/.dd-flow/projects/PRJ-001-demo/runs/RUN-001-demo/01-specify/knowledge-extraction/candidates.json",
+    "report_path": "~/.dd-flow/projects/PRJ-001-demo/runs/RUN-001-demo/01-specify/knowledge-extraction/extraction-report.md"
+  },
+  "knowledge_candidates": {
+    "total": 1,
+    "by_target_layer": {
+      "dd-flow": 1
+    },
+    "requires_user_confirmation": 0,
+    "blocked": 0,
+    "links": [
+      {
+        "label": "Candidates",
+        "href": "knowledge-extraction/candidates.md",
+        "status": "available"
+      }
+    ]
+  },
+  "task_profile": {
+    "size": "medium",
+    "risk": "medium",
+    "planning_route_hint": "full_plan",
+    "verification_mode": "automated"
+  },
+  "handoff": {
+    "plan_prompt": ".memory-bank/dd-flow/plan.md",
+    "must_read": [
+      ".memory-bank/dd-flow/common/specification.md"
+    ],
+    "next_gate": "plan"
+  }
+}

@@ -1,0 +1,361 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/plan-stage-report@1",
+  "title": "dd-flow plan stage report data",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_id",
+    "generated_at",
+    "protocol",
+    "overall",
+    "route",
+    "graph",
+    "aspects",
+    "plan_items",
+    "handoff"
+  ],
+  "properties": {
+    "schema_id": {
+      "const": "dd-flow/plan-stage-report@1"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "protocol": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "project", "branch", "stage"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "title": {"type": "string", "minLength": 1},
+        "project": {"type": "string", "minLength": 1},
+        "branch": {"type": "string", "minLength": 1},
+        "stage": {"type": "string", "minLength": 1}
+      }
+    },
+    "overall": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["verdict", "verdict_label", "score", "score_max", "next_action", "summary"],
+      "properties": {
+        "verdict": {
+          "type": "string",
+          "enum": ["plan_ready", "ready_for_code", "needs_user_decision", "plan_blocked", "degraded"]
+        },
+        "verdict_label": {"type": "string", "minLength": 1},
+        "score": {"type": "number", "minimum": 0},
+        "score_max": {"type": "number", "exclusiveMinimum": 0},
+        "next_action": {"type": "string", "minLength": 1},
+        "summary": {"type": "string", "minLength": 1}
+      }
+    },
+    "route": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["label", "value", "note"],
+        "properties": {
+          "label": {"type": "string", "minLength": 1},
+          "value": {"type": "string", "minLength": 1},
+          "note": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "task_profile": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "size": {"type": "string"},
+        "risk": {"type": "string"},
+        "planning_route_hint": {"type": "string"},
+        "execution_mode_hint": {"type": "string"},
+        "verification_mode": {"type": "string"}
+      }
+    },
+    "route_decision": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "selected_planning_route": {"type": "string"},
+        "selected_execution_mode": {"type": "string"},
+        "selected_git_route": {"type": "string"},
+        "selected_verification_depth": {"type": "string"},
+        "selected_evidence_level": {"type": "string"},
+        "reason": {"type": "string"}
+      }
+    },
+    "graph": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["nodes", "edges"],
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "label", "x", "y", "status", "note"],
+            "properties": {
+              "id": {"type": "string", "minLength": 1},
+              "label": {"type": "string", "minLength": 1},
+              "x": {"type": "number"},
+              "y": {"type": "number"},
+              "status": {"type": "string", "enum": ["done", "ready", "watch", "next", "blocked", "skipped"]},
+              "note": {"type": "string", "minLength": 1}
+            }
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": [
+              {"type": "string", "minLength": 1},
+              {"type": "string", "minLength": 1}
+            ],
+            "additionalItems": false,
+            "minItems": 2,
+            "maxItems": 2
+          }
+        }
+      }
+    },
+    "aspects": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "label", "score", "status", "summary", "note", "findings"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "label": {"type": "string", "minLength": 1},
+          "radar_label": {"type": "string"},
+          "relevance": {"type": "string", "enum": ["not_applicable", "light", "deep", "unknown"]},
+          "coverage_mode": {"type": "string", "enum": ["orchestrator", "subagent", "grouped_subagent", "degraded"]},
+          "subagent_id": {"type": "string"},
+          "group_id": {"type": "string"},
+          "report_path": {"type": "string"},
+          "not_applicable_reason": {"type": "string"},
+          "score": {"type": "number", "minimum": 0, "maximum": 5},
+          "status": {"type": "string", "enum": ["reviewed", "watch", "blocked", "not_applicable", "degraded"]},
+          "summary": {"type": "string", "minLength": 1},
+          "note": {"type": "string", "minLength": 1},
+          "findings": {
+            "type": "array",
+            "items": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    },
+    "review_gates": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/reviewGate" }
+    },
+    "design_aspect_traceability": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "source": {"type": "string"},
+        "verdict": {"type": "string"},
+        "summary": {"type": "string"},
+        "design_aspects": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "requirements": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "verification_seeds": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "gaps": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "testing_system": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "applicability": {"type": "string"},
+        "applicability_reason": {"type": "string"},
+        "stages": {"type": "array"},
+        "test_levels": {"type": "object"},
+        "datasets": {"type": "array"},
+        "scenario_links": {"type": "array"},
+        "design_decision_coverage": {"type": "array"},
+        "gaps": {"type": "array"}
+      }
+    },
+    "aspect_map": { "$ref": "#/definitions/aspectMap" },
+    "sdlc_contours": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "summary": {"type": "string"},
+        "contours": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": ["name", "applicability_status", "gate_status", "summary"],
+            "properties": {
+              "name": {"type": "string", "minLength": 1},
+              "applicability_status": {"type": "string", "minLength": 1},
+              "verification_state": {"type": "string"},
+              "closure_state": {"type": "string"},
+              "gate_status": {"type": "string", "minLength": 1},
+              "target_stage": {"type": "string"},
+              "delivery_target": {"type": "string"},
+              "summary": {"type": "string", "minLength": 1},
+              "reason": {"type": "string"},
+              "evidence": {"type": "string"},
+              "next_action": {"type": "string"}
+            }
+          }
+        },
+        "policy_migration": {"type": "string"},
+        "next_delivery_action": {"type": "string"}
+      }
+    },
+    "policy_context": { "$ref": "#/definitions/policyContext" },
+    "links": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/definitions/link" },
+      "properties": {
+        "global_dashboard": { "$ref": "#/definitions/link" },
+        "project_dashboard": { "$ref": "#/definitions/link" },
+        "protocol_page": { "$ref": "#/definitions/link" },
+        "run_index": { "$ref": "#/definitions/link" },
+        "run_summary": { "$ref": "#/definitions/link" },
+        "protocol_source": { "$ref": "#/definitions/link" },
+        "protocol_summary": { "$ref": "#/definitions/link" },
+        "previous_stage_report": { "$ref": "#/definitions/link" },
+        "next_stage_report": { "$ref": "#/definitions/link" }
+      }
+    },
+    "plan_items": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "owner", "status", "depends_on", "verification", "note", "details"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "title": {"type": "string", "minLength": 1},
+          "owner": {"type": "string", "minLength": 1},
+          "status": {"type": "string", "enum": ["ready", "watch", "blocked", "done", "skipped"]},
+          "depends_on": {
+            "type": "array",
+            "items": {"type": "string", "minLength": 1}
+          },
+          "verification": {"type": "string", "minLength": 1},
+          "note": {"type": "string", "minLength": 1},
+          "details": {
+            "type": "array",
+            "items": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    },
+    "handoff": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code_prompt", "must_read", "next_gate"],
+      "properties": {
+        "code_prompt": {"type": "string", "minLength": 1},
+        "must_read": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
+        },
+        "next_gate": {"type": "string", "minLength": 1}
+      }
+    }
+  },
+  "definitions": {
+    "link": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["href", "label", "path_kind", "status"],
+      "properties": {
+        "href": { "type": "string" },
+        "label": { "type": "string", "minLength": 1 },
+        "path_kind": { "type": "string", "enum": ["relative", "absolute"] },
+        "status": { "type": "string", "enum": ["available", "pending", "missing", "not_applicable"] },
+        "degraded_reason": { "type": "string" },
+        "source": { "type": "string" }
+      }
+    },
+    "reviewGate": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "label", "stage", "applicability", "verdict", "summary"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1 },
+        "stage": { "type": "string", "minLength": 1 },
+        "applicability": { "type": "string", "minLength": 1 },
+        "verdict": { "type": "string", "minLength": 1 },
+        "summary": { "type": "string", "minLength": 1 },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "aspectMap": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["path", "schema_id", "status"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "schema_id": { "type": "string", "minLength": 1 },
+        "status": { "type": "string", "minLength": 1 },
+        "summary": { "type": "string" },
+        "counts": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "applicable": { "type": "integer", "minimum": 0 },
+            "not_applicable": { "type": "integer", "minimum": 0 },
+            "unknown": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "policyContext": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["sources", "git", "checks", "delivery", "gaps"],
+      "properties": {
+        "sources": { "type": "object", "additionalProperties": true },
+        "git": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "workspace_route": { "type": "string" },
+            "delivery_strategy": {
+              "type": "string",
+              "enum": ["direct_commit", "direct_commit_push", "feature_merge", "pull_request", "merge_queue", "squash_merge", "rebase_ff", "release_branch", "external_handoff", "local_only", "no_git"]
+            },
+            "fixation_required": { "type": "boolean" },
+            "result_evidence_required": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "checks": { "type": "object", "additionalProperties": true },
+        "delivery": { "type": "object", "additionalProperties": true },
+        "gaps": { "type": "object", "additionalProperties": true }
+      }
+    }
+  }
+}

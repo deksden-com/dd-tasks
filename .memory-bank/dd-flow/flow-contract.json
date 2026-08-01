@@ -1,0 +1,101 @@
+{
+  "id": "dd-flow-canonical-2026-06",
+  "version": 2,
+  "stages": {
+    "registered": { "terminal": false },
+    "priming": { "terminal": false, "report_enabled": false },
+    "specify": { "terminal": false, "report_enabled": true },
+    "plan": { "terminal": false, "report_enabled": true },
+    "interactive": { "terminal": false, "report_enabled": false },
+    "consolidation": { "terminal": false, "report_enabled": false },
+    "hardening": { "terminal": false, "report_enabled": false },
+    "implementation": { "terminal": false, "report_enabled": true },
+    "readiness": { "terminal": false, "report_enabled": true },
+    "ready_for_merge": { "terminal": false },
+    "queued_for_merge": { "terminal": false },
+    "integration": { "terminal": false, "report_enabled": true },
+    "cancelled": { "terminal": true },
+    "closed": { "terminal": true },
+    "blocked": { "terminal": false },
+    "waiting_for_user": {
+      "terminal": false,
+      "payload_required": ["reason", "return_to_stage", "blocks", "does_not_block"],
+      "payload_optional": ["question_ids", "context", "recommended_options"]
+    }
+  },
+  "transitions": {
+    "registered": ["priming", "specify", "interactive", "blocked", "waiting_for_user"],
+    "priming": ["specify", "interactive", "closed", "blocked", "waiting_for_user"],
+    "specify": ["plan", "implementation", "blocked", "waiting_for_user"],
+    "plan": ["implementation", "blocked", "waiting_for_user"],
+    "interactive": ["consolidation", "blocked", "waiting_for_user"],
+    "consolidation": ["hardening", "blocked", "waiting_for_user"],
+    "hardening": ["readiness", "blocked", "waiting_for_user"],
+    "implementation": ["readiness", "blocked", "waiting_for_user"],
+    "readiness": ["ready_for_merge", "closed", "blocked", "waiting_for_user"],
+    "ready_for_merge": ["queued_for_merge", "integration", "closed", "blocked", "waiting_for_user"],
+    "queued_for_merge": ["integration", "blocked", "waiting_for_user"],
+    "integration": ["closed", "blocked", "waiting_for_user"],
+    "cancelled": [],
+    "closed": [],
+    "blocked": ["specify", "plan", "interactive", "consolidation", "hardening", "implementation", "readiness", "ready_for_merge", "closed"],
+    "waiting_for_user": ["specify", "plan", "interactive", "consolidation", "hardening", "implementation", "readiness", "ready_for_merge", "blocked", "closed"]
+  },
+  "entrypoints": {
+    "prime.md": {
+      "stage": "priming",
+      "creates_protocol": false,
+      "purpose": "session priming only"
+    },
+    "protocol.md": {
+      "stage": "specify",
+      "creates_protocol": true,
+      "mode": "normal"
+    },
+    "interactive.md": {
+      "stage": "interactive",
+      "creates_protocol": true,
+      "mode": "interactive"
+    },
+    "finish.md": {
+      "logical_stages": ["consolidation", "hardening", "readiness"],
+      "creates_protocol": false,
+      "mode": "interactive_finish"
+    }
+  },
+  "readiness": {
+    "command": "ready-for-merge",
+    "allowed_from": ["readiness", "ready_for_merge"],
+    "target_stage": "ready_for_merge"
+  },
+  "merge_queue": {
+    "complete": {
+      "target_stage": "closed",
+      "next_action": "none"
+    }
+  },
+  "auto_policy": {
+    "ready_for_code_auto": "exit_status_after_plan",
+    "ready_for_code_after_user_review": "exit_status_after_plan",
+    "home_config_path": "~/.dd-flow/projects/<PRJ-ID-slug>/config.json"
+  },
+  "defaults": {
+    "registered_next_action": "prime_or_protocol",
+    "ordinary_protocol_flow_kind": "mb_sdlc",
+    "normal_stage_layout": ["01-specify", "02-plan", "03-code", "04-merge"],
+    "legacy_coding_stage_layout": ["01-plan", "02-code", "03-merge"]
+  },
+  "legacy_aliases": {
+    "f": "priming",
+    "prime_intake": "specify",
+    "g0": "specify",
+    "m1": "readiness",
+    "m2": "integration",
+    "implementation": "implementation"
+  },
+  "route_aliases": {
+    "none": "no_plan",
+    "short": "compact_plan",
+    "full_plan": "full_plan"
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "schema_id": "dd-flow/code-stage-report@1",
+  "run": {
+    "run_id": "RUN-041-architecture-ai-review-gates",
+    "run_index": "~/.dd-flow/projects/PRJ-004-demo/runs/RUN-041-architecture-ai-review-gates/run-index.json"
+  },
+  "stage": {
+    "name": "code",
+    "dir": "03-code",
+    "status": "done"
+  },
+  "project": {
+    "id": "PRJ-004-dd-memorybank",
+    "title": "dd-memorybank"
+  },
+  "subject": {
+    "id": "PRT-035",
+    "title": "Architecture And AI Review Gates"
+  },
+  "overall": {
+    "verdict": "ready_for_merge",
+    "summary": "Prompts, schemas and docs now expose architecture and AI runtime review gates.",
+    "next_action": "Run merge flow."
+  },
+  "breadcrumbs": [
+    {
+      "label": "Plan",
+      "href": "../02-plan/stage-report.html",
+      "status": "done"
+    },
+    {
+      "label": "Code",
+      "href": "stage-report.html",
+      "status": "done"
+    }
+  ],
+  "implemented_goals": [
+    {
+      "title": "Architecture gates",
+      "summary": "Plan and readiness prompts require minimal necessary change and top-down architecture review."
+    }
+  ],
+  "acceptance_scenarios": [
+    {
+      "id": "AC-001",
+      "title": "Architecture review gates are visible",
+      "verdict": "pass",
+      "steps": [
+        {
+          "title": "Inspect prompts",
+          "summary": "Read plan/review.md and code/readiness.md."
+        }
+      ],
+      "evidence": [
+        {
+          "path": ".memory-bank/dd-flow/plan/review.md",
+          "label": "Plan review prompt"
+        }
+      ]
+    }
+  ],
+  "changed_files": [
+    {
+      "path": ".memory-bank/dd-flow/plan/review.md",
+      "label": "Plan review prompt"
+    }
+  ],
+  "policy_context": {
+    "sources": {
+      "project_policy": ".memory-bank/project-policy.md",
+      "operations": [".memory-bank/dd-flow/common/sdlc-contours.md"],
+      "verification": [".memory-bank/dd-flow/schemas"],
+      "defs": []
+    },
+    "git": {
+      "workspace_route": "feature_worktree",
+      "actual_workspace_route": "feature_worktree",
+      "route_match": true,
+      "delivery_strategy": "merge_queue",
+      "fixation_required": true,
+      "result_evidence_required": ["queue_completion", "target_result_commit"]
+    },
+    "checks": {
+      "local_profile": "schema_validation",
+      "ci_profile": "none"
+    },
+    "delivery": {
+      "current_gate": "ready_for_merge",
+      "release_required_next": false,
+      "deploy_required_next": false,
+      "publish_required_next": false
+    },
+    "gaps": {
+      "questions": [],
+      "blockers": [],
+      "defs": []
+    }
+  },
+  "checks": [
+    {
+      "name": "schema validate",
+      "status": "pass"
+    }
+  ],
+  "review": {
+    "verdict": "accepted",
+    "findings": []
+  },
+  "review_gates": [
+    {
+      "id": "architecture_implementation_review",
+      "label": "Architecture implementation review",
+      "stage": "code",
+      "applicability": "applicable",
+      "verdict": "pass",
+      "summary": "Actual diff preserves minimal necessary change and top-down coherence.",
+      "evidence": [
+        ".memory-bank/dd-flow/code/readiness.md"
+      ]
+    },
+    {
+      "id": "agentic_runtime_implementation_review",
+      "label": "AI runtime implementation review",
+      "stage": "code",
+      "applicability": "applicable",
+      "verdict": "pass",
+      "summary": "Prompt/runtime rules cover observability, validation, retry/repair and provider profiles.",
+      "evidence": [
+        ".memory-bank/mbb/ai-runtime-prompt-architecture.md"
+      ]
+    }
+  ],
+  "defs": []
+}

@@ -1,0 +1,112 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/protocol-dashboard-data@1",
+  "title": "dd-flow protocol dashboard data",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schema_id", "generated_at", "target_language", "page", "project", "protocol", "resource", "primary_run_id", "run_history", "stage_pipeline", "metrics", "warnings"],
+  "properties": {
+    "schema_id": { "const": "dd-flow/protocol-dashboard-data@1" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "target_language": { "type": "string", "minLength": 2 },
+    "page": { "$ref": "#/definitions/page" },
+    "project": { "type": "object", "additionalProperties": true, "required": ["id", "title", "root"] },
+    "protocol": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "short_id", "lifecycle", "raw_status", "raw_stage", "display_status", "action_level", "updated_at"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "short_id": { "type": "string", "minLength": 1 },
+        "raw_status": { "type": "string", "minLength": 1 },
+        "raw_stage": { "type": "string", "minLength": 1 },
+        "lifecycle": { "$ref": "#/definitions/lifecycle" },
+        "lifecycle_stage": { "type": "string" },
+        "lifecycle_status": { "type": "string" },
+        "display_status": { "type": "string", "minLength": 1 },
+        "action_level": { "type": "string", "enum": ["none", "watch", "actionable", "blocked"] },
+        "updated_at": { "type": "string", "minLength": 1 }
+      }
+    },
+    "resource": { "type": "object", "additionalProperties": true },
+    "queue_item": { "type": ["object", "null"], "additionalProperties": true },
+    "claim": { "type": ["object", "null"], "additionalProperties": true },
+    "links": { "type": "object", "additionalProperties": { "$ref": "#/definitions/link" } },
+    "primary_run_id": { "type": ["string", "null"] },
+    "primary_run_reason": { "type": "string" },
+    "run_history": { "type": "array", "items": { "$ref": "#/definitions/run" } },
+    "review_runs": { "type": "array", "items": { "$ref": "#/definitions/run" } },
+    "stage_pipeline": { "type": "array" },
+    "metrics": { "type": "array", "items": { "$ref": "#/definitions/metric" } },
+    "warnings": { "type": "array" }
+  },
+  "definitions": {
+    "page": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["kind", "screen_id", "title", "html_path", "json_path"],
+      "properties": {
+        "kind": { "const": "protocol" },
+        "screen_id": { "const": "SCR-DD-FLOW-PROTOCOL-PAGE" },
+        "title": { "type": "string", "minLength": 1 },
+        "html_path": { "type": "string", "minLength": 1 },
+        "json_path": { "type": "string", "minLength": 1 }
+      }
+    },
+    "metric": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "label", "value", "status", "source"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1 },
+        "value": { "type": ["number", "null"] },
+        "status": { "type": "string", "enum": ["known", "unknown", "degraded", "not_applicable"] },
+        "source": { "type": "string", "minLength": 1 }
+      }
+    },
+    "link": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["label", "href", "path_kind", "status"],
+      "properties": {
+        "label": { "type": "string", "minLength": 1 },
+        "href": { "type": "string" },
+        "path_kind": { "type": "string", "enum": ["absolute", "relative"] },
+        "status": { "type": "string", "enum": ["available", "pending", "missing", "not_applicable"] },
+        "degraded_reason": { "type": "string" }
+      }
+    },
+    "run": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "short_id", "flow_kind", "display_flow_kind", "status", "display_status", "stages"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "short_id": { "type": "string", "minLength": 1 },
+        "flow_kind": { "type": "string", "minLength": 1 },
+        "display_flow_kind": { "type": "string", "minLength": 1 },
+        "status": { "type": "string", "minLength": 1 },
+        "display_status": { "type": "string", "minLength": 1 },
+        "stages": { "type": "array" }
+      }
+    },
+    "lifecycle": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["flow", "stage", "status", "terminal", "raw_stage", "raw_status"],
+      "properties": {
+        "flow": { "type": "string", "minLength": 1 },
+        "stage": { "type": "string", "minLength": 1 },
+        "substage": { "type": ["string", "null"] },
+        "status": { "type": "string", "minLength": 1 },
+        "terminal": { "type": "boolean" },
+        "legacy_stage": { "type": ["string", "null"] },
+        "legacy_status": { "type": ["string", "null"] },
+        "raw_stage": { "type": "string", "minLength": 1 },
+        "raw_status": { "type": "string", "minLength": 1 },
+        "queue_status": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

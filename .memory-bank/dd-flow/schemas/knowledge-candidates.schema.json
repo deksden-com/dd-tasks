@@ -1,0 +1,218 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/knowledge-candidates@1",
+  "title": "Knowledge candidates extracted from substantive user input",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_id",
+    "protocol_id",
+    "run_id",
+    "stage",
+    "raw_intake",
+    "source_inputs",
+    "candidates",
+    "conflicts",
+    "questions",
+    "generated_by",
+    "created_at"
+  ],
+  "properties": {
+    "schema_id": { "const": "dd-flow/knowledge-candidates@1" },
+    "protocol_id": { "type": "string", "minLength": 1 },
+    "run_id": { "type": "string", "minLength": 1 },
+    "stage": { "type": "string", "minLength": 1 },
+    "raw_intake": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["status", "path"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["captured", "not_applicable", "redacted", "missing", "degraded"]
+        },
+        "path": { "type": "string" },
+        "reason": { "type": "string" }
+      }
+    },
+    "source_inputs": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/sourceInput" }
+    },
+    "candidates": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/candidate" }
+    },
+    "conflicts": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/conflict" }
+    },
+    "questions": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/question" }
+    },
+    "generated_by": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["role", "prompt"],
+      "properties": {
+        "role": { "type": "string", "minLength": 1 },
+        "prompt": { "type": "string", "minLength": 1 },
+        "subagent_id": { "type": "string" }
+      }
+    },
+    "created_at": { "type": "string", "format": "date-time" }
+  },
+  "definitions": {
+    "sourceInput": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "path", "kind", "substantive"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^INPUT-[0-9]{3}$" },
+        "path": { "type": "string", "minLength": 1 },
+        "kind": { "type": "string", "minLength": 1 },
+        "substantive": { "type": "boolean" },
+        "redacted": { "type": "boolean" },
+        "summary": { "type": "string" }
+      }
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "id",
+        "source",
+        "claim",
+        "kind",
+        "target_layer",
+        "confidence",
+        "needs_user_confirmation",
+        "merge_verification",
+        "promotion_hint"
+      ],
+      "properties": {
+        "id": { "type": "string", "pattern": "^KND-[0-9]{3}$" },
+        "source": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": ["input_id", "file", "quote", "quote_redacted"],
+          "properties": {
+            "input_id": { "type": "string", "pattern": "^INPUT-[0-9]{3}$" },
+            "file": { "type": "string", "minLength": 1 },
+            "quote": { "type": "string" },
+            "quote_redacted": { "type": "boolean" }
+          }
+        },
+        "claim": { "type": "string", "minLength": 1 },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "scenario",
+            "functional_requirement",
+            "non_functional_requirement",
+            "workflow_policy",
+            "git_policy",
+            "verification_policy",
+            "release_deploy_policy",
+            "architecture_decision",
+            "operation_runbook",
+            "terminology",
+            "domain_knowledge",
+            "ui_ux_guidance",
+            "security_privacy",
+            "integration_contract",
+            "deferral",
+            "project_context",
+            "memory_bank_structure"
+          ]
+        },
+        "target_layer": {
+          "type": "string",
+          "enum": [
+            "protocol",
+            "spec",
+            "scenarios",
+            "adr",
+            "operations",
+            "checks",
+            "release",
+            "deploy",
+            "glossary",
+            "mbb",
+            "dd-flow",
+            "defs",
+            "evidence",
+            "changelog",
+            "unknown"
+          ]
+        },
+        "durability": { "type": "string" },
+        "confidence": { "type": "string", "enum": ["high", "medium", "low"] },
+        "needs_user_confirmation": { "type": "boolean" },
+        "risk": { "type": "string" },
+        "existing_memory_bank_refs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "conflicts": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "merge_verification": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": ["how_to_check", "required_evidence"],
+          "properties": {
+            "how_to_check": { "type": "string", "minLength": 1 },
+            "required_evidence": {
+              "type": "array",
+              "items": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "promotion_hint": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": ["target_files", "write_kind"],
+          "properties": {
+            "target_files": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "write_kind": { "type": "string", "minLength": 1 },
+            "index_updates": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "conflict": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "candidate_id", "summary", "severity"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "candidate_id": { "type": "string" },
+        "summary": { "type": "string", "minLength": 1 },
+        "severity": { "type": "string", "enum": ["low", "medium", "high", "blocking"] }
+      }
+    },
+    "question": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "question", "reason"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^Q-[0-9]{3}$" },
+        "question": { "type": "string", "minLength": 1 },
+        "reason": { "type": "string", "minLength": 1 },
+        "candidate_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}

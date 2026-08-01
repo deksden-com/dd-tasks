@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Фаза Specification</title>
+  <style>
+    :root { color-scheme: light dark; --bg:#eef0ea; --paper:#fbfaf4; --ink:#171b17; --muted:#626a63; --line:#c7d0c4; --green:#176b5c; --amber:#b56a24; --blue:#2d5d83; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#11161a; --paper:#192026; --ink:#f2eadc; --muted:#b5bbb8; --line:#33404a; --green:#79c8ae; --amber:#dfae62; --blue:#8ebbd3; } }
+    * { box-sizing: border-box; }
+    body { margin:0; padding:14px; background:var(--bg); color:var(--ink); font-family:"Avenir Next","Gill Sans",Verdana,sans-serif; letter-spacing:0; }
+    a { color:var(--green); text-decoration:none; } a:hover { text-decoration:underline; }
+    .page { width:min(1180px, 100%); margin:0 auto; display:grid; gap:12px; }
+    .topbar { display:flex; justify-content:space-between; gap:10px; color:var(--muted); font-size:13px; }
+    .hero, .panel { border:1px solid var(--line); border-radius:8px; background:var(--paper); padding:14px; }
+    h1 { margin:2px 0 8px; font-family:"Iowan Old Style",Georgia,serif; font-size:clamp(28px,2.8vw,38px); line-height:1.02; letter-spacing:0; }
+    h2 { margin:0 0 8px; font-size:17px; letter-spacing:0; }
+    p { margin:0; color:var(--muted); line-height:1.42; }
+    .meta, .grid { display:grid; gap:8px; }
+    .meta { grid-template-columns:repeat(4,minmax(0,1fr)); margin-top:12px; }
+    .item { border-top:1px solid var(--line); padding-top:8px; min-width:0; overflow-wrap:anywhere; }
+    .item:first-child { border-top:0; padding-top:0; }
+    .label { display:block; color:var(--green); font-size:12px; font-weight:900; margin-bottom:3px; }
+    .value { font-size:14px; }
+    .layout { display:grid; grid-template-columns:minmax(0,1fr) minmax(320px,.7fr); gap:12px; align-items:start; }
+    details { border-top:1px solid var(--line); padding:9px 0; }
+    summary { cursor:pointer; font-weight:800; }
+    ul { margin:8px 0 0; padding-left:20px; color:var(--muted); }
+    @media (max-width:860px) { .layout, .meta { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <script id="specification-data" type="application/json">__SPECIFICATION_DATA__</script>
+  <main class="page">
+    <div class="topbar"><span id="crumbs"></span><span id="stage"></span></div>
+    <section class="hero">
+      <div class="label" id="project"></div>
+      <h1>Фаза Specification</h1>
+      <p id="summary"></p>
+      <div class="meta" id="meta"></div>
+    </section>
+    <section class="layout">
+      <section class="panel">
+        <h2>Спецификация задачи</h2>
+        <div class="grid" id="specBlocks"></div>
+      </section>
+      <aside class="panel">
+        <h2>Вопросы и приемка</h2>
+        <div class="grid" id="questions"></div>
+      </aside>
+    </section>
+    <section class="panel">
+      <h2>Вводные и кандидаты знаний</h2>
+      <div class="grid" id="knowledgeBlocks"></div>
+    </section>
+  </main>
+  <script>
+    const data = JSON.parse(document.getElementById('specification-data').textContent);
+    const text = (value, fallback = '') => value == null || value === '' ? fallback : String(value);
+    const el = (tag, attrs = {}, children = []) => {
+      const node = document.createElement(tag);
+      Object.entries(attrs).forEach(([key, value]) => key === 'class' ? node.className = value : node.setAttribute(key, value));
+      children.forEach(child => node.append(child));
+      return node;
+    };
+    const item = (label, value) => el('div', { class: 'item' }, [el('span', { class: 'label' }, [label]), el('div', { class: 'value' }, [text(value, 'N/A')])]);
+    document.getElementById('crumbs').textContent = (data.breadcrumbs || []).map(x => x.label || x).join(' / ');
+    document.getElementById('stage').textContent = text(data.stage && data.stage.status, 'specified');
+    document.getElementById('project').textContent = text(data.project && data.project.title, 'Project');
+    document.getElementById('summary').textContent = text(data.overall && data.overall.summary);
+    document.getElementById('meta').append(
+      item('protocol', data.subject && data.subject.id),
+      item('verdict', data.overall && data.overall.verdict),
+      item('next action', data.overall && data.overall.next_action),
+      item('route', data.task_profile && data.task_profile.planning_route_hint)
+    );
+    const blocks = [
+      ['Проблема', data.specification && data.specification.problem],
+      ['Цель', data.specification && data.specification.goal],
+      ['Scope', (data.specification && data.specification.in_scope || []).join('; ')],
+      ['Non-goals', (data.specification && data.specification.out_of_scope || []).join('; ')],
+      ['Acceptance', (data.specification && data.specification.acceptance_criteria || []).join('; ')],
+      ['Проверка', data.specification && data.specification.verification_plan]
+    ];
+    document.getElementById('specBlocks').append(...blocks.map(([label, value]) => item(label, value)));
+    const questions = data.questions || [];
+    document.getElementById('questions').append(...(questions.length ? questions : [{ id:'none', question:'Открытых вопросов нет', status:'closed' }]).map(q => {
+      const parts = [el('summary', {}, [`${text(q.id)}: ${text(q.status)}`])];
+      parts.push(el('p', {}, [text(q.question || q.summary)]));
+      if (q.why_it_matters) parts.push(el('p', {}, [`Зачем: ${text(q.why_it_matters)}`]));
+      if (Array.isArray(q.options) && q.options.length) {
+        parts.push(el('ul', {}, q.options.map(option => el('li', {}, [`${text(option.id)}. ${text(option.label)}${option.impact ? ' - ' + text(option.impact) : ''}`]))));
+      }
+      if (q.recommendation) parts.push(el('p', {}, [`Рекомендация: ${text(q.recommendation)}${q.recommendation_rationale ? ' - ' + text(q.recommendation_rationale) : ''}`]));
+      if (q.answer) parts.push(el('p', {}, [`Ответ: ${text(q.answer)}`]));
+      const d = el('details', {}, parts);
+      return d;
+    }));
+    const raw = data.raw_intake || {};
+    const extraction = data.knowledge_extraction || {};
+    const candidates = data.knowledge_candidates || {};
+    const layerSummary = Object.entries(candidates.by_target_layer || {}).map(([key, value]) => `${key}: ${value}`).join('; ');
+    document.getElementById('knowledgeBlocks').append(
+      item('raw intake', `${text(raw.status, 'not_recorded')} - ${text(raw.summary || raw.reason, 'N/A')}`),
+      item('extraction', `${text(extraction.mode, 'not_applicable')} / ${text(extraction.status, 'skipped')}: ${text(extraction.summary, 'N/A')}`),
+      item('candidates', `${text(candidates.total, 0)} total; ${text(layerSummary, 'no target layers')}`),
+      item('confirmation/blockers', `${text(candidates.requires_user_confirmation, 0)} confirmation; ${text(candidates.blocked, 0)} blocked`)
+    );
+  </script>
+</body>
+</html>

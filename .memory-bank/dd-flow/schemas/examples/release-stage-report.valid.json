@@ -1,0 +1,99 @@
+{
+  "schema_id": "dd-flow/release-stage-report@1",
+  "run": {
+    "run_id": "RUN-160-release-canon-2110",
+    "run_index": "../run-index.json"
+  },
+  "stage": {
+    "name": "release",
+    "dir": "04-report",
+    "status": "done"
+  },
+  "project": {
+    "id": "PRJ-004-dd-memorybank",
+    "title": "dd-memorybank"
+  },
+  "subject": {
+    "id": "PSET-005-release-deploy-publish-flow-model",
+    "title": "Release deploy publish flow model"
+  },
+  "overall": {
+    "verdict": "completed",
+    "summary": "Version 2.11.0 and release set were fixed with artifact readback.",
+    "next_action": "No deploy required for this release set."
+  },
+  "operational_access": {
+    "schema_id": "dd-flow/operational-access-preflight@1",
+    "applicability": "not_required",
+    "outcome": "not_required",
+    "verdicts": { "identity": "not_required", "authority": "not_required", "target": "not_required", "approval": "not_required" },
+    "next_action": "Continue with local release fixation; no authenticated external mutation is in scope."
+  },
+  "breadcrumbs": [
+    {
+      "label": "Release",
+      "href": "stage-report.html",
+      "status": "current"
+    }
+  ],
+  "release_set": {
+    "source": "merged protocols since 2.10.0",
+    "included_changes": [
+      {
+        "label": "PRT-074",
+        "path": ".memory-bank/protocol/PRT-074-delivery-flow-reports-runtime-and-evals.md"
+      }
+    ],
+    "excluded_changes": []
+  },
+  "version_decision": {
+    "status": "confirmed",
+    "previous_version": "2.10.0",
+    "selected_version": "2.11.0",
+    "decision_source": "user approval in release session",
+    "evidence": [
+      {
+        "label": "version decision",
+        "path": "evidence/version-decision.md"
+      }
+    ]
+  },
+  "artifacts": [
+    {
+      "label": "release tag",
+      "path": "refs/tags/v2.11.0",
+      "kind": "git-tag"
+    }
+  ],
+  "release_readback": {
+    "status": "passed",
+    "evidence": [
+      {
+        "label": "tag readback",
+        "path": "evidence/tag-readback.json"
+      }
+    ]
+  },
+  "gates": [
+    {
+      "id": "release_set_complete",
+      "status": "pass",
+      "summary": "Release set contains all selected protocols.",
+      "evidence": "evidence/release-set.json"
+    }
+  ],
+  "checks": [
+    {
+      "name": "git tag readback",
+      "status": "passed",
+      "evidence": "evidence/tag-readback.json"
+    }
+  ],
+  "evidence": [
+    {
+      "label": "release report",
+      "path": "report.md"
+    }
+  ],
+  "defs": []
+}

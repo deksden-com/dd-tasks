@@ -1,0 +1,18 @@
+{
+  "schema_id": "dd-flow/deploy-stage-report@1",
+  "run": { "run_id": "RUN-161-deploy-preview", "run_index": "../run-index.json" },
+  "stage": { "name": "deploy", "dir": "04-report", "status": "done" },
+  "project": { "id": "PRJ-101-web-app", "title": "web-app" },
+  "subject": { "id": "PRT-200-preview-deploy", "title": "Preview deploy" },
+  "overall": { "verdict": "completed", "summary": "Unsafe deploy overclaim.", "next_action": "none" },
+  "operational_access": { "schema_id": "dd-flow/operational-access-preflight@1", "applicability": "required", "outcome": "authorized", "verdicts": { "identity": "mismatch", "authority": "verified", "target": "verified", "approval": "verified" }, "next_action": "continue" },
+  "target": { "runtime_stage": "preview", "deploy_provider": "vercel", "deploy_target": "web-app-preview", "evidence": [{ "label": "target", "path": "evidence/target.json" }] },
+  "source_artifact": { "label": "commit", "path": "git:abc" },
+  "pre_deploy_gates": [],
+  "execution": { "mode": "provider-cli", "deployment_id": "dpl_123", "evidence": [{ "label": "deploy", "path": "logs/deploy.log" }] },
+  "post_deploy": { "verdict": "passed", "evidence": [{ "label": "health", "path": "evidence/health.json" }] },
+  "rollback": { "posture": "available", "summary": "rollback ready" },
+  "checks": [],
+  "evidence": [],
+  "defs": []
+}

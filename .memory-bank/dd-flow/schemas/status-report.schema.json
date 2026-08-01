@@ -1,0 +1,188 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/status-report@1",
+  "title": "dd-flow status report",
+  "description": "Read-only status contract for CLI/canon/project Memory Bank version visibility and drift diagnostics.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["ok", "schema_id", "dd_flow_home", "cwd", "cli", "project", "canon"],
+  "properties": {
+    "ok": { "type": "boolean" },
+    "schema_id": { "const": "dd-flow/status-report@1" },
+    "dd_flow_home": { "type": "string", "minLength": 1 },
+    "cwd": { "type": "string", "minLength": 1 },
+    "cli": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["version", "package_name", "build"],
+      "properties": {
+        "version": { "type": "string", "minLength": 1 },
+        "package_name": { "type": "string", "minLength": 1 },
+        "compatibility": { "$ref": "#/definitions/cliCompatibility" },
+        "registry": { "$ref": "#/definitions/registryStatus" },
+        "build": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": ["status", "built_with_canon"],
+          "properties": {
+            "status": { "type": "string", "enum": ["present", "degraded"] },
+            "built_at": { "type": ["string", "null"] },
+            "commit": { "type": ["string", "null"] },
+            "reason": { "type": "string" },
+            "built_with_canon": {
+              "type": "object",
+              "additionalProperties": true,
+              "required": ["version", "commit", "flow_contract", "status"],
+              "properties": {
+                "version": { "type": ["string", "null"] },
+                "commit": { "type": ["string", "null"] },
+                "flow_contract": { "type": ["string", "null"] },
+                "status": { "type": "string", "enum": ["present", "unknown", "degraded"] },
+                "reason": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["requested_root", "root", "root_source", "registered", "memory_bank", "flow_pack", "drift"],
+      "properties": {
+        "requested_root": { "type": "string", "minLength": 1 },
+        "root": { "type": ["string", "null"] },
+        "root_source": { "type": "string", "enum": ["explicit", "git", "cwd"] },
+        "registered": { "type": "boolean" },
+        "id": { "type": ["string", "null"] },
+        "status": { "type": ["string", "null"] },
+        "memory_bank": { "$ref": "#/definitions/memoryBank" },
+        "flow_pack": { "$ref": "#/definitions/flowPack" },
+        "drift": { "$ref": "#/definitions/drift" }
+      }
+    },
+    "canon": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["ok", "resolved", "compatibility"],
+      "properties": {
+        "ok": { "type": "boolean" },
+        "resolved": {
+          "type": ["object", "null"],
+          "additionalProperties": true
+        },
+        "compatibility": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": ["cli_built_with_resolved_canon", "reason"],
+          "properties": {
+            "cli_built_with_resolved_canon": {
+              "type": "string",
+              "enum": ["same", "behind", "ahead", "unknown"]
+            },
+            "reason": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "cliCompatibility": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["verdict", "reason", "package_name", "installed_version"],
+      "properties": {
+        "verdict": { "type": "string", "enum": ["ok", "outdated", "incompatible", "missing", "unknown"] },
+        "reason": { "type": "string", "minLength": 1 },
+        "package_name": { "type": "string", "minLength": 1 },
+        "expected_package_name": { "type": "string" },
+        "installed_version": { "type": "string", "minLength": 1 },
+        "memory_bank_version": { "type": ["string", "null"] },
+        "min_version": { "type": ["string", "null"] },
+        "recommended_version": { "type": ["string", "null"] },
+        "status_contract": { "type": ["string", "null"] },
+        "version_contract": { "type": ["string", "null"] },
+        "flow_contract": { "type": ["string", "null"] },
+        "update_command": { "type": ["string", "null"] }
+      }
+    },
+    "registryStatus": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["package_name", "latest", "checked_at", "source", "status"],
+      "properties": {
+        "package_name": { "type": "string", "minLength": 1 },
+        "latest": { "type": ["string", "null"] },
+        "checked_at": { "type": "string", "minLength": 1 },
+        "source": { "type": "string", "enum": ["npm", "npm_cache"] },
+        "status": { "type": "string", "enum": ["ok", "degraded"] },
+        "reason": { "type": "string" }
+      }
+    },
+    "memoryBank": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "required": ["root", "folder_name", "version", "source", "status"],
+      "properties": {
+        "root": { "type": ["string", "null"] },
+        "folder_name": { "type": ["string", "null"], "enum": [".memory-bank", "memory-bank", null] },
+        "version": { "type": ["string", "null"] },
+        "source": { "type": ["string", "null"] },
+        "status": { "type": "string", "enum": ["present", "missing", "invalid", "unknown"] },
+        "reason": { "type": "string" }
+      }
+    },
+    "flowPack": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "required": ["manifest_path", "schema_id", "pack_version", "source_commit", "canon_version_at_source_commit", "flow_contract", "status", "canonical_only_files"],
+      "properties": {
+        "manifest_path": { "type": ["string", "null"] },
+        "schema_id": { "type": ["string", "null"] },
+        "pack_version": { "type": ["string", "null"] },
+        "source_commit": { "type": ["string", "null"] },
+        "canon_version_at_source_commit": { "type": ["string", "null"] },
+        "flow_contract": { "type": ["string", "null"] },
+        "status": { "type": "string", "enum": ["present", "missing", "invalid", "degraded"] },
+        "reason": { "type": "string" },
+        "canonical_only_files": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "drift": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "required": ["memory_bank_version", "flow_pack_commit", "flow_contract", "overall", "next_action"],
+      "properties": {
+        "memory_bank_version": { "$ref": "#/definitions/comparison" },
+        "flow_pack_commit": { "$ref": "#/definitions/comparison" },
+        "flow_contract": { "$ref": "#/definitions/comparison" },
+        "overall": {
+          "type": "string",
+          "enum": ["same", "behind", "ahead", "diverged", "missing", "invalid", "unknown", "not_applicable"]
+        },
+        "next_action": { "type": "string", "minLength": 1 }
+      }
+    },
+    "comparison": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["status", "confidence", "reason"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["same", "behind", "ahead", "diverged", "missing", "invalid", "unknown", "not_applicable"]
+        },
+        "confidence": {
+          "type": "string",
+          "enum": ["exact", "semver", "git_ancestry", "declared", "none"]
+        },
+        "reason": { "type": "string", "minLength": 1 },
+        "current": { "type": ["string", "null"] },
+        "target": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

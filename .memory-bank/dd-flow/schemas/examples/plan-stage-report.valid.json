@@ -1,0 +1,160 @@
+{
+  "schema_id": "dd-flow/plan-stage-report@1",
+  "generated_at": "2026-06-04T17:10:00Z",
+  "protocol": {
+    "id": "PRT-2026-06-04-plan-dashboard-sample",
+    "title": "Фаза Plan",
+    "project": "dd-memorybank",
+    "branch": "main",
+    "stage": "plan"
+  },
+  "overall": {
+    "verdict": "ready_for_code",
+    "verdict_label": "Готово к code",
+    "score": 8.4,
+    "score_max": 10,
+    "next_action": "Запустить code flow: реализовать data contract, template generator и render smoke gate.",
+    "summary": "План достаточно проработан для реализации. Основные риски видны, aspect coverage полный, два решения требуют контроля на readiness."
+  },
+  "route": [
+    {
+      "label": "standard",
+      "value": "standard",
+      "note": "Нормальный путь: есть несколько аспектов, есть проверочные ворота, но без полного исследовательского цикла."
+    },
+    {
+      "label": "worktree",
+      "value": "feature_worktree",
+      "note": "Реализация пойдет в отдельном рабочем дереве/feature branch, чтобы не загрязнять интеграционную ветку."
+    },
+    {
+      "label": "merge",
+      "value": "merge_queue",
+      "note": "После readiness code flow должен поставить задачу в merge queue; слияние выполняет merge worker."
+    },
+    {
+      "label": "ci",
+      "value": "none",
+      "note": "Удаленный CI не требуется для примера; локальные проверки и browser smoke остаются обязательными."
+    }
+  ],
+  "graph": {
+    "nodes": [
+      { "id": "request", "label": "Запрос", "x": 205, "y": 24, "status": "done", "note": "Пользовательская идея превращена в проверяемую цель plan-фазы." },
+      { "id": "context", "label": "Контекст", "x": 205, "y": 96, "status": "done", "note": "Собраны канон, предыдущие dashboard lessons, DEF и ограничения текущего flow." },
+      { "id": "policy", "label": "Политика", "x": 30, "y": 176, "status": "done", "note": "Учтены git/language/dashboard правила проекта и канона." },
+      { "id": "defs", "label": "DEF", "x": 205, "y": 176, "status": "done", "note": "Проверены активные нерешенные задачи, которые могут влиять на план." },
+      { "id": "gaps", "label": "Gaps", "x": 380, "y": 176, "status": "done", "note": "Недосказанности и противоречия превращены в явные assumptions/decisions." },
+      { "id": "aspect_gate", "label": "Aspect gate", "x": 205, "y": 260, "status": "done", "note": "Решено, какие аспекты требуют глубокой проверки и нужны ли субагенты." },
+      { "id": "ux", "label": "UX", "x": 16, "y": 352, "status": "done", "note": "Проверяется понятность пользовательского dashboard и отсутствие визуального шума." },
+      { "id": "runtime", "label": "Runtime", "x": 144, "y": 352, "status": "watch", "note": "Проверяется, как CLI должен обновлять dashboard и artifacts." },
+      { "id": "verification", "label": "Проверки", "x": 272, "y": 352, "status": "watch", "note": "Формируется render smoke, schema check и DOM overflow gate." },
+      { "id": "delivery", "label": "Доставка", "x": 400, "y": 352, "status": "done", "note": "Проверяется, как code flow получит handoff и как дальше пойдет merge." },
+      { "id": "synthesis", "label": "Синтез", "x": 205, "y": 464, "status": "done", "note": "Aspect findings, route и gates сведены в один реалистичный план." },
+      { "id": "tasks", "label": "Task graph", "x": 82, "y": 556, "status": "ready", "note": "План разбит на work items с зависимостями и проверками." },
+      { "id": "stage_report", "label": "Stage report", "x": 328, "y": 556, "status": "ready", "note": "Экран должен показать только полезную для plan-фазы информацию." },
+      { "id": "qa", "label": "QA gates", "x": 205, "y": 660, "status": "watch", "note": "Перед code handoff проверяются видимый текст, раскрытия, подсказки и overflow." },
+      { "id": "handoff", "label": "Code handoff", "x": 205, "y": 760, "status": "next", "note": "Следующая стадия: code flow." }
+    ],
+    "edges": [
+      ["request", "context"],
+      ["context", "policy"],
+      ["context", "defs"],
+      ["context", "gaps"],
+      ["policy", "aspect_gate"],
+      ["defs", "aspect_gate"],
+      ["gaps", "aspect_gate"],
+      ["aspect_gate", "ux"],
+      ["aspect_gate", "runtime"],
+      ["aspect_gate", "verification"],
+      ["aspect_gate", "delivery"],
+      ["ux", "synthesis"],
+      ["runtime", "synthesis"],
+      ["verification", "synthesis"],
+      ["delivery", "synthesis"],
+      ["synthesis", "tasks"],
+      ["synthesis", "stage_report"],
+      ["tasks", "qa"],
+      ["stage_report", "qa"],
+      ["qa", "handoff"]
+    ]
+  },
+  "aspects": [
+    { "id": "scope", "label": "Границы", "radar_label": "Границы", "score": 5, "status": "reviewed", "summary": "Цель и границы ясны.", "note": "Stage report показывает readiness plan stage, не заменяет full protocol report.", "findings": ["Не смешивать plan stage report с code/readiness report.", "Показывать skipped/degraded aspects явно."] },
+    { "id": "architecture", "label": "Архитектура", "radar_label": "Архит.", "score": 4, "status": "reviewed", "summary": "Контракт данных выбран.", "note": "Нужно определить schema и generator ownership в code flow.", "findings": ["Данные stage report и HTML должны проверяться на согласованность.", "Граф в UI должен строиться из структурных узлов, а не показывать исходник пользователю."] },
+    { "id": "ux", "label": "UX", "radar_label": "UX", "score": 4, "status": "reviewed", "summary": "UI согласован с mb-upgrade-review.", "note": "Следить за overflow, first-screen density и hover/focus подсказками.", "findings": ["Details rows лучше таблиц с длинными hover-only notes.", "Route не должен занимать hero: это контекстный блок снизу."] },
+    { "id": "subagents", "label": "Субагенты", "radar_label": "Субаг.", "score": 3, "status": "watch", "summary": "Критерий запуска должен быть видим.", "note": "Dashboard обязан показать, какие aspect reviewers были запущены и почему.", "findings": ["Если subagents не запускались, нужен reason и degraded marker.", "Plan score не должен скрывать orchestration-only анализ."] },
+    { "id": "verification", "label": "Проверки", "radar_label": "Проверки", "score": 4, "status": "reviewed", "summary": "Нужны schema + render smoke.", "note": "Schema validation ловит contract, browser smoke ловит пустой dashboard.", "findings": ["Проверять visible text, overflow и отсутствие sample data.", "Скриншот полезен как evidence, но не заменяет DOM checks."] },
+    { "id": "runtime", "label": "Runtime", "radar_label": "Runtime", "score": 3, "status": "watch", "summary": "CLI/dashboard refresh требует решения.", "note": "Нужно решить, когда plan stage report обновляется автоматически.", "findings": ["Dashboard refresh может быть частью dd-flow CLI mutation hooks.", "Нужно избежать лишнего шума в cmux markdown/dashboard files."] },
+    { "id": "delivery", "label": "Доставка", "radar_label": "Доставка", "score": 4, "status": "reviewed", "summary": "Handoff в code понятен.", "note": "Code flow должен получить next action, graph, gates и blockers.", "findings": ["Code prompt должен ссылаться на dashboard/data paths.", "Merge остается отдельной стадией после readiness."] },
+    { "id": "defs", "label": "DEF", "radar_label": "DEF", "score": 5, "status": "reviewed", "summary": "DEF preflight обязателен.", "note": "Active DEF должны быть показаны как input context, blockers или tracked deferrals.", "findings": ["Relevant DEF входят в planning intake.", "Новые major findings должны становиться discoverable DEF."] }
+  ],
+  "sdlc_contours": {
+    "summary": "План затрагивает stage reports и merge handoff, но не выполняет release/deploy/publish.",
+    "policy_migration": "No project policy migration; this is canonical report contract work.",
+    "next_delivery_action": "Code flow, then merge; release/deploy/publish are not in scope.",
+    "contours": [
+      {
+        "name": "git",
+        "applicability_status": "applicable",
+        "verification_state": "checked_passed",
+        "closure_state": "ready_for_merge",
+        "gate_status": "pass",
+        "summary": "Feature worktree route is planned and merge queue handoff is explicit.",
+        "next_action": "Code flow validates readiness before queueing merge."
+      },
+      {
+        "name": "release",
+        "applicability_status": "not_applicable",
+        "verification_state": "not_checked",
+        "closure_state": "accepted_local",
+        "gate_status": "not_applicable",
+        "summary": "No version fixation is planned in this sample.",
+        "reason": "Dashboard contract change has no release step in this example."
+      }
+    ]
+  },
+  "policy_context": {
+    "sources": {
+      "project_policy": ".memory-bank/project-policy.md",
+      "operations": [".memory-bank/dd-flow/common/sdlc-contours.md", ".memory-bank/dd-flow/common/git-ops.md"],
+      "verification": [".memory-bank/dd-flow/schemas"],
+      "defs": []
+    },
+    "git": {
+      "workspace_route": "feature_worktree",
+      "delivery_strategy": "merge_queue",
+      "fixation_required": true,
+      "result_evidence_required": ["queue_completion", "target_result_commit"]
+    },
+    "checks": {
+      "local_profile": "schema_render_smoke",
+      "ci_profile": "none"
+    },
+    "delivery": {
+      "current_gate": "source_integration",
+      "release_required_next": false,
+      "deploy_required_next": false,
+      "publish_required_next": false
+    },
+    "gaps": {
+      "questions": [],
+      "blockers": [],
+      "defs": []
+    }
+  },
+  "plan_items": [
+    { "id": "P1", "title": "Закрепить контракт plan stage report", "owner": "orchestrator", "status": "ready", "depends_on": [], "verification": "schema fixture passes", "note": "Контракт должен покрывать graph, aspects, route, plan items and handoff.", "details": ["Схема фиксирует обязательные поля для verdict, aspect rows, route chips and plan dependencies.", "Fixture должен включать сложный branching graph, а не только linear happy path."] },
+    { "id": "P2", "title": "Собрать граф планирования", "owner": "code worker", "status": "ready", "depends_on": ["P1"], "verification": "graph nodes match data", "note": "Граф показывает порядок решений, развилки и точки синтеза.", "details": ["Graph должен поддерживать branches: UX/runtime/verification/delivery могут идти параллельно.", "В dashboard показываем только отрисованный граф и подсказки по узлам."] },
+    { "id": "P3", "title": "Собрать блок аспектов", "owner": "frontend worker", "status": "ready", "depends_on": ["P1"], "verification": "aspect rows expand and radar renders", "note": "Aspect row раскрывается как в mb-upgrade-review; i стоит рядом с названием аспекта.", "details": ["Score показывается только в aspect row.", "Radar показывает форму покрытия, но не дублирует числовую легенду."] },
+    { "id": "P4", "title": "Собрать блок плана", "owner": "frontend worker", "status": "ready", "depends_on": ["P1", "P2"], "verification": "plan rows expand and dependency labels fit", "note": "Каждый пункт плана раскрывает детали, assumptions and verification gate.", "details": ["Plan table не должна выносить страницу горизонтально.", "Long dependency lists wrap inside the row."] },
+    { "id": "P5", "title": "Подключить browser smoke", "owner": "verifier", "status": "watch", "depends_on": ["P2", "P3", "P4"], "verification": "visible text and no overflow", "note": "Проверять verdict, project, aspect block, graph, plan block, route block and details.", "details": ["cmux-browser или agent-browser делает text/body check.", "DOM metrics проверяют body/page/card overflow."] },
+    { "id": "P6", "title": "Описать code handoff", "owner": "orchestrator", "status": "ready", "depends_on": ["P1", "P5"], "verification": "handoff summary references dashboard", "note": "Code flow получает dashboard path, data path, blockers and verification plan.", "details": ["Next action в dashboard должен совпадать с final plan report.", "Если plan не ready, code handoff не формируется."] },
+    { "id": "P7", "title": "Зафиксировать UX-правила", "owner": "reviewer", "status": "ready", "depends_on": ["P3", "P4"], "verification": "no noisy sections visible", "note": "Экран показывает только полезные для plan-фазы данные.", "details": ["Route уходит вниз.", "Source artifacts и технические поля не выводятся в пользовательский экран."] }
+  ],
+  "handoff": {
+    "code_prompt": ".memory-bank/dd-flow/code.md",
+    "must_read": ["plan-stage-report.json", "phase-summary.md", "subagent-decision.md"],
+    "next_gate": "code readiness"
+  }
+}

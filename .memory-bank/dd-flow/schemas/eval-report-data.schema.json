@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/eval-report-data@1",
+  "title": "dd-flow eval report data",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "generated_at", "subject", "overall", "aspects", "findings", "evidence"],
+  "properties": {
+    "schema_id": { "const": "dd-flow/eval-report-data@1" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "subject": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "title", "mode"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "mode": { "type": "string", "enum": ["exploratory", "baseline", "gate", "regression"] },
+        "scenario_id": { "type": "string" },
+        "run_id": { "type": "string" }
+      }
+    },
+    "overall": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["verdict", "summary", "score", "score_max"],
+      "properties": {
+        "verdict": { "type": "string", "minLength": 1 },
+        "summary": { "type": "string", "minLength": 1 },
+        "score": { "type": "number", "minimum": 0 },
+        "score_max": { "type": "number", "exclusiveMinimum": 0 },
+        "threshold": { "type": "number" },
+        "next_action": { "type": "string" }
+      }
+    },
+    "aspects": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "label", "score", "score_max", "verdict", "summary"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "label": { "type": "string", "minLength": 1 },
+          "score": { "type": "number", "minimum": 0 },
+          "score_max": { "type": "number", "exclusiveMinimum": 0 },
+          "verdict": { "type": "string", "minLength": 1 },
+          "summary": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["severity", "aspect", "summary", "evidence"],
+        "properties": {
+          "severity": { "type": "string", "minLength": 1 },
+          "aspect": { "type": "string", "minLength": 1 },
+          "summary": { "type": "string", "minLength": 1 },
+          "evidence": { "type": "string", "minLength": 1 },
+          "next_action": { "type": "string" }
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["label", "href", "what_it_proves"],
+        "properties": {
+          "label": { "type": "string", "minLength": 1 },
+          "href": { "type": "string", "minLength": 1 },
+          "what_it_proves": { "type": "string", "minLength": 1 },
+          "what_it_does_not_prove": { "type": "string" }
+        }
+      }
+    }
+  }
+}

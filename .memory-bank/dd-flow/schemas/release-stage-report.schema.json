@@ -1,0 +1,266 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/release-stage-report@1",
+  "title": "Release stage report data",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_id",
+    "run",
+    "stage",
+    "project",
+    "subject",
+    "overall",
+    "release_set",
+    "version_decision",
+    "artifacts",
+    "release_readback",
+    "gates",
+    "checks",
+    "evidence",
+    "defs"
+  ],
+  "properties": {
+    "schema_id": { "const": "dd-flow/release-stage-report@1" },
+    "run": { "$ref": "#/definitions/run" },
+    "stage": { "$ref": "#/definitions/stage" },
+    "project": { "$ref": "#/definitions/namedEntity" },
+    "subject": { "$ref": "#/definitions/namedEntity" },
+    "overall": { "$ref": "#/definitions/overall" },
+    "operational_access": { "$ref": "#/definitions/operationalAccess" },
+    "breadcrumbs": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/breadcrumb" }
+    },
+    "release_set": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["source", "included_changes", "excluded_changes"],
+      "properties": {
+        "source": { "type": "string", "minLength": 1 },
+        "included_changes": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/evidenceItem" }
+        },
+        "excluded_changes": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/evidenceItem" }
+        }
+      }
+    },
+    "version_decision": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["status", "decision_source", "selected_version", "evidence"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["confirmed", "policy_selected", "user_required", "not_applicable"]
+        },
+        "previous_version": { "type": "string" },
+        "selected_version": { "type": "string", "minLength": 1 },
+        "decision_source": { "type": "string", "minLength": 1 },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/definitions/evidenceItem" }
+        }
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/evidenceItem" }
+    },
+    "release_readback": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["status", "evidence"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["passed", "failed", "skipped", "not_applicable", "unknown"]
+        },
+        "evidence": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/evidenceItem" }
+        }
+      }
+    },
+    "gates": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/gate" }
+    },
+    "checks": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/check" }
+    },
+    "evidence": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/evidenceItem" }
+    },
+    "defs": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/deferral" }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "overall": {
+            "properties": { "verdict": { "const": "completed" } },
+            "required": ["verdict"]
+          }
+        },
+        "required": ["overall"]
+      },
+      "then": {
+        "required": ["operational_access"],
+        "properties": {
+          "operational_access": { "properties": { "outcome": { "enum": ["authorized", "not_required"] } } },
+          "release_set": {
+            "properties": { "included_changes": { "minItems": 1 } }
+          },
+          "artifacts": { "minItems": 1 },
+          "version_decision": {
+            "properties": {
+              "status": { "enum": ["confirmed", "policy_selected"] },
+              "evidence": { "minItems": 1 }
+            }
+          },
+          "release_readback": {
+            "properties": {
+              "status": { "const": "passed" },
+              "evidence": { "minItems": 1 }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "definitions": {
+    "operationalAccess": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["schema_id", "applicability", "outcome", "verdicts", "next_action"],
+      "properties": {
+        "schema_id": { "const": "dd-flow/operational-access-preflight@1" },
+        "applicability": { "type": "string", "enum": ["required", "not_required"] },
+        "outcome": { "type": "string", "enum": ["authorized", "authorization_required", "identity_mismatch", "target_mismatch", "insufficient_authority", "approval_required", "blocked", "failed", "not_required"] },
+        "verdicts": {
+          "type": "object",
+          "required": ["identity", "authority", "target", "approval"],
+          "properties": {
+            "identity": { "type": "string", "enum": ["verified", "mismatch", "not_observable", "not_required"] },
+            "authority": { "type": "string", "enum": ["verified", "mismatch", "not_observable", "not_required"] },
+            "target": { "type": "string", "enum": ["verified", "mismatch", "not_observable", "not_required"] },
+            "approval": { "type": "string", "enum": ["verified", "missing", "stale", "revoked", "scope_mismatch", "not_observable", "not_required"] }
+          }
+        },
+        "next_action": { "type": "string", "minLength": 1 }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "outcome": { "const": "authorized" } }, "required": ["outcome"] },
+          "then": { "properties": { "applicability": { "const": "required" }, "verdicts": { "properties": { "identity": { "const": "verified" }, "authority": { "enum": ["verified", "not_required"] }, "target": { "const": "verified" }, "approval": { "enum": ["verified", "not_required"] } } } } }
+        },
+        {
+          "if": { "properties": { "outcome": { "const": "not_required" } }, "required": ["outcome"] },
+          "then": { "properties": { "applicability": { "const": "not_required" }, "verdicts": { "properties": { "identity": { "const": "not_required" }, "authority": { "const": "not_required" }, "target": { "const": "not_required" }, "approval": { "const": "not_required" } } } } }
+        }
+      ]
+    },
+    "run": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["run_id", "run_index"],
+      "properties": {
+        "run_id": { "type": "string", "pattern": "^RUN-[0-9]{3}-[a-z0-9]+(?:-[a-z0-9]+)*$" },
+        "run_index": { "type": "string", "minLength": 1 }
+      }
+    },
+    "stage": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["name", "dir", "status"],
+      "properties": {
+        "name": { "const": "release" },
+        "dir": { "type": "string", "pattern": "^[0-9]{2}-[a-z0-9]+(?:-[a-z0-9]+)*$" },
+        "status": { "type": "string", "minLength": 1 }
+      }
+    },
+    "namedEntity": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "title"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 }
+      }
+    },
+    "overall": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["verdict", "summary", "next_action"],
+      "properties": {
+        "verdict": {
+          "type": "string",
+          "enum": ["prepared", "completed", "blocked", "failed", "partial_failure", "handoff_required", "not_applicable"]
+        },
+        "summary": { "type": "string", "minLength": 1 },
+        "next_action": { "type": "string", "minLength": 1 }
+      }
+    },
+    "breadcrumb": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "href", "status"],
+      "properties": {
+        "label": { "type": "string", "minLength": 1 },
+        "href": { "type": "string" },
+        "status": { "type": "string", "minLength": 1 }
+      }
+    },
+    "gate": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "status", "summary"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "status": { "type": "string", "minLength": 1 },
+        "summary": { "type": "string", "minLength": 1 },
+        "evidence": { "type": "string" }
+      }
+    },
+    "check": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["name", "status"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "status": { "type": "string", "minLength": 1 },
+        "evidence": { "type": "string" }
+      }
+    },
+    "evidenceItem": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["label", "path"],
+      "properties": {
+        "label": { "type": "string", "minLength": 1 },
+        "path": { "type": "string", "minLength": 1 },
+        "kind": { "type": "string" }
+      }
+    },
+    "deferral": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "status", "summary"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "status": { "type": "string", "minLength": 1 },
+        "summary": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

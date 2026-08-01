@@ -1,0 +1,94 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/memorybank-permissions-preflight@1",
+  "title": "Memory Bank permissions preflight",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "ok", "exit_code", "flow", "mode", "platform", "targets", "checks", "summary", "remediation"],
+  "properties": {
+    "schema_id": { "const": "dd-flow/memorybank-permissions-preflight@1" },
+    "ok": { "type": "boolean" },
+    "exit_code": { "type": "integer", "enum": [0, 1] },
+    "flow": { "type": "string", "enum": ["mb-init", "mb-upgrade", "mb-audit", "mb-fix", "custom"] },
+    "mode": { "type": "string", "enum": ["read", "write", "repair", "report_only"] },
+    "platform": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["os", "family", "cwd", "user", "group"],
+      "properties": {
+        "os": { "type": "string" },
+        "family": { "type": "string", "enum": ["posix", "windows"] },
+        "cwd": { "type": "string" },
+        "user": { "type": "string" },
+        "group": { "type": "string" }
+      }
+    },
+    "targets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["project_root", "memory_bank", "tasks"],
+      "properties": {
+        "project_root": { "type": "string" },
+        "memory_bank": { "type": "string" },
+        "tasks": { "type": "string" }
+      }
+    },
+    "checks": { "type": "array", "items": { "$ref": "#/$defs/check" } },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["errors", "warnings", "can_continue"],
+      "properties": {
+        "errors": { "type": "integer", "minimum": 0 },
+        "warnings": { "type": "integer", "minimum": 0 },
+        "can_continue": { "type": "boolean" }
+      }
+    },
+    "remediation": { "type": "array", "items": { "$ref": "#/$defs/remediation" } }
+  },
+  "$defs": {
+    "check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "severity", "path", "operation", "status", "reason", "side_effect"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "severity": { "type": "string", "enum": ["info", "warning", "error"] },
+        "path": { "type": "string" },
+        "operation": {
+          "type": "string",
+          "enum": ["read_existing_file", "write_existing_file", "create_file", "create_directory", "delete_probe", "stat_metadata", "detect_acl", "detect_flags"]
+        },
+        "status": { "type": "string", "enum": ["passed", "failed", "warning", "skipped", "unknown"] },
+        "reason": {
+          "type": "string",
+          "enum": ["ok", "not_found", "not_writable", "not_readable", "owner_mismatch", "acl_denied", "read_only_attribute", "immutable_flag", "unsupported_platform", "probe_failed", "unknown"]
+        },
+        "fs_error": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["message"],
+          "properties": {
+            "code": { "type": "string" },
+            "message": { "type": "string" }
+          }
+        },
+        "owner": { "type": "string" },
+        "group": { "type": "string" },
+        "mode": { "type": "string" },
+        "side_effect": { "type": "string", "enum": ["none", "temporary_probe_created_and_removed", "temporary_probe_cleanup_failed"] }
+      }
+    },
+    "remediation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["platform", "title", "commands", "requires_user_confirmation"],
+      "properties": {
+        "platform": { "type": "string" },
+        "title": { "type": "string" },
+        "commands": { "type": "array", "items": { "type": "string" } },
+        "requires_user_confirmation": { "type": "boolean" }
+      }
+    }
+  }
+}

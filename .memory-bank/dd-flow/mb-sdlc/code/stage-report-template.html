@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Фаза Code</title>
+  <style>
+
+    :root {
+      color-scheme: light dark;
+      --bg: #eef0ea;
+      --paper: #fbfaf4;
+      --paper-2: #f1f4ee;
+      --ink: #171b17;
+      --muted: #626a63;
+      --line: #c7d0c4;
+      --line-strong: #9fab9d;
+      --green: #176b5c;
+      --green-soft: #dcebe4;
+      --blue: #2d5d83;
+      --blue-soft: #dbe8ee;
+      --amber: #b56a24;
+      --amber-soft: #f4e3c7;
+      --red: #ad3f35;
+      --shadow: 0 18px 42px rgba(32, 42, 31, .10);
+    }
+
+    [data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #11161a;
+      --paper: #192026;
+      --paper-2: #202932;
+      --ink: #f2eadc;
+      --muted: #b5bbb8;
+      --line: #33404a;
+      --line-strong: #536471;
+      --green: #79c8ae;
+      --green-soft: #17372f;
+      --blue: #8ebbd3;
+      --blue-soft: #1d3342;
+      --amber: #dfae62;
+      --amber-soft: #3d2c16;
+      --red: #e18078;
+      --shadow: 0 18px 42px rgba(0, 0, 0, .28);
+    }
+
+    [data-theme="light"] { color-scheme: light; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 14px;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Avenir Next", "Gill Sans", Verdana, sans-serif;
+      letter-spacing: 0;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(90deg, color-mix(in srgb, var(--green) 5%, transparent) 0 1px, transparent 1px 38px),
+        repeating-linear-gradient(0deg, color-mix(in srgb, var(--green) 4%, transparent) 0 1px, transparent 1px 38px),
+        linear-gradient(135deg, color-mix(in srgb, var(--paper) 32%, transparent), transparent 58%);
+      filter: blur(1px);
+      opacity: .54;
+    }
+    button, summary { font: inherit; }
+    a { color: var(--green); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .page { width: min(1480px, 100%); margin: 0 auto; padding: 0 0 20px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .breadcrumb { color: var(--muted); font-size: 13px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .themeSwitch { display: inline-grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 5px; border: 1px solid var(--line); border-radius: 8px; background: color-mix(in srgb, var(--paper) 72%, transparent); }
+    .themeSwitch button { border: 0; border-radius: 6px; padding: 7px 10px; min-width: 64px; background: transparent; color: var(--muted); cursor: pointer; font-size: 13px; }
+    .themeSwitch button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+    .hero { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 12px; margin-bottom: 12px; }
+    .card { min-width: 0; border: 1px solid var(--line); border-radius: 8px; background: color-mix(in srgb, var(--paper) 94%, transparent); box-shadow: var(--shadow); }
+    .headline { padding: 14px; min-height: 126px; display: flex; flex-direction: column; justify-content: space-between; }
+    .projectName { color: var(--green); font-size: 13px; letter-spacing: 0; font-weight: 900; }
+    h1 { margin: 2px 0 7px; font-family: "Iowan Old Style", Georgia, serif; font-size: clamp(28px, 2.6vw, 36px); line-height: 1.02; letter-spacing: 0; }
+    h2 { margin: 0; font-size: 17px; line-height: 1.15; letter-spacing: 0; font-weight: 850; }
+    h3 { margin: 0 0 6px; font-size: 13px; color: var(--muted); letter-spacing: 0; font-weight: 850; }
+    p { margin: 0; }
+    .lead { max-width: 860px; margin: 0; color: var(--muted); font-size: 14px; line-height: 1.42; }
+    .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .pill { display: inline-flex; align-items: center; gap: 6px; min-height: 31px; padding: 6px 9px; border: 1px solid var(--line); border-radius: 7px; background: color-mix(in srgb, var(--paper-2) 80%, transparent); color: var(--muted); font-size: 13px; max-width: 100%; overflow-wrap: anywhere; }
+    .pill b { color: var(--ink); }
+    .verdict { display: grid; gap: 10px; overflow: hidden; padding: 16px; background: linear-gradient(180deg, var(--ink), color-mix(in srgb, var(--ink) 92%, var(--green))); color: var(--paper); border-color: color-mix(in srgb, var(--ink) 80%, var(--line)); }
+    .verdict > * { min-width: 0; }
+    .verdictLabel { color: color-mix(in srgb, var(--paper) 70%, transparent); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; font-weight: 900; }
+    .verdictText { font-size: 24px; line-height: 1.06; font-weight: 950; overflow-wrap: anywhere; }
+    .scoreLine { display: grid; grid-template-columns: minmax(0, 1fr) max-content; gap: 10px; align-items: center; width: 100%; min-width: 0; }
+    .bar { width: 100%; min-width: 0; height: 11px; overflow: hidden; border: 1px solid color-mix(in srgb, var(--paper) 22%, transparent); border-radius: 5px; background: color-mix(in srgb, var(--paper) 12%, transparent); }
+    .bar span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--green), var(--amber)); }
+    .scoreLine strong { justify-self: end; white-space: nowrap; font-size: 18px; line-height: 1; }
+    .verdictNote { color: color-mix(in srgb, var(--paper) 78%, transparent); font-size: 13px; line-height: 1.4; }
+    .sectionGrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, .76fr); gap: 12px; margin-bottom: 12px; align-items: start; }
+    .wideGrid { display: grid; grid-template-columns: minmax(0, .75fr) minmax(0, 1fr); gap: 12px; margin-bottom: 12px; align-items: start; }
+    .panel { padding: 14px; }
+    .sectionHeader { display: flex; align-items: start; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+    .sectionLead { margin: 0 0 12px; color: var(--muted); font-size: 13px; line-height: 1.35; }
+    .hint, .inlineInfo { display: inline-grid; place-items: center; width: 24px; height: 24px; border: 1px solid var(--line); border-radius: 999px; background: var(--paper-2); color: var(--muted); cursor: help; line-height: 1; font-size: 12px; flex: 0 0 auto; }
+    .inlineInfo { width: 18px; height: 18px; font-size: 10px; }
+    .rowList { display: grid; gap: 7px; }
+    .row { border: 1px solid var(--line); border-radius: 8px; background: color-mix(in srgb, var(--paper-2) 66%, transparent); overflow: hidden; }
+    .row summary { min-height: 50px; display: grid; grid-template-columns: minmax(180px, 1.2fr) max-content minmax(120px, .75fr) 24px; align-items: center; gap: 9px; padding: 9px 10px; cursor: pointer; list-style: none; }
+    .row summary::-webkit-details-marker { display: none; }
+    .rowTitle { display: inline-flex; align-items: center; gap: 6px; min-width: 0; font-weight: 650; }
+    .rowTitle span { min-width: 0; overflow-wrap: anywhere; }
+    .rowText { min-width: 0; color: var(--muted); font-size: 13px; line-height: 1.25; overflow-wrap: anywhere; }
+    .status { justify-self: start; padding: 4px 7px; border-radius: 999px; font-size: 12px; font-weight: 800; background: color-mix(in srgb, var(--green-soft) 70%, transparent); color: var(--green); }
+    .status.watch, .status.degraded, .status.non_blocking { background: var(--amber-soft); color: var(--amber); }
+    .status.blocked, .status.failed { background: color-mix(in srgb, var(--red) 18%, transparent); color: var(--red); }
+    .chev { justify-self: end; color: var(--muted); transform: rotate(90deg); transition: transform .16s ease; }
+    details[open] .chev { transform: rotate(270deg); }
+    .rowBody { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; padding: 0 10px 10px; }
+    .mini { border-top: 1px solid var(--line); padding-top: 9px; color: var(--muted); font-size: 13px; line-height: 1.35; }
+    .mini ul, .mini ol { margin: 0; padding-left: 18px; }
+    .fileList { display: grid; gap: 7px; }
+    .fileLink { display: block; border-top: 1px solid var(--line); padding-top: 7px; font-size: 13px; overflow-wrap: anywhere; }
+    .fileLink:first-child { border-top: 0; padding-top: 0; }
+    .routeGrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+    .routeItem { min-width: 0; border: 1px solid var(--line); border-radius: 8px; padding: 10px; background: color-mix(in srgb, var(--paper-2) 68%, transparent); }
+    .routeItem strong { display: block; margin-bottom: 4px; color: var(--green); font-size: 13px; }
+    .routeItem span { display: block; color: var(--ink); overflow-wrap: anywhere; font-size: 13px; }
+    .graphBox { width: 100%; min-height: 320px; overflow: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--paper-2); }
+    .graphSvg { display: block; width: 100%; min-width: 420px; height: auto; }
+    .edge { fill: none; stroke: var(--line-strong); stroke-width: 2; marker-end: url(#arrow); }
+    .node rect { fill: var(--paper); stroke: var(--line-strong); stroke-width: 1.2; rx: 8; }
+    .node text { fill: var(--ink); text-anchor: middle; dominant-baseline: middle; font-size: 13px; font-weight: 750; }
+    .node.done rect { stroke: var(--green); }
+    .node.watch rect { stroke: var(--amber); }
+    .node.next rect { stroke: var(--blue); }
+    #tooltip { position: fixed; z-index: 20; max-width: min(360px, calc(100vw - 20px)); padding: 9px 10px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--paper); box-shadow: var(--shadow); color: var(--ink); font-size: 12px; line-height: 1.35; opacity: 0; pointer-events: none; transform: translateY(4px); transition: opacity .12s ease, transform .12s ease; }
+    #tooltip.visible { opacity: 1; transform: translateY(0); }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --bg: #11161a;
+        --paper: #192026;
+        --paper-2: #202932;
+        --ink: #f2eadc;
+        --muted: #b5bbb8;
+        --line: #33404a;
+        --line-strong: #536471;
+        --green: #79c8ae;
+        --green-soft: #17372f;
+        --blue: #8ebbd3;
+        --blue-soft: #1d3342;
+        --amber: #dfae62;
+        --amber-soft: #3d2c16;
+        --red: #e18078;
+        --shadow: 0 18px 42px rgba(0, 0, 0, .28);
+      }
+    }
+    @media (max-width: 980px) { .hero, .sectionGrid, .wideGrid { grid-template-columns: 1fr; } .routeGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .row summary { grid-template-columns: minmax(0, 1fr) max-content 24px; } .rowText.optional { display: none; } .rowBody { grid-template-columns: 1fr; } }
+    @media (max-width: 640px) { body { padding: 10px; } .topbar { align-items: stretch; flex-direction: column; } .themeSwitch { width: 100%; } .hero, .sectionGrid, .wideGrid { gap: 10px; } .routeGrid { grid-template-columns: 1fr; } }
+
+  </style>
+</head>
+<body>
+  <script id="code-data" type="application/json">__CODE_DASHBOARD_DATA__</script>
+  <div id="tooltip" role="tooltip"></div>
+  <main class="page">
+    <div class="topbar">
+      <div class="breadcrumb" id="breadcrumb"></div>
+      <div class="themeSwitch" role="group" aria-label="Theme mode">
+        <button type="button" data-theme-button="system" aria-pressed="true">Система</button>
+        <button type="button" data-theme-button="light" aria-pressed="false">Свет</button>
+        <button type="button" data-theme-button="dark" aria-pressed="false">Тьма</button>
+      </div>
+    </div>
+    <section class="hero">
+      <section class="card headline">
+        <div>
+          <div class="projectName" id="projectName"></div>
+          <h1>Фаза Code</h1>
+          <p class="lead" id="lead"></p>
+        </div>
+        <div class="meta" id="meta"></div>
+      </section>
+      <aside class="card verdict">
+        <div class="verdictLabel">code verdict</div>
+        <div class="verdictText" id="verdictText"></div>
+        <div class="scoreLine"><div class="bar"><span id="scoreBar"></span></div><strong id="scoreLabel"></strong></div>
+        <div class="verdictNote" id="nextAction"></div>
+      </aside>
+    </section>
+    <section class="sectionGrid">
+      <section class="card panel">
+        <div class="sectionHeader"><h2>Сценарии приемки</h2><button class="hint" type="button" data-tip="Главный пользовательский блок code-фазы: что должно работать и чем это доказано.">?</button></div>
+        <p class="sectionLead">Каждый сценарий раскрывается: шаги проверки, итог и evidence-ссылки.</p>
+        <div class="rowList" id="scenarioRows"></div>
+      </section>
+      <section class="card panel">
+        <div class="sectionHeader"><h2>Как доказано</h2><button class="hint" type="button" data-tip="Собранные proof-файлы, screenshots, logs и verification passports. Клик по файлу открывает артефакт.">?</button></div>
+        <p class="sectionLead">Доказательства сгруппированы из сценариев приемки.</p>
+        <div class="fileList" id="proofList"></div>
+      </section>
+    </section>
+    <section class="wideGrid">
+      <section class="card panel">
+        <div class="sectionHeader"><h2>Доставленные цели</h2><button class="hint" type="button" data-tip="Краткий ответ пользователю: какие хотелки реально закрыты этой code-фазой.">?</button></div>
+        <div class="rowList" id="goalRows"></div>
+      </section>
+      <section class="card panel">
+        <div class="sectionHeader"><h2>Проверки и ревью</h2><button class="hint" type="button" data-tip="Fresh checks и reviewer findings после исправлений. Blocking findings не должны теряться.">?</button></div>
+        <div class="rowList" id="checkRows"></div>
+      </section>
+    </section>
+    <section class="card panel">
+      <div class="sectionHeader"><h2>Review gates</h2><button class="hint" type="button" data-tip="Архитектурные, контрактные, AI-runtime и concurrency gates: что применимо, что проверено, что отложено.">?</button></div>
+      <p class="sectionLead">Gate-блок показывает не общий quality review, а конкретные high-impact проверки readiness.</p>
+      <div class="rowList" id="reviewGateRows"></div>
+    </section>
+    <section class="card panel">
+      <div class="sectionHeader"><h2>SDLC контуры</h2><button class="hint" type="button" data-tip="Какие Git/stage/release/deploy/publish/verification контуры применимы, что закрыто и какой следующий delivery step.">?</button></div>
+      <p class="sectionLead" id="sdlcSummary"></p>
+      <div class="rowList" id="sdlcRows"></div>
+    </section>
+    <section class="card panel">
+      <div class="sectionHeader"><h2>Knowledge candidates</h2><button class="hint" type="button" data-tip="Как code-flow сохранил связь с KND-* без финального promotion, который принадлежит merge.">?</button></div>
+      <p class="sectionLead" id="knowledgeSummary"></p>
+      <div class="rowList" id="knowledgeRows"></div>
+    </section>
+    <section class="wideGrid">
+      <section class="card panel">
+        <div class="sectionHeader"><h2>Изменённые файлы</h2><button class="hint" type="button" data-tip="Файлы являются ссылками: можно открыть код, evidence или документацию в новом окне.">?</button></div>
+        <div class="fileList" id="fileList"></div>
+      </section>
+      <section class="card panel">
+        <div class="sectionHeader"><h2>DEF / follow-up</h2><button class="hint" type="button" data-tip="То, что не закрыто сейчас, но должно быть discoverable как дальнейшая работа.">?</button></div>
+        <div class="rowList" id="defRows"></div>
+      </section>
+    </section>
+  </main>
+  <script>
+    const data = JSON.parse(document.getElementById("code-data").textContent);
+
+    const root = document.documentElement;
+    const themeButtons = Array.from(document.querySelectorAll("[data-theme-button]"));
+    const tooltip = document.getElementById("tooltip");
+    const storedTheme = localStorage.getItem("planDashboardTheme") || "system";
+    function text(value, fallback = "") { return value === undefined || value === null ? fallback : String(value); }
+    function escapeHtml(value) { return text(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
+    function setTheme(mode) {
+      if (mode === "system") root.removeAttribute("data-theme"); else root.setAttribute("data-theme", mode);
+      localStorage.setItem("planDashboardTheme", mode);
+      themeButtons.forEach(btn => btn.setAttribute("aria-pressed", String(btn.dataset.themeButton === mode)));
+      if (typeof renderGraph === "function") renderGraph();
+    }
+    themeButtons.forEach(btn => btn.addEventListener("click", () => setTheme(btn.dataset.themeButton)));
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { if ((localStorage.getItem("planDashboardTheme") || "system") === "system" && typeof renderGraph === "function") renderGraph(); });
+    function placeTooltip(target) {
+      const tip = target.getAttribute("data-tip");
+      if (!tip) return;
+      tooltip.textContent = tip;
+      tooltip.style.left = "0px";
+      tooltip.style.top = "0px";
+      tooltip.classList.add("visible");
+      const rect = target.getBoundingClientRect();
+      const tipRect = tooltip.getBoundingClientRect();
+      const margin = 10;
+      const topSpace = rect.top;
+      let top = topSpace > tipRect.height + 18 ? rect.top - tipRect.height - 8 : rect.bottom + 8;
+      let left = rect.left + rect.width / 2 - tipRect.width / 2;
+      left = Math.max(margin, Math.min(left, window.innerWidth - tipRect.width - margin));
+      top = Math.max(margin, Math.min(top, window.innerHeight - tipRect.height - margin));
+      tooltip.style.left = left + "px";
+      tooltip.style.top = top + "px";
+    }
+    function hideTooltip() { tooltip.classList.remove("visible"); }
+    document.addEventListener("mouseover", event => { const target = event.target.closest("[data-tip]"); if (target) placeTooltip(target); });
+    document.addEventListener("focusin", event => { const target = event.target.closest("[data-tip]"); if (target) placeTooltip(target); });
+    document.addEventListener("mouseout", event => { const target = event.target.closest("[data-tip]"); if (target && !target.contains(event.relatedTarget)) hideTooltip(); });
+    document.addEventListener("focusout", event => { if (event.target.closest("[data-tip]")) hideTooltip(); });
+    document.addEventListener("scroll", hideTooltip, true);
+    function linkHtml(path, label) { return '<a href="' + escapeHtml(path || '#') + '" target="_blank" rel="noreferrer">' + escapeHtml(label || path || 'file') + '</a>'; }
+
+    function statusClass(value) { return String(value || '').toLowerCase().replace(/[^a-z0-9_-]/g, '_'); }
+    function renderShell() {
+      document.getElementById("breadcrumb").textContent = "dd-flow / code / " + text(data.project && data.project.title);
+      document.getElementById("projectName").textContent = "Project: " + text(data.project && data.project.title);
+      document.getElementById("lead").textContent = text(data.overall && data.overall.summary);
+      document.getElementById("verdictText").textContent = text(data.overall && data.overall.verdict);
+      const scenarioTotal = (data.acceptance_scenarios || []).length;
+      const scenarioPassed = (data.acceptance_scenarios || []).filter(s => String(s.verdict).toLowerCase().includes("pass")).length;
+      document.getElementById("scoreLabel").textContent = scenarioPassed + " / " + scenarioTotal;
+      document.getElementById("scoreBar").style.width = scenarioTotal ? Math.min(100, scenarioPassed / scenarioTotal * 100) + "%" : "0%";
+      document.getElementById("nextAction").innerHTML = "<b>Next:</b> " + escapeHtml(data.overall && data.overall.next_action);
+      document.getElementById("meta").innerHTML = [["Run", data.run && data.run.run_id], ["Stage", data.stage && data.stage.dir], ["Subject", data.subject && data.subject.id]].map(([label, value]) => '<span class="pill"><b>' + escapeHtml(label) + '</b> ' + escapeHtml(value) + '</span>').join("");
+    }
+    function scenarioRow(scenario, index) {
+      const steps = (scenario.steps || []).map(step => '<li><b>' + escapeHtml(step.title) + ':</b> ' + escapeHtml(step.summary) + '</li>').join('');
+      const evidence = (scenario.evidence || []).map(item => '<li>' + linkHtml(item.path, item.label) + '<br><span class="rowText">' + escapeHtml(item.summary) + '</span></li>').join('');
+      return '<details class="row" ' + (index === 0 ? 'open' : '') + '><summary><span class="rowTitle"><span>' + escapeHtml(scenario.id) + ' · ' + escapeHtml(scenario.title) + '</span><button class="inlineInfo" type="button" data-tip="' + escapeHtml('Сценарий приемки: шаги проверки плюс evidence, которыми доказана работа фичи.') + '">i</button></span><span class="status ' + statusClass(scenario.verdict) + '">' + escapeHtml(scenario.verdict) + '</span><span class="rowText optional">' + escapeHtml((scenario.evidence || []).length + ' evidence') + '</span><span class="chev">›</span></summary><div class="rowBody"><div class="mini"><h3>Steps</h3><ol>' + steps + '</ol></div><div class="mini"><h3>Evidence</h3><ul>' + evidence + '</ul></div></div></details>';
+    }
+    function simpleRow(title, status, summary, detailTitle, details) {
+      return '<details class="row"><summary><span class="rowTitle"><span>' + escapeHtml(title) + '</span></span><span class="status ' + statusClass(status) + '">' + escapeHtml(status) + '</span><span class="rowText optional">' + escapeHtml(summary) + '</span><span class="chev">›</span></summary><div class="rowBody"><div class="mini"><h3>' + escapeHtml(detailTitle || 'Details') + '</h3><p>' + escapeHtml(summary) + '</p></div><div class="mini"><h3>Notes</h3><p>' + escapeHtml(details || '') + '</p></div></div></details>';
+    }
+    function renderRows() {
+      document.getElementById("scenarioRows").innerHTML = (data.acceptance_scenarios || []).map(scenarioRow).join("");
+      const proofs = (data.acceptance_scenarios || []).flatMap(s => s.evidence || []);
+      document.getElementById("proofList").innerHTML = proofs.map(item => '<span class="fileLink">' + linkHtml(item.path, item.label) + '<br><span class="rowText">' + escapeHtml(item.summary) + '</span></span>').join("");
+      document.getElementById("goalRows").innerHTML = (data.implemented_goals || []).map(goal => simpleRow(goal.title, 'done', goal.summary, 'Delivered', goal.summary)).join("");
+      const checks = [...(data.checks || []), ...(((data.review || {}).findings) || []).map(f => ({ name: f.title, status: f.status || f.severity, summary: f.severity }))];
+      document.getElementById("checkRows").innerHTML = checks.map(item => simpleRow(item.name || item.title, item.status || item.severity, item.summary || item.severity || '', 'Result', item.evidence || '')).join("");
+      document.getElementById("reviewGateRows").innerHTML = (data.review_gates || []).map(item => simpleRow(item.label || item.id, item.verdict || item.applicability, item.summary || item.applicability, item.stage || 'Gate', (item.evidence || []).join(" · "))).join("") || '<p class="sectionLead">Review gates не записаны для этого отчёта.</p>';
+      const sdlc = data.sdlc_contours || {};
+      document.getElementById("sdlcSummary").textContent = sdlc.summary || "SDLC contour decisions were not recorded for this report.";
+      document.getElementById("sdlcRows").innerHTML = (sdlc.contours || []).map(item => simpleRow(item.name, item.gate_status || item.applicability_status, item.summary, item.applicability_status, [item.reason, item.evidence, item.next_action].filter(Boolean).join(" · "))).join("") || '<p class="sectionLead">SDLC-контуры не записаны.</p>';
+      const knowledge = data.knowledge_candidates || {};
+      document.getElementById("knowledgeSummary").textContent = knowledge.summary || "Knowledge candidate trace was not recorded for this code report.";
+      const candidateRows = [
+        ['source', knowledge.source_candidates ? 'done' : 'not_applicable', knowledge.source_candidates || 'no candidates source'],
+        ['implemented', 'done', String(knowledge.implemented ?? 0)],
+        ['documented during code', 'done', String(knowledge.documented_during_code ?? 0)],
+        ['already documented', 'done', String(knowledge.already_documented ?? 0)],
+        ['deferred / questions', Number(knowledge.deferred_as_DEF || 0) || Number(knowledge.needs_user_confirmation || 0) ? 'watch' : 'done', 'DEF ' + String(knowledge.deferred_as_DEF ?? 0) + '; questions ' + String(knowledge.needs_user_confirmation ?? 0)]
+      ];
+      document.getElementById("knowledgeRows").innerHTML = candidateRows.map(([title, status, summary]) => simpleRow(title, status, summary, 'Candidate trace', summary)).join('');
+      document.getElementById("fileList").innerHTML = (data.changed_files || []).map(item => '<span class="fileLink">' + linkHtml(item.path, item.label) + '</span>').join("");
+      document.getElementById("defRows").innerHTML = (data.defs || []).map(item => simpleRow(item.id, item.status, item.summary, 'Follow-up', item.summary)).join("") || '<p class="sectionLead">Открытых DEF нет.</p>';
+    }
+    renderShell();
+    renderRows();
+    setTheme(storedTheme);
+  </script>
+</body>
+</html>

@@ -1,0 +1,242 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/mb-sdlc-review-report@1",
+  "title": "mb-sdlc-review report",
+  "description": "Canonical data contract for project-level mb-sdlc-review stage-report.json.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "schema_id",
+    "run",
+    "review_focus",
+    "source_map",
+    "aspect_coverage",
+    "critic_pass",
+    "findings_register",
+    "conformance_summary",
+    "review_fix_recommendation",
+    "deferrals",
+    "dashboard_links"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "schema_id": { "const": "dd-flow/mb-sdlc-review-report@1" },
+    "run": { "$ref": "#/definitions/run" },
+    "review_focus": { "$ref": "#/definitions/reviewFocus" },
+    "source_map": { "$ref": "#/definitions/sourceMap" },
+    "aspect_coverage": {
+      "type": "array",
+      "minItems": 12,
+      "items": { "$ref": "#/definitions/aspectCoverage" }
+    },
+    "critic_pass": { "$ref": "#/definitions/criticPass" },
+    "findings_register": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/finding" }
+    },
+    "conformance_summary": { "$ref": "#/definitions/conformanceSummary" },
+    "review_fix_recommendation": { "$ref": "#/definitions/reviewFixRecommendation" },
+    "deferrals": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/deferral" }
+    },
+    "dashboard_links": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/definitions/link" }
+    }
+  },
+  "definitions": {
+    "nonEmptyString": { "type": "string", "minLength": 1 },
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["run_id", "project_id", "project_root", "generated_at", "report_dir", "stage_report_path", "html_report_path", "final_report_path"],
+      "properties": {
+        "run_id": { "$ref": "#/definitions/nonEmptyString" },
+        "project_id": { "$ref": "#/definitions/nonEmptyString" },
+        "project_root": { "$ref": "#/definitions/nonEmptyString" },
+        "generated_at": { "type": "string", "format": "date-time" },
+        "report_dir": { "$ref": "#/definitions/nonEmptyString" },
+        "stage_report_path": { "$ref": "#/definitions/nonEmptyString" },
+        "html_report_path": { "$ref": "#/definitions/nonEmptyString" },
+        "final_report_path": { "$ref": "#/definitions/nonEmptyString" },
+        "target_language": { "type": "string" }
+      }
+    },
+    "reviewFocus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "target", "title", "summary"],
+      "properties": {
+        "mode": {
+          "enum": ["whole_project", "latest_protocol", "specific_protocol", "protocol_set", "subsystem_or_spec_area", "feature_or_epic", "diff_or_commit_range"]
+        },
+        "target": { "$ref": "#/definitions/nonEmptyString" },
+        "title": { "$ref": "#/definitions/nonEmptyString" },
+        "summary": { "$ref": "#/definitions/nonEmptyString" },
+        "related_protocol_id": { "type": "string" },
+        "related_protocol_set": { "type": "string" }
+      }
+    },
+    "sourceMap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sources", "missing_expected_sources", "notes"],
+      "properties": {
+        "sources": { "type": "array", "items": { "$ref": "#/definitions/source" } },
+        "missing_expected_sources": { "type": "array", "items": { "$ref": "#/definitions/source" } },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "path", "status"],
+      "properties": {
+        "kind": { "enum": ["spec", "feature", "epic", "adr", "scenario", "protocol", "protocol_set", "evidence", "code", "test", "policy", "def", "dashboard", "run", "other"] },
+        "path": { "$ref": "#/definitions/nonEmptyString" },
+        "status": { "enum": ["available", "missing", "not_applicable", "degraded"] },
+        "summary": { "type": "string" }
+      }
+    },
+    "aspectCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["aspect_id", "applicability", "coverage_mode", "status", "verdict", "reason", "task_packet_path", "report_path", "findings"],
+      "properties": {
+        "aspect_id": { "$ref": "#/definitions/aspectId" },
+        "applicability": { "enum": ["applicable", "not_applicable", "blocked"] },
+        "coverage_mode": { "enum": ["self_review", "focused_subagent", "multi_subagent", "external_tool", "degraded"] },
+        "status": { "enum": ["selected", "reviewed", "not_applicable", "blocked", "degraded"] },
+        "verdict": { "enum": ["pass", "watch", "fail", "blocked", "not_applicable", "degraded"] },
+        "reason": { "$ref": "#/definitions/nonEmptyString" },
+        "task_packet_path": { "type": "string" },
+        "report_path": { "type": "string" },
+        "findings": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "aspectId": {
+      "enum": [
+        "structure_navigation_review",
+        "feature_epic_layer_review",
+        "spec_conformance_review",
+        "architecture_harmonization_review",
+        "adr_decision_review",
+        "scenario_evidence_review",
+        "contract_traceability_review",
+        "frontmatter_crosslink_review",
+        "engineering_standards_review",
+        "operations_policy_review",
+        "protocol_delivery_trace_review",
+        "def_followup_review"
+      ]
+    },
+    "criticPass": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["candidate_count", "accepted_count", "rejected_count", "critics", "decisions"],
+      "properties": {
+        "candidate_count": { "type": "integer", "minimum": 0 },
+        "accepted_count": { "type": "integer", "minimum": 0 },
+        "rejected_count": { "type": "integer", "minimum": 0 },
+        "critics": { "type": "array", "items": { "$ref": "#/definitions/critic" } },
+        "decisions": { "type": "array", "items": { "$ref": "#/definitions/criticDecision" } }
+      }
+    },
+    "critic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "mode", "verdict", "summary"],
+      "properties": {
+        "id": { "$ref": "#/definitions/nonEmptyString" },
+        "mode": { "enum": ["universal", "architectural_harmonization", "focused"] },
+        "verdict": { "enum": ["accepted", "accepted_with_downgrades", "degraded", "blocked"] },
+        "summary": { "$ref": "#/definitions/nonEmptyString" }
+      }
+    },
+    "criticDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["candidate_id", "disposition", "rationale"],
+      "properties": {
+        "candidate_id": { "$ref": "#/definitions/nonEmptyString" },
+        "finding_id": { "type": "string" },
+        "disposition": { "enum": ["accepted", "downgraded", "rejected", "duplicate", "def_candidate", "review_fix_candidate"] },
+        "rationale": { "$ref": "#/definitions/nonEmptyString" }
+      }
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "severity", "confidence", "title", "problem", "impact", "recommended_action", "affected_objects", "evidence"],
+      "properties": {
+        "id": { "pattern": "^FIND-SDLC-REVIEW-[0-9]{3}$" },
+        "type": { "enum": ["project_defect", "spec_drift", "code_drift", "memory_bank_gap", "frontmatter_crosslink_gap", "coding_standards_gap", "policy_process_gap", "evidence_gap", "observation", "rejected_noise"] },
+        "severity": { "enum": ["blocking", "major", "minor", "informational"] },
+        "confidence": { "enum": ["high", "medium", "low"] },
+        "title": { "$ref": "#/definitions/nonEmptyString" },
+        "problem": { "$ref": "#/definitions/nonEmptyString" },
+        "impact": { "$ref": "#/definitions/nonEmptyString" },
+        "recommended_action": { "$ref": "#/definitions/nonEmptyString" },
+        "disposition": { "enum": ["fix_now", "create_protocol", "create_protocol_set", "create_DEF", "report_only", "reject"] },
+        "affected_objects": { "type": "array", "items": { "$ref": "#/definitions/source" } },
+        "evidence": { "type": "array", "items": { "$ref": "#/definitions/source" } }
+      }
+    },
+    "conformanceSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["overall_verdict", "summary", "items"],
+      "properties": {
+        "overall_verdict": { "enum": ["accepted", "accepted_with_findings", "failed", "blocked", "degraded"] },
+        "summary": { "$ref": "#/definitions/nonEmptyString" },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "label", "status", "summary"],
+            "properties": {
+              "id": { "$ref": "#/definitions/nonEmptyString" },
+              "label": { "$ref": "#/definitions/nonEmptyString" },
+              "status": { "enum": ["pass", "watch", "fail", "blocked", "not_applicable", "degraded"] },
+              "summary": { "$ref": "#/definitions/nonEmptyString" }
+            }
+          }
+        }
+      }
+    },
+    "reviewFixRecommendation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required", "strategy", "next_action", "candidate_protocols"],
+      "properties": {
+        "required": { "type": "boolean" },
+        "strategy": { "enum": ["none", "single_protocol", "protocol_set", "DEF", "user_decision_required"] },
+        "next_action": { "$ref": "#/definitions/nonEmptyString" },
+        "candidate_protocols": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "deferral": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "reason", "next_gate"],
+      "properties": {
+        "id": { "$ref": "#/definitions/nonEmptyString" },
+        "reason": { "$ref": "#/definitions/nonEmptyString" },
+        "next_gate": { "$ref": "#/definitions/nonEmptyString" }
+      }
+    },
+    "link": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "href", "status"],
+      "properties": {
+        "label": { "$ref": "#/definitions/nonEmptyString" },
+        "href": { "type": "string" },
+        "status": { "enum": ["available", "pending", "missing", "not_applicable"] }
+      }
+    }
+  }
+}

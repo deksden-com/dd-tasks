@@ -10,16 +10,20 @@ results belong to `deksden-com/dd-eval` and must not be copied here.
 ## Current state
 
 `checkpoint-00-initial` preserves the intentional zero checkpoint. The
-The accepted `checkpoint-01-foundation` foundation is now fast-forward
+accepted `checkpoint-01-foundation` foundation is now fast-forward
 integrated into stable `main` at commit
 `a03169559e60767042c9a39829adae9f9ff8228f`: workspace, API, database, browser,
 quality and Memory Bank contours are source-backed and freshly rechecked on the
 integrated checkout. The feature worktree remains available at the same clean
 commit while branch retention is not defined by project policy.
 
-Checkpoint fixation is intentionally not claimed here: the project contract
-requires an annotated tag, but the later tag name and remote push target have
-not been defined by source-backed policy.
+For this protocol only, the user authorized a degraded direct fixation because
+the requeue/merge-queue completion contour in `dd-flow` CLI `0.4.0` is broken:
+create the annotated tag `checkpoint-01-foundation`, push `main` to
+`origin/main`, and push that tag to `origin`, all without force. This is a
+scoped bypass, not a permanent Git or release policy. This snapshot does not
+claim remote verification; exact post-push readback belongs to the RUN-005
+merge-recovery report.
 
 The accepted local evidence does not claim product/task-tracker behavior, CI,
 release, deployment, production or external-provider behavior. Product work

@@ -2,7 +2,7 @@
 file: '.memory-bank/protocol/index.md'
 description: 'Curated протоколы работ проекта.'
 purpose: 'Сохраняет долговечные следы инициализации и дальнейших работ.'
-version: '0.5.0'
+version: '0.6.0'
 date: '2026-08-02'
 status: 'ACTIVE'
 c4_level: 'project'
@@ -12,6 +12,9 @@ children:
   - .memory-bank/protocol/PRT-001-checkpoint-01-foundation/index.md
 tags: [protocol]
 history:
+  - version: '0.6.0'
+    date: '2026-08-02'
+    changes: 'Для checkpoint-01 создан RUN-005 fallback merge recovery: scoped direct tag/push fixation разрешена пользователем из-за CLI 0.4.0 queue defect; queue cancelled evidence сохраняется.'
   - version: '0.5.0'
     date: '2026-08-02'
     changes: 'Checkpoint-01 foundation fast-forward integrated into main; tag/push remain an exact user gate because source policy does not define later names/targets.'
@@ -32,4 +35,4 @@ history:
 # Протоколы
 
 - [Инициализация Банка памяти](PRT-2026-08-01-mb-init/index.md)
-- [Checkpoint-01 Foundation](PRT-001-checkpoint-01-foundation/index.md): foundation implementation, local readiness и local main integration приняты; checkpoint fixation ждёт exact user decision.
+- [Checkpoint-01 Foundation](PRT-001-checkpoint-01-foundation/index.md): foundation implementation, readiness и local main integration приняты; RUN-005 ведёт user-authorized direct fixation с tag `checkpoint-01-foundation` и targets `origin/main`/`origin`.

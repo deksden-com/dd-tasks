@@ -2,7 +2,7 @@
 file: '.memory-bank/spec/operations/index.md'
 description: 'Подтверждённый local foundation operational contour dd-tasks.'
 purpose: 'Фиксирует bootstrap, safety boundaries, evidence contour и ещё не открытые delivery policies.'
-version: '0.6.0'
+version: '0.7.0'
 date: '2026-08-02'
 status: 'ACTIVE'
 c4_level: 'operations'
@@ -13,6 +13,9 @@ children:
   - .memory-bank/spec/operations/runbooks/workspace-bootstrap.md
 tags: [dd-tasks, operations, git, zero-checkpoint]
 history:
+  - version: '0.7.0'
+    date: '2026-08-02'
+    changes: 'Для PRT-001 разрешён scoped degraded direct fixation после принятия readiness и local main integration; exact tag/push/readback evidence ведётся в RUN-005, CI/release/deploy не заявляются.'
   - version: '0.6.0'
     date: '2026-08-02'
     changes: 'Stable main fast-forward integration and fresh integrated-checkout checks passed; annotated later tag name and remote push target remain undefined.'
@@ -44,5 +47,7 @@ Reset принимает только loopback и `dd_tasks_foundation_local/tes
 README запрещает коммитить секреты и машинно-зависимые значения; `.env.example`
 содержит только public local defaults. Bootstrap implementation и readiness
 revalidation receipts прошли в exact local contour; свежие scenario/docs/passport
-checks приняты для этого контура. CI, feature-PR policy, release/deploy/publish
-и remote push остаются неоткрытыми project policies; tag/push не выполнялись без exact user decision.
+checks приняты для этого контура. Для текущего protocol user-authorized degraded
+direct fixation задаёт tag `checkpoint-01-foundation`, `main` → `origin/main` и
+tag → `origin` без force; remote verification появится только после фактического
+push в RUN-005. CI, release, deploy и production не заявляются.

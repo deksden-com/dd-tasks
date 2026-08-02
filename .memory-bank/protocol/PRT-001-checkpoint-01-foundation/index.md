@@ -1,8 +1,8 @@
 ---
 file: '.memory-bank/protocol/PRT-001-checkpoint-01-foundation/index.md'
-description: 'Индекс протокола checkpoint-01-foundation после локальной merge-интеграции.'
-purpose: 'Даёт навигацию по source-backed handoffs, scenario/passport evidence, runtime run, merge integration и fixation gate.'
-version: '0.6.0'
+description: 'Индекс протокола checkpoint-01-foundation после локальной merge-интеграции и fallback fixation recovery.'
+purpose: 'Даёт навигацию по source-backed handoffs, scenario/passport evidence, runtime run, merge integration и scoped direct fixation.'
+version: '0.7.0'
 date: '2026-08-02'
 status: 'ACTIVE'
 c4_level: 'project'
@@ -16,6 +16,7 @@ children:
   - .memory-bank/protocol/PRT-001-checkpoint-01-foundation/trace/20260801T191048+0200-specify.md
   - .memory-bank/protocol/PRT-001-checkpoint-01-foundation/trace/20260802T014200+0200-readiness-bootstrap.md
   - .memory-bank/protocol/PRT-001-checkpoint-01-foundation/trace/readiness-orchestrator-review.md
+  - .memory-bank/protocol/PRT-001-checkpoint-01-foundation/trace/20260802T155806+0200-merge-recovery-start.md
   - .memory-bank/protocol/PRT-001-checkpoint-01-foundation/evidence/verification-passport.md
 related_files:
   - README.md
@@ -26,6 +27,9 @@ related_files:
   - .memory-bank/dd-flow/common/flow-runs.md
 tags: [protocol, checkpoint-01, foundation, feature-worktree, dd-flow]
 history:
+  - version: '0.7.0'
+    date: '2026-08-02'
+    changes: 'Создан RUN-005 fallback merge recovery: readiness и local integration приняты, queue requeue defect CLI 0.4.0 обойдён только для этого protocol, exact tag/push targets заданы без force.'
   - version: '0.6.0'
     date: '2026-08-02'
     changes: 'Fast-forward integration в main и свежие main checks приняты; checkpoint tag/push остановлены на точном user gate.'
@@ -52,8 +56,8 @@ history:
 - `feature_branch`: `feature/prt-001-checkpoint-01-foundation`
 - `workspace_path`: `/Users/deksden/.dd-flow/projects/PRJ-001-dd-tasks/checkouts/worktrees/PRT-001-checkpoint-01-foundation/manual-protocol/dd-tasks`
 - `base_commit`: `739fd2bc3665257f70e9680bce2abf17144a146f`
-- `completed_stage`: `integration` (local source integration); `current_stage`: `integration`; verdicts: `specified_ready_for_plan` → `ready_for_code` → `implemented_with_named_deferrals` → `accepted_local` → `local_integrated_pending_checkpoint_fixation`.
-- `stage artifacts`: specify `RUN-001-prt-001-checkpoint-01-foundation-specify`, plan `RUN-002-prt-001-checkpoint-01-foundation-plan`, code `RUN-003-prt-001-checkpoint-01-foundation-code`; canonical data/report/html/evidence находятся в соответствующих run homes.
+- `completed_stage`: `integration` (local source integration); `current_stage`: `integration`; verdicts: `specified_ready_for_plan` → `ready_for_code` → `implemented_with_named_deferrals` → `accepted_local` → `local_integrated_pending_direct_fixation`.
+- `stage artifacts`: specify `RUN-001-prt-001-checkpoint-01-foundation-specify`, plan `RUN-002-prt-001-checkpoint-01-foundation-plan`, code `RUN-003-prt-001-checkpoint-01-foundation-code`, fallback merge recovery `RUN-005-prt-001-checkpoint-01-foundation-merge-recovery`; canonical data/report/html/evidence находятся в соответствующих run homes.
 
 - [Сводка протокола](summary.md): цель, границы, handoffs, readiness acceptance, merge result и fixation gate.
 - [Исходный пользовательский ввод](intake/user-input.md): буквальная постановка задачи и ограничения текущей волны.
@@ -64,3 +68,4 @@ history:
 - [Code handoff summary](summary.md#plan-и-code-continuation-evidence): source-backed implementation, quality evidence и точная остановка перед readiness.
 - [Verification passport](evidence/verification-passport.md): accepted local contour, fresh SCN-001, quality/docs/browser/DB evidence and proof limits.
 - [Merge integration trace](trace/20260802T024600+0200-merge-integration-gate.md): fast-forward result, post-merge evidence, knowledge recovery and exact user gate.
+- [Merge recovery start trace](trace/20260802T155806+0200-merge-recovery-start.md): user-authorized degraded route, exact preflight and CLI 0.4.0 queue-contour bypass boundary.

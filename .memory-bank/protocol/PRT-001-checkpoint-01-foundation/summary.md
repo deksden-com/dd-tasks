@@ -1,8 +1,8 @@
 ---
 file: '.memory-bank/protocol/PRT-001-checkpoint-01-foundation/summary.md'
-description: 'Curated сводка протокола checkpoint-01-foundation после локальной merge-интеграции и принятого readiness gate.'
-purpose: 'Фиксирует source-backed цель foundation, handoffs, fresh acceptance evidence, локальную интеграцию и точный fixation user gate.'
-version: '0.8.0'
+description: 'Curated сводка протокола checkpoint-01-foundation после локальной merge-интеграции и fallback fixation recovery.'
+purpose: 'Фиксирует source-backed цель foundation, handoffs, accepted readiness, локальную интеграцию и scoped direct fixation evidence.'
+version: '0.9.0'
 date: '2026-08-02'
 status: 'ACTIVE'
 c4_level: 'project'
@@ -33,6 +33,9 @@ related_files:
   - .memory-bank/dd-flow/common/flow-runs.md
 tags: [protocol, checkpoint-01, foundation, scope, feature-worktree, readiness-accepted, merge-integrated]
 history:
+  - version: '0.9.0'
+    date: '2026-08-02'
+    changes: 'Readiness accepted и local integration завершены; RUN-005 создан для user-authorized degraded direct fixation, exact tag/push targets и post-push readback без редактирования runtime state вручную.'
   - version: '0.8.0'
     date: '2026-08-02'
     changes: 'Feature branch fast-forward интегрирован в main как a031695; свежие main checks и SCN-001 приняты; tag/push остановлены на source-backed user gate.'
@@ -70,11 +73,11 @@ history:
 - `mode`: `normal`
 - `completed_stage`: `readiness`
 - `current_stage`: `integration`
-- `next_action`: получить exact user decision для annotated checkpoint tag name и remote push target; не выдумывать их
+- `next_action`: завершить RUN-005: повторить exact ref preflight, создать annotated tag `checkpoint-01-foundation`, push `main` → `origin/main` и tag → `origin` без force, прочитать remote refs и затем закрыть protocol через CLI transition
 - `scope_sizing_verdict`: `single_executable_protocol`
 - `protocol_set`: не создавался; один foundation-срез имеет одну интегрированную цель и один основной acceptance-контур
 - `specify_status`: `specified_ready_for_plan`; `questions: []`; `open_questions: []`
-- `runtime_status`: `runtime_registered_via_cli`; project `PRJ-018-dd-tasks`, specify `RUN-001` accepted, plan `RUN-002` done/ready_for_code, code `RUN-003` done/implemented_with_named_deferrals, readiness `RUN-004` accepted locally with fresh SCN-001/docs/passport evidence; protocol guidance mismatch disclosed below
+- `runtime_status`: `runtime_registered_via_cli`; project `PRJ-018-dd-tasks`, specify `RUN-001` accepted, plan `RUN-002` done/ready_for_code, code `RUN-003` done/implemented_with_named_deferrals, readiness `RUN-004` accepted locally with fresh SCN-001/docs/passport evidence, fallback merge recovery `RUN-005` running; protocol guidance mismatch disclosed below
 
 ## Workspace и session-boundary handoff
 
@@ -88,7 +91,7 @@ workspace:
   worktree_path: /Users/deksden/.dd-flow/projects/PRJ-001-dd-tasks/checkouts/worktrees/PRT-001-checkpoint-01-foundation/manual-protocol/dd-tasks
   route_git: feature_worktree
   integration_branch_locked: unknown
-  delivery_state: local_integrated_pending_checkpoint_fixation
+  delivery_state: local_integrated_pending_direct_fixation
   integrated_commit: a03169559e60767042c9a39829adae9f9ff8228f
   runtime_registered: true
   runtime_project_id: PRJ-018-dd-tasks
@@ -116,7 +119,15 @@ session_boundary:
   next_session_stage: merge
 ```
 
-`INPUT-002` явно выбрал `feature_worktree`. Фактический task/session cwd этой fresh Codex CLI session совпадает с mutation workspace: `/Users/deksden/.dd-flow/projects/PRJ-001-dd-tasks/checkouts/worktrees/PRT-001-checkpoint-01-foundation/manual-protocol/dd-tasks`; stable project root `/Users/deksden/Documents/_Projects/dd-tasks` использовался только через explicit `workdir` для project/runtime diagnostics. Specify, plan, code и local readiness завершены в этом feature worktree. Delivery/fixation остаются следующим canonical merge gate; имя будущего checkpoint tag и remote push target policy не определяет.
+`INPUT-002` явно выбрал `feature_worktree`. Фактический task/session cwd этой fresh Codex CLI session совпадает с mutation workspace: `/Users/deksden/.dd-flow/projects/PRJ-001-dd-tasks/checkouts/worktrees/PRT-001-checkpoint-01-foundation/manual-protocol/dd-tasks`; stable project root `/Users/deksden/Documents/_Projects/dd-tasks` использовался только через explicit `workdir` для project/runtime diagnostics. Specify, plan, code и local readiness завершены в этом feature worktree, а source integration fast-forward завершена в stable `main`. Для текущего protocol пользователь авторизовал scoped degraded direct fixation: annotated tag `checkpoint-01-foundation`, `main` → `origin/main`, tag → `origin`, без force; exact post-push readback ведётся в RUN-005, а постоянная release policy из этого решения не выводится.
+
+## Fallback merge recovery gate
+
+Readiness `RUN-004-prt-001-checkpoint-01-foundation-readiness` имеет verdict `accepted`. Stable `main` содержит accepted integration commit `a03169559e60767042c9a39829adae9f9ff8228f`; финальный closure commit будет создан на stable `main` без amend и без переписывания истории.
+
+CLI `0.4.0` имеет defect в requeue/merge-queue completion contour. Исторический queue item `185` сохранён как `cancelled` через CLI с audit trail; новый queue item не создаётся, пока cancelled binding остаётся. В RUN-005 разрешён только protocol-scoped queue bypass: runtime state вручную не редактируется, product/readiness повторно не запускаются.
+
+До фактического push эта tracked summary не утверждает remote verification. RUN-005 merge-recovery report должен содержать exact final closure SHA, annotated tag object SHA и peeled commit, `origin/main` readback, remote tag object/peeled readback, CLI transition evidence и cleanup facts.
 
 ## Контекст
 
@@ -156,7 +167,7 @@ session_boundary:
 - [Продуктовый индекс](../../../.memory-bank/spec/product/index.md): продукт пока без подтверждённых акторов, ролей, сущностей и сценариев.
 - [Системный индекс](../../../.memory-bank/spec/system/index.md): source-backed API/data/web foundation и local acceptance boundary приняты; product layer не реализован.
 - [Инженерный индекс](../../../.memory-bank/spec/engineering/index.md): source-backed manifest/lockfile/code/check commands и local quality contour приняты; внешний delivery не заявлен.
-- [Операционный индекс](../../../.memory-bank/spec/operations/index.md): bootstrap, local evidence и safety boundary приняты; merge/tag/push policy остаётся отдельным gate.
+- [Операционный индекс](../../../.memory-bank/spec/operations/index.md): bootstrap, local evidence и safety boundary приняты; текущий scoped merge-recovery target и его post-push readback ведутся через RUN-005.
 - [Существующий протокол mb-init](../PRT-2026-08-01-mb-init/index.md): исторический источник инициализации Memory Bank, не часть foundation scope и не изменяется.
 
 ### Source-only и граница канона
@@ -179,7 +190,7 @@ session_boundary:
 - `base_commit`: `739fd2bc3665257f70e9680bce2abf17144a146f`.
 - `git_state_before_migration`: `main` на `739fd2bc3665257f70e9680bce2abf17144a146f` с единственным незакоммиченным protocol diff; upstream `origin/main`, remote `origin` = `https://github.com/deksden-com/dd-tasks.git`.
 - `git_contour`: `feature_worktree`, принято по `INPUT-002`; protocol files теперь создаются/обновляются только в указанном feature worktree.
-- `delivery`: `local_only`; commit/merge выполняются только canonical flow; tag/push не выдумываются при отсутствии exact policy decision.
+- `delivery`: `local` с exact user-authorized `direct_commit_push` только для текущего protocol; commit/merge history не переписывается, force запрещён, permanent release policy не создаётся.
 - `integration_branch_locked`: `unknown` — CLI не предоставил lock state, поэтому значение не выдумывалось.
 - `workspace_bootstrap`: canonical script выполнен до project tooling в exact feature worktree; receipt `RUN-003.../03-code/workspace-bootstrap-implementation-receipt.md` имеет `bootstrap_completed`, dependency install и local PostgreSQL readiness passed. Первый внешний конфликт порта 55432 не подавлялся и был устранён выбором project-owned 55433.
 - `manual_write_preflight`: выполнен на macOS для `.memory-bank/protocol/` и `.tasks/`; временные probe-файлы созданы и удалены; существующие целевые файлы читаемы/записываемы.
@@ -199,7 +210,7 @@ session_boundary:
 - `D-001`: минимальный deterministic Playwright smoke и root e2e path обязательны как foundation evidence, поскольку это явно следует из README scope.
 - `D-002`: конкретные root command names, PostgreSQL execution contour, fixtures и implementation details принадлежат `plan/design`; `specify` проверяет только goals, scope/non-goals, observable acceptance and constraints. Это не user question.
 - `D-003`: durable companion specs и document promotion определяются MBB и source-backed результатом flow; это обязанность protocol/plan/readiness, а не user decision.
-- `D-004`: `route.git = feature_worktree` закрыт явным `INPUT-002`; delivery/fixation strategy остаётся отдельным будущим gate и не маскируется под problem-space вопрос.
+- `D-004`: `route.git = feature_worktree` закрыт явным `INPUT-002`; текущая fixation strategy закрыта отдельной user authorization для RUN-005 и не маскируется под problem-space вопрос.
 
 `open_questions: none_detected` на protocol bootstrap не использовался как доказательство полноты. Собственный specify gap analysis отдельно проверил goal, actors/operators, scope/non-goals, observable acceptance, failure semantics, deterministic evidence, security/operations/accessibility, scope size и policy/delivery; material problem-space gaps не обнаружены, поэтому `Q-001...` не создавались.
 
@@ -213,7 +224,7 @@ session_boundary:
 
 Проверены acceptance story и failure semantics: exact checkpoint reproduction, bootstrap receipt before tooling, root quality path, isolated repeatable reset/seed, health success, expected non-silent/non-leaking error, browser smoke с accessibility/responsive baseline. Evidence expectations разделены на `integration_handoff`, `user_scenario` и `verification_passport`; green unit check сам по себе не считается foundation readiness.
 
-Gap analysis закрыла все material problem-space areas. Policy/delivery оставлен non-blocking gap: CI, release, deploy, publish и final fixation — будущие gates. Assumptions, active DEF check и solution-space deferrals зафиксированы в canonical stage report; active project DEF не найден.
+Gap analysis закрыла все material problem-space areas. CI, release, deploy и publish остаются future gates; текущая final fixation ограничена exact user-authorized RUN-005 route. Assumptions, active DEF check и solution-space deferrals зафиксированы в canonical stage report; active project DEF не найден.
 
 ### Specify artifacts и extraction
 
@@ -268,7 +279,7 @@ Fresh read-only worker не изменял active Memory Bank. Browser DOM smoke
 - Parent protocol index role check: passed; parent оставлен section navigation с frontmatter children и одной annotated ссылкой на PRT-001, без временных workspace/delivery/session facts.
 - Session evidence consistency: passed; task/session cwd, explicit-workdir stable root, mutation workspace и обязательный downstream cwd разделены фактически.
 - Solution-space ownership check: passed; command names, PostgreSQL execution contour, file layout, fixtures и implementation details принадлежат `plan/design`; specify ограничен goals, scope/non-goals, observable acceptance, failure semantics and constraints.
-- Scope/stage guard: specify verdict `specified_ready_for_plan`, plan verdict `ready_for_code`, CODE завершён, local readiness `accepted_local_readiness`; source integration completed locally, Git fixation remains a user gate.
+- Scope/stage guard: specify verdict `specified_ready_for_plan`, plan verdict `ready_for_code`, CODE завершён, local readiness `accepted_local_readiness`; source integration completed locally, а Git fixation выполняется по scoped user authorization RUN-005.
 - Hidden-eval inventory: project-owned active/product paths не содержат eval/rubric/reference-answer/hidden materials; README сохраняет только разрешённую ссылку на внешний `deksden-com/dd-eval`.
 - `git diff --check`: passed.
 - Теги `checkpoint-00-initial` (`8dece3e3c067fa6721bdfe8cfd624324c333f82f`) и `snapshot-00-memory-bank` (`403c7eb9d2edf19baf4cf904dc57fd7d77c5fada`) read back; не изменялись.
@@ -291,14 +302,14 @@ Fresh read-only worker не изменял active Memory Bank. Browser DOM smoke
 - Passed evidence: migration/schema/reset/seed, API JSON contract, persistence lifecycle, security/value absence, browser proof `3/3`, root quality matrix and `git diff --check`.
 - Browser proof: ordinary `1280x720`, narrow `390x844`, stable `foundation-*` selectors, success/error/focus assertions; artifact `03-code/evidence/browser-proof.json`.
 - Code report browser smoke: static embedded JSON/11 anchors passed; persistent browser launch was recorded as `degraded` because its expected Chromium executable was absent. This is separate from the passed application browser proof.
-- Closed in readiness and merge integration: `CODE-SCENARIO-E2E`, `CODE-DOCS-PROMOTION`, readiness result/quality/evidence review, verification passport, fast-forward integration and fresh main checks. Deferred/not applicable: CI, beta/staging, production, live provider, product behavior, release/deploy/publish; checkpoint tag/push await exact user gate.
+- Closed in readiness and merge integration: `CODE-SCENARIO-E2E`, `CODE-DOCS-PROMOTION`, readiness result/quality/evidence review, verification passport, fast-forward integration and fresh main checks. Deferred/not applicable: CI, beta/staging, production, live provider, product behavior, release/deploy/publish; checkpoint tag/push выполняются только в scoped RUN-005 route.
 
 ## Named deferrals / blockers
 
 - `active_def`: none detected in `.memory-bank/defs/`, current protocol set or relevant project indexes.
-- `current_blockers`: checkpoint fixation user gate: source requires annotated tag for accepted checkpoint, but later tag name and remote push target are undefined. Runtime protocol path has a disclosed flat-file resolver mismatch, but current run/status/queue evidence is usable.
+- `current_blockers`: readiness/product blocker отсутствует; RUN-005 должен завершить exact direct fixation, remote readback и CLI terminal transition. Queue requeue defect CLI 0.4.0 обходится только для этого protocol; flat-file resolver mismatch остаётся disclosed guidance degradation, а cancelled queue evidence сохраняется.
 - `runtime_guidance_degraded`: operational guidance mismatch only; `dd-flow protocol blockers`/`implement` fail to resolve the directory protocol layout. No manual runtime state edit was used.
-- `future_gated_mutations`: CI, release/deploy/publish and manual worktree cleanup remain separate gates; tag/push are now an explicit current user gate because the source contract requires checkpoint fixation.
+- `future_gated_mutations`: CI, release/deploy/publish и manual worktree cleanup остаются отдельными gates; текущий tag/push contour ограничен exact user authorization, no-force policy и RUN-005 readback.
 
 ## Documentation promotion
 
@@ -309,12 +320,12 @@ Fresh read-only worker не изменял active Memory Bank. Browser DOM smoke
 - branch: `feature/prt-001-checkpoint-01-foundation` in manual-owned feature worktree
 - integration branch: `main`
 - workspace path: `/Users/deksden/.dd-flow/projects/PRJ-001-dd-tasks/checkouts/worktrees/PRT-001-checkpoint-01-foundation/manual-protocol/dd-tasks`
-- delivery/fixation: local source integration complete at `a03169559e60767042c9a39829adae9f9ff8228f`; annotated checkpoint fixation pending exact user decision
-- commit: `a03169559e60767042c9a39829adae9f9ff8228f`; push/tag: not performed because exact later checkpoint tag name and remote push target are not source-defined
+- delivery/fixation: local source integration complete at `a03169559e60767042c9a39829adae9f9ff8228f`; RUN-005 authorized to create annotated `checkpoint-01-foundation` and publish `main` → `origin/main` plus tag → `origin` without force
+- commit: final closure commit is created on local `main`; exact SHA, tag object/peeled commit and remote readback are recorded in the RUN-005 merge-recovery report after the mutations
 - CI/beta/production/release/deploy/publish: not applicable to this protocol bootstrap
-- closure: local integration and fresh main verification complete with named external-scope limits; runtime remains blocked/waiting for fixation and is not falsely marked merged/closed
+- closure: terminal closure is valid only after local closure commit, annotated tag, non-force pushes, exact remote readback and штатный CLI protocol transition; no CI/deploy/production claim is implied
 - session boundary: feature and stable roots were rechecked before merge; stable main contains the fast-forwarded accepted foundation commit and this merge closure's source-doc changes; no initial tag was changed
-- next safe step: user supplies the exact annotated tag name and remote push target/authorization, or explicitly confirms local-only non-checkpoint closure; do not invent either value.
+- next safe step: execute RUN-005 exact preflights and direct fixation, record publish evidence, complete the RUN via CLI, then transition protocol to `closed` through CLI.
 
 ## Canonical merge integration result
 
@@ -322,6 +333,6 @@ Fresh read-only worker не изменял active Memory Bank. Browser DOM smoke
 - Integration: `feature/prt-001-checkpoint-01-foundation` → `main`, fast-forward, result `a03169559e60767042c9a39829adae9f9ff8228f`, conflicts `none`.
 - Integration bootstrap receipt: `04-merge/workspace-bootstrap-integration-receipt.md`; the stable checkout was revalidated independently.
 - Fresh main evidence: `04-merge/foundation-scenario-run.json` (`RUN-20260802-006__SCN-001`, 6/6, managed localhost, cleanup passed), `pnpm quality`, `pnpm docs:check`, `pnpm db:check`.
-- Git state: stable `main` and feature branch are clean at the same commit; stable main is ahead of `origin/main` by one commit; no push was attempted.
+- Git state before RUN-005 fixation: stable `main` and feature branch were clean at the same accepted integration commit; local main was ahead of `origin/main`, and tag/push mutations were held for the explicit fallback route.
 - Knowledge promotion: dedicated worker produced no report in bounded windows; run-local recovery report is schema-valid and explicitly marked orchestrator recovery, not worker evidence.
-- Fixation gate: README requires an annotated tag for an accepted checkpoint; project policy does not define this later tag name or a remote push target. Runtime closure therefore waits at `blocked`/`waiting_for_user`.
+- Fixation gate: RUN-005 owns the user-authorized degraded direct route for annotated tag `checkpoint-01-foundation`, `origin/main` and `origin`; its report is the source-backed location for exact post-push readback and terminal closure evidence.

@@ -4,7 +4,8 @@ description: 'Canonical verification row for the checkpoint-01 foundation capabi
 purpose: 'Binds SCN-001, local evidence and the later verification passport to one honest acceptance claim.'
 version: '0.3.0'
 date: '2026-08-02'
-status: 'ACCEPTED_LOCAL'
+status: 'ACTIVE'
+acceptance_status: 'ACCEPTED_LOCAL'
 c4_level: 'project'
 parent: '.memory-bank/plans/index.md'
 tags: [dd-tasks, verification, foundation, SCN-001, local]

@@ -2,7 +2,7 @@
 file: '.memory-bank/index.md'
 description: 'Рабочий вход в Банк памяти проекта dd-tasks.'
 purpose: 'Фиксирует подтверждённое состояние проекта на текущем Git-снимке.'
-version: '0.2.0'
+version: '0.3.0'
 date: '2026-08-02'
 status: 'ACTIVE'
 c4_level: 'project'
@@ -18,6 +18,9 @@ memory_bank_version: '2.14.1'
 initialization_status: 'initialized_published'
 tags: [dd-tasks, memory-bank]
 history:
+  - version: '0.3.0'
+    date: '2026-08-02'
+    changes: 'Зафиксирован user-authorized degraded direct fixation contour для checkpoint-01: tag/push targets заданы явно, а exact post-push readback ведётся в RUN-005; queue defect и отсутствие remote verification до push раскрыты.'
   - version: '0.2.0'
     date: '2026-08-02'
     changes: 'Добавлена source-backed карта foundation branch, canonical SCN-001 и readiness evidence navigation; product behavior остаётся out of scope.'
@@ -44,6 +47,8 @@ entities и task-tracker behavior по-прежнему не реализова�
 - [Полка протоколов](protocol/)
 - [Канон MBB](mbb/index.md)
 
-Инициализация принята и опубликована в main; foundation protocol ведётся в
-feature worktree до canonical merge/fixation. `.tasks` остаётся игнорируемой
-рабочей зоной.
+Инициализация принята и опубликована в main; foundation source integration
+принята в stable `main`, а для текущего протокола разрешён scoped direct
+fixation: annotated tag `checkpoint-01-foundation`, `main` → `origin/main` и
+tag → `origin` без force. Exact post-push readback фиксируется в RUN-005;
+`.tasks` остаётся игнорируемой рабочей зоной.

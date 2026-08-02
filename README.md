@@ -10,11 +10,16 @@ results belong to `deksden-com/dd-eval` and must not be copied here.
 ## Current state
 
 `checkpoint-00-initial` preserves the intentional zero checkpoint. The
-`checkpoint-01-foundation` feature worktree now contains the accepted local
-technical foundation and its verification passport: workspace, API, database,
-browser and quality contours are source-backed. The foundation protocol is
-ready for canonical merge; until that flow runs, stable `main` remains at the
-zero-checkpoint base.
+The accepted `checkpoint-01-foundation` foundation is now fast-forward
+integrated into stable `main` at commit
+`a03169559e60767042c9a39829adae9f9ff8228f`: workspace, API, database, browser,
+quality and Memory Bank contours are source-backed and freshly rechecked on the
+integrated checkout. The feature worktree remains available at the same clean
+commit while branch retention is not defined by project policy.
+
+Checkpoint fixation is intentionally not claimed here: the project contract
+requires an annotated tag, but the later tag name and remote push target have
+not been defined by source-backed policy.
 
 The accepted local evidence does not claim product/task-tracker behavior, CI,
 release, deployment, production or external-provider behavior. Product work

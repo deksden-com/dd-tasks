@@ -1,8 +1,8 @@
 ---
 file: '.memory-bank/protocol/PRT-001-checkpoint-01-foundation/index.md'
-description: 'Индекс протокола checkpoint-01-foundation после принятого local readiness gate.'
-purpose: 'Даёт навигацию по source-backed handoffs, scenario/passport evidence, runtime run и merge handoff.'
-version: '0.5.0'
+description: 'Индекс протокола checkpoint-01-foundation после локальной merge-интеграции.'
+purpose: 'Даёт навигацию по source-backed handoffs, scenario/passport evidence, runtime run, merge integration и fixation gate.'
+version: '0.6.0'
 date: '2026-08-02'
 status: 'ACTIVE'
 c4_level: 'project'
@@ -26,6 +26,9 @@ related_files:
   - .memory-bank/dd-flow/common/flow-runs.md
 tags: [protocol, checkpoint-01, foundation, feature-worktree, dd-flow]
 history:
+  - version: '0.6.0'
+    date: '2026-08-02'
+    changes: 'Fast-forward integration в main и свежие main checks приняты; checkpoint tag/push остановлены на точном user gate.'
   - version: '0.5.0'
     date: '2026-08-02'
     changes: 'Принят local readiness: SCN-001, docs promotion, passport и fresh checks закрыты; следующий gate — canonical merge.'
@@ -49,10 +52,10 @@ history:
 - `feature_branch`: `feature/prt-001-checkpoint-01-foundation`
 - `workspace_path`: `/Users/deksden/.dd-flow/projects/PRJ-001-dd-tasks/checkouts/worktrees/PRT-001-checkpoint-01-foundation/manual-protocol/dd-tasks`
 - `base_commit`: `739fd2bc3665257f70e9680bce2abf17144a146f`
-- `completed_stage`: `readiness`; `current_stage`: `ready_for_merge`; verdicts: `specified_ready_for_plan` → `ready_for_code` → `implemented_with_named_deferrals` → `accepted_local`.
+- `completed_stage`: `integration` (local source integration); `current_stage`: `integration`; verdicts: `specified_ready_for_plan` → `ready_for_code` → `implemented_with_named_deferrals` → `accepted_local` → `local_integrated_pending_checkpoint_fixation`.
 - `stage artifacts`: specify `RUN-001-prt-001-checkpoint-01-foundation-specify`, plan `RUN-002-prt-001-checkpoint-01-foundation-plan`, code `RUN-003-prt-001-checkpoint-01-foundation-code`; canonical data/report/html/evidence находятся в соответствующих run homes.
 
-- [Сводка протокола](summary.md): цель, границы, handoffs, readiness acceptance и следующий merge gate.
+- [Сводка протокола](summary.md): цель, границы, handoffs, readiness acceptance, merge result и fixation gate.
 - [Исходный пользовательский ввод](intake/user-input.md): буквальная постановка задачи и ограничения текущей волны.
 - [Решение о feature worktree](intake/feature-worktree-decision.md): новый явный пользовательский Git-контур с provenance; не заменяет INPUT-001.
 - [Стартовый след](trace/20260801T154035+0200-protocol-start.md): контекст запуска protocol.md и зафиксированный degraded runtime.
@@ -60,3 +63,4 @@ history:
 - [Specify trace](trace/20260801T191048+0200-specify.md): problem-space gap analysis, runtime evidence и остановка перед plan.
 - [Code handoff summary](summary.md#plan-и-code-continuation-evidence): source-backed implementation, quality evidence и точная остановка перед readiness.
 - [Verification passport](evidence/verification-passport.md): accepted local contour, fresh SCN-001, quality/docs/browser/DB evidence and proof limits.
+- [Merge integration trace](trace/20260802T024600+0200-merge-integration-gate.md): fast-forward result, post-merge evidence, knowledge recovery and exact user gate.

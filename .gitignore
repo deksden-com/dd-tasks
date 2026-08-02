@@ -1,1 +1,14 @@
+node_modules/
+dist/
+coverage/
+playwright-report/
+test-results/
+.scenario-runs/
+.env
+.env.*
+!.env.example
+.DS_Store
+.pnpm-debug.log
+.vite/
+.turbo/
 .tasks/

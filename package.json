@@ -1,0 +1,37 @@
+{
+  "name": "dd-tasks",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@10.23.0",
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=10.0.0"
+  },
+  "scripts": {
+    "bootstrap": "bash .memory-bank/spec/operations/scripts/bootstrap-workspace.sh",
+    "dev": "pnpm --parallel --filter @dd-tasks/api --filter @dd-tasks/web dev",
+    "db:migrate": "pnpm --filter @dd-tasks/api db:migrate",
+    "db:check": "pnpm --filter @dd-tasks/api db:check",
+    "db:reset": "pnpm --filter @dd-tasks/api db:reset",
+    "db:seed": "pnpm --filter @dd-tasks/api db:seed",
+    "test:api-contract": "pnpm --filter @dd-tasks/api test:contract",
+    "test:web": "pnpm --filter @dd-tasks/web test",
+    "build:web": "pnpm --filter @dd-tasks/web build",
+    "test:browser": "pnpm --filter @dd-tasks/web test:browser",
+    "format": "biome check --write .",
+    "format:check": "biome check .",
+    "lint": "biome lint .",
+    "typecheck": "pnpm --filter @dd-tasks/api typecheck && pnpm --filter @dd-tasks/web typecheck",
+    "test:unit": "vitest run --config vitest.config.ts",
+    "test:integration": "pnpm --filter @dd-tasks/api test:integration",
+    "build": "pnpm --recursive --if-present build",
+    "quality": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test:unit && pnpm test:integration && pnpm build && node scripts/value-absence-check.mjs package.json vitest.config.ts apps/api/src/contracts/http.ts apps/api/src/db/target-guard.ts apps/web/src/foundation/api.ts apps/web/src/foundation/foundation-contract.ts apps/web/src/App.tsx",
+    "scenario:foundation": "node scripts/scenario-foundation.mjs",
+    "docs:check": "node scripts/docs-check.mjs"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.0.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.0.8"
+  }
+}

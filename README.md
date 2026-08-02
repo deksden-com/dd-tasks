@@ -9,24 +9,21 @@ results belong to `deksden-com/dd-eval` and must not be copied here.
 
 ## Current state
 
-`checkpoint-00-initial` preserves the intentional zero checkpoint. The current
-`main` branch has the initialized project Memory Bank but still has no
-application foundation:
+`checkpoint-00-initial` preserves the intentional zero checkpoint. The
+`checkpoint-01-foundation` feature worktree now contains the accepted local
+technical foundation and its verification passport: workspace, API, database,
+browser and quality contours are source-backed. The foundation protocol is
+ready for canonical merge; until that flow runs, stable `main` remains at the
+zero-checkpoint base.
 
-- no application code;
-- no package workspace;
-- no database schema;
-- no product features;
-- an initialized project Memory Bank with the project-local `dd-flow` pack.
-
-The next action is to run the full `protocol -> specify -> plan -> code ->
-readiness -> merge` lifecycle for `checkpoint-01-foundation`. Foundation work
-must remain limited to the approved stage and must not import the complete
-future product roadmap as implemented behavior.
+The accepted local evidence does not claim product/task-tracker behavior, CI,
+release, deployment, production or external-provider behavior. Product work
+must still be introduced through explicit protocols and must not be inferred
+from this foundation checkpoint.
 
 ## Initial project direction
 
-The first implementation stage will establish only a small TypeScript monorepo:
+The foundation stage establishes only a small TypeScript monorepo:
 
 - pnpm workspaces;
 - `apps/web` with React, Vite, Tailwind CSS, and shadcn/ui;

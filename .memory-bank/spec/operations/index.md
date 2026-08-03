@@ -1,8 +1,8 @@
 ---
 file: '.memory-bank/spec/operations/index.md'
-description: 'Подтверждённый local operational contour dd-tasks через checkpoint-02-core.'
-purpose: 'Фиксирует bootstrap, safety boundaries, evidence contour и ещё не открытые delivery policies.'
-version: '1.0.1'
+description: 'Подтверждённый operational и Git delivery contour dd-tasks через checkpoint-02-core.'
+purpose: 'Фиксирует bootstrap, safety boundaries, evidence contour, branch strategy и checkpoint delivery.'
+version: '1.1.0'
 date: '2026-08-03'
 status: 'ACTIVE'
 c4_level: 'operations'
@@ -11,8 +11,11 @@ children:
   - .memory-bank/spec/operations/workspace-bootstrap-policy.md
   - .memory-bank/spec/operations/secrets-policy.md
   - .memory-bank/spec/operations/runbooks/workspace-bootstrap.md
-tags: [dd-tasks, operations, git, checkpoint-02, local]
+tags: [dd-tasks, operations, git, checkpoint-02, delivery]
 history:
+  - version: '1.1.0'
+    date: '2026-08-03'
+    changes: 'Project Git contour закреплён как stable main плюс disposable protocol feature worktree, fast-forward delivery, checkpoint push/tag и post-delivery cleanup.'
   - version: '1.0.1'
     date: '2026-08-03'
     changes: 'Post-push cleanup теперь удаляет exact remote feature branch после проверки ancestry относительно origin/main и remote readback.'
@@ -73,6 +76,22 @@ Implementation content `5027fa1` fast-forward integrated into local `main`;
 fresh stable-root checks passed and annotated tag `checkpoint-02-core` fixes the
 closure snapshot. Origin was read back but not mutated. CI setup, Exe.dev,
 release и production deployment не открыты.
+
+## Git delivery contour
+
+`main` является единственной постоянной integration/default branch. Существенный
+protocol выполняется целиком в одноразовом worktree ветки
+`feature/prt-<number>-<slug>` и после readiness fast-forward интегрируется в
+актуальный `main`. Малые безопасные правки документации, политики или tooling
+могут идти напрямую в `main` после Git preflight. PR, `develop`, `release/*` и
+`hotfix/*` не используются по умолчанию.
+
+Канонический checkpoint публикуется как exact push `main` в `origin/main`, затем
+как immutable annotated `checkpoint-NN-<slug>` tag; обе операции требуют
+readback. Local-only fixation допустима только как явно названный неполный
+delivery outcome. После local merge cleanup gate удаляет disposable worktree и
+локальную feature-ветку; remote feature-ветка удаляется после полного remote
+delivery.
 
 Завершённые protocol feature worktree больше не сохраняются по умолчанию.
 После terminal merge merge flow применяет cleanup gate из

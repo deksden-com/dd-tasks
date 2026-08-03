@@ -2,13 +2,16 @@
 file: '.memory-bank/project-policy.md'
 description: 'Компактная карта политик, влияющих на маршрутизацию работ, Git cleanup и local delivery.'
 purpose: 'Собирает подтверждённые правила Git, checkpoint fixation и безопасного удаления завершённых worktree.'
-version: '0.2.1'
+version: '0.3.0'
 date: '2026-08-03'
 status: 'ACTIVE'
 c4_level: 'operations'
 parent: '.memory-bank/index.md'
 tags: [dd-tasks, policy, git]
 history:
+  - version: '0.3.0'
+    date: '2026-08-03'
+    changes: 'Формализована branch strategy: stable main, protocol-scoped feature worktree, direct route для малых безопасных правок, fast-forward integration, checkpoint push/tag и cleanup.'
   - version: '0.2.1'
     date: '2026-08-03'
     changes: 'Cleanup дополнен удалением exact remote feature branch после доказанного попадания её tip в remote integration branch.'
@@ -40,11 +43,45 @@ history:
 
 Подтверждено для `PRT-001-checkpoint-01-foundation`: project-owned bootstrap policy/runbook/script материализованы, implementation receipt записан в `RUN-003`, а readiness обязан создать свежую revalidation receipt для текущего checkout перед project tooling. Это не создаёт постоянную CI/release policy.
 
-Не подтверждены: постоянная модель pull request, CI, окружения, release/deploy и check profiles. Для `PRT-001-checkpoint-01-foundation` пользователь отдельно авторизовал `direct_commit_push`: annotated tag `checkpoint-01-foundation`, `main` → `origin/main`, tag → `origin`, remote `https://github.com/deksden-com/dd-tasks.git`, без force. Это scoped degraded bypass только для сломанного requeue/merge-queue completion contour CLI `0.4.0`, не постоянная Git/release policy; remote readback фиксируется только после фактического push в RUN-005.
+Не подтверждены: CI, окружения, release/deploy и check profiles. Для `PRT-001-checkpoint-01-foundation` пользователь отдельно авторизовал `direct_commit_push`: annotated tag `checkpoint-01-foundation`, `main` → `origin/main`, tag → `origin`, remote `https://github.com/deksden-com/dd-tasks.git`, без force. Это scoped degraded bypass только для сломанного requeue/merge-queue completion contour CLI `0.4.0`, не постоянная release policy; remote readback фиксируется только после фактического push в RUN-005.
 
 CLI `0.4.0` не завершает requeue/merge-queue contour для этого protocol: исторический queue item `185` сохранён как `cancelled` с audit trail, а новый item не создаётся, пока cancelled binding остаётся. Разрешён только этот protocol-scoped queue bypass; runtime state вручную не редактируется.
 
 README подтверждает маршрут protocol → specify → plan → code → readiness → merge, сохранение verification evidence и обновление Memory Bank в том же accepted commit. Hidden eval materials не входят в проектную истину. Реализация остаётся простой и conventional; shared package появляется только при реальном sharing; platform/database constraints предпочтительнее custom infrastructure. До явной потребности не добавляются background jobs, cron, polling, billing, analytics или deployment machinery. Будущие root-команды должны детерминированно покрывать format, lint, typecheck, test, build, reset и e2e; это planned contract, не текущие установленные команды.
+
+## Git branch strategy
+
+`main` — единственная постоянная integration, continuation и default branch.
+`origin/main` — каноническое опубликованное состояние. Долгоживущие `develop`,
+`release/*` и `hotfix/*` не используются; вводить их можно только отдельным
+решением с обновлением этой политики.
+
+Полноценная продуктовая, контрактная, многозонная или иная существенная работа
+по протоколу использует `feature_worktree`. Для неё создаётся одноразовая ветка
+`feature/<protocol-slug>`, где protocol slug начинается с lowercase PRT ID,
+например `feature/prt-003-checkpoint-02-core`. В одном worktree этой ветки
+последовательно живут protocol, SPECIFY, PLAN, CODE, readiness, продуктовые
+изменения и evidence. Отдельные ветки на стадии одного протокола не создаются.
+
+`integration_branch_direct` допустим только для малой, безопасной и связной
+правки документации, политики или tooling, когда отдельный merge-контур не даёт
+пользы. Выбор direct route фиксируется Git preflight или protocol summary. Direct
+route не отменяет проверки, commit evidence и необходимый remote readback.
+
+Предпочтительная интеграция feature-ветки — fast-forward в актуальный `main`
+после успешного readiness. Если `main` разошёлся с feature branch, интеграция
+останавливается для явного безопасного обновления/rebase и повторной проверки;
+скрытый merge commit или force-update не создаётся. Pull request не является
+маршрутом по умолчанию и применяется только по явному решению пользователя или
+для отдельного eval-сценария.
+
+Полный checkpoint delivery идёт в порядке: merge в `main`, post-merge checks,
+push exact `main` в `origin/main` с readback, создание immutable annotated tag
+`checkpoint-NN-<slug>` на принятом commit, push exact tag с readback, затем
+cleanup одноразовых worktree и feature-веток. Если пользователь явно выбрал
+local-only fixation, protocol не заявляет remote delivery, а незавершённые push
+и tag фиксируются как точные следующие действия. Force push и изменение уже
+опубликованного checkpoint tag запрещены.
 
 ## Cleanup feature worktree
 

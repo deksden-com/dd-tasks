@@ -2,7 +2,7 @@
 file: '.memory-bank/spec/operations/index.md'
 description: 'Подтверждённый local operational contour dd-tasks через checkpoint-02-core.'
 purpose: 'Фиксирует bootstrap, safety boundaries, evidence contour и ещё не открытые delivery policies.'
-version: '0.9.0'
+version: '1.0.0'
 date: '2026-08-03'
 status: 'ACTIVE'
 c4_level: 'operations'
@@ -13,6 +13,9 @@ children:
   - .memory-bank/spec/operations/runbooks/workspace-bootstrap.md
 tags: [dd-tasks, operations, git, checkpoint-02, local]
 history:
+  - version: '1.0.0'
+    date: '2026-08-03'
+    changes: 'Project policy теперь требует удалять clean fully-merged protocol worktree и локальную feature-ветку; retention остаётся только явным исключением.'
   - version: '0.9.0'
     date: '2026-08-03'
     changes: 'PRT-003 fast-forward integrated into local stable main; post-merge checks and annotated local checkpoint-02-core fixation passed, remote remained unchanged.'
@@ -67,6 +70,18 @@ Implementation content `5027fa1` fast-forward integrated into local `main`;
 fresh stable-root checks passed and annotated tag `checkpoint-02-core` fixes the
 closure snapshot. Origin was read back but not mutated. CI setup, Exe.dev,
 release и production deployment не открыты.
+
+Завершённые protocol feature worktree больше не сохраняются по умолчанию.
+После terminal merge merge flow применяет cleanup gate из
+`.memory-bank/project-policy.md`: clean worktree с полностью вошедшим в `main`
+HEAD удаляется вместе с merged локальной feature-веткой, если для него нет
+явного retention-исключения. Dirty, unmerged, active или неоднозначно
+принадлежащие checkout остаются fail-safe и получают recorded next action.
+
+При принятии политики проверены и удалены два прежних clean fully-merged
+worktree: `PRT-001` (`a031695`) и `PRT-003` (`5027fa1`). Их локальные
+feature-ветки удалены обычным `git branch -d`; оба commit остаются достижимы из
+`main`, а `git worktree list` содержит только stable checkout.
 
 ## История foundation
 

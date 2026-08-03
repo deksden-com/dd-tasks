@@ -15,9 +15,13 @@ PRT-003 implements the local `checkpoint-02-core` slice: accounts and hashed
 server-side sessions, workspace owner/member isolation, project lifecycle,
 basic task CRUD, guarded PostgreSQL migrations/fixtures and minimal product UI.
 
-Local readiness is owned by SCN-002 and RUN-298. It combines unit tests, real
+Local readiness and merge closure are owned by SCN-002 and RUN-298. The core
+implementation `5027fa1` is fast-forward integrated into local `main`; fresh
+stable-root checks pass and annotated tag `checkpoint-02-core` fixes the local
+checkpoint. It combines unit tests, real
 PostgreSQL integration and serialized Chromium acceptance; unit tests alone are
-not an acceptance claim. CI, release, deployment, production, external IdP,
+not an acceptance claim. The local-only route does not publish this checkpoint
+to origin. CI, release, deployment, production, external IdP,
 invitations and checkpoint-03 remain out of scope.
 
 ## Local development

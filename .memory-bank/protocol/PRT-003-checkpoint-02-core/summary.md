@@ -2,7 +2,7 @@
 file: '.memory-bank/protocol/PRT-003-checkpoint-02-core/summary.md'
 description: 'Curated source-backed summary checkpoint-02-core после CODE/readiness.'
 purpose: 'Фиксирует scope, runtime history, implementation, evidence, proof limits и canonical merge handoff.'
-version: '0.3.0'
+version: '0.4.0'
 date: '2026-08-03'
 status: 'ACTIVE'
 c4_level: 'project'
@@ -18,10 +18,13 @@ related_scenarios:
 source_user_input:
   - .memory-bank/protocol/PRT-003-checkpoint-02-core/intake/user-input.md
   - .memory-bank/protocol/PRT-003-checkpoint-02-core/intake/code-merge-authorization.md
-continuation_prompt: '.memory-bank/dd-flow/merge.md'
+continuation_prompt: 'none'
 implements_scope: 'Accounts/server-side sessions, workspace owner/member isolation, project lifecycle, basic task CRUD, guarded PostgreSQL migrations/fixtures, minimal product UI and local acceptance.'
 tags: [protocol, checkpoint-02, core, implemented, readiness, ready-for-merge]
 history:
+  - version: '0.4.0'
+    date: '2026-08-03'
+    changes: 'Canonical fast-forward integration, fresh stable-main checks и annotated local checkpoint-02-core fixation закрывают PRT-003; remote publish не выполнен.'
   - version: '0.3.0'
     date: '2026-08-03'
     changes: 'PLAN-003 реализован; fresh local CODE/readiness contour и SCN-002 приняты, blocker count 0, следующий action — canonical merge closure.'
@@ -47,8 +50,12 @@ history:
   `/Users/deksden/.dd-flow/projects/PRJ-018-dd-tasks/checkouts/worktrees/PRT-003-checkpoint-02-core/manual-protocol/dd-tasks`;
 - branch: `feature/prt-003-checkpoint-02-core`, base `main@25b7434`;
 - readiness verdict: `accepted_local_ready_for_merge`;
-- next action: canonical merge into local stable `main`, then integrated-checkout
-  verification and runtime closure.
+- merge: implementation commit `5027fa131346ce47ec144ec1a206bd6afb10fd92`
+  fast-forward integrated into local stable `main`; closure docs committed on main;
+- post-merge: bootstrap, quality, DB/docs and Chromium `6/6` pass;
+- fixation: annotated local tag `checkpoint-02-core` targets the closure commit;
+- remote: unchanged by this protocol because delivery route is `local_only`;
+- next action: none for PRT-003 after queue/runtime closure.
 
 ## Implemented scope
 
@@ -80,6 +87,15 @@ Durable proof is in
 `.memory-bank/protocol/PRT-003-checkpoint-02-core/evidence/verification-passport.md`;
 runtime reports/receipts are under RUN-298 `03-code/`. No runtime DB/JSON was
 edited manually.
+
+## Merge closure
+
+Queue item `186` was claimed by
+`merge-oneshot-prt-003-checkpoint-02-core-20260803` under the merge-lane lease.
+Stable `main` was clean and matched base `25b7434`; integration was an exact
+fast-forward. Fresh checks were executed from the stable root, not reused from
+feature readiness. Merge stage artifacts and exact final refs live in RUN-298
+`04-merge/`.
 
 ## Boundaries
 

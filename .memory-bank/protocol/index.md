@@ -2,7 +2,7 @@
 file: '.memory-bank/protocol/index.md'
 description: 'Curated протоколы работ проекта.'
 purpose: 'Сохраняет долговечные следы инициализации и дальнейших работ, включая pre-CODE handoff.'
-version: '0.8.0'
+version: '0.9.0'
 date: '2026-08-03'
 status: 'ACTIVE'
 c4_level: 'project'
@@ -13,6 +13,9 @@ children:
   - .memory-bank/protocol/PRT-003-checkpoint-02-core/index.md
 tags: [protocol]
 history:
+  - version: '0.9.0'
+    date: '2026-08-03'
+    changes: 'PRT-003 canonical local merge, post-merge verification и annotated checkpoint-02-core fixation приняты; remote publish не выполнялся по local-only route.'
   - version: '0.8.0'
     date: '2026-08-03'
     changes: 'PRT-003 CODE реализован по PLAN-003; SCN-002/readiness evidence готовы к canonical merge closure в том же поручении.'
@@ -44,5 +47,5 @@ history:
 - [Инициализация Банка памяти](PRT-2026-08-01-mb-init/index.md)
 - [Checkpoint-01 Foundation](PRT-001-checkpoint-01-foundation/index.md): foundation implementation, readiness и local main integration приняты; RUN-005 ведёт user-authorized direct fixation с tag `checkpoint-01-foundation` и targets `origin/main`/`origin`.
 - [Checkpoint-02 Core](PRT-003-checkpoint-02-core/index.md): RUN-298 реализовал
-  PLAN-003 и принял local SCN-002 readiness; следующий контур — canonical merge
-  closure, исторический RUN-297 degraded сохранён без изменений.
+  PLAN-003, принял SCN-002 readiness и canonical local main merge; annotated tag
+  `checkpoint-02-core` фиксирует local snapshot. RUN-297 degraded сохранён.

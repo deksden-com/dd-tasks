@@ -2,7 +2,7 @@
 file: '.memory-bank/spec/operations/index.md'
 description: 'Подтверждённый local operational contour dd-tasks через checkpoint-02-core.'
 purpose: 'Фиксирует bootstrap, safety boundaries, evidence contour и ещё не открытые delivery policies.'
-version: '0.8.0'
+version: '0.9.0'
 date: '2026-08-03'
 status: 'ACTIVE'
 c4_level: 'operations'
@@ -13,6 +13,9 @@ children:
   - .memory-bank/spec/operations/runbooks/workspace-bootstrap.md
 tags: [dd-tasks, operations, git, checkpoint-02, local]
 history:
+  - version: '0.9.0'
+    date: '2026-08-03'
+    changes: 'PRT-003 fast-forward integrated into local stable main; post-merge checks and annotated local checkpoint-02-core fixation passed, remote remained unchanged.'
   - version: '0.8.0'
     date: '2026-08-03'
     changes: 'Checkpoint-02 добавил guarded migrate/reset/seed product contour, deterministic SCN-002 fixtures и isolated Playwright ports; deploy/CI остаются вне scope.'
@@ -59,8 +62,11 @@ production provisioning.
 исторический localhost process на `8787` не останавливается и не считается
 evidence этого checkpoint.
 
-Bootstrap implementation и readiness receipts принадлежат RUN-298. CI setup,
-Exe.dev, release и production deployment не открыты.
+Bootstrap implementation/readiness и merge receipts принадлежат RUN-298.
+Implementation content `5027fa1` fast-forward integrated into local `main`;
+fresh stable-root checks passed and annotated tag `checkpoint-02-core` fixes the
+closure snapshot. Origin was read back but not mutated. CI setup, Exe.dev,
+release и production deployment не открыты.
 
 ## История foundation
 

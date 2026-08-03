@@ -2,7 +2,7 @@
 file: '.memory-bank/index.md'
 description: 'Рабочий вход в Банк памяти проекта dd-tasks.'
 purpose: 'Фиксирует подтверждённое состояние проекта на текущем Git-снимке.'
-version: '0.4.0'
+version: '0.5.0'
 date: '2026-08-03'
 status: 'ACTIVE'
 c4_level: 'project'
@@ -18,6 +18,9 @@ memory_bank_version: '2.14.1'
 initialization_status: 'initialized_published'
 tags: [dd-tasks, memory-bank]
 history:
+  - version: '0.5.0'
+    date: '2026-08-03'
+    changes: 'Checkpoint-02 core fast-forward интегрирован в local stable main, post-merge SCN-002/quality проверены, annotated local fixation checkpoint-02-core закрывает snapshot.'
   - version: '0.4.0'
     date: '2026-08-03'
     changes: 'Checkpoint-02 materialized account/workspace/project/task core, SCN-002 и local readiness evidence; canonical merge closure следует в том же поручении.'
@@ -51,6 +54,7 @@ deterministic local acceptance.
 - [Канон MBB](mbb/index.md)
 
 Foundation history и annotated `checkpoint-01-foundation` не переписываются.
-PRT-003/RUN-298 приняли local CODE/readiness и переходят в canonical local main
-merge; remote delivery, CI и deploy не заявляются. `.tasks` остаётся игнорируемой
-рабочей зоной.
+PRT-003/RUN-298 приняли CODE/readiness; implementation content `5027fa1`
+fast-forward интегрирован в local stable `main`, post-merge gates green и
+annotated local tag `checkpoint-02-core` фиксирует closure commit. Remote
+delivery, CI и deploy не заявляются. `.tasks` остаётся игнорируемой рабочей зоной.

@@ -1,8 +1,8 @@
 ---
 file: '.memory-bank/protocol/PRT-003-checkpoint-02-core/evidence/verification-passport.md'
 description: 'Durable local readiness passport PRT-003 / SCN-002.'
-purpose: 'Связывает exact source contour, fresh checks, review findings, proof limits и merge handoff.'
-version: '0.1.0'
+purpose: 'Связывает exact source contour, fresh checks, review findings, proof limits и local merge closure.'
+version: '0.2.0'
 date: '2026-08-03'
 status: 'ACTIVE'
 c4_level: 'documentation'
@@ -10,21 +10,26 @@ parent: '.memory-bank/protocol/PRT-003-checkpoint-02-core/index.md'
 protocol_id: 'PRT-003-checkpoint-02-core'
 run_id: 'RUN-298-prt-003-checkpoint-02-core-recovery'
 scenario_id: 'SCN-002'
-verification_state: 'accepted_local_ready_for_merge'
+verification_state: 'accepted_local_integrated_fixed'
 tags: [verification, passport, checkpoint-02, local, readiness]
+history:
+  - version: '0.2.0'
+    date: '2026-08-03'
+    changes: 'Добавлены stable-main post-merge proof и annotated local checkpoint fixation boundary.'
 ---
 
 # Verification passport — checkpoint-02-core
 
 ## Identity
 
-- source: `feature/prt-003-checkpoint-02-core`, feature commit recorded by merge
-  handoff after this passport and all promoted docs are committed together;
+- source: `feature/prt-003-checkpoint-02-core@5027fa131346ce47ec144ec1a206bd6afb10fd92`;
 - worktree: exact PRT-003 manual-protocol feature worktree;
 - runtime: `RUN-298-prt-003-checkpoint-02-core-recovery`, PLAN-003;
 - contour: local/test only, PostgreSQL loopback `55433`, serialized Chromium on
   API `8788` and web `4174`;
-- verdict: `accepted_local_ready_for_merge`, blockers `0`.
+- verdict: `accepted_local_integrated_fixed`, blockers `0`;
+- closure: local stable `main`, annotated tag `checkpoint-02-core`; exact closure
+  commit and ref readback are recorded in RUN-298 `04-merge/`.
 
 ## Fresh checks
 
@@ -71,5 +76,5 @@ source state. It also preserves foundation regressions.
 
 It does not prove CI, beta/staging, production, external providers, invitations,
 password recovery/rate limiting, deployment or checkpoint-03. Local main merge,
-post-merge recheck and optional checkpoint fixation are separate closure steps;
-remote publish is not implied by this passport.
+post-merge recheck and checkpoint fixation passed as separate closure steps.
+Remote publish is not implied by this passport and was not performed.

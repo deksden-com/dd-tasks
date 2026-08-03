@@ -2,7 +2,7 @@
 file: '.memory-bank/spec/operations/index.md'
 description: 'Подтверждённый local operational contour dd-tasks через checkpoint-02-core.'
 purpose: 'Фиксирует bootstrap, safety boundaries, evidence contour и ещё не открытые delivery policies.'
-version: '1.0.0'
+version: '1.0.1'
 date: '2026-08-03'
 status: 'ACTIVE'
 c4_level: 'operations'
@@ -13,6 +13,9 @@ children:
   - .memory-bank/spec/operations/runbooks/workspace-bootstrap.md
 tags: [dd-tasks, operations, git, checkpoint-02, local]
 history:
+  - version: '1.0.1'
+    date: '2026-08-03'
+    changes: 'Post-push cleanup теперь удаляет exact remote feature branch после проверки ancestry относительно origin/main и remote readback.'
   - version: '1.0.0'
     date: '2026-08-03'
     changes: 'Project policy теперь требует удалять clean fully-merged protocol worktree и локальную feature-ветку; retention остаётся только явным исключением.'
@@ -75,8 +78,10 @@ release и production deployment не открыты.
 После terminal merge merge flow применяет cleanup gate из
 `.memory-bank/project-policy.md`: clean worktree с полностью вошедшим в `main`
 HEAD удаляется вместе с merged локальной feature-веткой, если для него нет
-явного retention-исключения. Dirty, unmerged, active или неоднозначно
-принадлежащие checkout остаются fail-safe и получают recorded next action.
+явного retention-исключения. После push удаляется и exact remote feature branch,
+но только если её tip уже достижим из `origin/main`; до этого remote ref остаётся
+страховочной копией. Dirty, unmerged, active или неоднозначно принадлежащие
+checkout остаются fail-safe и получают recorded next action.
 
 При принятии политики проверены и удалены два прежних clean fully-merged
 worktree: `PRT-001` (`a031695`) и `PRT-003` (`5027fa1`). Их локальные

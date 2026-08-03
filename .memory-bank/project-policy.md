@@ -2,13 +2,16 @@
 file: '.memory-bank/project-policy.md'
 description: 'Компактная карта политик, влияющих на маршрутизацию работ, Git cleanup и local delivery.'
 purpose: 'Собирает подтверждённые правила Git, checkpoint fixation и безопасного удаления завершённых worktree.'
-version: '0.2.0'
+version: '0.2.1'
 date: '2026-08-03'
 status: 'ACTIVE'
 c4_level: 'operations'
 parent: '.memory-bank/index.md'
 tags: [dd-tasks, policy, git]
 history:
+  - version: '0.2.1'
+    date: '2026-08-03'
+    changes: 'Cleanup дополнен удалением exact remote feature branch после доказанного попадания её tip в remote integration branch.'
   - version: '0.2.0'
     date: '2026-08-03'
     changes: 'Установлен default-delete для чистых полностью merged protocol worktree; retention разрешён только как явное исключение с причиной.'
@@ -61,6 +64,12 @@ Merge cleanup удаляет worktree только когда одновреме
 
 Порядок cleanup: удалить exact worktree штатным `git worktree remove`, выполнить
 `git worktree prune`, затем удалить полностью merged локальную feature-ветку через
-обычный `git branch -d`. `--force`, удаление dirty/unmerged worktree и удаление
-remote branch этой политикой не разрешены. Unsafe или неясный target сохраняется,
-но merge report обязан указать причину и точное следующее действие.
+обычный `git branch -d`. Если delivery включает push, после `git fetch --prune`
+также удаляется exact remote feature branch через `git push origin --delete`
+только когда её tip доказанно является предком `origin/main`, а ref не является
+default/protected branch. Удаление подтверждается remote readback.
+
+`--force`, удаление dirty/unmerged worktree и remote branch до попадания её tip в
+remote integration branch не разрешены. Если push не входит в текущий scope либо
+target unsafe или неясен, ветка сохраняется, а merge report фиксирует причину и
+точное следующее действие.

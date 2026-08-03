@@ -35,6 +35,14 @@ describe("foundation reset target guard", () => {
         target: "staging",
       },
     ],
+    [
+      "profile mismatch",
+      {
+        databaseUrl:
+          "postgresql://dd_tasks@127.0.0.1/dd_tasks_foundation_local",
+        target: "test",
+      },
+    ],
   ])("rejects %s before mutation", (_label, input) => {
     const classification = classifyResetTarget(input);
 

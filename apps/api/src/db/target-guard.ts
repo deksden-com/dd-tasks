@@ -85,6 +85,17 @@ export function classifyResetTarget(input: {
     };
   }
 
+  const databaseProfile = databaseName.match(FOUNDATION_DATABASE_PATTERN)?.[1];
+  if (databaseProfile !== target) {
+    return {
+      safe: false,
+      target,
+      hostClass,
+      databaseName,
+      reason: "database name must match the explicit target profile",
+    };
+  }
+
   if (/(?:^|_)(?:prod|production|staging|shared)(?:_|$)/i.test(databaseName)) {
     return {
       safe: false,
@@ -100,7 +111,7 @@ export function classifyResetTarget(input: {
     target,
     hostClass,
     databaseName,
-    reason: "loopback foundation target accepted",
+    reason: "exact loopback foundation target accepted",
   };
 }
 

@@ -1,4 +1,5 @@
 import { createSqlClient, getDatabaseUrl } from "./client.js";
+import { resetProductData, seedDemoData } from "./fixtures.js";
 import { applyMigrations, migrationState } from "./migrations.js";
 import { classifyResetTarget, parseCommandArgs } from "./target-guard.js";
 
@@ -25,10 +26,15 @@ async function check(): Promise<void> {
   const sql = createSqlClient(databaseUrl);
   try {
     const state = await migrationState(sql);
-    const tables = await sql<{ table_name: string | null }[]>`
-      SELECT to_regclass('public.foundation_metadata') AS table_name
+    const tables = await sql<
+      { foundation: string | null; tasks: string | null }[]
+    >`
+      SELECT to_regclass('public.foundation_metadata') AS foundation,
+             to_regclass('public.tasks') AS tasks
     `;
-    const schemaExists = tables[0]?.table_name === "foundation_metadata";
+    const schemaExists =
+      tables[0]?.foundation === "foundation_metadata" &&
+      tables[0]?.tasks === "tasks";
     const migrationsMatch =
       state.applied.length === state.expected.length &&
       state.applied.every(
@@ -78,6 +84,8 @@ async function reset(): Promise<void> {
 
   const sql = createSqlClient(databaseUrl);
   try {
+    await sql`DROP TABLE IF EXISTS tasks, projects, memberships, workspaces, sessions, accounts CASCADE`;
+    await sql`DROP TYPE IF EXISTS membership_role CASCADE`;
     await sql`DROP TABLE IF EXISTS foundation_metadata CASCADE`;
     await sql`DROP TABLE IF EXISTS foundation_migrations CASCADE`;
     const applied = await applyMigrations(sql);
@@ -123,15 +131,16 @@ async function seed(): Promise<void> {
       process.exitCode = 1;
       return;
     }
+    await resetProductData(sql);
+    const seed = await seedDemoData(sql);
     emit({
       status: "ok",
       operation: "seed",
       target: classification.target,
       hostClass: classification.hostClass,
       databaseName: classification.databaseName,
-      seed: "not_applicable",
-      reason: "foundation has zero product entities",
-      mutated: false,
+      seed,
+      mutated: true,
       runId,
     });
   } finally {

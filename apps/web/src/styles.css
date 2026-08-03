@@ -220,7 +220,7 @@ a:focus-visible {
   text-transform: uppercase;
 }
 
-.intro-rail span {
+.intro .intro-rail span {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -499,9 +499,9 @@ a:focus-visible {
   *,
   *::before,
   *::after {
-    scroll-behavior: auto !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    scroll-behavior: auto;
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+    transition-duration: 0.01ms;
   }
 }

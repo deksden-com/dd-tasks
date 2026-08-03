@@ -1,34 +1,60 @@
 ---
 file: '.memory-bank/spec/product/index.md'
-description: 'Подтверждённая продуктовая истина на исходном checkpoint-00-initial.'
-purpose: 'Задаёт каноническую точку входа для продуктовых сведений, не добавляя неподтверждённые фичи или роли.'
-version: '0.1.0'
-date: '2026-08-01'
+description: 'Подтверждённая продуктовая модель checkpoint-02-core.'
+purpose: 'Фиксирует акторов, доменные сущности, разрешения и намеренные non-goals реализованного core slice.'
+version: '0.2.0'
+date: '2026-08-03'
 status: 'ACTIVE'
-content_state: 'compact_stub'
+content_state: 'implemented_core'
 canonical_template: '.memory-bank/mbb/spec-layer-guide.md'
 c4_level: 'product'
 parent: '.memory-bank/spec/index.md'
 related_files:
   - README.md
-tags: [dd-tasks, product, initial-state]
+  - apps/api/src/core/service.ts
+  - apps/web/src/product/ProductApp.tsx
+  - .memory-bank/scenarios/SCN-002-workspace-task-core.md
+tags: [dd-tasks, product, checkpoint-02, core]
 history:
+  - version: '0.2.0'
+    date: '2026-08-03'
+    changes: 'PRT-003 реализовал минимальный account/workspace/project/task slice с owner/member authorization и server-side isolation.'
   - version: '0.1.0'
     date: '2026-08-01'
-    changes: 'Зафиксировано минимальное подтверждённое продуктовое направление исходного checkpoint.'
+    changes: 'Зафиксировано минимальное продуктовое направление исходного checkpoint.'
 ---
 
 # Продукт
 
-dd-tasks задуман как небольшой командный трекер задач. На `checkpoint-00-initial` продуктового поведения, пользователей, ролей, доменных сущностей и пользовательских сценариев ещё нет: репозиторий не содержит кода приложения, рабочего пространства пакетов или базы данных.
+dd-tasks — небольшой командный трекер задач. `checkpoint-02-core` добавляет
+минимальный сквозной продуктовый путь: локальная учётная запись и server-side
+session, выбор доступного workspace, lifecycle проекта и CRUD задач.
 
-Будущая реализация должна вводить поведение через явные протоколы. Детальная продуктовая модель будет дополняться здесь только после подтверждения из принятого продукта, протокола и реализации.
+## Акторы и разрешения
 
-## Текущий объём
+- `owner` видит только свои memberships, создаёт workspace, создаёт,
+  переименовывает, архивирует и восстанавливает проекты, а также работает с
+  задачами;
+- `member` видит только свои memberships, читает проекты и создаёт/читает/
+  обновляет/удаляет задачи активного проекта;
+- non-member не получает подтверждения существования чужого workspace:
+  защищённые workspace routes возвращают безопасный `404`.
 
-- Подтверждено: будущий продукт — небольшой командный трекер задач.
-- Не подтверждены: акторы, роли, словарь, продуктовые инварианты, эпики и пользовательские сценарии.
+UI остаётся тонким клиентом; фактическое разрешение всегда повторно проверяет
+API по явному `workspaceId`. Архивный проект доступен для чтения и восстановления
+owner, но task mutations в нём отвергаются.
 
-## Условия раскрытия
+## Доменные сущности
 
-Раскрыть этот индекс отдельными документами, когда принятый протокол или реализованное поведение подтвердят хотя бы один из акторов, доменных терминов, пользовательских целей или продуктовых инвариантов.
+- account: нормализованный уникальный email и password hash;
+- session: opaque token, в БД хранится только hash, есть expiry/revocation;
+- workspace и membership с ролью `owner | member`;
+- project: имя и `archived_at`;
+- task: title и необязательное description внутри project/workspace.
+
+## Не входит в checkpoint
+
+Invitations/membership management, external IdP, recovery/rate limiting,
+board/drag-and-drop, status workflow, filters/search, comments/activity,
+realtime/offline, AI, CI, deploy и production operations остаются отдельными
+будущими решениями.

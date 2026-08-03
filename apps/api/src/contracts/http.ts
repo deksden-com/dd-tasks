@@ -24,10 +24,26 @@ export type HealthResponse = {
 };
 
 export type PublicErrorResponse = {
-  code: "NOT_FOUND" | "INTERNAL_ERROR";
-  message: "Not found" | "Unexpected server error";
+  code:
+    | "NOT_FOUND"
+    | "INTERNAL_ERROR"
+    | "UNAUTHENTICATED"
+    | "FORBIDDEN"
+    | "VALIDATION_ERROR"
+    | "CONFLICT"
+    | "PROJECT_ARCHIVED";
+  message: string;
   requestId: string;
 };
+
+export function publicErrorResponse(
+  c: Context<ApiEnv>,
+  status: 400 | 401 | 403 | 404 | 409 | 500,
+  code: PublicErrorResponse["code"],
+  message: string,
+): Response {
+  return c.json({ code, message, requestId: c.get("requestId") }, status);
+}
 
 export function resolveEnvironment(
   value = process.env.NODE_ENV,

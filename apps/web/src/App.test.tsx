@@ -5,7 +5,7 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App.js";
 
 const healthyResponse = () =>
@@ -21,6 +21,10 @@ const healthyResponse = () =>
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
+});
+
+beforeEach(() => {
+  window.history.replaceState({}, "", "/foundation");
 });
 
 describe("foundation screen", () => {

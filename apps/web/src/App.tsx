@@ -4,8 +4,9 @@ import {
   FOUNDATION_SCREEN,
   type FoundationState,
 } from "./foundation/foundation-contract.js";
+import { ProductApp } from "./product/ProductApp.js";
 
-function App() {
+function FoundationScreen() {
   const [attempt, setAttempt] = useState(0);
   const [state, setState] = useState<FoundationState>({ kind: "loading" });
 
@@ -176,6 +177,14 @@ function App() {
         <span>foundation · {FOUNDATION_SCREEN.screenId}</span>
       </footer>
     </div>
+  );
+}
+
+function App() {
+  return window.location.pathname === FOUNDATION_SCREEN.route ? (
+    <FoundationScreen />
+  ) : (
+    <ProductApp />
   );
 }
 

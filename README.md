@@ -9,30 +9,20 @@ results belong to `deksden-com/dd-eval` and must not be copied here.
 
 ## Current state
 
-`checkpoint-00-initial` preserves the intentional zero checkpoint. The
-accepted `checkpoint-01-foundation` foundation is now fast-forward
-integrated into stable `main` at commit
-`a03169559e60767042c9a39829adae9f9ff8228f`: workspace, API, database, browser,
-quality and Memory Bank contours are source-backed and freshly rechecked on the
-integrated checkout. The feature worktree remains available at the same clean
-commit while branch retention is not defined by project policy.
+`checkpoint-00-initial` preserves the intentional zero checkpoint and
+`checkpoint-01-foundation` preserves the accepted technical foundation.
+PRT-003 implements the local `checkpoint-02-core` slice: accounts and hashed
+server-side sessions, workspace owner/member isolation, project lifecycle,
+basic task CRUD, guarded PostgreSQL migrations/fixtures and minimal product UI.
 
-For this protocol only, the user authorized a degraded direct fixation because
-the requeue/merge-queue completion contour in `dd-flow` CLI `0.4.0` is broken:
-create the annotated tag `checkpoint-01-foundation`, push `main` to
-`origin/main`, and push that tag to `origin`, all without force. This is a
-scoped bypass, not a permanent Git or release policy. This snapshot does not
-claim remote verification; exact post-push readback belongs to the RUN-005
-merge-recovery report.
+Local readiness is owned by SCN-002 and RUN-298. It combines unit tests, real
+PostgreSQL integration and serialized Chromium acceptance; unit tests alone are
+not an acceptance claim. CI, release, deployment, production, external IdP,
+invitations and checkpoint-03 remain out of scope.
 
-The accepted local evidence does not claim product/task-tracker behavior, CI,
-release, deployment, production or external-provider behavior. Product work
-must still be introduced through explicit protocols and must not be inferred
-from this foundation checkpoint.
+## Local development
 
-## Initial project direction
-
-The foundation stage establishes only a small TypeScript monorepo:
+The project is a small TypeScript monorepo:
 
 - pnpm workspaces;
 - `apps/web` with React, Vite, Tailwind CSS, and shadcn/ui;
@@ -41,10 +31,16 @@ The foundation stage establishes only a small TypeScript monorepo:
 - Biome for formatting and linting;
 - `tsc --noEmit` for type checking;
 - Vitest and Playwright;
-- deterministic database seed and reset commands.
+- deterministic guarded database migrate/reset/seed commands.
 
-Product behavior will be introduced later through explicit protocols. Do not
-pre-build speculative features during initialization or foundation work.
+After `pnpm bootstrap`, use `pnpm db:reset -- --target local`,
+`pnpm db:seed -- --target local`, and `pnpm dev`. Product routes start at
+`/login`; `/foundation` remains the technical regression surface. The seeded
+local/test accounts are documented by SCN-002 fixtures and must never be used as
+production provisioning.
+
+Canonical checks are `pnpm quality`, `pnpm test:browser`, `pnpm db:check` and
+`pnpm docs:check`.
 
 ## Memory Bank requirements
 

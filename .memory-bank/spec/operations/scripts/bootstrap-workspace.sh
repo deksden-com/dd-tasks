@@ -32,6 +32,14 @@ if (( pnpm_major < 10 )); then
   exit 2
 fi
 
+# pnpm deliberately refuses to replace an incompatible modules directory in a
+# headless process unless CI mode is explicit. Codex and other agents run
+# without a TTY, so make that execution context deterministic while preserving
+# an operator-supplied CI value.
+if [[ ! -t 0 && -z "${CI:-}" ]]; then
+  export CI=true
+fi
+
 if [[ -f pnpm-lock.yaml ]]; then
   pnpm install --frozen-lockfile
 else

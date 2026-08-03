@@ -14,8 +14,8 @@
     "db:seed": "tsx src/db/commands.ts seed",
     "test": "vitest run --config vitest.config.ts",
     "test:contract": "vitest run --config vitest.config.ts tests/api-json-contract.test.ts",
-    "test:unit": "vitest run --config vitest.config.ts tests --passWithNoTests",
-    "test:integration": "vitest run --config vitest.config.ts tests --passWithNoTests",
+    "test:unit": "vitest run --config vitest.unit.config.ts",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
     "format": "biome check --write .",
     "lint": "biome lint ."
   },

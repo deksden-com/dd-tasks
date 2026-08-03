@@ -1,0 +1,223 @@
+.product-shell,
+.auth-layout {
+  min-height: 100vh;
+  background: #f3efe5;
+  color: #172033;
+}
+.product-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem clamp(1rem, 4vw, 4rem);
+  border-bottom: 1px solid #d8d1c1;
+}
+.brand,
+.text-button,
+.back {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.brand {
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.auth-layout {
+  display: grid;
+  grid-template-columns: 1.2fr minmax(20rem, 0.8fr);
+  gap: clamp(2rem, 8vw, 8rem);
+  align-items: center;
+  padding: clamp(2rem, 8vw, 8rem);
+}
+.auth-story h1,
+.workspace-page h1 {
+  font-family: Georgia, serif;
+  font-size: clamp(3rem, 7vw, 6.5rem);
+  font-weight: 400;
+  letter-spacing: -0.06em;
+  line-height: 0.92;
+  margin: 0.8rem 0 1.5rem;
+}
+.auth-story em {
+  color: #4d6b3d;
+}
+.auth-story p {
+  max-width: 34rem;
+  line-height: 1.7;
+}
+.product-kicker {
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #687559;
+}
+.auth-card {
+  background: #172033;
+  color: #f5f0e6;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  border-radius: 1rem;
+  box-shadow: 1rem 1rem 0 #d9ed83;
+}
+.auth-card h2 {
+  font:
+    400 2.5rem Georgia,
+    serif;
+}
+.auth-card label,
+.inline-form label,
+.task-form label {
+  display: grid;
+  gap: 0.45rem;
+  margin: 1rem 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.auth-card input,
+.inline-form input,
+.task-form input,
+.task-form textarea {
+  width: 100%;
+  border: 1px solid #b8b1a4;
+  border-radius: 0.45rem;
+  padding: 0.8rem;
+  background: #fff;
+  color: #172033;
+  font: inherit;
+}
+.auth-card button:not(.text-button),
+.inline-form button,
+.task-form button {
+  border: 0;
+  border-radius: 0.45rem;
+  padding: 0.85rem 1rem;
+  background: #d9ed83;
+  color: #172033;
+  font-weight: 800;
+  cursor: pointer;
+}
+.auth-card .text-button {
+  color: #d9ed83;
+  margin-top: 1rem;
+}
+.workspace-page {
+  width: min(100% - 2rem, 72rem);
+  margin: 0 auto;
+  padding: clamp(2.5rem, 7vw, 6rem) 0;
+}
+.workspace-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1rem;
+}
+.workspace-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  min-height: 10rem;
+  padding: 1.4rem;
+  border: 1px solid #cfc6b5;
+  border-radius: 0.8rem;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+.workspace-card span {
+  font:
+    400 1.65rem Georgia,
+    serif;
+}
+.workspace-card small,
+.project-link small {
+  color: #687559;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+.inline-form {
+  display: flex;
+  gap: 1rem;
+  align-items: end;
+  margin: 2rem 0;
+}
+.inline-form label {
+  flex: 1;
+  margin: 0;
+}
+.project-list,
+.task-list {
+  display: grid;
+  gap: 0.7rem;
+}
+.project-row,
+.task-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem 1.2rem;
+  border: 1px solid #d2cab9;
+  background: #fff;
+  border-radius: 0.6rem;
+}
+.project-row.archived {
+  opacity: 0.68;
+}
+.project-link {
+  display: grid;
+  gap: 0.3rem;
+  flex: 1;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.row-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.task-form {
+  max-width: 42rem;
+  margin: 2rem 0;
+  padding: 1.2rem;
+  background: #fff;
+  border: 1px solid #d2cab9;
+  border-radius: 0.6rem;
+}
+.notice {
+  padding: 0.8rem 1rem;
+  border-left: 4px solid #718646;
+  background: #fff;
+}
+.notice-error {
+  border-color: #ad4c3c;
+  color: #7c2f24;
+}
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid #5d793f;
+  outline-offset: 3px;
+}
+@media (max-width: 720px) {
+  .auth-layout {
+    grid-template-columns: 1fr;
+    padding: 1.25rem;
+  }
+  .auth-story h1 {
+    font-size: 3.6rem;
+  }
+  .inline-form,
+  .project-row,
+  .task-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .workspace-page h1 {
+    font-size: 4rem;
+  }
+  .row-actions {
+    justify-content: flex-end;
+  }
+}

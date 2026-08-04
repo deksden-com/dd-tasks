@@ -6,12 +6,16 @@ version: '0.1.0'
 date: '2026-06-20'
 status: 'DRAFT'
 c4_level: 'documentation'
-parent: 'README.md'
+parent: '.memory-bank/dd-flow/README.md'
 related_files:
-  - protocol.md
+  - ../protocol.md
   - specification.md
   - flow-runs.md
   - ../../mbb/spec-layer-guide.md
+source_only_references:
+  - '$DD_MEMORYBANK/.memory-bank/dd-flow/mb-init/targets/05-operations.md'
+  - '$DD_MEMORYBANK/.memory-bank/dd-flow/mb-upgrade/targets/06-spec-operations.md'
+  - '$DD_MEMORYBANK/.memory-bank/dd-flow/mb-audit/aspects/09-operations-release-deferrals.md'
 tags: [dd-flow, context-discovery, protocol, specification, scope]
 history:
   - version: '0.1.0'
@@ -69,10 +73,9 @@ Context discovery may write transient artifacts under `<run-home>` when a run al
   gaps.md
 ```
 
-For large scopes that require several executable protocols, keep durable discovery summaries near the relevant durable spec or link them from the future protocol set:
+For large scopes that require several executable protocols, keep durable discovery summaries near an owner-approved durable spec or link them from the future protocol set. A feature research shelf is conditional and is not activated in the current dd-tasks Memory Bank; do not create it from this example alone:
 
 ```text
-.memory-bank/spec/features/<feature-id>/research/context-brief.md
 .memory-bank/spec/system/<topic-id>/research/context-brief.md
 .memory-bank/protocol/_set/PSET-XXX-<slug>-context-brief.md
 ```

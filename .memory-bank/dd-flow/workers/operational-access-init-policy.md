@@ -12,7 +12,8 @@ related_files:
   - .memory-bank/dd-flow/common/operational-access.md
   - .memory-bank/dd-flow/workers/docs.md
   - .memory-bank/dd-flow/workers/operational-access-discovery.md
-  - .memory-bank/dd-flow/mb-init/targets/05-operations.md
+source_only_references:
+  - '$DD_MEMORYBANK/.memory-bank/dd-flow/mb-init/targets/05-operations.md'
 tags: [dd-flow, worker, operations, operational-access, mb-init, policy]
 history:
   - version: '0.1.0'

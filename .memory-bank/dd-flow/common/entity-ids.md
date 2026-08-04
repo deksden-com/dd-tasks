@@ -11,7 +11,8 @@ related_files:
   - workspace-layout.md
   - runtime-cli.md
   - git-ops.md
-  - ../.memory-bank/protocol/2026-05-31-entity-ids-project-workspaces.md
+source_only_references:
+  - '$DD_MEMORYBANK/.memory-bank/protocol/2026-05-31-entity-ids-project-workspaces.md'
 tags: [dd-flow, ids, registry, aliases, cli]
 history:
   - version: '0.2.0'

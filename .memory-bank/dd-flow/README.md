@@ -130,7 +130,10 @@ plan.md
 - [common/browser-verification.md](common/browser-verification.md): выбор браузерного контура проверки через `cmux-browser`, `agent-browser`, project-native e2e или честный downgrade до HTTP/source smoke.
 - [def/plan.md](def/plan.md), [def/fix.md](def/fix.md): внутренние промпты для планирования и закрытия `DEF-*`, вызываются оркестратором, а не пользователем напрямую.
 - [workers/code.md](workers/code.md), [workers/verify.md](workers/verify.md), [workers/docs.md](workers/docs.md), [workers/repair.md](workers/repair.md): внутренние промпты для кодовых, проверочных, документационных и validation-driven repair субагентов.
-- [experiments/](experiments/index.md): воспроизводимые live-эксперименты dd-flow поверх тестовых проектов; это не MBB-канон, а слой проверки команд, prompt-ов, stage reports, dashboard и runtime-поведения.
+- Canonical-only `experiments/`: воспроизводимые live-эксперименты dd-flow
+  поверх тестовых проектов; источник —
+  `$DD_MEMORYBANK/.memory-bank/dd-flow/experiments/`, в curated target pack не
+  устанавливается.
 - [schemas/](schemas/index.md): канонические JSON Schema contracts для machine-readable flow artifacts. CLI валидирует эти контракты, но не определяет их вместо канона.
 
 Все пользовательские доклады фаз должны включать навигационный блок из [common/style.md](common/style.md): какой prompt завершён, какой протокол активен, на какой стадии находится пайплайн, какой следующий шаг безопасен, какие блокеры и `DEF-*` остаются, где лежит файловый след start/report по [common/trace.md](common/trace.md).
@@ -168,48 +171,67 @@ dd-flow status --project-root "<target-project-root>" --json
 - [protocol-implement.md](protocol-implement.md): безопасное продолжение существующего non-terminal `PRT-*`: читает frontmatter, `PSET-*`, blockers, runtime state, active sessions and coding standards sources, затем маршрутизирует в `specify`/`plan`/`code`/`merge`.
 - [review.md](review.md): project-level `mb-sdlc-review` entrypoint; проверяет проект по durable specs/features/ADRs/scenarios/policies/code and evidence with aspect map, critics and JSON/HTML report.
 - [review-fix.md](review-fix.md): follow-up entrypoint; обсуждает accepted review findings with user and creates ordinary executable protocol(s) or protocol set.
-- [interactive.md](interactive.md): старт обычного протокола в режиме `interactive` для быстрых правок в текущей сессии.
+- Canonical-only `interactive.md`: старт обычного протокола в режиме
+  `interactive`; читать из `$DD_MEMORYBANK/.memory-bank/dd-flow/interactive.md`,
+  в curated target pack не устанавливается.
 - [finish.md](finish.md): завершение interactive-протокола через `consolidation -> hardening -> readiness -> ready_for_merge`.
 - [common/specification.md](common/specification.md): логическая стадия `specify`, problem-space уточнение задачи перед plan.
 - [common/protocol-bootstrap.md](common/protocol-bootstrap.md): общий блок создания нового протокола для `protocol.md` и `interactive.md`.
 - [prime/scouts/](prime/scouts/index.md): короткие scout-аспекты для быстрого сбора контекста по Банку памяти, коду, паттернам, проверкам, операциям и рискам.
 - [f.md](f.md): compatibility alias для `prime.md`.
 - [plan.md](plan.md): сквозная плановая проработка фичи через смысловые плановые стадии без запуска реализации.
-- [plan/stage-report-template.html](plan/stage-report-template.html): canonical HTML template для пользовательского stage report plan-фазы; generated report получает validated `plan-stage-report.json`.
-- [plan/reflection.md](plan/reflection.md): прогрев и поиск разрывов (gaps) до детального плана.
-- [plan/review.md](plan/review.md): системное ревью протокола сверху вниз.
-- [plan/implementation.md](plan/implementation.md): превращение протокола в граф задач и проверок.
-- [plan/operations.md](plan/operations.md): ветки, окружения, выкладка, непрерывная интеграция (CI) и эксплуатационные ворота.
-- [plan/scenarios.md](plan/scenarios.md): сценарии, согласование приемки и будущие доказательства.
+- [mb-sdlc/plan/stage-report-template.html](mb-sdlc/plan/stage-report-template.html): canonical HTML template для пользовательского stage report plan-фазы; generated report получает validated `plan-stage-report.json`.
+- [mb-sdlc/plan/reflection.md](mb-sdlc/plan/reflection.md): прогрев и поиск разрывов (gaps) до детального плана.
+- [mb-sdlc/plan/review.md](mb-sdlc/plan/review.md): системное ревью протокола сверху вниз.
+- [mb-sdlc/plan/implementation.md](mb-sdlc/plan/implementation.md): превращение протокола в граф задач и проверок.
+- [mb-sdlc/plan/operations.md](mb-sdlc/plan/operations.md): ветки, окружения, выкладка, непрерывная интеграция (CI) и эксплуатационные ворота.
+- [mb-sdlc/plan/scenarios.md](mb-sdlc/plan/scenarios.md): сценарии, согласование приемки и будущие доказательства.
 - [code.md](code.md): корневой вход в code-flow; запускает реализацию или повторный readiness gate по состоянию протокола.
-- [code/stage-report-template.html](code/stage-report-template.html): canonical HTML template для stage report code-фазы; generated report получает validated `03-code/stage-report.json` или legacy `02-code/stage-report.json`.
-- [code/implement.md](code/implement.md): основной оркестраторский prompt code-flow; выполняет реализацию, затем сразу запускает readiness gate, reviewers, исправления, свежие проверки и итоговый verdict.
-- [code/readiness.md](code/readiness.md): reusable readiness gate для финала `code/implement.md` и для отдельного rerun/continuation без повторной реализации.
-- [merge/job.md](merge/job.md): общий lifecycle claimed merge job для one-shot и long-lived worker.
-- [merge/integrate.md](merge/integrate.md): checklist интеграции, beta и приемки внутри claimed job.
-- [merge/stage-report-template.html](merge/stage-report-template.html): canonical HTML template для stage report merge-фазы; generated report получает validated `04-merge/stage-report.json` или legacy `03-merge/stage-report.json`.
+- [mb-sdlc/code/stage-report-template.html](mb-sdlc/code/stage-report-template.html): canonical HTML template для stage report code-фазы; generated report получает validated `03-code/stage-report.json` или legacy `02-code/stage-report.json`.
+- [mb-sdlc/code/implement.md](mb-sdlc/code/implement.md): основной оркестраторский prompt code-flow; выполняет реализацию, затем сразу запускает readiness gate, reviewers, исправления, свежие проверки и итоговый verdict.
+- [mb-sdlc/code/readiness.md](mb-sdlc/code/readiness.md): reusable readiness gate для финала `code/implement.md` и для отдельного rerun/continuation без повторной реализации.
+- [mb-sdlc/merge/job.md](mb-sdlc/merge/job.md): общий lifecycle claimed merge job для one-shot и long-lived worker.
+- [mb-sdlc/merge/integrate.md](mb-sdlc/merge/integrate.md): checklist интеграции, beta и приемки внутри claimed job.
+- [mb-sdlc/merge/stage-report-template.html](mb-sdlc/merge/stage-report-template.html): canonical HTML template для stage report merge-фазы; generated report получает validated `04-merge/stage-report.json` или legacy `03-merge/stage-report.json`.
 - [review/stage-report-template.html](mb-sdlc/review/stage-report-template.html): canonical HTML template для `mb-sdlc-review`; generated report получает validated `04-review/stage-report.json`.
 - [dashboard/global-dashboard-template.html](dashboard/global-dashboard-template.html): canonical marker/template for `~/.dd-flow/dashboard/global-dashboard.html` over `global-dashboard-data@1`.
 - [dashboard/project-dashboard-template.html](dashboard/project-dashboard-template.html): canonical marker/template for `<project>/.tasks/dd-flow-dashboard/project-dashboard.html` over `project-dashboard-data@1`.
 - [dashboard/protocol-page-template.html](dashboard/protocol-page-template.html): canonical marker/template for `<project>/.tasks/dd-flow-dashboard/protocols/<PRT-ID>.html` over `protocol-dashboard-data@1`.
-- [experiments/eval-report-template.html](experiments/eval-report-template.html): canonical static HTML template for eval/experiment reports over `eval-report-data@1`.
+- Canonical-only `experiments/eval-report-template.html`: static HTML template for
+  eval/experiment reports over `eval-report-data@1`; источник —
+  `$DD_MEMORYBANK/.memory-bank/dd-flow/experiments/`.
 - [merge.md](merge.md): current-session one-shot/status entrypoint; не создаёт долгоживущий worker.
 - [merge-start.md](merge-start.md): старт или status долгоживущего project merge worker.
 - [merge-stop.md](merge-stop.md): мягкая остановка project merge worker.
 - [mb-audit.md](mb-audit.md): мультиагентный аудит Банка памяти по выбранным аспектам с созданием ремонтных `DEF-*`.
 - [mb-fix.md](mb-fix.md): применение выбранных пользователем `DEF-*` после аудита.
-- [mb-init.md](mb-init.md): canonical-only flow для создания Банка памяти в целевом проекте, где его ещё нет, через исследование README, документации, кода, тестов, конфигураций и комментариев.
-- [mb-upgrade.md](mb-upgrade.md): canonical-only flow для апгрейда проектного Банка памяти на новый канон через рабочие деревья (worktree), словарь миграции путей (path migration map), проверку старых ссылок, project flow pack manifest/archive gate, финальный `mb-lint`, обязательную стадию `05-review` и `06-merge`.
-- [mb-distill.md](mb-distill.md): canonical-only исследование целевого Банка памяти в поиске практик, достойных включения в канон.
+- Canonical-only `mb-init.md`: flow для создания Банка памяти в целевом
+  проекте, где его ещё нет; источник —
+  `$DD_MEMORYBANK/.memory-bank/dd-flow/mb-init.md`.
+- Canonical-only `mb-upgrade.md`: flow для апгрейда проектного Банка памяти на
+  новый канон; источник — `$DD_MEMORYBANK/.memory-bank/dd-flow/mb-upgrade.md`.
+- Canonical-only `mb-distill.md`: исследование практик для канона; источник —
+  `$DD_MEMORYBANK/.memory-bank/dd-flow/mb-distill.md`.
 - [mb-lint.md](mb-lint.md): запуск или планирование детерминированной проверки Банка памяти внешним инструментом `mb-lint`.
-- [evals/](evals/): ручные eval-сценарии для проверки поведения `dd-flow` по замеченным проблемам.
-- [experiments/](experiments/index.md): живые эксперименты с командами запуска, checkpoint-ами, ожидаемым поведением агентов и findings log.
+- Canonical-only `evals/`: ручные eval-сценарии для проверки поведения
+  `dd-flow`; источник — `$DD_MEMORYBANK/.memory-bank/dd-flow/evals/`.
+- Canonical-only `experiments/`: живые эксперименты с командами запуска,
+  checkpoint-ами, ожидаемым поведением агентов и findings log; источник —
+  `$DD_MEMORYBANK/.memory-bank/dd-flow/experiments/`.
 
 ## Обслуживание Банка памяти
 
-`mb-audit.md` и `mb-fix.md` работают парой. Первый промпт проверяет состояние Банка памяти, опирается на аспектные правила из [mb-audit/aspects/](mb-audit/aspects/) и создаёт ремонтные задачи `DEF-*`. Второй промпт читает эти `DEF-*`, группирует их, показывает пользователю варианты и применяет только выбранные исправления.
+`mb-audit.md` и `mb-fix.md` работают парой. Первый промпт проверяет состояние
+Банка памяти, а canonical-only аспектные правила читает из
+`$DD_MEMORYBANK/.memory-bank/dd-flow/mb-audit/aspects/`; curated target pack
+не устанавливает этот каталог. Второй промпт читает найденные `DEF-*`,
+группирует их, показывает пользователю варианты и применяет только выбранные
+исправления.
 
-[Каталог аспектов аудита](mb-audit/aspects/index.md) объясняет, какие проверки есть и какие наборы запускать для быстрого аудита, релизной проверки, закрытия эпика или интерфейсного слоя.
+Canonical-only каталог аспектов аудита
+`$DD_MEMORYBANK/.memory-bank/dd-flow/mb-audit/aspects/index.md` объясняет,
+какие проверки есть и какие наборы запускать для быстрого аудита, релизной
+проверки, закрытия эпика или интерфейсного слоя.
 
 `mb-init.md` используется раньше аудита, если Банка памяти ещё нет. Он создаёт начальную каноническую структуру и извлекает сведения из самого проекта. Вопросы пользователю задаёт только оркестратор после сводки отчётов субагентов, причём с вероятным вариантом и рекомендацией по найденным источникам.
 
@@ -241,13 +263,23 @@ Scout-субагенты из [prime/scouts/](prime/scouts/index.md) запус�
 
 ## Evals Для Промптов
 
-[evals/](evals/) хранит ручные сценарии проверки поведения агента. Eval заводится по замеченной проблеме: например, агент начал реализацию после `plan`, не разобрал `DEF-*` в `readiness`, поверил worker-отчёту без diff/evidence или заявил "готово" без свежей проверки.
+Canonical-only `$DD_MEMORYBANK/.memory-bank/dd-flow/evals/` хранит ручные
+сценарии проверки поведения агента. Eval заводится по замеченной проблеме:
+например, агент начал реализацию после `plan`, не разобрал `DEF-*` в
+`readiness`, поверил worker-отчёту без diff/evidence или заявил "готово" без
+свежей проверки.
 
 Смысл eval не в том, чтобы проверить Markdown как текст. Он проверяет, какое поведение должен вызвать промпт и какое поведение запрещено. Автоматический harness можно добавить позже, когда ручные сценарии устоятся.
 
 ## Апгрейд Банка памяти
 
-`mb-upgrade.md` запускает миграцию проекта на новый канон. Подробный процесс лежит в [mb-upgrade/](mb-upgrade/): смысловой diff старого и нового MBB, словарь миграции путей, target-пакеты по целевым папкам, интеграционный merge, проверка старых путей, урегулирование `DEF-MBU-*`, `mb-lint`-верификация, исправление формальных хвостов, обязательная `05-review` и `06-merge`.
+`mb-upgrade.md` запускает миграцию проекта на новый канон. Подробный
+canonical-only процесс лежит в
+`$DD_MEMORYBANK/.memory-bank/dd-flow/mb-upgrade/`: смысловой diff старого и
+нового MBB, словарь миграции путей, target-пакеты по целевым папкам,
+интеграционный merge, проверка старых путей, урегулирование `DEF-MBU-*`,
+`mb-lint`-верификация, исправление формальных хвостов, обязательная `05-review`
+и `06-merge`.
 
 `05-review` внутри `mb-upgrade` проверяет все 10 агрегирующих аспектов качества, покрывает current `.memory-bank/mbb/aspects/01`..`13`, делает recovery pass перед `DEF-MBU-REVIEW-*`, строит integrated review, `stage-report.html` и явный next action.
 
@@ -255,6 +287,9 @@ Scout-субагенты из [prime/scouts/](prime/scouts/index.md) запус�
 
 ## Дистилляция Практик
 
-`mb-distill.md` исследует целевой проект и ищет практики, которые могут улучшить канонический MBB или `dd-flow`. Подробный процесс и аспекты лежат в [mb-distill/](mb-distill/). Промпт ничего не меняет в каноне сам: он готовит отчёт для решения пользователя.
+`mb-distill.md` исследует целевой проект и ищет практики, которые могут
+улучшить канонический MBB или `dd-flow`. Подробный canonical-only процесс и
+аспекты лежат в `$DD_MEMORYBANK/.memory-bank/dd-flow/mb-distill/`. Промпт
+ничего не меняет в каноне сам: он готовит отчёт для решения пользователя.
 
 Главное правило: промпт управляет работой, а Банк памяти объясняет, почему работа должна быть сделана именно так.

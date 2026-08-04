@@ -329,10 +329,9 @@ Common stage report metadata:
 
 This folder is not a normal coding stage and does not replace `01-specify/`. It is used only when the agent needs task-specific context before creating a protocol or before asking focused specification questions.
 
-Do not create a `PRT-*` only to run discovery. If discovered knowledge must persist before protocols exist, promote a curated brief to the appropriate specification folder:
+Do not create a `PRT-*` only to run discovery. If discovered knowledge must persist before protocols exist, promote a curated brief to an owner-approved destination. A feature research shelf is conditional and is not activated in the current dd-tasks Memory Bank; do not create it from this example alone:
 
 ```text
-.memory-bank/spec/features/<feature-id>/research/context-brief.md
 .memory-bank/spec/system/<topic-id>/research/context-brief.md
 .memory-bank/protocol/_set/PSET-XXX-<slug>-context-brief.md
 ```

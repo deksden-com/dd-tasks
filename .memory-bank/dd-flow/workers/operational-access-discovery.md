@@ -12,9 +12,10 @@ related_files:
   - .memory-bank/dd-flow/common/operational-access.md
   - .memory-bank/dd-flow/workers/docs.md
   - .memory-bank/mbb/aspects/05-operations.md
-  - .memory-bank/dd-flow/mb-init/targets/05-operations.md
-  - .memory-bank/dd-flow/mb-upgrade/targets/06-spec-operations.md
-  - .memory-bank/dd-flow/mb-audit/aspects/09-operations-release-deferrals.md
+source_only_references:
+  - '$DD_MEMORYBANK/.memory-bank/dd-flow/mb-init/targets/05-operations.md'
+  - '$DD_MEMORYBANK/.memory-bank/dd-flow/mb-upgrade/targets/06-spec-operations.md'
+  - '$DD_MEMORYBANK/.memory-bank/dd-flow/mb-audit/aspects/09-operations-release-deferrals.md'
 tags: [dd-flow, worker, operations, operational-access, discovery, authorization]
 history:
   - version: '0.1.0'

@@ -14,10 +14,14 @@ children:
   - .memory-bank/plans/index.md
   - .memory-bank/scenarios/index.md
   - .memory-bank/protocol/index.md
+  - .memory-bank/defs/index.md
 memory_bank_version: '2.15.0'
 initialization_status: 'initialized_published'
 tags: [dd-tasks, memory-bank]
 history:
+  - version: '0.7.0'
+    date: '2026-08-04'
+    changes: 'После 05-review два существующих upgrade DEF подняты в durable defs shelf и добавлены в активную навигацию; дублей не создано.'
   - version: '0.6.0'
     date: '2026-08-04'
     changes: 'Канонический MBB и curated dd-flow pack обновлены до Memory Bank 2.15.0; project-owned knowledge сохранено.'
@@ -58,6 +62,7 @@ deterministic local acceptance.
 - [Плановое направление](plans/index.md)
 - [Сценарии](scenarios/index.md)
 - [Полка протоколов](protocol/)
+- [Индекс именованных отложений](defs/index.md)
 - [Канон MBB](mbb/index.md)
 
 Foundation history и annotated `checkpoint-01-foundation` не переписываются.

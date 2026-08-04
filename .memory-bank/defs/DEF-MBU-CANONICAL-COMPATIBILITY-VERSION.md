@@ -31,6 +31,9 @@ tags: [deferral, mb-upgrade, canonical, compatibility]
 
 # DEF-MBU-CANONICAL-COMPATIBILITY-VERSION: расхождение canonical version marker
 
+- Owner: canonical Memory Bank maintainer
+- Next gate: `plan` — canonical compatibility maintenance follow-up.
+
 ## Summary
 
 В canonical checkout `VERSION`, resolver и root/MBB release markers указывают

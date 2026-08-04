@@ -25,12 +25,15 @@ related_specs:
   - '.memory-bank/dd-flow/common/runtime-cli.md'
 related_scenarios: []
 related_files:
-  - '03-upgrade/migration-report.json'
   - '.memory-bank/dd-flow/common/runtime-cli.md'
 tags: [deferral, mb-upgrade, runtime, backup, operations]
 ---
 
 # DEF-MBU-RUNTIME-ACTIVE-STATE: runtime/home migration boundary
+
+- Owner: dd-flow runtime/operations owner
+- Next gate: `plan` — runtime/home migration follow-up after backup and
+  inactive-state gates.
 
 ## Summary
 

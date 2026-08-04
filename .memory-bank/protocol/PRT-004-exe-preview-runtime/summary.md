@@ -2,7 +2,7 @@
 file: '.memory-bank/protocol/PRT-004-exe-preview-runtime/summary.md'
 description: 'Рабочая сводка протокола preview runtime и операционного контура Exe.dev.'
 purpose: 'Фиксирует problem-space цель, scope, Git workspace, начальные gaps и handoff в SPECIFY.'
-version: '0.2.0'
+version: '0.3.0'
 date: '2026-08-04'
 status: 'ACTIVE'
 c4_level: 'operations'
@@ -14,9 +14,12 @@ related_scenarios:
   - .memory-bank/scenarios/SCN-002-workspace-task-core.md
 source_user_input:
   - .memory-bank/protocol/PRT-004-exe-preview-runtime/intake/user-input.md
-continuation_prompt: 'protocol.md -> specify, затем plan.md'
-tags: [protocol, specify, exe-dev, preview, runtime, runbook]
+continuation_prompt: 'code.md после явного запуска CODE'
+tags: [protocol, plan, ready-for-code, exe-dev, preview, runtime, runbook]
 history:
+  - version: '0.3.0'
+    date: '2026-08-04'
+    changes: 'SPECIFY и полный PLAN приняты; PLAN-004 фиксирует minimal private preview package, data/access/evidence gates и отдельный будущий deploy.md.'
   - version: '0.2.0'
     date: '2026-08-04'
     changes: 'Protocol bootstrap зарегистрирован как RUN-300; ownership gap безопасно перенесён в deploy-time operational-access gate без блокировки source plan.'
@@ -34,9 +37,12 @@ protocol:
   id: PRT-004-exe-preview-runtime
   title: Exe preview runtime and operations contour
   mode: normal
-  current_stage: specify
-  next_action: continue optimized specify from the feature worktree
+  current_stage: plan
+  next_action: start code.md only after explicit CODE invocation
 scope_sizing_verdict: single_executable_protocol
+stage_verdict: ready_for_code
+plan_id: PLAN-004-exe-preview-runtime
+plan_items: 11
 ```
 
 Одна цель протокола: сделать точный checkpoint dd-tasks воспроизводимо
@@ -123,6 +129,59 @@ verification:
   check_profile: full local quality plus container/runtime smoke and SCN-003
 ```
 
-SPECIFY must perform baseline scan, bounded Memory Bank/provider research,
-method applicability and the user-question gate before PLAN. PLAN owns concrete
-container layout, commands and implementation order.
+SPECIFY завершён с `specified_ready_for_plan`: baseline/research routing,
+fresh knowledge extraction, consolidated gaps, scenario coverage и user gate
+закрыты без открытых problem-space вопросов.
+
+## Accepted PLAN
+
+`PLAN-004-exe-preview-runtime` содержит 11 исполнимых пунктов от workspace
+bootstrap до отдельного deploy handoff. Фазы reflection, review,
+implementation-plan, operations и scenarios выполнены; обязательные focused
+architecture, data/migration, security/privacy, testing, evidence,
+release/deploy, external integration и scenario reviews приняты после
+исправлений.
+
+```yaml
+accepted_runtime:
+  long_running_processes:
+    - one built Hono app serving API and the Vite SPA on one external port
+    - one internal PostgreSQL process
+  operations:
+    - guarded migrate
+    - explicit serialized reset/seed under exact world binding
+  readiness: database reachability + migration checksums + seed marker + immutable artifact provenance
+profiles:
+  - local
+  - test
+  - preview-checkpoint
+  - preview-eval-output
+source_gate:
+  git: feature_merge to local main after readiness
+  result: exact commit SHA + deploy_required_next
+  excluded: [push, tag, release, publish, provider mutation]
+future_deploy_gate:
+  prompt: deploy.md
+  required: fresh identity/team/authority/VM/private-share/transport/capacity readback
+  success: accepted live SCN-003 rollout evidence
+```
+
+Preview работает в production execution mode с secure same-origin cookies, но
+не получает production semantics. Данные disposable; checkpoint volume может
+переживать ordinary restart без backup promise, eval-output требует TTL и exact
+cleanup. Коммитнутые local demo credentials запрещены для live preview;
+operation-scoped actor/runtime/provider secret classes разделены и не попадают
+в Git, image metadata, logs или evidence.
+
+Source readiness требует immutable commit-to-artifact digest, built-package
+smoke, migration/reset/seed failure gates, full authorization matrix, SCN-003
+source passport и чистый worktree. Live-provider rows остаются pending до
+фактического отдельного deploy flow.
+
+Плановый runtime renderer имеет локальную диагностику: RUN сохранил base HEAD
+до protocol-bootstrap commit и поэтому `prompt render` возвращает
+`prompt_runtime_mismatch`; ветка/worktree точны, CLI не имеет штатного rebind,
+runtime вручную не редактировался и новый RUN не создавался. Explicit RUN-local
+task packets и fresh focused sessions закрыли review; это не CODE blocker.
+
+`CODE` не запускался. Текущий handoff — `ready_for_code`.

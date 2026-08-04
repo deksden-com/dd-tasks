@@ -2,7 +2,7 @@
 file: '.memory-bank/protocol/PRT-004-exe-preview-runtime/summary.md'
 description: 'Рабочая сводка протокола preview runtime и операционного контура Exe.dev.'
 purpose: 'Фиксирует problem-space цель, scope, Git workspace, начальные gaps и handoff в SPECIFY.'
-version: '0.3.0'
+version: '0.4.0'
 date: '2026-08-04'
 status: 'ACTIVE'
 c4_level: 'operations'
@@ -12,11 +12,15 @@ related_specs:
   - .memory-bank/spec/operations/index.md
 related_scenarios:
   - .memory-bank/scenarios/SCN-002-workspace-task-core.md
+  - .memory-bank/scenarios/SCN-003-private-preview-runtime.md
 source_user_input:
   - .memory-bank/protocol/PRT-004-exe-preview-runtime/intake/user-input.md
 continuation_prompt: 'code.md после явного запуска CODE'
 tags: [protocol, plan, ready-for-code, exe-dev, preview, runtime, runbook]
 history:
+  - version: '0.4.0'
+    date: '2026-08-04'
+    changes: 'CODE implementation registered in the exact feature worktree; one-port preview runtime, guarded data lifecycle, readiness, source SCN-003 and local/eval smoke are being closed before readiness handoff.'
   - version: '0.3.0'
     date: '2026-08-04'
     changes: 'SPECIFY и полный PLAN приняты; PLAN-004 фиксирует minimal private preview package, data/access/evidence gates и отдельный будущий deploy.md.'
@@ -37,8 +41,8 @@ protocol:
   id: PRT-004-exe-preview-runtime
   title: Exe preview runtime and operations contour
   mode: normal
-  current_stage: plan
-  next_action: start code.md only after explicit CODE invocation
+  current_stage: implementation
+  next_action: complete CODE verification/readiness, then hand exact source HEAD to the separate merge session
 scope_sizing_verdict: single_executable_protocol
 stage_verdict: ready_for_code
 plan_id: PLAN-004-exe-preview-runtime
@@ -184,4 +188,6 @@ source passport и чистый worktree. Live-provider rows остаются pe
 runtime вручную не редактировался и новый RUN не создавался. Explicit RUN-local
 task packets и fresh focused sessions закрыли review; это не CODE blocker.
 
-`CODE` не запускался. Текущий handoff — `ready_for_code`.
+`CODE` зарегистрирован после `ready_for_code` handoff в exact feature worktree.
+Source-package preview checks не являются Exe.dev evidence: provider identity,
+team, VM, private share, transport and capacity остаются отдельным deploy gate.

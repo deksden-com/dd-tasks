@@ -2,7 +2,7 @@
 file: '.memory-bank/protocol/PRT-004-exe-preview-runtime/index.md'
 description: 'Навигация протокола preview runtime и операционного контура Exe.dev.'
 purpose: 'Связывает исходный запрос, рабочую сводку, trace и будущие SPECIFY/PLAN/evidence artifacts.'
-version: '0.3.0'
+version: '0.4.0'
 date: '2026-08-04'
 status: 'ACTIVE'
 c4_level: 'operations'
@@ -14,8 +14,12 @@ children:
   - .memory-bank/protocol/PRT-004-exe-preview-runtime/trace/20260804T203900+0200-protocol-report.md
   - .memory-bank/protocol/PRT-004-exe-preview-runtime/trace/20260804T214804+0200-planning-start.md
   - .memory-bank/protocol/PRT-004-exe-preview-runtime/trace/20260804T232400+0200-planning-report.md
+  - .memory-bank/protocol/PRT-004-exe-preview-runtime/trace/20260804T235701+0200-code-start.md
 tags: [protocol, exe-dev, preview, runtime, operations]
 history:
+  - version: '0.4.0'
+    date: '2026-08-04'
+    changes: 'CODE session registered in the exact feature worktree after ready_for_code handoff; implementation trace added.'
   - version: '0.3.0'
     date: '2026-08-04'
     changes: 'SPECIFY и полный PLAN RUN-300 приняты; добавлены planning trace и ready_for_code handoff.'
@@ -35,6 +39,7 @@ history:
 - [Protocol bootstrap report](trace/20260804T203900+0200-protocol-report.md)
 - [Старт planning-сессии](trace/20260804T214804+0200-planning-start.md)
 - [SPECIFY/PLAN report](trace/20260804T232400+0200-planning-report.md)
+- [CODE start trace](trace/20260804T235701+0200-code-start.md)
 
 Runtime artifacts создаются под project-scoped `dd-flow` run home для
 `RUN-300-exe-preview-runtime`. Фактическая provider mutation не входит в

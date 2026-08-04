@@ -24,6 +24,11 @@ not an acceptance claim. The local-only route does not publish this checkpoint
 to origin. CI, release, deployment, production, external IdP,
 invitations and checkpoint-03 remain out of scope.
 
+PRT-004 adds a private, disposable source-package preview contour in its exact
+feature worktree: one built Hono/Vite process, internal PostgreSQL, guarded
+profile/binding lifecycle, readiness and SCN-003 evidence. Exe.dev remains a
+separate future deploy flow and is not implied by local preview proof.
+
 ## Local development
 
 The project is a small TypeScript monorepo:
@@ -37,14 +42,21 @@ The project is a small TypeScript monorepo:
 - Vitest and Playwright;
 - deterministic guarded database migrate/reset/seed commands.
 
-After `pnpm bootstrap`, use `pnpm db:reset -- --target local`,
-`pnpm db:seed -- --target local`, and `pnpm dev`. Product routes start at
+After `pnpm bootstrap`, use explicit profiles such as `pnpm db:reset --
+--profile local --run-id SCN002` and `pnpm db:seed -- --profile local
+--run-id SCN002`, then `pnpm dev`. Product routes start at
 `/login`; `/foundation` remains the technical regression surface. The seeded
 local/test accounts are documented by SCN-002 fixtures and must never be used as
 production provisioning.
 
-Canonical checks are `pnpm quality`, `pnpm test:browser`, `pnpm db:check` and
-`pnpm docs:check`.
+Canonical source checks are `pnpm quality`, `pnpm test:browser`,
+`pnpm db:check -- --profile local` and `pnpm docs:check`. The built private
+preview contour is `pnpm preview:smoke -- --profile preview-checkpoint
+--run-id <run-id>` or the full `pnpm scenario:preview` command. It builds one
+Hono process serving the API and Vite SPA on one external port plus an internal
+PostgreSQL service, and it removes only its exact recorded disposable binding.
+The preview commands are source-package proof; they do not prove Exe.dev or
+production behavior.
 
 ## Memory Bank requirements
 

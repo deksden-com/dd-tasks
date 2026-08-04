@@ -10,15 +10,27 @@ const requiredFiles = [
   ".memory-bank/plans/verification-matrix.md",
   ".memory-bank/scenarios/index.md",
   ".memory-bank/scenarios/SCN-001-foundation-acceptance.md",
+  ".memory-bank/scenarios/SCN-003-private-preview-runtime.md",
   ".memory-bank/protocol/index.md",
   ".memory-bank/protocol/PRT-001-checkpoint-01-foundation/index.md",
   ".memory-bank/protocol/PRT-001-checkpoint-01-foundation/summary.md",
   ".memory-bank/spec/system/index.md",
   ".memory-bank/spec/engineering/index.md",
   ".memory-bank/spec/operations/index.md",
+  ".memory-bank/spec/operations/check-profiles.md",
+  ".memory-bank/spec/operations/deploy-policy.md",
+  ".memory-bank/spec/operations/operational-access.md",
+  ".memory-bank/spec/operations/preview-stages.md",
+  ".memory-bank/spec/operations/secrets-policy.md",
   ".memory-bank/spec/operations/workspace-bootstrap-policy.md",
   ".memory-bank/spec/operations/runbooks/workspace-bootstrap.md",
+  ".memory-bank/spec/operations/runbooks/preview-runtime.md",
+  ".memory-bank/spec/operations/runbooks/exe-dev-preview.md",
   ".memory-bank/spec/operations/scripts/bootstrap-workspace.sh",
+  "Dockerfile",
+  "compose.preview.yml",
+  "scripts/preview-build.mjs",
+  "scripts/scenario-preview.mjs",
   "scripts/scenario-foundation.mjs",
   "scripts/docs-check.mjs",
 ];
@@ -80,21 +92,28 @@ const matrix = await readText(".memory-bank/plans/verification-matrix.md");
 const scenario = await readText(
   ".memory-bank/scenarios/SCN-001-foundation-acceptance.md",
 );
+const previewScenario = await readText(
+  ".memory-bank/scenarios/SCN-003-private-preview-runtime.md",
+);
 const packageJson = JSON.parse(await readText("package.json"));
 if (
   !packageJson.scripts?.["scenario:foundation"] ||
-  !packageJson.scripts?.["docs:check"]
+  !packageJson.scripts?.["docs:check"] ||
+  !packageJson.scripts?.["preview:build"] ||
+  !packageJson.scripts?.["scenario:preview"]
 ) {
   errors.push(
-    "root package scripts must expose scenario:foundation and docs:check",
+    "root package scripts must expose foundation/docs and preview build/scenario commands",
   );
 }
 if (
   !matrix.includes("SCN-001") ||
-  !matrix.includes("verification-passport.md")
+  !matrix.includes("verification-passport.md") ||
+  !matrix.includes("SCN-003") ||
+  !matrix.includes("pending_deploy_flow")
 ) {
   errors.push(
-    "verification matrix must bind SCN-001 to the verification passport",
+    "verification matrix must bind SCN-001 and SCN-003 with a pending live-provider row",
   );
 }
 if (
@@ -115,6 +134,17 @@ if (
 ) {
   errors.push(
     "SCN-001 must document mandatory cleanup and cleanup failure semantics",
+  );
+}
+if (
+  !previewScenario.includes("SCN-003") ||
+  !previewScenario.includes("preview-checkpoint") ||
+  !previewScenario.includes("preview-eval-output") ||
+  !previewScenario.toLowerCase().includes("live-provider") ||
+  !previewScenario.includes("does_not_prove")
+) {
+  errors.push(
+    "SCN-003 must document both preview profiles, source/live split and proof limits",
   );
 }
 

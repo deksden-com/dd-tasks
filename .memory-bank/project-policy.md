@@ -2,13 +2,16 @@
 file: '.memory-bank/project-policy.md'
 description: 'Компактная карта политик, влияющих на маршрутизацию работ, Git cleanup и local delivery.'
 purpose: 'Собирает подтверждённые правила Git, checkpoint fixation и безопасного удаления завершённых worktree.'
-version: '0.3.0'
-date: '2026-08-03'
+version: '0.4.0'
+date: '2026-08-04'
 status: 'ACTIVE'
 c4_level: 'operations'
 parent: '.memory-bank/index.md'
 tags: [dd-tasks, policy, git]
 history:
+  - version: '0.4.0'
+    date: '2026-08-04'
+    changes: 'PRT-004 adds a bounded local/private preview contour and a separate Exe.dev deploy overlay; source readiness still stops before merge/provider mutation.'
   - version: '0.3.0'
     date: '2026-08-03'
     changes: 'Формализована branch strategy: stable main, protocol-scoped feature worktree, direct route для малых безопасных правок, fast-forward integration, checkpoint push/tag и cleanup.'

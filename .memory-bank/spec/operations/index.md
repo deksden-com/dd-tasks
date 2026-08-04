@@ -1,9 +1,9 @@
 ---
 file: '.memory-bank/spec/operations/index.md'
-description: 'Подтверждённый operational и Git delivery contour dd-tasks через checkpoint-02-core.'
-purpose: 'Фиксирует bootstrap, safety boundaries, evidence contour, branch strategy и checkpoint delivery.'
-version: '1.1.0'
-date: '2026-08-03'
+description: 'Operational, preview-runtime and Git delivery contour dd-tasks through PRT-004.'
+purpose: 'Fixes bootstrap, stage/check/access/secrets safety, one-port preview runtime, evidence contour and source delivery.'
+version: '1.2.0'
+date: '2026-08-04'
 status: 'ACTIVE'
 c4_level: 'operations'
 parent: '.memory-bank/spec/index.md'
@@ -11,8 +11,17 @@ children:
   - .memory-bank/spec/operations/workspace-bootstrap-policy.md
   - .memory-bank/spec/operations/secrets-policy.md
   - .memory-bank/spec/operations/runbooks/workspace-bootstrap.md
+  - .memory-bank/spec/operations/preview-stages.md
+  - .memory-bank/spec/operations/check-profiles.md
+  - .memory-bank/spec/operations/operational-access.md
+  - .memory-bank/spec/operations/deploy-policy.md
+  - .memory-bank/spec/operations/runbooks/preview-runtime.md
+  - .memory-bank/spec/operations/runbooks/exe-dev-preview.md
 tags: [dd-tasks, operations, git, checkpoint-02, delivery]
 history:
+  - version: '1.2.0'
+    date: '2026-08-04'
+    changes: 'PRT-004 materializes local/private preview stages, check profiles, access/secrets/deploy policy and base/Exe.dev runbooks; live provider remains deferred.'
   - version: '1.1.0'
     date: '2026-08-03'
     changes: 'Project Git contour закреплён как stable main плюс disposable protocol feature worktree, fast-forward delivery, checkpoint push/tag и post-delivery cleanup.'
@@ -53,23 +62,22 @@ history:
 
 # Операции
 
-Checkpoint-02 CODE выполняется только в feature worktree
-`feature/prt-003-checkpoint-02-core`; stable `main` изменяется только canonical
-merge flow после readiness. Runtime управляется штатным `dd-flow` CLI 0.4.0,
-без ручной правки DB/JSON.
+PRT-004 CODE выполняется только в exact feature worktree
+`feature/prt-004-exe-preview-runtime`; stable `main` изменяется только
+canonical merge flow после readiness. Runtime управляется штатным `dd-flow` CLI
+0.4.0, без ручной правки DB/JSON.
 
-Local PostgreSQL остаётся на loopback `55433`. `pnpm db:migrate`, `db:reset`,
-`db:seed` и `db:check` требуют exact `local`/`test` target profile; remote,
-production-like и неизвестные базы отклоняются до mutation. Migration ledger
-проверяет checksum и использует transaction-level advisory lock. Детерминированный
-seed создаёт три account, два workspace, три membership, active/archived projects
-и tasks для owner/member/non-member acceptance. Это тестовые данные, не
-production provisioning.
+Local/test PostgreSQL остаётся на loopback `55433`. `pnpm db:migrate`, `db:reset`,
+`db:seed` и `db:check` требуют exact profile; remote, production-like и
+неизвестные базы отклоняются до mutation. Built preview использует отдельные
+`preview-checkpoint`/`preview-eval-output` profiles, internal host `postgres`,
+one-port Hono/Vite app, transaction-level advisory lock, checksum ledger,
+seed marker и exact world/compose/volume binding. Preview data disposable и не
+является production provisioning.
 
-`pnpm test:browser` владеет портами API `8788` и web `4174`, перед запуском
-восстанавливает SCN-002 world и не переиспользует посторонний server. Существующий
-исторический localhost process на `8787` не останавливается и не считается
-evidence этого checkpoint.
+`pnpm scenario:preview` владеет built preview port `4173`, не переиспользует
+посторонний server и records only source-package evidence. `pnpm test:browser`
+сохраняет отдельный SCN-002 local contour на ports `8788`/`4174`.
 
 Bootstrap implementation/readiness и merge receipts принадлежат RUN-298.
 Implementation content `5027fa1` fast-forward integrated into local `main`;

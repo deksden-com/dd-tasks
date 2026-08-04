@@ -1,9 +1,9 @@
 ---
 file: '.memory-bank/spec/engineering/index.md'
-description: 'Подтверждённый engineering/test contour checkpoint-02-core.'
-purpose: 'Фиксирует canonical commands, test ownership и границы локального доказательства.'
-version: '0.4.0'
-date: '2026-08-03'
+description: 'Подтверждённый engineering/test contour checkpoint-02-core и private preview runtime.'
+purpose: 'Фиксирует canonical commands, test ownership, container smoke и границы локального доказательства.'
+version: '0.5.0'
+date: '2026-08-04'
 status: 'ACTIVE'
 c4_level: 'documentation'
 index_type: 'shallow'
@@ -16,14 +16,24 @@ implementation_files:
   - apps/api/vitest.unit.config.ts
   - apps/api/vitest.integration.config.ts
   - apps/web/playwright.config.ts
+  - apps/web/playwright.preview.config.ts
+  - scripts/preview-build.mjs
+  - scripts/scenario-preview.mjs
+  - Dockerfile
+  - compose.preview.yml
   - .memory-bank/spec/operations/scripts/bootstrap-workspace.sh
 test_files:
   - apps/api/tests/password-session.test.ts
   - apps/api/tests/core.integration.test.ts
+  - apps/api/tests/readiness.integration.test.ts
   - apps/web/src/product/ProductApp.test.tsx
   - apps/web/tests/browser/core.spec.ts
-tags: [dd-tasks, engineering, checkpoint-02, quality, playwright]
+  - apps/web/tests/browser/preview.spec.ts
+tags: [dd-tasks, engineering, checkpoint-02, preview, quality, playwright, container]
 history:
+  - version: '0.5.0'
+    date: '2026-08-04'
+    changes: 'Добавлены preview build/scenario commands, Docker runtime smoke, guarded negative checks, readiness integration и SCN-003 browser ownership.'
   - version: '0.4.0'
     date: '2026-08-03'
     changes: 'Разделены API unit/integration suites, добавлен SCN-002 Playwright и устранены Biome CSS warnings.'
@@ -46,6 +56,18 @@ Canonical bootstrap — `pnpm bootstrap`; в non-interactive окружении 
   API/web ports `8788`/`4174`;
 - `pnpm docs:check` и `pnpm db:check`.
 
+Preview source-package gates дополнительно используют:
+
+- `pnpm preview:build -- --profile <preview-profile> --run-id <run-id>` —
+  image build с baked source revision/artifact digest;
+- `pnpm scenario:preview -- --profile <preview-profile> --run-id <run-id>` —
+  exact compose binding, pre-init `503`, guarded migrate/reset/seed,
+  API/browser role matrix, checkpoint restart или eval volume cleanup;
+- `pnpm --filter @dd-tasks/web exec playwright test --config
+  playwright.preview.config.ts --project chromium` — SCN-003 browser contour.
+
 Unit tests не заменяют readiness: SCN-002 требует fresh integration и browser
 evidence. Playwright не переиспользует чужой localhost server. CI, release и
-deploy tooling не вводились.
+deploy tooling не вводились. Эти проверки доказывают только source package и
+disposable local container; live Exe.dev, provider access, transport/capacity,
+CI/CD и production остаются отдельным deploy gate.

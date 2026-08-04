@@ -1,9 +1,9 @@
 ---
 file: '.memory-bank/spec/system/index.md'
-description: 'Source-backed карта системных границ dd-tasks через checkpoint-02-core.'
-purpose: 'Связывает web, HTTP authorization, server-side sessions и PostgreSQL persistence с проверками.'
-version: '0.4.0'
-date: '2026-08-03'
+description: 'Source-backed карта системных границ dd-tasks через checkpoint-02-core и private preview runtime.'
+purpose: 'Связывает web, HTTP authorization, server-side sessions, PostgreSQL persistence и one-port preview execution с проверками.'
+version: '0.5.0'
+date: '2026-08-04'
 status: 'ACTIVE'
 c4_level: 'L1'
 index_type: 'shallow'
@@ -19,15 +19,26 @@ implementation_files:
   - apps/api/src/db/schema.ts
   - apps/api/src/db/migrations.ts
   - apps/api/src/db/fixtures.ts
+  - apps/api/src/db/runtime-profile.ts
+  - apps/api/src/db/readiness.ts
+  - apps/api/src/runtime.ts
+  - apps/api/src/server.ts
+  - Dockerfile
+  - compose.preview.yml
   - apps/web/src/product/api.ts
   - apps/web/src/product/ProductApp.tsx
 test_files:
   - apps/api/tests/password-session.test.ts
   - apps/api/tests/core.integration.test.ts
+  - apps/api/tests/readiness.integration.test.ts
   - apps/web/src/product/ProductApp.test.tsx
   - apps/web/tests/browser/core.spec.ts
-tags: [dd-tasks, system, checkpoint-02, auth, workspace-isolation]
+  - apps/web/tests/browser/preview.spec.ts
+tags: [dd-tasks, system, checkpoint-02, preview, auth, workspace-isolation, readiness]
 history:
+  - version: '0.5.0'
+    date: '2026-08-04'
+    changes: 'Добавлен source-backed private preview runtime: one-port built Hono/Vite, internal PostgreSQL, exact profiles/bindings, readiness and immutable build metadata.'
   - version: '0.4.0'
     date: '2026-08-03'
     changes: 'Добавлены product HTTP/data/web boundaries, session lifecycle и API-enforced owner/member isolation.'
@@ -59,3 +70,12 @@ Public errors имеют стабильные `code`/`message`; unexpected inter
 выдаются клиенту. Product UI покрывает `/login`, `/register`, `/workspaces`,
 project list/lifecycle и task CRUD с loading/empty/error/read-only states.
 Foundation `/foundation` и его regression tests сохранены.
+
+Preview execution использует один built Hono process: API namespace остаётся
+JSON-only, а non-API routes отдают Vite SPA через тот же внешний port. Profiles
+`local`, `test`, `preview-checkpoint` и `preview-eval-output` выбирают exact
+database/host/world/compose/volume binding; preview destructive commands
+отвергаются до SQL client при mismatch. `/api/health` означает liveness,
+`/api/ready` дополнительно проверяет profile, migration ids/checksums, schema,
+seed marker и baked source revision/artifact digest. Preview data disposable;
+checkpoint restart и eval cleanup являются отдельными source-package claims.

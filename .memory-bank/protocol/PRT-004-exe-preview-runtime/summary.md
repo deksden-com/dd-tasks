@@ -2,7 +2,7 @@
 file: '.memory-bank/protocol/PRT-004-exe-preview-runtime/summary.md'
 description: 'Рабочая сводка протокола preview runtime и операционного контура Exe.dev.'
 purpose: 'Фиксирует problem-space цель, scope, Git workspace, начальные gaps и handoff в SPECIFY.'
-version: '0.1.0'
+version: '0.2.0'
 date: '2026-08-04'
 status: 'ACTIVE'
 c4_level: 'operations'
@@ -16,6 +16,13 @@ source_user_input:
   - .memory-bank/protocol/PRT-004-exe-preview-runtime/intake/user-input.md
 continuation_prompt: 'protocol.md -> specify, затем plan.md'
 tags: [protocol, specify, exe-dev, preview, runtime, runbook]
+history:
+  - version: '0.2.0'
+    date: '2026-08-04'
+    changes: 'Protocol bootstrap зарегистрирован как RUN-300; ownership gap безопасно перенесён в deploy-time operational-access gate без блокировки source plan.'
+  - version: '0.1.0'
+    date: '2026-08-04'
+    changes: 'Создан feature-worktree protocol handoff.'
 ---
 
 # PRT-004 — Exe preview runtime
@@ -91,8 +98,7 @@ decisions:
       summary: Preview exposure and data-lifecycle defaults need explicit requirements treatment.
       impact: Affects safety, reset semantics and acceptance evidence.
   fixed_questions: []
-  open_questions:
-    - Q-001
+  open_questions: []
 ```
 
 Safe proposed defaults for SPECIFY to validate: preview is private by default;
@@ -100,6 +106,11 @@ its data is disposable and recreated from deterministic fixtures; no backup,
 staging or production promise is introduced. `DEF-MBU-RUNTIME-ACTIVE-STATE` is
 `not_relevant`: it concerns dd-flow home/runtime contract migration, not the
 application PostgreSQL preview runtime.
+
+Actual Exe.dev identity/team is deliberately not persisted or guessed during
+source planning. It becomes an operation-scoped input to the later `deploy.md`
+preflight, where fresh readback must bind exactly one expected account/team and
+target VM before provider mutation. Поэтому GAP-001 не блокирует PLAN.
 
 ## Verification outline
 

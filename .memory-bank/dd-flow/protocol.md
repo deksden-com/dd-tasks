@@ -40,9 +40,10 @@ Flow origin policy: `project_local`.
 7. Запиши `summary.md` с исходным запросом, пониманием, scope, workspace, base commit, текущей стадией `specify` и следующим шагом.
 8. Если есть `protocol/index.md`, добавь ссылку на новый протокол.
 9. Зарегистрируй runtime protocol/run state, если доступен CLI.
-10. Запусти первую итерацию `specify` только до уровня верхнеуровневых вопросов/черновой specification. Если появились вопросы пользователя, остановись на `waiting_for_user`.
+10. Сразу выполни optimized `specify` pass из `common/specification.md`: baseline scan, research gate, applicability matrix выбранных requirements methods, consolidated gap ledger и user-question gate. Не возвращай пользователю только факт создания протокола, если substantive discussion уже содержит достаточно материала для этого анализа.
+11. Сформируй `01-specify` specification/report artifacts, зафиксируй `open_questions`/`fixed_questions`, сценарии happy/alternate/error и task profile. Если material problem-space questions остались, остановись на `waiting_for_user`; иначе передай plan-ready handoff в `plan.md`.
 
-Важно: `protocol.md` всегда открывает problem-space work, а не solution-space planning. Если запрос был "оформи протокол", следующий осмысленный шаг после materialization - именно `specify`, а не ручное создание протокола без фазы вопросов.
+Важно: `protocol.md` всегда открывает problem-space work, а не solution-space planning. Если запрос был "оформи протокол", следующий осмысленный шаг после materialization — немедленный requirements-gap pass внутри `specify`, а не ручное создание протокола без анализа. Этот pass может завершиться без вопросов (`baseline_only`), с вопросами (`waiting_for_user`) или с plan-ready specification; он не выбирает архитектуру и не заменяет design aspects.
 
 ## Scope Sizing
 

@@ -1,4 +1,15 @@
-{"schema_id":"dd-flow/project-flow-pack-manifest@2","pack_version":"2.14.1","flow_origin_policy":"project_local_pack","canon_root":"/Users/deksden/Documents/_Projects/dd-memorybank","canon_memory_bank_root":"/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank","canon_flow_root":"/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank/dd-flow","source_commit":"1472a2f0d125a681284af0abec7ac8bed99c7615","canon_version_at_source_commit":"2.14.1","flow_contract":"dd-flow-canonical-2026-06","installed_at":"2026-08-01T04:03:34+02:00","included_files":[
+{
+  "schema_id": "dd-flow/project-flow-pack-manifest@2",
+  "pack_version": "2.15.0",
+  "flow_origin_policy": "project_local_pack",
+  "canon_root": "/Users/deksden/Documents/_Projects/dd-memorybank",
+  "canon_memory_bank_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank",
+  "canon_flow_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank/dd-flow",
+  "source_commit": "852d9ea533eac5e0737ea9bdb3331882ba3597e3",
+  "canon_version_at_source_commit": "2.15.0",
+  "flow_contract": "dd-flow-canonical-2026-06",
+  "installed_at": "2026-08-04T09:10:00.000Z",
+  "included_files": [
     "README.md",
     "code.md",
     "common/browser-verification.md",
@@ -102,6 +113,17 @@
     "mb-sdlc/specify/design-aspects/02-ai-pipeline-and-model-prompts.md",
     "mb-sdlc/specify/design-aspects/03-web-ui-surface.md",
     "mb-sdlc/specify/design-aspects/index.md",
+    "mb-sdlc/specify/discovery.md",
+    "mb-sdlc/specify/gap-analysis/index.md",
+    "mb-sdlc/specify/gap-analysis/methods/01-use-case-analysis.md",
+    "mb-sdlc/specify/gap-analysis/methods/02-entity-operation-crud-plus.md",
+    "mb-sdlc/specify/gap-analysis/methods/03-state-transition-analysis.md",
+    "mb-sdlc/specify/gap-analysis/methods/04-decision-table.md",
+    "mb-sdlc/specify/gap-analysis/methods/05-example-mapping.md",
+    "mb-sdlc/specify/gap-analysis/methods/06-domain-storytelling.md",
+    "mb-sdlc/specify/gap-analysis/methods/07-event-storming-light.md",
+    "mb-sdlc/specify/gap-analysis/methods/08-misuse-cases.md",
+    "mb-sdlc/specify/gap-analysis/methods/09-fmea-light.md",
     "mb-sdlc/specify/stage-report-template.html",
     "merge-start.md",
     "merge-stop.md",
@@ -201,4 +223,14 @@
     "workers/protocol-archive.md",
     "workers/repair.md",
     "workers/verify.md"
-],"excluded_canonical_only_flows":["mb-init.md","mb-upgrade.md","mb-distill.md"],"generated_allow_patterns":[".generated/**"],"notes":"Curated project-local flow pack installed during initial Memory Bank setup."}
+  ],
+  "excluded_canonical_only_flows": [
+    "mb-init.md",
+    "mb-upgrade.md",
+    "mb-distill.md"
+  ],
+  "generated_allow_patterns": [
+    ".generated/**"
+  ],
+  "notes": "Curated project-local flow pack installed during initial Memory Bank setup."
+}

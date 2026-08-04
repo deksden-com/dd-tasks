@@ -98,6 +98,90 @@
       }
     ]
   },
+  "research_routing": {
+    "selected_level": "memory_bank_first",
+    "questions": ["Is there an existing analogue?"],
+    "sources": [".memory-bank/spec/example.md"],
+    "findings": ["Existing scenario covers the normal outcome."],
+    "analogies": [
+      {
+        "source": ".memory-bank/spec/example.md",
+        "strength": "strong",
+        "proposed_default": "Preserve the existing observable outcome.",
+        "user_confirmation_required": false,
+        "evidence": ["Same project responsibility and no conflicting policy source."]
+      }
+    ],
+    "conflicts": [],
+    "stop_reason": "The named question was answered by an authoritative source."
+  },
+  "method_applicability": [
+    {
+      "method": "use_case_analysis",
+      "applicability": "light",
+      "signals": ["actor interaction"],
+      "reason": "The task has one observable interaction.",
+      "questions_to_answer": ["What is the main outcome?"],
+      "stop_condition": "Actor, outcome and material error are recorded."
+    },
+    {
+      "method": "entity_operation_crud_plus",
+      "applicability": "not_applicable",
+      "signals": [],
+      "reason": "No entity lifecycle changes.",
+      "questions_to_answer": [],
+      "stop_condition": "Do not read the method file."
+    }
+  ],
+  "gap_analysis": {
+    "research": {
+      "selected_level": "memory_bank_first",
+      "questions": ["Is there an existing analogue?"],
+      "sources": [".memory-bank/spec/example.md"],
+      "findings": ["Analogue is strong but proposed, not binding."],
+      "analogies": [
+        {
+          "source": ".memory-bank/spec/example.md",
+          "strength": "strong",
+          "proposed_default": "Preserve the existing observable outcome.",
+          "user_confirmation_required": false
+        }
+      ],
+      "conflicts": [],
+      "stop_reason": "The analogue was sufficient."
+    },
+    "methods": ["use_case_analysis"],
+    "gaps": [
+      {
+        "id": "GAP-001",
+        "source_method": "use_case_analysis",
+        "category": "missing",
+        "problem_space": true,
+        "impact": "significant",
+        "evidence": ["No error result was stated."],
+        "affected_requirement": "The actor must see a safe failure result.",
+        "resolution": "user_decision",
+        "status": "open",
+        "question_id": "Q-002"
+      }
+    ],
+    "scenario_coverage": {
+      "happy_paths": ["normal request completes"],
+      "alternate_paths": ["existing analogue is proposed"],
+      "error_paths": ["request is rejected safely"]
+    },
+    "requirement_updates": ["Add an explicit error acceptance criterion."]
+  },
+  "scenario_coverage": {
+    "happy_paths": ["normal request completes"],
+    "alternate_paths": ["existing analogue is proposed"],
+    "error_paths": ["request is rejected safely"]
+  },
+  "problem_solution_boundary": {
+    "problem_space_owned_by_specify": ["outcome", "scope", "acceptance"],
+    "solution_space_owned_by_plan_or_agent": ["file layout", "implementation order"],
+    "user_question_gate": "Ask only when the outcome or accepted scope remains material and unresolved."
+  },
   "task_profile": {
     "size": "medium",
     "risk": "medium",

@@ -100,6 +100,30 @@
         }
       }
     },
+    "research_routing": { "$ref": "#/definitions/researchRouting" },
+    "method_applicability": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/methodApplicability" }
+    },
+    "gap_analysis": { "$ref": "#/definitions/gapAnalysis" },
+    "scenario_coverage": { "$ref": "#/definitions/scenarioCoverage" },
+    "problem_solution_boundary": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "problem_space_owned_by_specify": { "type": "array", "items": { "type": "string" } },
+        "solution_space_owned_by_plan_or_agent": { "type": "array", "items": { "type": "string" } },
+        "user_question_gate": { "type": "string" }
+      }
+    },
+    "policy_context_spec": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "sources": { "type": "object", "additionalProperties": true },
+        "gaps": { "type": "object", "additionalProperties": true }
+      }
+    },
     "task_profile": {
       "type": "object",
       "additionalProperties": true,
@@ -198,6 +222,87 @@
         "recommendation_rationale": { "type": "string" },
         "answered_at": { "type": "string" },
         "source": { "type": "string" }
+      }
+    },
+    "researchRouting": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["selected_level", "questions", "stop_reason"],
+      "properties": {
+        "selected_level": { "enum": ["skip", "memory_bank_first", "focused_project"] },
+        "questions": { "type": "array", "items": { "type": "string" } },
+        "sources": { "type": "array", "items": { "type": "string" } },
+        "findings": { "type": "array", "items": { "type": "string" } },
+        "analogies": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": ["source", "strength", "user_confirmation_required"],
+            "properties": {
+              "source": { "type": "string", "minLength": 1 },
+              "strength": { "enum": ["binding", "strong", "weak", "conflict"] },
+              "proposed_default": { "type": "string" },
+              "user_confirmation_required": { "type": "boolean" },
+              "evidence": { "type": "array", "items": { "type": "string" } },
+              "conflict": { "type": "string" }
+            }
+          }
+        },
+        "conflicts": { "type": "array", "items": { "type": "string" } },
+        "stop_reason": { "type": "string", "minLength": 1 }
+      }
+    },
+    "methodApplicability": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["method", "applicability", "reason", "questions_to_answer", "stop_condition"],
+      "properties": {
+        "method": { "type": "string", "minLength": 1 },
+        "applicability": { "enum": ["not_applicable", "light", "full"] },
+        "signals": { "type": "array", "items": { "type": "string" } },
+        "reason": { "type": "string", "minLength": 1 },
+        "questions_to_answer": { "type": "array", "items": { "type": "string" } },
+        "stop_condition": { "type": "string", "minLength": 1 }
+      }
+    },
+    "gapAnalysis": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["research", "methods", "gaps", "scenario_coverage", "requirement_updates"],
+      "properties": {
+        "research": { "$ref": "#/definitions/researchRouting" },
+        "methods": { "type": "array", "items": { "type": "string" } },
+        "gaps": { "type": "array", "items": { "$ref": "#/definitions/gap" } },
+        "scenario_coverage": { "$ref": "#/definitions/scenarioCoverage" },
+        "requirement_updates": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "gap": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "source_method", "category", "problem_space", "impact", "status"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^GAP-[0-9]{3}$" },
+        "source_method": { "type": "string" },
+        "category": { "enum": ["missing", "ambiguous", "conflicting", "unverified_assumption"] },
+        "problem_space": { "type": "boolean" },
+        "impact": { "enum": ["blocking", "significant", "non_blocking"] },
+        "evidence": { "type": "array", "items": { "type": "string" } },
+        "affected_requirement": { "type": "string" },
+        "resolution": { "type": "string" },
+        "status": { "enum": ["open", "resolved", "deferred"] },
+        "question_id": { "type": ["string", "null"] }
+      }
+    },
+    "scenarioCoverage": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["happy_paths", "alternate_paths", "error_paths"],
+      "properties": {
+        "happy_paths": { "type": "array", "items": { "type": "string" } },
+        "alternate_paths": { "type": "array", "items": { "type": "string" } },
+        "error_paths": { "type": "array", "items": { "type": "string" } }
       }
     },
     "designAspectDecision": {

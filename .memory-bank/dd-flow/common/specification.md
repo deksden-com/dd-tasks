@@ -49,6 +49,113 @@ Specification не должна превращаться в technical design. Д
 
 `specify` не создаёт карточки для всех будущих tasks, но обязан оставить `plan` достаточно ясный semantic handoff: какой outcome нужен, какая system responsibility может быть затронута, что нельзя размывать и какие evidence claims потребуют более сильной проверки, чем local unit test.
 
+## Optimized Requirements-Gap Pass
+
+После того как протокол материализован и сохранён raw intake, `specify` сразу
+делает короткий requirements-gap pass до `plan`. Это логическая часть текущей
+стадии, а не новый runtime stage. Зонтичный роутер и отдельные чеклисты лежат
+в:
+
+- `.memory-bank/dd-flow/mb-sdlc/specify/discovery.md` — bounded project research;
+- `.memory-bank/dd-flow/mb-sdlc/specify/gap-analysis/index.md` — routing,
+  consolidation and question gate;
+- `.memory-bank/dd-flow/mb-sdlc/specify/gap-analysis/methods/` — one concise
+  file per requirements-analysis method.
+
+### Route order
+
+Выполняй ровно этот порядок:
+
+1. **Baseline scan — всегда.** Проверь outcome/value, actors, scope,
+   non-goals, happy path, material alternate/error paths, business rules,
+   acceptance evidence, assumptions and conflicts. Ясная trivial/local task
+   может завершиться с `methods: baseline_only`.
+2. **Research gate — опционально.** Сначала назови вопросы, которые могут
+   изменить problem-space. Выбери `skip`, `memory_bank_first` или
+   `focused_project`; ищи Memory Bank и durable sources раньше кода/history.
+   У каждой разведки есть source list, findings, analogy strength, conflicts и
+   stop reason. Эскалируй в code/history только по material triggers, а не для
+   общего повышения уверенности.
+3. **Method applicability matrix — до чтения method files.** Для каждого
+   метода зафиксируй `not_applicable`, `light` или `full`, signals, reason,
+   questions-to-answer и stop condition. Читай только selected files.
+4. **Consolidation — один ledger.** Findings всех методов, research facts,
+   requirement updates и happy/alternate/error coverage своди в один
+   `gap_analysis`. Не создавай отдельный пользовательский отчёт на метод.
+5. **Resolution/user gate.** Сначала используй authoritative fact, сильную
+   analogy как proposed default, safe agent-owned assumption/non-goal и только
+   затем вопрос пользователю. Вопрос допустим только когда решение меняет
+   outcome, scope, rule, role/lifecycle semantics, irreversible effect, risk,
+   compatibility или acceptance.
+
+### Proportionality rules
+
+- Baseline обязателен; specialized method — только при meaningful signal.
+- Обычно достаточно одного-трёх selected methods. Больше — только для
+  независимых hard-risk triggers с явным объяснением.
+- `light` означает narrow checklist section, а не урезанный полный проект.
+- Пустое optional field не является gap. Gap существует только если omission,
+  ambiguity, conflict или assumption может материализоваться в accepted
+  behavior, scope, safety, obligation or evidence.
+- Strong analogy закрывает вопрос только когда source strength это позволяет;
+  weak/conflicting analogy показывается как option или user question, не как
+  молчаливое требование.
+- Исследование останавливается, когда named questions resolved/disproved или
+  превращены в explicit unknown/gap. Дальнейший поиск ради confidence не
+  разрешён.
+
+### Problem-space question contract
+
+Вопросы должны быть high-level и иметь стабильный `Q-*` id. Каждый вопрос
+содержит `why_it_matters`, 2–3 meaningful options, recommendation,
+recommendation rationale и эффект вариантов на scope/acceptance. Пользователь
+может предложить собственный вариант. За один раунд задавай только наиболее
+влиятельные вопросы, обычно не более трёх.
+
+Не спрашивай пользователя о technical architecture, data structures,
+endpoints, file/module layout, implementation sequence, worker topology,
+routine Git или tooling. Это solution space и ответственность `plan`/агента.
+
+### Shared result contract
+
+Specification/stage report должны сохранять `research_routing`,
+`method_applicability`, `gap_analysis`, `scenario_coverage` и явную границу
+`problem_solution_boundary`. Минимальный ledger имеет вид:
+
+```yaml
+gap_analysis:
+  research:
+    level: skip | memory_bank_first | focused_project
+    questions: []
+    sources: []
+    findings: []
+    analogies: []
+    conflicts: []
+    stop_reason:
+  methods: []
+  gaps:
+    - id: GAP-001
+      source_method:
+      category: missing | ambiguous | conflicting | unverified_assumption
+      problem_space: true
+      impact: blocking | significant | non_blocking
+      evidence: []
+      affected_requirement:
+      resolution: project_fact | proposed_default | user_decision | assumption | non_goal | deferral
+      status: open | resolved | deferred
+      question_id:
+  scenario_coverage:
+    happy_paths: []
+    alternate_paths: []
+    error_paths: []
+  requirement_updates: []
+```
+
+`specify` завершается только когда нет открытых blocking problem-space
+вопросов, а remaining unknowns стали explicit assumption, non-goal, DEF,
+blocker или user question. Design aspects остаются отдельным следующим
+контуром и не считаются requirements methods.
+
 ## Design Aspects
 
 На стадии `specify` используй `.memory-bank/dd-flow/mb-sdlc/specify/design-aspects/index.md` как шпаргалку для известных типов задач. Если задача затрагивает CLI, AI pipeline/model prompts, UI или другой явно описанный design aspect:

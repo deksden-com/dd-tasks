@@ -22,6 +22,7 @@
     .item:first-child { border-top:0; padding-top:0; }
     .label { display:block; color:var(--green); font-size:12px; font-weight:900; margin-bottom:3px; }
     .value { font-size:14px; }
+    .value ul { margin:0; padding-left:20px; }
     .layout { display:grid; grid-template-columns:minmax(0,1fr) minmax(320px,.7fr); gap:12px; align-items:start; }
     details { border-top:1px solid var(--line); padding:9px 0; }
     summary { cursor:pointer; font-weight:800; }
@@ -53,6 +54,10 @@
       <h2>Вводные и кандидаты знаний</h2>
       <div class="grid" id="knowledgeBlocks"></div>
     </section>
+    <section class="panel">
+      <h2>Requirements-gap analysis</h2>
+      <div class="grid" id="gapBlocks"></div>
+    </section>
   </main>
   <script>
     const data = JSON.parse(document.getElementById('specification-data').textContent);
@@ -64,6 +69,7 @@
       return node;
     };
     const item = (label, value) => el('div', { class: 'item' }, [el('span', { class: 'label' }, [label]), el('div', { class: 'value' }, [text(value, 'N/A')])]);
+    const listText = (values, fallback = 'none') => Array.isArray(values) && values.length ? values.join('; ') : fallback;
     document.getElementById('crumbs').textContent = (data.breadcrumbs || []).map(x => x.label || x).join(' / ');
     document.getElementById('stage').textContent = text(data.stage && data.stage.status, 'specified');
     document.getElementById('project').textContent = text(data.project && data.project.title, 'Project');
@@ -105,6 +111,23 @@
       item('extraction', `${text(extraction.mode, 'not_applicable')} / ${text(extraction.status, 'skipped')}: ${text(extraction.summary, 'N/A')}`),
       item('candidates', `${text(candidates.total, 0)} total; ${text(layerSummary, 'no target layers')}`),
       item('confirmation/blockers', `${text(candidates.requires_user_confirmation, 0)} confirmation; ${text(candidates.blocked, 0)} blocked`)
+    );
+    const research = data.research_routing || {};
+    const methods = data.method_applicability || [];
+    const ledger = data.gap_analysis || {};
+    const coverage = data.scenario_coverage || ledger.scenario_coverage || {};
+    const methodSummary = methods.map(method => `${text(method.method)}: ${text(method.applicability)}${method.reason ? ' — ' + text(method.reason) : ''}`).join('; ');
+    const analogySummary = (research.analogies || []).map(analogy => `${text(analogy.source)}: ${text(analogy.strength)}${analogy.proposed_default ? ' — ' + text(analogy.proposed_default) : ''}${analogy.user_confirmation_required ? ' (требует решения пользователя)' : ''}`).join('; ');
+    const gapSummary = (ledger.gaps || []).map(gap => `${text(gap.id)} ${text(gap.category)} / ${text(gap.impact)} / ${text(gap.status)}`).join('; ');
+    document.getElementById('gapBlocks').append(
+      item('research route', `${text(research.selected_level, 'not_recorded')} — ${text(research.stop_reason, 'no stop reason')}`),
+      item('research questions', listText(research.questions)),
+      item('analogies', analogySummary || 'none recorded'),
+      item('method applicability', methodSummary || 'baseline-only'),
+      item('gap ledger', gapSummary || 'initial_gaps: none_detected'),
+      item('happy paths', listText(coverage.happy_paths)),
+      item('alternate paths', listText(coverage.alternate_paths)),
+      item('error paths', listText(coverage.error_paths))
     );
   </script>
 </body>

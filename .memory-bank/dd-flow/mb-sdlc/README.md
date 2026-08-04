@@ -34,6 +34,8 @@ This directory holds the internal stage prompts and templates:
 ```text
 mb-sdlc/
   specify/
+    discovery.md
+    gap-analysis/
   plan/
   code/
   merge/
@@ -61,3 +63,9 @@ Legacy runs may still expose the same stage folders under `.tasks/dd-flow-runs/<
 When a stage is rerun, the current stage folder stays canonical. Previous contents move to `try-###` inside that same stage folder.
 
 `mb-sdlc-review` is an on-demand project-level review flow, not a normal protocol stage in the ordered delivery chain. It uses `flow_kind: mb-sdlc-review`, writes its own `04-review/` report directory inside the review run home and may create follow-up ordinary protocols through `review-fix`.
+
+The `specify/gap-analysis/` library is an optimized requirements-completeness
+contour inside `specify`. Its umbrella router selects bounded discovery and the
+smallest sufficient method checklists; it does not create a runtime stage or
+replace `specify/design-aspects/`, which remains the owner of design defaults
+passed to planning.

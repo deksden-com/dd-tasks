@@ -2,13 +2,16 @@
 file: '.memory-bank/structure.md'
 description: 'Карта разделов и текущей плотности знаний.'
 purpose: 'Объясняет, где живёт подтверждённая проектная истина.'
-version: '0.4.0'
+version: '0.4.1'
 date: '2026-08-04'
 status: 'ACTIVE'
 c4_level: 'project'
 parent: '.memory-bank/index.md'
 tags: [dd-tasks, structure]
 history:
+  - version: '0.4.1'
+    date: '2026-08-04'
+    changes: 'Curated flow-pack source reference выровнен с canonical release-fix 8cb14de.'
   - version: '0.4.0'
     date: '2026-08-04'
     changes: 'После 05-review materialized durable defs shelf для двух внешних upgrade gates; navigation и ownership обновлены.'
@@ -36,5 +39,5 @@ foundation создан один canonical scenario; raw run artifacts не по
 Memory Bank truth.
 
 mbb — копия MBB 2.15.0. dd-flow — curated project-local pack из canonical
-commit `852d9ea533eac5e0737ea9bdb3331882ba3597e3`; canonical-only mb-init,
+commit `8cb14def1b939d38a4cfcd00a20426337e18ede1`; canonical-only mb-init,
 mb-upgrade и mb-distill не установлены.

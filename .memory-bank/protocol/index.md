@@ -2,8 +2,8 @@
 file: '.memory-bank/protocol/index.md'
 description: 'Curated протоколы работ проекта.'
 purpose: 'Сохраняет долговечные следы инициализации и дальнейших работ, включая pre-CODE handoff.'
-version: '0.9.0'
-date: '2026-08-03'
+version: '1.0.0'
+date: '2026-08-04'
 status: 'ACTIVE'
 c4_level: 'project'
 parent: '.memory-bank/index.md'
@@ -11,8 +11,12 @@ children:
   - .memory-bank/protocol/PRT-2026-08-01-mb-init/index.md
   - .memory-bank/protocol/PRT-001-checkpoint-01-foundation/index.md
   - .memory-bank/protocol/PRT-003-checkpoint-02-core/index.md
+  - .memory-bank/protocol/PRT-004-exe-preview-runtime/index.md
 tags: [protocol]
 history:
+  - version: '1.0.0'
+    date: '2026-08-04'
+    changes: 'Добавлен PRT-004 для Exe.dev preview runtime, operational policies/runbook и отдельного deploy handoff.'
   - version: '0.9.0'
     date: '2026-08-03'
     changes: 'PRT-003 canonical local merge, post-merge verification и annotated checkpoint-02-core fixation приняты; remote publish не выполнялся по local-only route.'
@@ -49,3 +53,6 @@ history:
 - [Checkpoint-02 Core](PRT-003-checkpoint-02-core/index.md): RUN-298 реализовал
   PLAN-003, принял SCN-002 readiness и canonical local main merge; annotated tag
   `checkpoint-02-core` фиксирует local snapshot. RUN-297 degraded сохранён.
+- [Exe preview runtime](PRT-004-exe-preview-runtime/index.md): source protocol
+  для environment/deploy/access policies, runtime packaging, operator runbook и
+  SCN-003; фактическая Exe.dev mutation остаётся отдельным `deploy.md` flow.

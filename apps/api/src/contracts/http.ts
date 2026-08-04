@@ -23,6 +23,16 @@ export type HealthResponse = {
   requestId: string;
 };
 
+export type ReadyResponse = {
+  status: "ready";
+  service: typeof API_CONTRACT.service;
+  requestId: string;
+  revision: {
+    sourceRevision: string;
+    artifactDigest: string;
+  };
+};
+
 export type PublicErrorResponse = {
   code:
     | "NOT_FOUND"
@@ -31,14 +41,15 @@ export type PublicErrorResponse = {
     | "FORBIDDEN"
     | "VALIDATION_ERROR"
     | "CONFLICT"
-    | "PROJECT_ARCHIVED";
+    | "PROJECT_ARCHIVED"
+    | "NOT_READY";
   message: string;
   requestId: string;
 };
 
 export function publicErrorResponse(
   c: Context<ApiEnv>,
-  status: 400 | 401 | 403 | 404 | 409 | 500,
+  status: 400 | 401 | 403 | 404 | 409 | 500 | 503,
   code: PublicErrorResponse["code"],
   message: string,
 ): Response {
@@ -82,6 +93,19 @@ export function healthResponse(c: Context<ApiEnv>): Response {
     status: "ok",
     service: API_CONTRACT.service,
     requestId: c.get("requestId"),
+  };
+  return c.json(body, 200);
+}
+
+export function readyResponse(
+  c: Context<ApiEnv>,
+  revision: ReadyResponse["revision"],
+): Response {
+  const body: ReadyResponse = {
+    status: "ready",
+    service: API_CONTRACT.service,
+    requestId: c.get("requestId"),
+    revision,
   };
   return c.json(body, 200);
 }

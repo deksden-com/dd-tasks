@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { classifyResetTarget } from "../src/db/target-guard.js";
+import { previewBindingFor } from "../src/db/runtime-profile.js";
+import {
+  classifyMutationTarget,
+  classifyResetTarget,
+} from "../src/db/target-guard.js";
 
 describe("foundation reset target guard", () => {
   it.each([
@@ -64,5 +68,114 @@ describe("foundation reset target guard", () => {
       safe: true,
       target: "local",
     });
+  });
+
+  it("does not require preview bindings for local reset callers", () => {
+    expect(
+      classifyMutationTarget({
+        databaseUrl:
+          "postgresql://dd_tasks@127.0.0.1/dd_tasks_foundation_local",
+        profile: "local",
+        runId: "SCN002",
+        operation: "reset",
+        requireRunId: true,
+        requireWorldBinding: true,
+      }),
+    ).toMatchObject({ safe: true, binding: "not_required" });
+  });
+
+  it("accepts the exact internal preview binding", () => {
+    const binding = previewBindingFor(
+      "preview-checkpoint",
+      "RUN-300-preview-runtime",
+    );
+    expect(
+      classifyMutationTarget({
+        databaseUrl:
+          "postgresql://dd_tasks:secret@postgres:5432/dd_tasks_preview_checkpoint",
+        profile: "preview-checkpoint",
+        runId: binding.runId,
+        worldId: binding.worldId,
+        composeProject: binding.composeProject,
+        volume: binding.volume,
+        operation: "seed",
+        requireRunId: true,
+        requireWorldBinding: true,
+      }),
+    ).toMatchObject({
+      safe: true,
+      hostClass: "internal",
+      databaseName: "dd_tasks_preview_checkpoint",
+      binding: "valid",
+    });
+  });
+
+  it.each([
+    ["missing profile", { profile: undefined }],
+    [
+      "remote preview host",
+      {
+        profile: "preview-checkpoint",
+        databaseUrl:
+          "postgresql://dd_tasks@db.example/dd_tasks_preview_checkpoint",
+      },
+    ],
+    [
+      "preview database mismatch",
+      {
+        profile: "preview-checkpoint",
+        databaseUrl:
+          "postgresql://dd_tasks@postgres/dd_tasks_preview_eval_output",
+      },
+    ],
+    [
+      "query is not accepted",
+      {
+        profile: "preview-checkpoint",
+        databaseUrl:
+          "postgresql://dd_tasks@postgres/dd_tasks_preview_checkpoint?sslmode=disable",
+      },
+    ],
+  ])("rejects %s before a mutating client can be opened", (_label, partial) => {
+    const binding = previewBindingFor(
+      "preview-checkpoint",
+      "RUN-300-preview-runtime",
+    );
+    const result = classifyMutationTarget({
+      databaseUrl:
+        partial.databaseUrl ??
+        "postgresql://dd_tasks@postgres/dd_tasks_preview_checkpoint",
+      profile: partial.profile,
+      runId: binding.runId,
+      worldId: binding.worldId,
+      composeProject: binding.composeProject,
+      volume: binding.volume,
+      operation: "reset",
+      requireRunId: true,
+      requireWorldBinding: true,
+    });
+    expect(result.safe).toBe(false);
+    expect(result.reason).not.toMatch(/postgres:|secret|password/i);
+  });
+
+  it("rejects a stale world/project/volume tuple", () => {
+    const binding = previewBindingFor(
+      "preview-eval-output",
+      "RUN-300-preview-runtime",
+    );
+    expect(
+      classifyMutationTarget({
+        databaseUrl:
+          "postgresql://dd_tasks@postgres:5432/dd_tasks_preview_eval_output",
+        profile: "preview-eval-output",
+        runId: binding.runId,
+        worldId: binding.worldId,
+        composeProject: `${binding.composeProject}-stale`,
+        volume: binding.volume,
+        operation: "reset",
+        requireRunId: true,
+        requireWorldBinding: true,
+      }),
+    ).toMatchObject({ safe: false, binding: "mismatch" });
   });
 });

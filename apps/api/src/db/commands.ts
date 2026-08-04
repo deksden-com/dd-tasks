@@ -1,28 +1,134 @@
 import { createSqlClient, getDatabaseUrl } from "./client.js";
-import { resetProductData, seedDemoData } from "./fixtures.js";
-import { applyMigrations, migrationState } from "./migrations.js";
-import { classifyResetTarget, parseCommandArgs } from "./target-guard.js";
+import { type SeedOptions, seedDemoData } from "./fixtures.js";
+import {
+  applyMigrations,
+  migrationState,
+  resetAndMigrate,
+} from "./migrations.js";
+import {
+  classifyMutationTarget,
+  parseCommandArgs,
+  type TargetClassification,
+} from "./target-guard.js";
 
 const command = process.argv[2] ?? "help";
 const commandArgs = process.argv.slice(3);
-const { runId, target } = parseCommandArgs(commandArgs);
+const parsed = parseCommandArgs(commandArgs);
 const databaseUrl = getDatabaseUrl();
 
 function emit(value: Record<string, unknown>): void {
   console.log(JSON.stringify(value));
 }
 
+function classificationFor(
+  operation: "migrate" | "reset" | "seed" | "check",
+  requireWorldBinding = false,
+): TargetClassification {
+  return classifyMutationTarget({
+    databaseUrl,
+    profile: parsed.profile ?? parsed.target,
+    target: parsed.target,
+    runId: parsed.runId,
+    worldId: parsed.worldId,
+    composeProject: parsed.composeProject,
+    volume: parsed.volume,
+    operation,
+    requireRunId: operation !== "check",
+    requireWorldBinding,
+  });
+}
+
+function rejectClassification(
+  operation: string,
+  classification: TargetClassification,
+): never {
+  emit({
+    status: "rejected",
+    operation,
+    code: "TARGET_REJECTED",
+    profile: classification.profile,
+    target: classification.target,
+    hostClass: classification.hostClass,
+    databaseName: classification.databaseName,
+    binding: classification.binding,
+    reason: classification.reason,
+    mutated: false,
+  });
+  process.exitCode = 2;
+  throw new Error("target rejected");
+}
+
+function requireSafeTarget(
+  operation: "migrate" | "reset" | "seed" | "check",
+): TargetClassification {
+  const classification = classificationFor(
+    operation,
+    operation === "reset" || operation === "seed",
+  );
+  if (!classification.safe)
+    return rejectClassification(operation, classification);
+  return classification;
+}
+
+function previewSeedOptions(
+  profile: TargetClassification["profile"],
+): SeedOptions {
+  if (!profile?.startsWith("preview-")) {
+    return {
+      profile: profile ?? "local",
+      runId: parsed.runId ?? undefined,
+      worldId: parsed.worldId ?? undefined,
+    };
+  }
+  const previewPasswords = {
+    owner: process.env.PREVIEW_OWNER_PASSWORD,
+    member: process.env.PREVIEW_MEMBER_PASSWORD,
+    outsider: process.env.PREVIEW_OUTSIDER_PASSWORD,
+  };
+  if (
+    !previewPasswords.owner ||
+    !previewPasswords.member ||
+    !previewPasswords.outsider
+  ) {
+    emit({
+      status: "rejected",
+      operation: "seed",
+      code: "PREVIEW_SECRETS_MISSING",
+      profile,
+      reason: "named preview actor secret inputs are required",
+      mutated: false,
+    });
+    process.exitCode = 2;
+    throw new Error("preview secrets missing");
+  }
+  return {
+    profile,
+    runId: parsed.runId ?? undefined,
+    worldId: parsed.worldId ?? undefined,
+    previewPasswords,
+  };
+}
+
 async function migrate(): Promise<void> {
+  const classification = requireSafeTarget("migrate");
   const sql = createSqlClient(databaseUrl);
   try {
     const applied = await applyMigrations(sql);
-    emit({ status: "ok", operation: "migrate", applied });
+    emit({
+      status: "ok",
+      operation: "migrate",
+      profile: classification.profile,
+      target: classification.target,
+      runId: parsed.runId,
+      applied,
+    });
   } finally {
     await sql.end({ timeout: 5 });
   }
 }
 
 async function check(): Promise<void> {
+  const classification = requireSafeTarget("check");
   const sql = createSqlClient(databaseUrl);
   try {
     const state = await migrationState(sql);
@@ -38,12 +144,16 @@ async function check(): Promise<void> {
     const migrationsMatch =
       state.applied.length === state.expected.length &&
       state.applied.every(
-        (migration, index) => migration === state.expected[index],
+        (migration, index) =>
+          migration === state.expected[index] &&
+          state.appliedChecksums[migration] ===
+            state.expectedChecksums[migration],
       );
     if (!schemaExists || !migrationsMatch) {
       emit({
         status: "failed",
         operation: "check",
+        profile: classification.profile,
         schemaExists,
         migrationsMatch,
       });
@@ -53,6 +163,7 @@ async function check(): Promise<void> {
     emit({
       status: "ok",
       operation: "check",
+      profile: classification.profile,
       schemaExists,
       migrationCount: state.applied.length,
       migrationOrder: state.applied,
@@ -63,40 +174,20 @@ async function check(): Promise<void> {
 }
 
 async function reset(): Promise<void> {
-  const classification = classifyResetTarget({
-    databaseUrl,
-    target: target ?? undefined,
-  });
-  if (!classification.safe) {
-    emit({
-      status: "rejected",
-      operation: "reset",
-      code: "RESET_TARGET_REJECTED",
-      target: classification.target,
-      hostClass: classification.hostClass,
-      databaseName: classification.databaseName,
-      reason: classification.reason,
-      mutated: false,
-    });
-    process.exitCode = 2;
-    return;
-  }
-
+  const classification = requireSafeTarget("reset");
   const sql = createSqlClient(databaseUrl);
   try {
-    await sql`DROP TABLE IF EXISTS tasks, projects, memberships, workspaces, sessions, accounts CASCADE`;
-    await sql`DROP TYPE IF EXISTS membership_role CASCADE`;
-    await sql`DROP TABLE IF EXISTS foundation_metadata CASCADE`;
-    await sql`DROP TABLE IF EXISTS foundation_migrations CASCADE`;
-    const applied = await applyMigrations(sql);
+    const applied = await resetAndMigrate(sql);
     emit({
       status: "ok",
       operation: "reset",
+      profile: classification.profile,
       target: classification.target,
-      hostClass: classification.hostClass,
       databaseName: classification.databaseName,
+      runId: parsed.runId,
+      worldId: parsed.worldId,
       applied,
-      runId,
+      mutated: true,
     });
   } finally {
     await sql.end({ timeout: 5 });
@@ -104,25 +195,8 @@ async function reset(): Promise<void> {
 }
 
 async function seed(): Promise<void> {
-  const classification = classifyResetTarget({
-    databaseUrl,
-    target: target ?? undefined,
-  });
-  if (!classification.safe) {
-    emit({
-      status: "rejected",
-      operation: "seed",
-      code: "SEED_TARGET_REJECTED",
-      target: classification.target,
-      hostClass: classification.hostClass,
-      databaseName: classification.databaseName,
-      reason: classification.reason,
-      mutated: false,
-    });
-    process.exitCode = 2;
-    return;
-  }
-
+  const classification = requireSafeTarget("seed");
+  const options = previewSeedOptions(classification.profile);
   const sql = createSqlClient(databaseUrl);
   try {
     const state = await migrationState(sql);
@@ -131,17 +205,17 @@ async function seed(): Promise<void> {
       process.exitCode = 1;
       return;
     }
-    await resetProductData(sql);
-    const seed = await seedDemoData(sql);
+    const seed = await seedDemoData(sql, options);
     emit({
       status: "ok",
       operation: "seed",
+      profile: classification.profile,
       target: classification.target,
-      hostClass: classification.hostClass,
       databaseName: classification.databaseName,
       seed,
       mutated: true,
-      runId,
+      runId: parsed.runId,
+      worldId: parsed.worldId,
     });
   } finally {
     await sql.end({ timeout: 5 });
@@ -149,22 +223,10 @@ async function seed(): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  if (command === "migrate") {
-    await migrate();
-    return;
-  }
-  if (command === "check") {
-    await check();
-    return;
-  }
-  if (command === "reset") {
-    await reset();
-    return;
-  }
-  if (command === "seed") {
-    await seed();
-    return;
-  }
+  if (command === "migrate") return migrate();
+  if (command === "check") return check();
+  if (command === "reset") return reset();
+  if (command === "seed") return seed();
   emit({
     status: "failed",
     operation: command,
@@ -174,11 +236,13 @@ async function main(): Promise<void> {
 }
 
 main().catch(() => {
-  emit({
-    status: "failed",
-    operation: command,
-    code: "DATABASE_OPERATION_FAILED",
-    message: "Database operation failed",
-  });
-  process.exitCode = 1;
+  if (process.exitCode !== 2) {
+    emit({
+      status: "failed",
+      operation: command,
+      code: "DATABASE_OPERATION_FAILED",
+      message: "Database operation failed",
+    });
+    process.exitCode = 1;
+  }
 });

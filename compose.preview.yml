@@ -1,0 +1,43 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${PREVIEW_DATABASE_NAME:?set PREVIEW_DATABASE_NAME}
+      POSTGRES_USER: dd_tasks
+      POSTGRES_PASSWORD: ${PREVIEW_POSTGRES_PASSWORD:?set PREVIEW_POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dd_tasks -d ${PREVIEW_DATABASE_NAME:?set PREVIEW_DATABASE_NAME}"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+    volumes:
+      - preview_pgdata:/var/lib/postgresql/data
+
+  app:
+    image: ${PREVIEW_IMAGE_NAME:-dd-tasks-preview:local}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SOURCE_REVISION: ${PREVIEW_SOURCE_REVISION:-unknown}
+        ARTIFACT_DIGEST: ${PREVIEW_ARTIFACT_DIGEST:-unknown}
+        BUILD_RUN_ID: ${PREVIEW_RUN_ID:-unknown}
+        BUILD_TIMESTAMP: ${PREVIEW_BUILD_TIMESTAMP:-unknown}
+    environment:
+      NODE_ENV: production
+      RUNTIME_PROFILE: ${PREVIEW_PROFILE:?set PREVIEW_PROFILE}
+      RUNTIME_RUN_ID: ${PREVIEW_RUN_ID:?set PREVIEW_RUN_ID}
+      EXPECTED_WORLD_ID: ${PREVIEW_WORLD_ID:?set PREVIEW_WORLD_ID}
+      DATABASE_URL: postgresql://dd_tasks:${PREVIEW_POSTGRES_PASSWORD:?set PREVIEW_POSTGRES_PASSWORD}@postgres:5432/${PREVIEW_DATABASE_NAME:?set PREVIEW_DATABASE_NAME}
+      PREVIEW_OWNER_PASSWORD: ${PREVIEW_OWNER_PASSWORD:-}
+      PREVIEW_MEMBER_PASSWORD: ${PREVIEW_MEMBER_PASSWORD:-}
+      PREVIEW_OUTSIDER_PASSWORD: ${PREVIEW_OUTSIDER_PASSWORD:-}
+    ports:
+      - "127.0.0.1:${PREVIEW_PORT:-4173}:8787"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  preview_pgdata:
+    name: ${PREVIEW_VOLUME:?set PREVIEW_VOLUME}

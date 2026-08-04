@@ -1,3 +1,4 @@
+import { serveStatic } from "@hono/node-server/serve-static";
 import { type Context, Hono } from "hono";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import type { Sql } from "postgres";
@@ -10,22 +11,29 @@ import {
   healthResponse,
   notFoundResponse,
   publicErrorResponse,
+  readyResponse,
   requestContext,
   shouldInjectUnexpected,
   unexpectedErrorResponse,
 } from "./contracts/http.js";
 import { CoreError, CoreService } from "./core/service.js";
 import { createSqlClient } from "./db/client.js";
+import { checkReadiness } from "./db/readiness.js";
+import { createRuntimeConfig, type RuntimeConfig } from "./runtime.js";
 
 export function createApiApp(
   options: {
     environment?: ApiEnvironment;
     sql?: Sql<Record<string, unknown>>;
+    runtime?: RuntimeConfig;
+    staticRoot?: string;
   } = {},
 ) {
   const app = new Hono<ApiEnv>();
   const environment = options.environment;
-  const core = new CoreService(options.sql ?? createSqlClient());
+  const sql = options.sql ?? createSqlClient();
+  const core = new CoreService(sql);
+  const runtime = options.runtime ?? createRuntimeConfig();
 
   app.use("*", async (c, next) => {
     if (environment) {
@@ -42,6 +50,18 @@ export function createApiApp(
       return unexpectedErrorResponse(c);
     }
     return healthResponse(c);
+  });
+
+  app.get("/api/ready", async (c) => {
+    if (shouldInjectUnexpected(c)) return unexpectedErrorResponse(c);
+    const result = await checkReadiness(sql, runtime);
+    if (!result.ready) {
+      return publicErrorResponse(c, 503, "NOT_READY", "Service is not ready");
+    }
+    return readyResponse(c, {
+      sourceRevision: runtime.build.sourceRevision,
+      artifactDigest: runtime.build.artifactDigest,
+    });
   });
 
   const account = async (c: Context<ApiEnv>) =>
@@ -227,6 +247,20 @@ export function createApiApp(
     },
   );
 
+  if (options.staticRoot) {
+    const staticFiles = serveStatic({ root: options.staticRoot });
+    app.use("*", async (c, next) => {
+      if (c.req.path.startsWith("/api/")) return next();
+      return staticFiles(c, next);
+    });
+    app.get("*", async (c, next) => {
+      if (c.req.path.startsWith("/api/")) return next();
+      return serveStatic({ root: options.staticRoot, path: "index.html" })(
+        c,
+        next,
+      );
+    });
+  }
   app.notFound((c) => notFoundResponse(c));
   app.onError((error, c) => {
     if (error instanceof CoreError) {

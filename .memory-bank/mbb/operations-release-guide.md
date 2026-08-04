@@ -2,8 +2,8 @@
 file: '.memory-bank/mbb/operations-release-guide.md'
 description: 'Canonical guide for git flow, integration, beta acceptance, release, rollout, rollback, and operational evidence.'
 purpose: 'Read when defining project operations so feature branches, develop, beta, production, and release evidence have clear gates.'
-version: '0.11.0'
-date: '2026-07-10'
+version: '0.12.0'
+date: '2026-08-04'
 status: 'ACTIVE'
 c4_level: 'standard'
 parent: '.memory-bank/mbb/index.md'
@@ -19,6 +19,9 @@ related_files:
   - .memory-bank/mbb/templates/secrets-policy.md
 tags: [mbb, operations, git-flow, release, rollout, beta, production, rollback, evidence, authorization, identity, access-bindings]
 history:
+  - version: '0.12.0'
+    date: '2026-08-04'
+    changes: 'Сделано обязательным обновление и schema/consistency validation compatibility manifest для каждого Memory Bank canon release, независимо от изменения runtime CLI.'
   - version: '0.11.0'
     date: '2026-07-10'
     changes: 'Defined separate operational authorization, exact identity-target bindings, safe readback, authority outcomes, scoped approval, freshness and value-free evidence.'
@@ -318,9 +321,15 @@ Deploy policy потребляет commit, tag, package, image, build или sta
 
 Секреты publish-контуров должны быть описаны только через имена переменных и безопасные команды. Не записывай значения токенов в Memory Bank, changelog, release report, shell history examples или committed config. Для npm предпочтительный шаблон - пробросить operator-local token в `NODE_AUTH_TOKEN` и использовать временный `NPM_CONFIG_USERCONFIG`, где `_authToken` ссылается на `${NODE_AUTH_TOKEN}`, а не содержит значение токена.
 
-Если Memory Bank release требует новую версию runtime CLI, release evidence должен включать:
+Для каждого Memory Bank release, независимо от изменения runtime CLI, release evidence должен включать:
 
 - версию Memory Bank;
+- актуальный `.memory-bank/dd-flow/compatibility.json` с `memory_bank_version`, совпадающим с каноном, и `migrations.from_previous`/`migrations.to_this`, соответствующими соседнему release-impact;
+- успешную проверку manifest через `dd-flow schema validate --schema compatibility`;
+- consistency check compatibility manifest с `VERSION`, canonical version marker и `.memory-bank/release-impact/<target-version>.json`;
+
+Если release включает новую версию runtime CLI, дополнительно фиксируй:
+
 - требуемую и рекомендованную версию CLI из compatibility manifest;
 - версию CLI в package manifest;
 - build metadata CLI: canon version и canon commit;

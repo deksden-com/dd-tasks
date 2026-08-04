@@ -125,6 +125,7 @@
 | root index | .memory-bank/index.md | `memory_bank_version` | release_only | Must match `VERSION` |
 | repository README | README.md | `Current Memory Bank canon version` | release_only | Human-facing version |
 | MBB index | .memory-bank/mbb/index.md | `Текущая версия канона Memory Bank` | release_only | Human-facing canonical version |
+| compatibility manifest | .memory-bank/dd-flow/compatibility.json | `memory_bank_version`, `migrations.from_previous`, `migrations.to_this` | release_only | Update on every canon release; CLI/engine values change only when compatibility requirements change |
 ```
 
 ## Merge Changelog Gate

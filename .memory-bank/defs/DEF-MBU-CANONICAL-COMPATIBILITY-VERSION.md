@@ -1,21 +1,20 @@
 ---
 file: '.memory-bank/defs/DEF-MBU-CANONICAL-COMPATIBILITY-VERSION.md'
-description: 'Отложение по несогласованному version marker в canonical compatibility metadata.'
-purpose: 'Не допустить механического переписывания canonical compatibility.json без решения владельца канона.'
-version: '0.1.0'
+description: 'Закрытое отложение по прежнему расхождению canonical compatibility metadata.'
+purpose: 'Сохраняет provenance устранённого compatibility gap и доказательство синхронизации target с canonical release-fix.'
+version: '0.3.0'
 date: '2026-08-04'
 status: 'ACTIVE'
 c4_level: 'documentation'
 parent: '.memory-bank/defs/index.md'
 def_id: 'DEF-MBU-CANONICAL-COMPATIBILITY-VERSION'
-def_status: 'blocked_by_external_gate'
+def_status: 'closed'
 def_type: 'documentation_blocker'
 severity: 'medium'
 owner: 'canonical Memory Bank maintainer'
-next_gate: 'plan'
-next_gate_detail: 'canonical compatibility maintenance follow-up'
-blocks:
-  - 'Authoritative canonical compatibility/version consistency.'
+next_gate: 'none'
+next_gate_detail: 'closed by canonical release-fix 8cb14de and target synchronization'
+blocks: []
 does_not_block:
   - 'Target Memory Bank file upgrade to 2.15.0.'
   - 'Curated flow-pack manifest validation and local mb-lint.'
@@ -26,31 +25,32 @@ related_scenarios: []
 related_files:
   - '.memory-bank/dd-flow/compatibility.json'
   - '.memory-bank/dd-flow/manifest.json'
-tags: [deferral, mb-upgrade, canonical, compatibility]
+tags: [deferral, mb-upgrade, canonical, compatibility, closed]
 ---
 
 # DEF-MBU-CANONICAL-COMPATIBILITY-VERSION: расхождение canonical version marker
 
 - Owner: canonical Memory Bank maintainer
-- Next gate: `plan` — canonical compatibility maintenance follow-up.
+- Next gate: `none` — deferral закрыт.
 
 ## Summary
 
-В canonical checkout `VERSION`, resolver и root/MBB release markers указывают
-на `2.15.0`, а `.memory-bank/dd-flow/compatibility.json` содержит
-`memory_bank_version: 2.11.1` и migration metadata `2.11.0 → 2.11.1`.
-Target получил canonical compatibility file без blind rewrite; authoritative
-source должен быть согласован владельцем канона.
+Canonical commit `8cb14def1b939d38a4cfcd00a20426337e18ede1`
+согласовал compatibility marker с Memory Bank `2.15.0` и migration metadata
+`2.14.1 → 2.15.0`. Target flow pack обновлён из этого источника; прежнее
+расхождение устранено.
 
 ## Current Status
 
-- Status: `blocked_by_external_gate`
+- Status: `closed`
 - Type: `documentation_blocker`
 - Severity: `medium`
 - Owner: canonical Memory Bank maintainer
 - Opened: 2026-08-04
-- Review condition: canonical compatibility contract reconciled and released,
-  либо legacy-marker semantics явно документированы.
+- Closed: 2026-08-04
+- Closure evidence: canonical release-fix `8cb14de`, успешная compatibility
+  schema validation и target `dd-flow status` с `compatibility: ok`,
+  `drift: same`.
 
 ## Origin and evidence
 
@@ -58,34 +58,32 @@ source должен быть согласован владельцем кано�
 - Evidence: `02-diff-analysis/mbb-diff.md`,
   `03-upgrade/reports/canonical-layer.md`,
   `03-upgrade/defs/DEF-MBU-CANONICAL-COMPATIBILITY-VERSION.md`
-- Read-only check: `dd-flow status --project-root <project> --json` returned
-  CLI/engine compatibility `ok`, while canonical release and compatibility
-  markers disagree.
+- Canonical correction: `8cb14def1b939d38a4cfcd00a20426337e18ede1`.
+- Target readback: project compatibility and release metadata agree on
+  `2.15.0`; curated flow source points to the corrected canonical commit.
 
 ## Context for follow-up
 
-Механическая замена в target не разрешена: файл принадлежит canonical source
-ownership. После canonical maintenance повторить resolver, compatibility schema,
-`dd-flow status` и target flow-pack/lint readback.
+Compatibility gap закрыт. Run-local и durable DEF сохраняются как historical
+provenance; active compatibility, release и manifest files обновлены из
+исправленного canonical source.
 
 ## User blocker and fixability
 
-- Required user decision: `false` for current target-only upgrade.
-- Can attempt now: `false` in this project; requires canonical owner follow-up.
-- Expected effort: `medium`.
-- Follow-up protocol: `true` in canonical repository.
+- Required user decision: `false`.
+- Can attempt now: `not_applicable`; correction complete.
+- Expected effort: `complete`.
+- Follow-up protocol: `false`.
 
 ## Blocking Scope
 
-- Does not block: current target file upgrade, local lint, review and local merge.
-- Blocks: compatibility closure and any future runtime flow relying on this
-  marker as authoritative.
-- Next gate: canonical maintenance plan/review.
-- Close condition: one documented canonical authoritative version (or explicit
-  legacy meaning) and consistent status/schema readback.
+- Blocks: none.
+- Does not block: current или будущие project flows.
+- Next gate: none.
+- Close condition: satisfied by canonical `8cb14de` and target validation.
 
 ## Future-flow rule
 
-Compatibility/engine flows must read this DEF, then `close`, `update` or
-`not_touched` it with evidence. The run-local copy is retained as provenance;
-this target copy is the durable lookup.
+Использовать этот DEF только как historical closure evidence. Новое
+compatibility-расхождение должно получить отдельный DEF или явное обновление
+статуса с новыми evidence.

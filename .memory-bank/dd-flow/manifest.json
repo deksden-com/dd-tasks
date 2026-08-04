@@ -5,7 +5,7 @@
   "canon_root": "/Users/deksden/Documents/_Projects/dd-memorybank",
   "canon_memory_bank_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank",
   "canon_flow_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank/dd-flow",
-  "source_commit": "852d9ea533eac5e0737ea9bdb3331882ba3597e3",
+  "source_commit": "8cb14def1b939d38a4cfcd00a20426337e18ede1",
   "canon_version_at_source_commit": "2.15.0",
   "flow_contract": "dd-flow-canonical-2026-06",
   "installed_at": "2026-08-04T09:10:00.000Z",
@@ -232,5 +232,5 @@
   "generated_allow_patterns": [
     ".generated/**"
   ],
-  "notes": "Curated project-local flow pack installed during initial Memory Bank setup."
+  "notes": "Curated project-local flow pack upgraded to canonical Memory Bank 2.15.0 at source commit 8cb14def1b939d38a4cfcd00a20426337e18ede1; project-owned policies remain locally governed."
 }

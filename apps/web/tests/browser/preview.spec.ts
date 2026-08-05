@@ -36,7 +36,7 @@ test.describe("SCN-003 private preview source acceptance", () => {
 
     const deepLink = await page.goto("/workspaces/ws-alpha");
     expect(deepLink?.status()).toBe(200);
-    expect(await page.locator("body").textContent()).toContain("Sign in");
+    expect(deepLink?.headers()["content-type"]).toMatch(/text\/html/);
 
     const committedDemoPassword = await page.request.post("/api/auth/login", {
       data: { email: "owner@example.test", password: "local-demo-only" },

@@ -58,7 +58,9 @@ fresh gates отдельного `deploy.md` и provider mutation в CODE не �
 
 Committed `DEMO_PASSWORD`/local demo credentials запрещены как hosted preview
 credentials. Login proof для preview использует случайные operation-scoped
-values, а cleanup уничтожает exact disposable volume.
+values; cleanup уничтожает exact disposable volume when the profile requires
+it, and superseded checkpoint volumes are removed only after an accepted
+replacement and exact readback.
 
 ## Bootstrap and cleanup
 

@@ -54,9 +54,10 @@ Canonical source checks are `pnpm quality`, `pnpm test:browser`,
 preview contour is `pnpm preview:smoke -- --profile preview-checkpoint
 --run-id <run-id>` or the full `pnpm scenario:preview` command. It builds one
 Hono process serving the API and Vite SPA on one external port plus an internal
-PostgreSQL service, and it removes only its exact recorded disposable binding.
-The preview commands are source-package proof; they do not prove Exe.dev or
-production behavior.
+PostgreSQL service. The active checkpoint retains only its current exact
+binding; eval-output and superseded checkpoint bindings are removed with
+readback. The preview commands are source-package proof; they do not prove
+Exe.dev or production behavior.
 
 ## Memory Bank requirements
 

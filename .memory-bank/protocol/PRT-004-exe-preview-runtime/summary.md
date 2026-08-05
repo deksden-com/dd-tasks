@@ -212,3 +212,8 @@ The RUN-300 `04-merge` report owns exact queue/session/lane/cleanup readback.
 Remote refs were not changed; no push, tag, release, publish, Exe.dev login,
 account/team/VM/share or other provider mutation occurred. The only next gate
 is a separate `deploy.md` flow with fresh operational-access authorization.
+
+Terminal readback is complete: queue item 188 is `merged`, merge_job stopped,
+its lane lock released, and the exact clean fully merged feature worktree and
+local branch were removed by the default-delete policy. Stable `main` remains
+clean and contains the accepted feature head; no remote ref was changed.

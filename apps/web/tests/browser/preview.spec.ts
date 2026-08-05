@@ -48,10 +48,11 @@ test.describe("SCN-003 private preview source acceptance", () => {
     page,
   }) => {
     await login(page, "owner@example.test", ownerPassword);
-    await page.getByRole("button", { name: /Workspace Alpha owner/ }).click();
+    await page.getByRole("link", { name: /Workspace Alpha owner/ }).click();
     await expect(page.getByTestId("project-list")).toContainText(
       "Workspace / ws-alpha",
     );
+    await page.getByRole("button", { name: "New project" }).click();
     await page.getByTestId("project-name").fill("SCN-003 preview project");
     await page.getByTestId("project-create").click();
     const projectRow = page
@@ -59,6 +60,7 @@ test.describe("SCN-003 private preview source acceptance", () => {
       .filter({ hasText: "SCN-003 preview project" });
     await expect(projectRow).toBeVisible();
     await projectRow.locator(".project-link").click();
+    await page.getByRole("button", { name: "New task" }).click();
     await page.getByTestId("task-title").fill("SCN-003 preview task");
     await page
       .getByTestId("task-description")
@@ -73,7 +75,8 @@ test.describe("SCN-003 private preview source acceptance", () => {
     page,
   }) => {
     await login(page, "member@example.test", memberPassword);
-    await page.getByRole("button", { name: /Workspace Alpha member/ }).click();
+    await page.getByRole("link", { name: /Workspace Alpha member/ }).click();
+    await page.getByRole("button", { name: "New project" }).click();
     await page.getByTestId("project-name").fill("must be rejected");
     await page.getByTestId("project-create").click();
     await expect(page.getByTestId("state-error")).toContainText(

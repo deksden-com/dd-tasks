@@ -84,4 +84,49 @@ describe("product route shell", () => {
     );
     expect(screen.queryByText("hidden-request")).not.toBeInTheDocument();
   });
+
+  it("keeps project creation hidden until it is requested", async () => {
+    window.history.replaceState({}, "", "/workspaces/ws-alpha/projects");
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ projects: [] }), { status: 200 }),
+    );
+    render(<ProductApp />);
+    expect(
+      await screen.findByRole("button", { name: "New project" }),
+    ).toBeVisible();
+    expect(screen.queryByTestId("project-name")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "New project" }));
+    expect(screen.getByTestId("project-name")).toBeVisible();
+  });
+
+  it("exposes task editing and guarded deletion on a deep link", async () => {
+    window.history.replaceState(
+      {},
+      "",
+      "/workspaces/ws-alpha/projects/project-alpha/tasks/task-one",
+    );
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          project: { id: "project-alpha", name: "Launch", archivedAt: null },
+          tasks: [
+            {
+              id: "task-one",
+              title: "First task",
+              description: "Existing context",
+            },
+          ],
+        }),
+        { status: 200 },
+      ),
+    );
+    render(<ProductApp />);
+    const title = await screen.findByTestId("task-detail-title");
+    expect(title).toHaveValue("First task");
+    fireEvent.click(screen.getByTestId("task-delete"));
+    expect(
+      screen.getByRole("alertdialog", { name: /Delete “First task”/ }),
+    ).toBeVisible();
+    expect(screen.getByTestId("task-delete-confirm")).toBeVisible();
+  });
 });

@@ -2,8 +2,8 @@
 file: '.memory-bank/protocol/index.md'
 description: 'Curated протоколы работ проекта.'
 purpose: 'Сохраняет долговечные следы инициализации и дальнейших работ, включая pre-CODE handoff.'
-version: '1.0.0'
-date: '2026-08-04'
+version: '1.1.0'
+date: '2026-08-05'
 status: 'ACTIVE'
 c4_level: 'project'
 parent: '.memory-bank/index.md'
@@ -12,8 +12,12 @@ children:
   - .memory-bank/protocol/PRT-001-checkpoint-01-foundation/index.md
   - .memory-bank/protocol/PRT-003-checkpoint-02-core/index.md
   - .memory-bank/protocol/PRT-004-exe-preview-runtime/index.md
+  - .memory-bank/protocol/PRT-005-linear-workflow-ui/index.md
 tags: [protocol]
 history:
+  - version: '1.1.0'
+    date: '2026-08-05'
+    changes: 'Добавлен PRT-005 для исправления project/task interaction model и компактного Linear-подобного UI.'
   - version: '1.0.0'
     date: '2026-08-04'
     changes: 'Добавлен PRT-004 для Exe.dev preview runtime, operational policies/runbook и отдельного deploy handoff.'
@@ -56,3 +60,6 @@ history:
 - [Exe preview runtime](PRT-004-exe-preview-runtime/index.md): source protocol
   для environment/deploy/access policies, runtime packaging, operator runbook и
   SCN-003; фактическая Exe.dev mutation остаётся отдельным `deploy.md` flow.
+- [Linear workflow UI](PRT-005-linear-workflow-ui/index.md): нормализует
+  создание и редактирование проектов, добавляет task detail route и доступные
+  rename/delete interactions без новых backend-контрактов.

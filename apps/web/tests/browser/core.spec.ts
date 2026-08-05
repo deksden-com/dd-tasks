@@ -17,27 +17,30 @@ test.describe("SCN-002 workspace task core", () => {
       if (message.type() === "error") consoleErrors.push(message.text());
     });
     await login(page, "owner@example.test");
-    await page.getByRole("button", { name: /Workspace Beta member/ }).click();
+    await page.getByRole("link", { name: /Workspace Beta member/ }).click();
     await expect(page.getByTestId("project-list")).toContainText(
       "Workspace / ws-beta",
     );
-    await page.getByRole("button", { name: "← Workspaces" }).click();
-    await page.getByRole("button", { name: /Workspace Alpha owner/ }).click();
+    await page.getByRole("link", { name: "Workspaces" }).click();
+    await page.getByRole("link", { name: /Workspace Alpha owner/ }).click();
     await expect(page.getByTestId("project-list")).toHaveAttribute(
       "data-screen",
       "project-list",
     );
 
+    await page.getByRole("button", { name: "New project" }).click();
     await page.getByTestId("project-name").fill("Browser acceptance project");
     await page.getByTestId("project-create").click();
     const projectRow = page
       .locator(".project-row")
       .filter({ hasText: "Browser acceptance project" });
     await expect(projectRow).toBeVisible();
-    page.once("dialog", async (dialog) =>
-      dialog.accept("Renamed browser project"),
-    );
     await projectRow.getByTestId("project-rename").click();
+    await page.locator(".row-editor input").fill("Renamed browser project");
+    await page
+      .locator(".row-editor")
+      .getByRole("button", { name: "Save" })
+      .click();
     const renamedProjectRow = page
       .locator(".project-row")
       .filter({ hasText: "Renamed browser project" });
@@ -48,6 +51,7 @@ test.describe("SCN-002 workspace task core", () => {
       "data-screen",
       "project-tasks",
     );
+    await page.getByRole("button", { name: "New task" }).click();
     await page.getByTestId("task-title").fill("Browser acceptance task");
     await page
       .getByTestId("task-description")
@@ -57,19 +61,20 @@ test.describe("SCN-002 workspace task core", () => {
       .locator(".task-row")
       .filter({ hasText: "Browser acceptance task" });
     await expect(taskRow).toBeVisible();
-    page.once("dialog", async (dialog) =>
-      dialog.accept("Renamed browser task"),
+    await taskRow.locator(".task-link").click();
+    await page.getByTestId("task-detail-title").fill("Renamed browser task");
+    await page.getByRole("button", { name: "Save changes" }).click();
+    await expect(page.getByTestId("task-detail-title")).toHaveValue(
+      "Renamed browser task",
     );
-    await taskRow.getByRole("button", { name: "Rename" }).click();
-    const renamedTaskRow = page
-      .locator(".task-row")
-      .filter({ hasText: "Renamed browser task" });
-    await expect(renamedTaskRow).toBeVisible();
-    page.once("dialog", async (dialog) => dialog.accept());
-    await renamedTaskRow.getByTestId("task-delete").click();
-    await expect(renamedTaskRow).toHaveCount(0);
+    await page.getByTestId("task-delete").click();
+    await page.getByTestId("task-delete-confirm").click();
+    await expect(page.getByTestId("project-tasks")).toBeVisible();
+    await expect(
+      page.locator(".task-row").filter({ hasText: "Renamed browser task" }),
+    ).toHaveCount(0);
 
-    await page.getByRole("button", { name: "← Projects" }).click();
+    await page.getByRole("link", { name: "Projects" }).click();
     const lifecycleRow = page
       .locator(".project-row")
       .filter({ hasText: "Renamed browser project" });
@@ -88,22 +93,25 @@ test.describe("SCN-002 workspace task core", () => {
     page,
   }) => {
     await login(page, "member@example.test");
-    await page.getByRole("button", { name: /Workspace Alpha member/ }).click();
+    await page.getByRole("link", { name: /Workspace Alpha member/ }).click();
+    await page.getByRole("button", { name: "New project" }).click();
     await page.getByTestId("project-name").fill("Forbidden project");
     await page.getByTestId("project-create").click();
     await expect(page.getByTestId("state-error")).toContainText(
       "Owner permission required",
     );
-    await page.getByRole("button", { name: /Launch notes Open tasks/ }).click();
+    await page.getByRole("link", { name: /Launch notes Open tasks/ }).click();
+    await page.getByRole("button", { name: "New task" }).click();
     await page.getByTestId("task-title").fill("Member browser task");
     await page.getByTestId("task-submit").click();
     const memberTask = page
       .locator(".task-row")
       .filter({ hasText: "Member browser task" });
     await expect(memberTask).toBeVisible();
-    page.once("dialog", async (dialog) => dialog.accept());
-    await memberTask.getByTestId("task-delete").click();
-    await expect(memberTask).toHaveCount(0);
+    await memberTask.locator(".task-link").click();
+    await page.getByTestId("task-delete").click();
+    await page.getByTestId("task-delete-confirm").click();
+    await expect(page.getByTestId("project-tasks")).toBeVisible();
     const isolation = await page.evaluate(async () => {
       const response = await fetch("/api/workspaces/ws-beta/projects");
       return { status: response.status, body: await response.json() };

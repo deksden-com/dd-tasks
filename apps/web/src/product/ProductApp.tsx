@@ -1,4 +1,11 @@
-import { type FormEvent, useCallback, useEffect, useState } from "react";
+import {
+  type FormEvent,
+  type MouseEvent,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import {
   ProductApiError,
   type Project,
@@ -13,11 +20,32 @@ type View =
   | { kind: "register" }
   | { kind: "workspaces" }
   | { kind: "projects"; workspaceId: string }
-  | { kind: "tasks"; workspaceId: string; projectId: string };
+  | { kind: "tasks"; workspaceId: string; projectId: string }
+  | {
+      kind: "task";
+      workspaceId: string;
+      projectId: string;
+      taskId: string;
+    };
 
 function parseView(): View {
   const parts = window.location.pathname.split("/").filter(Boolean);
   if (parts[0] === "register") return { kind: "register" };
+  if (
+    parts[0] === "workspaces" &&
+    parts[1] &&
+    parts[2] === "projects" &&
+    parts[3] &&
+    parts[4] === "tasks" &&
+    parts[5]
+  ) {
+    return {
+      kind: "task",
+      workspaceId: parts[1],
+      projectId: parts[3],
+      taskId: parts[5],
+    };
+  }
   if (
     parts[0] === "workspaces" &&
     parts[1] &&
@@ -37,10 +65,50 @@ function go(path: string): void {
   window.dispatchEvent(new PopStateEvent("popstate"));
 }
 
+function AppLink({
+  to,
+  className,
+  children,
+  onNavigate,
+}: {
+  to: string;
+  className?: string;
+  children: ReactNode;
+  onNavigate?: () => boolean;
+}) {
+  const navigate = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return;
+    }
+    event.preventDefault();
+    if (onNavigate && !onNavigate()) return;
+    go(to);
+  };
+  return (
+    <a className={className} href={to} onClick={navigate}>
+      {children}
+    </a>
+  );
+}
+
 function messageOf(error: unknown): string {
   return error instanceof ProductApiError
     ? error.message
     : "Unexpected server error";
+}
+
+function ErrorNotice({ error }: { error: string | null }) {
+  return error ? (
+    <p className="notice notice-error" data-testid="state-error" role="alert">
+      {error}
+    </p>
+  ) : null;
 }
 
 function AuthScreen({ mode }: { mode: "login" | "register" }) {
@@ -88,36 +156,37 @@ function AuthScreen({ mode }: { mode: "login" | "register" }) {
           {mode === "login" ? "Welcome back" : "Create account"}
         </p>
         <h2>{mode === "login" ? "Sign in" : "Start here"}</h2>
-        <label>
+        <label htmlFor="auth-email">
           Email
           <input
+            id="auth-email"
             data-testid="auth-email"
+            name="email"
             type="email"
+            autoComplete="email"
+            spellCheck={false}
             required
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(event) => setEmail(event.target.value)}
           />
         </label>
-        <label>
+        <label htmlFor="auth-password">
           Password
           <input
+            id="auth-password"
             data-testid="auth-password"
+            name="password"
             type="password"
+            autoComplete={
+              mode === "login" ? "current-password" : "new-password"
+            }
             minLength={10}
             required
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(event) => setPassword(event.target.value)}
           />
         </label>
-        {error && (
-          <p
-            className="notice notice-error"
-            data-testid="state-error"
-            role="alert"
-          >
-            {error}
-          </p>
-        )}
+        <ErrorNotice error={error} />
         <button data-testid="auth-submit" type="submit" disabled={busy}>
           {busy
             ? "Working…"
@@ -137,17 +206,14 @@ function AuthScreen({ mode }: { mode: "login" | "register" }) {
   );
 }
 
-function Shell({ children }: { children: React.ReactNode }) {
+function Shell({ children }: { children: ReactNode }) {
   return (
     <div className="product-shell">
       <header className="product-header">
-        <button
-          className="brand"
-          type="button"
-          onClick={() => go("/workspaces")}
-        >
-          dd / tasks
-        </button>
+        <AppLink className="brand" to="/workspaces">
+          <span className="brand-mark">dd</span>
+          <span>/ tasks</span>
+        </AppLink>
         <button
           className="text-button"
           type="button"
@@ -164,9 +230,41 @@ function Shell({ children }: { children: React.ReactNode }) {
   );
 }
 
+function PageHeader({
+  kicker,
+  title,
+  backTo,
+  backLabel,
+  action,
+  onNavigate,
+}: {
+  kicker: string;
+  title: string;
+  backTo?: string;
+  backLabel?: string;
+  action?: ReactNode;
+  onNavigate?: () => boolean;
+}) {
+  return (
+    <header className="page-heading">
+      <div className="page-heading-copy">
+        {backTo && backLabel && (
+          <AppLink className="back" to={backTo} onNavigate={onNavigate}>
+            <span aria-hidden="true">←</span> {backLabel}
+          </AppLink>
+        )}
+        <p className="product-kicker">{kicker}</p>
+        <h1>{title}</h1>
+      </div>
+      {action && <div className="page-heading-action">{action}</div>}
+    </header>
+  );
+}
+
 function WorkspaceScreen() {
   const [items, setItems] = useState<Workspace[] | null>(null);
   const [name, setName] = useState("");
+  const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const load = useCallback(async () => {
     setError(null);
@@ -188,60 +286,84 @@ function WorkspaceScreen() {
         data-screen="workspace-list"
         data-testid="workspace-list"
       >
-        <p className="product-kicker">Your working rooms</p>
-        <h1>Workspaces</h1>
-        {!items && !error && (
-          <p data-testid="state-loading">Loading workspaces…</p>
-        )}
-        {error && (
-          <p
-            className="notice notice-error"
-            data-testid="state-error"
-            role="alert"
-          >
-            {error}{" "}
-            <button type="button" onClick={() => void load()}>
-              Retry
+        <PageHeader
+          kicker="Your working rooms"
+          title="Workspaces"
+          action={
+            <button
+              className="primary-button"
+              type="button"
+              onClick={() => setCreating(true)}
+            >
+              New workspace
             </button>
+          }
+        />
+        {!items && !error && (
+          <p className="state-copy" data-testid="state-loading">
+            Loading workspaces…
           </p>
         )}
+        <ErrorNotice error={error} />
+        {creating && (
+          <form
+            className="composer-panel inline-form"
+            onSubmit={async (event) => {
+              event.preventDefault();
+              try {
+                const created = await productApi.createWorkspace(name);
+                go(`/workspaces/${created.workspace.id}/projects`);
+              } catch (caught) {
+                setError(messageOf(caught));
+              }
+            }}
+          >
+            <label htmlFor="workspace-name">
+              Workspace name
+              <input
+                id="workspace-name"
+                name="workspace-name"
+                autoComplete="off"
+                placeholder="Design team…"
+                required
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+              />
+            </label>
+            <div className="form-actions">
+              <button className="primary-button" type="submit">
+                Create workspace
+              </button>
+              <button
+                className="secondary-button"
+                type="button"
+                onClick={() => {
+                  setCreating(false);
+                  setName("");
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        )}
         {items?.length === 0 && (
-          <p data-testid="state-empty">No workspaces yet.</p>
+          <p className="empty-state" data-testid="state-empty">
+            No workspaces yet. Create the first working room.
+          </p>
         )}
         <div className="workspace-grid">
           {items?.map((workspace) => (
-            <button
+            <AppLink
               className="workspace-card"
-              data-testid="workspace-switcher"
               key={workspace.id}
-              type="button"
-              onClick={() => go(`/workspaces/${workspace.id}/projects`)}
+              to={`/workspaces/${workspace.id}/projects`}
             >
               <span>{workspace.name}</span>
               <small>{workspace.role}</small>
-            </button>
+            </AppLink>
           ))}
         </div>
-        <form
-          className="inline-form"
-          onSubmit={async (event) => {
-            event.preventDefault();
-            try {
-              const created = await productApi.createWorkspace(name);
-              go(`/workspaces/${created.workspace.id}/projects`);
-            } catch (caught) {
-              setError(messageOf(caught));
-            }
-          }}
-        >
-          <label>
-            New workspace
-            <input value={name} onChange={(e) => setName(e.target.value)} />
-          </label>
-          <button data-testid="workspace-create" type="submit">
-            Create workspace
-          </button>
-        </form>
       </main>
     </Shell>
   );
@@ -250,6 +372,9 @@ function WorkspaceScreen() {
 function ProjectScreen({ workspaceId }: { workspaceId: string }) {
   const [items, setItems] = useState<Project[] | null>(null);
   const [name, setName] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [draftName, setDraftName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const load = useCallback(async () => {
     try {
@@ -281,57 +406,85 @@ function ProjectScreen({ workspaceId }: { workspaceId: string }) {
         data-screen="project-list"
         data-testid="project-list"
       >
-        <button
-          className="back"
-          type="button"
-          onClick={() => go("/workspaces")}
-        >
-          ← Workspaces
-        </button>
-        <p className="product-kicker">Workspace / {workspaceId}</p>
-        <h1>Projects</h1>
+        <PageHeader
+          backTo="/workspaces"
+          backLabel="Workspaces"
+          kicker={`Workspace / ${workspaceId}`}
+          title="Projects"
+          action={
+            <button
+              className="primary-button"
+              type="button"
+              onClick={() => setCreating(true)}
+            >
+              New project
+            </button>
+          }
+        />
         {!items && !error && (
-          <p data-testid="state-loading">Loading projects…</p>
-        )}
-        {error && (
-          <p
-            className="notice notice-error"
-            data-testid={
-              error === "Not found" ? "state-forbidden" : "state-error"
-            }
-            role="alert"
-          >
-            {error}
+          <p className="state-copy" data-testid="state-loading">
+            Loading projects…
           </p>
         )}
-        <form
-          className="inline-form"
-          onSubmit={async (event) => {
-            event.preventDefault();
-            try {
-              await productApi.createProject(workspaceId, name);
-              setName("");
-              await load();
-            } catch (caught) {
-              setError(messageOf(caught));
-            }
-          }}
-        >
-          <label>
-            Project name
-            <input
-              data-testid="project-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </label>
-          <button data-testid="project-create" type="submit">
-            Create project
-          </button>
-        </form>
-        {items?.length === 0 && (
-          <p data-testid="state-empty">No projects yet.</p>
+        <ErrorNotice error={error} />
+        {creating && (
+          <form
+            className="composer-panel inline-form"
+            onSubmit={async (event) => {
+              event.preventDefault();
+              try {
+                await productApi.createProject(workspaceId, name);
+                setName("");
+                setCreating(false);
+                await load();
+              } catch (caught) {
+                setError(messageOf(caught));
+              }
+            }}
+          >
+            <label htmlFor="project-name">
+              Project name
+              <input
+                id="project-name"
+                data-testid="project-name"
+                name="project-name"
+                autoComplete="off"
+                placeholder="Mobile launch…"
+                required
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+              />
+            </label>
+            <div className="form-actions">
+              <button
+                className="primary-button"
+                data-testid="project-create"
+                type="submit"
+              >
+                Create project
+              </button>
+              <button
+                className="secondary-button"
+                type="button"
+                onClick={() => {
+                  setCreating(false);
+                  setName("");
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
         )}
+        {items?.length === 0 && (
+          <p className="empty-state" data-testid="state-empty">
+            No projects yet. Create one when there is real work to track.
+          </p>
+        )}
+        <div className="section-label" aria-hidden="true">
+          <span>Project</span>
+          <span>Actions</span>
+        </div>
         <div className="project-list">
           {items?.map((project) => (
             <article
@@ -340,47 +493,89 @@ function ProjectScreen({ workspaceId }: { workspaceId: string }) {
               }
               key={project.id}
             >
-              <button
-                className="project-link"
-                type="button"
-                onClick={() =>
-                  go(`/workspaces/${workspaceId}/projects/${project.id}`)
-                }
-              >
-                <strong>{project.name}</strong>
-                <small>
-                  {project.archivedAt ? "Archived / read-only" : "Open tasks"}
-                </small>
-              </button>
-              <button
-                data-testid="project-rename"
-                type="button"
-                onClick={async () => {
-                  const next = window.prompt("Rename project", project.name);
-                  if (!next) return;
-                  try {
-                    await productApi.renameProject(
-                      workspaceId,
-                      project.id,
-                      next,
-                    );
-                    await load();
-                  } catch (caught) {
-                    setError(messageOf(caught));
-                  }
-                }}
-              >
-                Rename
-              </button>
-              <button
-                data-testid={
-                  project.archivedAt ? "project-restore" : "project-archive"
-                }
-                type="button"
-                onClick={() => void mutateArchive(project)}
-              >
-                {project.archivedAt ? "Restore" : "Archive"}
-              </button>
+              {editingId === project.id ? (
+                <form
+                  className="row-editor"
+                  onSubmit={async (event) => {
+                    event.preventDefault();
+                    try {
+                      await productApi.renameProject(
+                        workspaceId,
+                        project.id,
+                        draftName,
+                      );
+                      setEditingId(null);
+                      await load();
+                    } catch (caught) {
+                      setError(messageOf(caught));
+                    }
+                  }}
+                >
+                  <label className="sr-only" htmlFor={`project-${project.id}`}>
+                    Project name
+                  </label>
+                  <input
+                    id={`project-${project.id}`}
+                    name="project-name"
+                    autoComplete="off"
+                    required
+                    value={draftName}
+                    onChange={(event) => setDraftName(event.target.value)}
+                  />
+                  <button className="primary-button compact" type="submit">
+                    Save
+                  </button>
+                  <button
+                    className="secondary-button compact"
+                    type="button"
+                    onClick={() => setEditingId(null)}
+                  >
+                    Cancel
+                  </button>
+                </form>
+              ) : (
+                <AppLink
+                  className="project-link"
+                  to={`/workspaces/${workspaceId}/projects/${project.id}`}
+                >
+                  <span className="row-copy">
+                    <strong>{project.name}</strong>
+                    <small>
+                      {project.archivedAt
+                        ? "Archived / read-only"
+                        : "Open tasks"}
+                    </small>
+                  </span>
+                  <span className="row-arrow" aria-hidden="true">
+                    ↗
+                  </span>
+                </AppLink>
+              )}
+              {editingId !== project.id && (
+                <div className="row-actions">
+                  <button
+                    className="quiet-button"
+                    data-testid="project-rename"
+                    type="button"
+                    onClick={() => {
+                      setEditingId(project.id);
+                      setDraftName(project.name);
+                    }}
+                  >
+                    Rename
+                  </button>
+                  <button
+                    className="quiet-button"
+                    data-testid={
+                      project.archivedAt ? "project-restore" : "project-archive"
+                    }
+                    type="button"
+                    onClick={() => void mutateArchive(project)}
+                  >
+                    {project.archivedAt ? "Restore" : "Archive"}
+                  </button>
+                </div>
+              )}
             </article>
           ))}
         </div>
@@ -400,6 +595,7 @@ function TaskScreen({
   const [items, setItems] = useState<Task[] | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const load = useCallback(async () => {
     try {
@@ -414,6 +610,7 @@ function TaskScreen({
   useEffect(() => {
     void load();
   }, [load]);
+  const projectPath = `/workspaces/${workspaceId}/projects/${projectId}`;
   return (
     <Shell>
       <main
@@ -421,121 +618,306 @@ function TaskScreen({
         data-screen="project-tasks"
         data-testid="project-tasks"
       >
-        <button
-          className="back"
-          type="button"
-          onClick={() => go(`/workspaces/${workspaceId}/projects`)}
-        >
-          ← Projects
-        </button>
-        <p className="product-kicker">Project tasks</p>
-        <h1>{project?.name ?? "Tasks"}</h1>
+        <PageHeader
+          backTo={`/workspaces/${workspaceId}/projects`}
+          backLabel="Projects"
+          kicker="Project"
+          title={project?.name ?? "Tasks"}
+          action={
+            <button
+              className="primary-button"
+              type="button"
+              disabled={Boolean(project?.archivedAt)}
+              onClick={() => setCreating(true)}
+            >
+              New task
+            </button>
+          }
+        />
         {project?.archivedAt && (
           <p className="notice">This project is archived and read-only.</p>
         )}
-        {error && (
-          <p
-            className="notice notice-error"
-            data-testid="state-error"
-            role="alert"
+        <ErrorNotice error={error} />
+        {creating && (
+          <form
+            className="composer-panel task-form"
+            onSubmit={async (event) => {
+              event.preventDefault();
+              try {
+                await productApi.createTask(
+                  workspaceId,
+                  projectId,
+                  title,
+                  description,
+                );
+                setTitle("");
+                setDescription("");
+                setCreating(false);
+                await load();
+              } catch (caught) {
+                setError(messageOf(caught));
+              }
+            }}
           >
-            {error}
-          </p>
+            <label htmlFor="task-title">
+              Task title
+              <input
+                id="task-title"
+                data-testid="task-title"
+                name="task-title"
+                autoComplete="off"
+                placeholder="Write release notes…"
+                required
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+              />
+            </label>
+            <label htmlFor="task-description">
+              Description
+              <textarea
+                id="task-description"
+                data-testid="task-description"
+                name="task-description"
+                autoComplete="off"
+                placeholder="Add context, acceptance, or links…"
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+              />
+            </label>
+            <div className="form-actions">
+              <button
+                className="primary-button"
+                data-testid="task-submit"
+                type="submit"
+              >
+                Create task
+              </button>
+              <button
+                className="secondary-button"
+                type="button"
+                onClick={() => {
+                  setCreating(false);
+                  setTitle("");
+                  setDescription("");
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
         )}
-        <form
-          className="task-form"
-          onSubmit={async (event) => {
-            event.preventDefault();
-            try {
-              await productApi.createTask(
-                workspaceId,
-                projectId,
-                title,
-                description,
-              );
-              setTitle("");
-              setDescription("");
-              await load();
-            } catch (caught) {
-              setError(messageOf(caught));
-            }
-          }}
-        >
-          <label>
-            Task title
-            <input
-              data-testid="task-title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-          </label>
-          <label>
-            Description
-            <textarea
-              data-testid="task-description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </label>
-          <button
-            data-testid="task-submit"
-            type="submit"
-            disabled={Boolean(project?.archivedAt)}
-          >
-            Add task
-          </button>
-        </form>
         {items?.length === 0 && (
-          <p data-testid="state-empty">
+          <p className="empty-state" data-testid="state-empty">
             No tasks yet. Add the first concrete step.
           </p>
         )}
+        <div className="section-label" aria-hidden="true">
+          <span>Task</span>
+          <span>Open</span>
+        </div>
         <div className="task-list">
           {items?.map((task) => (
             <article className="task-row" key={task.id}>
-              <div>
-                <strong>{task.title}</strong>
-                {task.description && <p>{task.description}</p>}
-              </div>
-              <div className="row-actions">
-                <button
-                  type="button"
-                  onClick={async () => {
-                    const next = window.prompt("Rename task", task.title);
-                    if (next) {
-                      await productApi.updateTask(
-                        workspaceId,
-                        projectId,
-                        task.id,
-                        next,
-                        task.description ?? "",
-                      );
-                      await load();
-                    }
-                  }}
-                >
-                  Rename
-                </button>
-                <button
-                  data-testid="task-delete"
-                  type="button"
-                  disabled={Boolean(project?.archivedAt)}
-                  onClick={async () => {
-                    if (!window.confirm(`Delete ${task.title}?`)) return;
-                    await productApi.deleteTask(
-                      workspaceId,
-                      projectId,
-                      task.id,
-                    );
-                    await load();
-                  }}
-                >
-                  Delete
-                </button>
-              </div>
+              <AppLink
+                className="task-link"
+                to={`${projectPath}/tasks/${task.id}`}
+              >
+                <span className="task-status" aria-hidden="true" />
+                <span className="row-copy">
+                  <strong>{task.title}</strong>
+                  <small>{task.description || "No description"}</small>
+                </span>
+                <span className="row-arrow" aria-hidden="true">
+                  →
+                </span>
+              </AppLink>
             </article>
           ))}
         </div>
+      </main>
+    </Shell>
+  );
+}
+
+function TaskDetailScreen({
+  workspaceId,
+  projectId,
+  taskId,
+}: {
+  workspaceId: string;
+  projectId: string;
+  taskId: string;
+}) {
+  const [project, setProject] = useState<Project | null>(null);
+  const [task, setTask] = useState<Task | null>(null);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [loaded, setLoaded] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const projectPath = `/workspaces/${workspaceId}/projects/${projectId}`;
+  const load = useCallback(async () => {
+    try {
+      const result = await productApi.tasks(workspaceId, projectId);
+      const selected = result.tasks.find((item) => item.id === taskId) ?? null;
+      setProject(result.project);
+      setTask(selected);
+      setTitle(selected?.title ?? "");
+      setDescription(selected?.description ?? "");
+      setError(selected ? null : "Task not found");
+    } catch (caught) {
+      setError(messageOf(caught));
+    } finally {
+      setLoaded(true);
+    }
+  }, [workspaceId, projectId, taskId]);
+  useEffect(() => {
+    void load();
+  }, [load]);
+  const dirty = Boolean(
+    task && (title !== task.title || description !== (task.description ?? "")),
+  );
+  useEffect(() => {
+    if (!dirty) return;
+    const protect = (event: BeforeUnloadEvent) => event.preventDefault();
+    window.addEventListener("beforeunload", protect);
+    return () => window.removeEventListener("beforeunload", protect);
+  }, [dirty]);
+  const mayLeave = () =>
+    !dirty || window.confirm("Discard unsaved task changes?");
+  return (
+    <Shell>
+      <main
+        className="workspace-page task-detail-page"
+        data-screen="task-detail"
+        data-testid="task-detail"
+      >
+        <PageHeader
+          backTo={projectPath}
+          backLabel={project?.name ?? "Tasks"}
+          kicker={`Task / ${taskId}`}
+          title={task?.title ?? (loaded ? "Task unavailable" : "Loading task…")}
+          onNavigate={mayLeave}
+        />
+        <ErrorNotice error={error} />
+        {task && (
+          <form
+            className="detail-editor"
+            onSubmit={async (event) => {
+              event.preventDefault();
+              setBusy(true);
+              try {
+                const updated = await productApi.updateTask(
+                  workspaceId,
+                  projectId,
+                  taskId,
+                  title,
+                  description,
+                );
+                setTask(updated.task);
+                setTitle(updated.task.title);
+                setDescription(updated.task.description ?? "");
+                setError(null);
+              } catch (caught) {
+                setError(messageOf(caught));
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            <div className="detail-field title-field">
+              <label htmlFor="task-detail-title">Title</label>
+              <input
+                id="task-detail-title"
+                data-testid="task-detail-title"
+                name="task-title"
+                autoComplete="off"
+                required
+                disabled={Boolean(project?.archivedAt)}
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+              />
+            </div>
+            <div className="detail-field description-field">
+              <label htmlFor="task-detail-description">Description</label>
+              <textarea
+                id="task-detail-description"
+                data-testid="task-detail-description"
+                name="task-description"
+                autoComplete="off"
+                placeholder="Add context, acceptance, or links…"
+                disabled={Boolean(project?.archivedAt)}
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+              />
+            </div>
+            <div className="detail-toolbar">
+              <span className={dirty ? "save-state dirty" : "save-state"}>
+                {dirty ? "Unsaved changes" : "Up to date"}
+              </span>
+              <div className="form-actions">
+                <button
+                  className="primary-button"
+                  type="submit"
+                  disabled={busy || !dirty || Boolean(project?.archivedAt)}
+                >
+                  {busy ? "Saving…" : "Save changes"}
+                </button>
+                <button
+                  className="danger-button"
+                  data-testid="task-delete"
+                  type="button"
+                  disabled={Boolean(project?.archivedAt)}
+                  onClick={() => setConfirmingDelete(true)}
+                >
+                  Delete task
+                </button>
+              </div>
+            </div>
+          </form>
+        )}
+        {confirmingDelete && task && (
+          <section
+            className="delete-confirmation"
+            role="alertdialog"
+            aria-labelledby="delete-task-heading"
+            aria-describedby="delete-task-copy"
+          >
+            <div>
+              <h2 id="delete-task-heading">Delete “{task.title}”?</h2>
+              <p id="delete-task-copy">
+                This action cannot be undone. The task will be removed from the
+                project.
+              </p>
+            </div>
+            <div className="form-actions">
+              <button
+                className="secondary-button"
+                type="button"
+                onClick={() => setConfirmingDelete(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="danger-button solid"
+                data-testid="task-delete-confirm"
+                type="button"
+                onClick={async () => {
+                  try {
+                    await productApi.deleteTask(workspaceId, projectId, taskId);
+                    go(projectPath);
+                  } catch (caught) {
+                    setConfirmingDelete(false);
+                    setError(messageOf(caught));
+                  }
+                }}
+              >
+                Delete task
+              </button>
+            </div>
+          </section>
+        )}
       </main>
     </Shell>
   );
@@ -553,7 +935,15 @@ export function ProductApp() {
   if (view.kind === "workspaces") return <WorkspaceScreen />;
   if (view.kind === "projects")
     return <ProjectScreen workspaceId={view.workspaceId} />;
+  if (view.kind === "tasks")
+    return (
+      <TaskScreen workspaceId={view.workspaceId} projectId={view.projectId} />
+    );
   return (
-    <TaskScreen workspaceId={view.workspaceId} projectId={view.projectId} />
+    <TaskDetailScreen
+      workspaceId={view.workspaceId}
+      projectId={view.projectId}
+      taskId={view.taskId}
+    />
   );
 }

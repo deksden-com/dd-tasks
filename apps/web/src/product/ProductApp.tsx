@@ -47,9 +47,7 @@ function AuthScreen({ mode }: { mode: "login" | "register" }) {
   const [email, setEmail] = useState(
     mode === "login" ? "owner@example.test" : "",
   );
-  const [password, setPassword] = useState(
-    mode === "login" ? "local-demo-only" : "",
-  );
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 

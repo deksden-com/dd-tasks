@@ -46,6 +46,16 @@ describe("foundation API JSON contract", () => {
     );
   });
 
+  it("keeps the bare API prefix out of the SPA fallback", async () => {
+    const app = createApiApp({ environment: "test", staticRoot: "." });
+    const response = await app.request("/api");
+    const body = await response.json();
+
+    expect(response.status).toBe(404);
+    assertJsonContentType(response);
+    expect(body).toMatchObject({ code: "NOT_FOUND", message: "Not found" });
+  });
+
   it("maps the local/test fault seam to a generic value-free error", async () => {
     const app = createApiApp({ environment: "test" });
     const response = await app.request("/api/health", {

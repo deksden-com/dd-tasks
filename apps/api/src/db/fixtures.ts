@@ -14,6 +14,7 @@ export type SeedOptions = {
     member: string;
     outsider: string;
   }>;
+  failureAfterResetForTest?: boolean;
 };
 
 export function seedMarkerValue(
@@ -103,6 +104,9 @@ export async function seedDemoData(
   await sql.begin(async (tx) => {
     await tx`SELECT pg_advisory_xact_lock(42420302)`;
     await resetProductDataInTransaction(tx);
+    if (options.failureAfterResetForTest) {
+      throw new Error("injected seed failure after reset");
+    }
     await tx`
       INSERT INTO accounts (id, email, password_hash) VALUES
         (${FIXTURES.accounts.owner.id}, ${FIXTURES.accounts.owner.email}, ${passwordHashes.owner}),

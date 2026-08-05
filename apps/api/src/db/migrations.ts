@@ -3,6 +3,10 @@ import { readdir, readFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import type { Sql, TransactionSql } from "postgres";
 
+export type QuerySql =
+  | Sql<Record<string, unknown>>
+  | TransactionSql<Record<string, unknown>>;
+
 const migrationsDirectory = process.env.MIGRATIONS_DIR
   ? { pathname: resolve(process.env.MIGRATIONS_DIR) }
   : new URL("../../drizzle/", import.meta.url);
@@ -83,9 +87,7 @@ async function applyMigrationsInTransaction(
   return appliedNow;
 }
 
-export async function migrationState(
-  sql: Sql<Record<string, unknown>>,
-): Promise<{
+export async function migrationState(sql: QuerySql): Promise<{
   applied: string[];
   expected: string[];
   appliedChecksums: Record<string, string | null>;
@@ -110,4 +112,17 @@ export async function migrationState(
     appliedChecksums,
     expectedChecksums,
   };
+}
+
+export function migrationStateMatches(
+  state: Awaited<ReturnType<typeof migrationState>>,
+): boolean {
+  return (
+    state.applied.length === state.expected.length &&
+    state.applied.every(
+      (id, index) =>
+        id === state.expected[index] &&
+        state.appliedChecksums[id] === state.expectedChecksums[id],
+    )
+  );
 }

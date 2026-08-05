@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 export const RUNTIME_PROFILES = [
   "local",
   "test",
@@ -41,10 +43,16 @@ export function profileDatabaseName(profile: RuntimeProfile): string | null {
 }
 
 function bindingSlug(runId: string): string {
-  return runId
+  const readable = runId
     .toLowerCase()
     .replaceAll(/[^a-z0-9]+/g, "_")
-    .replace(/^_+|_+$/g, "");
+    .replace(/^_+|_+$/g, "")
+    .slice(0, 16);
+  const identity = createHash("sha256")
+    .update(runId)
+    .digest("hex")
+    .slice(0, 10);
+  return `${readable || "run"}_${identity}`;
 }
 
 export function previewBindingFor(

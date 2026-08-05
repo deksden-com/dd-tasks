@@ -1,7 +1,11 @@
 import type { Sql } from "postgres";
 import type { RuntimeConfig } from "../runtime.js";
 import { SEED_MARKER_KEY, seedMarkerValue } from "./fixtures.js";
-import { migrationState } from "./migrations.js";
+import {
+  migrationState,
+  migrationStateMatches,
+  type QuerySql,
+} from "./migrations.js";
 
 export type ReadinessCheck = {
   ready: boolean;
@@ -24,59 +28,71 @@ export async function checkReadiness(
   config: RuntimeConfig,
 ): Promise<ReadinessCheck> {
   if (!config.profile) return { ready: false, reason: "invalid_profile" };
-  if (!config.build.sourceRevision || !config.build.artifactDigest) {
+  const profile = config.profile;
+  if (
+    !config.build.sourceRevision ||
+    !config.build.artifactDigest ||
+    (config.requireSeedMarker && config.build.source !== "baked")
+  ) {
     return { ready: false, reason: "build_metadata_missing" };
   }
 
   try {
-    const lock = await sql<{ available: boolean }[]>`
-      SELECT pg_try_advisory_lock(42420302) AS available
-    `;
-    if (!lock[0]?.available)
-      return { ready: false, reason: "initialization_in_progress" };
-    await sql`SELECT pg_advisory_unlock(42420302)`;
-
-    const state = await migrationState(sql);
-    const idsComplete =
-      state.applied.length === state.expected.length &&
-      state.applied.every((id, index) => id === state.expected[index]);
-    if (!idsComplete)
-      return { ready: false, reason: "migration_ledger_incomplete" };
-    const checksumsMatch = state.expected.every(
-      (id) => state.appliedChecksums[id] === state.expectedChecksums[id],
-    );
-    if (!checksumsMatch)
-      return { ready: false, reason: "migration_checksum_mismatch" };
-
-    const tables = await sql<
-      { foundation: string | null; tasks: string | null }[]
-    >`
-      SELECT to_regclass('public.foundation_metadata') AS foundation,
-             to_regclass('public.tasks') AS tasks
-    `;
-    if (
-      tables[0]?.foundation !== "foundation_metadata" ||
-      tables[0]?.tasks !== "tasks"
-    ) {
-      return { ready: false, reason: "schema_incomplete" };
-    }
-
-    if (config.requireSeedMarker) {
-      if (!config.runId || !config.worldId)
-        return { ready: false, reason: "world_binding_missing" };
-      const marker = await sql<{ value: string }[]>`
-        SELECT value FROM foundation_metadata WHERE key = ${SEED_MARKER_KEY}
+    return await sql.begin(async (transaction) => {
+      const lock = await transaction<{ available: boolean }[]>`
+        SELECT pg_try_advisory_xact_lock(42420302) AS available
       `;
-      const expected = seedMarkerValue(
-        config.profile,
-        config.runId,
-        config.worldId,
-      );
-      if (!marker[0]) return { ready: false, reason: "seed_marker_missing" };
-      if (marker[0].value !== expected)
-        return { ready: false, reason: "seed_marker_mismatch" };
-    }
-    return { ready: true, reason: "ready" };
+      if (!lock[0]?.available)
+        return { ready: false, reason: "initialization_in_progress" };
+
+      const state = await migrationState(transaction as unknown as QuerySql);
+      if (state.applied.length !== state.expected.length) {
+        return { ready: false, reason: "migration_ledger_incomplete" };
+      }
+      if (!migrationStateMatches(state)) {
+        return { ready: false, reason: "migration_checksum_mismatch" };
+      }
+
+      const tables = await transaction<{ table_name: string | null }[]>`
+        SELECT table_name
+        FROM information_schema.tables
+        WHERE table_schema = 'public'
+          AND table_name IN (
+            'accounts', 'sessions', 'workspaces', 'memberships',
+            'projects', 'tasks', 'foundation_metadata'
+          )
+        ORDER BY table_name
+      `;
+      const requiredTables = new Set([
+        "accounts",
+        "sessions",
+        "workspaces",
+        "memberships",
+        "projects",
+        "tasks",
+        "foundation_metadata",
+      ]);
+      if (
+        new Set(tables.map((row) => row.table_name)).size !==
+          requiredTables.size ||
+        tables.some((row) => !requiredTables.has(row.table_name ?? ""))
+      ) {
+        return { ready: false, reason: "schema_incomplete" };
+      }
+
+      if (config.requireSeedMarker) {
+        if (!config.runId || !config.worldId)
+          return { ready: false, reason: "world_binding_missing" };
+        const marker = await transaction<{ value: string }[]>`
+          SELECT value FROM foundation_metadata WHERE key = ${SEED_MARKER_KEY}
+        `;
+        const expected = seedMarkerValue(profile, config.runId, config.worldId);
+        if (!marker[0]) return { ready: false, reason: "seed_marker_missing" };
+        if (marker[0].value !== expected)
+          return { ready: false, reason: "seed_marker_mismatch" };
+      }
+      return { ready: true, reason: "ready" };
+    });
   } catch {
     return { ready: false, reason: "database_unavailable" };
   }

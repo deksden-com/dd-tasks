@@ -9,11 +9,16 @@ export default defineConfig({
   workers: 1,
   reporter: [
     ["list"],
-    ["json", { outputFile: "test-results/scn-003-browser-results.json" }],
+    [
+      "json",
+      {
+        outputFile: `${process.env.SCN003_OUTPUT_DIR ?? "test-results/scn-003"}/scn-003-browser-results.json`,
+      },
+    ],
   ],
   use: {
     baseURL: process.env.PREVIEW_BASE_URL ?? "http://127.0.0.1:4173",
-    trace: "retain-on-failure",
+    trace: "off",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
 });

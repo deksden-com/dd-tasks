@@ -11,6 +11,7 @@ children:
   - .memory-bank/scenarios/SCN-001-foundation-acceptance.md
   - .memory-bank/scenarios/SCN-002-workspace-task-core.md
   - .memory-bank/scenarios/SCN-003-private-preview-runtime.md
+  - .memory-bank/scenarios/SCN-003-exe-private-preview.md
 tags: [dd-tasks, scenarios, verification, foundation, checkpoint-02, preview]
 history:
   - version: '0.3.0'
@@ -32,3 +33,6 @@ history:
   built one-port Hono/Vite + internal PostgreSQL, guarded data lifecycle,
   readiness, API/browser isolation and exact cleanup; live Exe.dev proof remains
   pending.
+- [SCN-003 accepted-plan compatibility route](SCN-003-exe-private-preview.md) —
+  preserves the evidence path named by PLAN-004 and points to the canonical
+  scenario above.

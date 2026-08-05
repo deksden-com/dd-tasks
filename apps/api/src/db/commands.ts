@@ -3,6 +3,7 @@ import { type SeedOptions, seedDemoData } from "./fixtures.js";
 import {
   applyMigrations,
   migrationState,
+  migrationStateMatches,
   resetAndMigrate,
 } from "./migrations.js";
 import {
@@ -61,10 +62,7 @@ function rejectClassification(
 function requireSafeTarget(
   operation: "migrate" | "reset" | "seed" | "check",
 ): TargetClassification {
-  const classification = classificationFor(
-    operation,
-    operation === "reset" || operation === "seed",
-  );
+  const classification = classificationFor(operation, operation !== "check");
   if (!classification.safe)
     return rejectClassification(operation, classification);
   return classification;
@@ -141,14 +139,7 @@ async function check(): Promise<void> {
     const schemaExists =
       tables[0]?.foundation === "foundation_metadata" &&
       tables[0]?.tasks === "tasks";
-    const migrationsMatch =
-      state.applied.length === state.expected.length &&
-      state.applied.every(
-        (migration, index) =>
-          migration === state.expected[index] &&
-          state.appliedChecksums[migration] ===
-            state.expectedChecksums[migration],
-      );
+    const migrationsMatch = migrationStateMatches(state);
     if (!schemaExists || !migrationsMatch) {
       emit({
         status: "failed",
@@ -200,7 +191,7 @@ async function seed(): Promise<void> {
   const sql = createSqlClient(databaseUrl);
   try {
     const state = await migrationState(sql);
-    if (state.applied.length !== state.expected.length) {
+    if (!migrationStateMatches(state)) {
       emit({ status: "failed", operation: "seed", code: "SCHEMA_NOT_READY" });
       process.exitCode = 1;
       return;

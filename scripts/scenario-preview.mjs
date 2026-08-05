@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { randomBytes } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 
@@ -27,29 +27,36 @@ const passwords = {
   outsider: `outsider_${randomBytes(12).toString("base64url")}`,
   postgres: `postgres_${randomBytes(12).toString("base64url")}`,
 };
+const cleanEnvironment = { ...process.env };
+for (const name of [
+  "PREVIEW_OWNER_PASSWORD",
+  "PREVIEW_MEMBER_PASSWORD",
+  "PREVIEW_OUTSIDER_PASSWORD",
+]) {
+  delete cleanEnvironment[name];
+}
 const environment = {
-  ...process.env,
+  ...cleanEnvironment,
   PREVIEW_PROFILE: profile,
   PREVIEW_RUN_ID: runId,
   PREVIEW_WORLD_ID: binding.worldId,
   PREVIEW_DATABASE_NAME: binding.databaseName,
   PREVIEW_VOLUME: binding.volume,
+  PREVIEW_COMPOSE_PROJECT: binding.composeProject,
   PREVIEW_POSTGRES_PASSWORD: passwords.postgres,
-  PREVIEW_OWNER_PASSWORD: passwords.owner,
-  PREVIEW_MEMBER_PASSWORD: passwords.member,
-  PREVIEW_OUTSIDER_PASSWORD: passwords.outsider,
   PREVIEW_IMAGE_NAME:
     process.env.PREVIEW_IMAGE_NAME ?? `dd-tasks-preview:${binding.slug}`,
   PREVIEW_PORT: process.env.PREVIEW_PORT ?? "4173",
 };
 const scenarioRoot = resolve(workspaceRoot, ".scenario-runs", runId);
+const profileRoot = resolve(scenarioRoot, profile);
 const phases = [];
-let started = false;
+let startAttempted = false;
 let overallStatus = "passed";
 let overallReason = "all source-package phases passed";
 let buildManifest = null;
 
-await mkdir(scenarioRoot, { recursive: true });
+await mkdir(profileRoot, { recursive: true });
 await writeJson("run.json", {
   schema_id: "dd-flow/preview-scenario-run@1",
   run_id: runId,
@@ -79,19 +86,23 @@ try {
     result.command =
       "node scripts/preview-build.mjs --profile <profile> --run-id <run-id>";
     result.exit_code = built.status;
+    result.output = { stdout: built.stdout, stderr: built.stderr };
     if (built.status !== 0) throw new Error("preview image build failed");
     buildManifest = parseLastJson(built.stdout);
+    if (buildManifest.source_dirty !== false) {
+      throw new Error("preview build source was not clean");
+    }
     result.artifact = safeArtifact(buildManifest);
   });
 
   if (phasePassed("phase-01-build")) {
     await phase("phase-02-start", async (result) => {
+      startAttempted = true;
       const startedResult = await compose(["up", "-d", "postgres", "app"]);
       result.command = "docker compose ... up -d postgres app";
       result.exit_code = startedResult.status;
       if (startedResult.status !== 0)
         throw new Error("preview composition did not start");
-      started = true;
       await waitForHealth();
       const before = await fetchJson("/api/ready");
       result.liveness = "passed";
@@ -120,11 +131,15 @@ try {
       const reset = await oneShot("reset", mutationArgs());
       const seed = await oneShot("seed", mutationArgs());
       result.negative_binding_exit = negative.status;
+      result.negative_binding = parseLastJson(negative.stdout);
       result.migrate_exit = migrate.status;
       result.reset_exit = reset.status;
       result.seed_exit = seed.status;
       if (
-        negative.status === 0 ||
+        negative.status !== 2 ||
+        result.negative_binding?.code !== "TARGET_REJECTED" ||
+        result.negative_binding?.binding !== "mismatch" ||
+        result.negative_binding?.mutated !== false ||
         migrate.status !== 0 ||
         reset.status !== 0 ||
         seed.status !== 0
@@ -140,8 +155,27 @@ try {
     await phase("phase-04-api-role-smoke", async (result) => {
       const health = await fetchJson("/api/health");
       const ready = await fetchJson("/api/ready");
+      const unauthenticated = await fetchJson("/api/workspaces");
+      const missingApi = await fetchJson("/api/__missing__");
+      const deepLink = await fetchText("/workspaces/ws-alpha");
+      const demoLogin = await fetchJson("/api/auth/login", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          email: "owner@example.test",
+          password: "local-demo-only",
+        }),
+      });
       if (health.status !== 200 || ready.status !== 200)
         throw new Error("health/readiness API smoke failed");
+      if (
+        unauthenticated.status !== 401 ||
+        missingApi.status !== 404 ||
+        deepLink.status !== 200 ||
+        demoLogin.status !== 401
+      ) {
+        throw new Error("preview auth/static boundary smoke failed");
+      }
       if (
         buildManifest &&
         (ready.body?.revision?.sourceRevision !==
@@ -174,6 +208,15 @@ try {
       );
       result.health = health.status;
       result.ready = safeReady(ready);
+      result.unauthenticated = unauthenticated.status;
+      result.unauthenticated_code = unauthenticated.body?.code ?? null;
+      result.api_missing = missingApi.status;
+      result.api_missing_code = missingApi.body?.code ?? null;
+      result.deep_link = deepLink.status;
+      result.deep_link_content_type =
+        deepLink.headers.get("content-type") ?? null;
+      result.committed_demo_password = demoLogin.status;
+      result.committed_demo_password_code = demoLogin.body?.code ?? null;
       result.owner_workspaces = workspaces.status;
       result.member_owner_mutation = memberForbidden.status;
       result.outsider_cross_workspace = outsiderIsolation.status;
@@ -208,6 +251,7 @@ try {
             SCN003_OWNER_PASSWORD: passwords.owner,
             SCN003_MEMBER_PASSWORD: passwords.member,
             SCN003_OUTSIDER_PASSWORD: passwords.outsider,
+            SCN003_OUTPUT_DIR: resolve(profileRoot, "browser-results"),
           },
           timeoutMs: 300_000,
         },
@@ -262,7 +306,7 @@ try {
   overallReason =
     error instanceof Error ? error.message : "preview scenario failed";
 } finally {
-  if (started) {
+  if (startAttempted) {
     const cleanup = await compose(["down", "--remove-orphans"]);
     const removed = await removeVolume();
     await writeJson("cleanup.json", {
@@ -290,7 +334,17 @@ const finalEvidence = {
   profile,
   contour: "source-package",
   source_revision: buildManifest?.source_revision ?? null,
+  source_dirty: buildManifest?.source_dirty ?? null,
+  branch: buildManifest?.branch ?? null,
+  expected_start_head: process.env.EXPECTED_START_HEAD ?? null,
+  observed_head: buildManifest?.source_revision ?? null,
   artifact_digest: buildManifest?.artifact_digest ?? null,
+  image: buildManifest?.image ?? null,
+  image_id: buildManifest?.image_id ?? null,
+  build_timestamp: buildManifest?.build_timestamp ?? null,
+  proof_id: `SCN-003-${profile}-${runId}`,
+  passport_id:
+    ".memory-bank/protocol/PRT-004-exe-preview-runtime/evidence/verification-passport.md",
   binding: safeBinding(binding),
   started_at: phases[0]?.started_at ?? null,
   ended_at: new Date().toISOString(),
@@ -301,7 +355,13 @@ const finalEvidence = {
     command: item.command ?? null,
   })),
   negative_access: {
-    unauthenticated: "covered by API contract",
+    unauthenticated: 401,
+    unauthenticated_code: "UNAUTHORIZED",
+    api_missing: 404,
+    api_missing_code: "NOT_FOUND",
+    deep_link: 200,
+    committed_demo_password: 401,
+    committed_demo_password_code: "UNAUTHORIZED",
     member_owner_mutation: "403",
     outsider_cross_workspace: "404",
   },
@@ -334,6 +394,19 @@ const finalEvidence = {
 };
 await writeJson("state.json", finalEvidence);
 await writeJson("proof-manifest.json", finalEvidence);
+await writeJson("run.json", {
+  schema_id: "dd-flow/preview-scenario-run@1",
+  run_id: runId,
+  scenario_id: "SCN-003",
+  status: overallStatus,
+  ended_at: finalEvidence.ended_at,
+  profile,
+  source_revision: finalEvidence.source_revision,
+  source_dirty: finalEvidence.source_dirty,
+  artifact_digest: finalEvidence.artifact_digest,
+  proof_id: finalEvidence.proof_id,
+  binding: safeBinding(binding),
+});
 console.log(JSON.stringify(finalEvidence, null, 2));
 process.exitCode = overallStatus === "passed" ? 0 : 1;
 
@@ -349,10 +422,16 @@ function isSafeToken(value) {
 }
 
 function previewBinding(profileName, operationId) {
-  const slug = operationId
+  const readable = operationId
     .toLowerCase()
     .replaceAll(/[^a-z0-9]+/g, "_")
-    .replace(/^_+|_+$/g, "");
+    .replace(/^_+|_+$/g, "")
+    .slice(0, 16);
+  const identity = createHash("sha256")
+    .update(operationId)
+    .digest("hex")
+    .slice(0, 10);
+  const slug = `${readable || "run"}_${identity}`;
   const profileSlug = profileName.replaceAll("-", "_");
   return {
     slug,
@@ -383,6 +462,9 @@ function safeArtifact(value) {
   return {
     source_revision: value.source_revision,
     source_dirty: value.source_dirty,
+    branch: value.branch,
+    expected_start_head: value.expected_start_head,
+    observed_head: value.observed_head,
     artifact_digest: value.artifact_digest,
     image: value.image,
     image_id: value.image_id,
@@ -419,7 +501,14 @@ async function oneShot(operation, args) {
 
 async function compose(args) {
   return run("docker", [...composeArgs(), ...args], {
-    env: environment,
+    env: args.includes("seed")
+      ? {
+          ...environment,
+          PREVIEW_OWNER_PASSWORD: passwords.owner,
+          PREVIEW_MEMBER_PASSWORD: passwords.member,
+          PREVIEW_OUTSIDER_PASSWORD: passwords.outsider,
+        }
+      : environment,
     timeoutMs: 300_000,
   });
 }
@@ -486,6 +575,18 @@ async function fetchJson(path, options = {}) {
     body = null;
   }
   return { status: response.status, body, headers: response.headers };
+}
+
+async function fetchText(path, options = {}) {
+  const response = await fetch(
+    `http://127.0.0.1:${environment.PREVIEW_PORT}${path}`,
+    options,
+  );
+  return {
+    status: response.status,
+    body: await response.text(),
+    headers: response.headers,
+  };
 }
 
 async function removeVolume() {
@@ -602,7 +703,7 @@ function redact(value) {
 }
 
 async function writeJson(relativePath, value) {
-  const path = join(scenarioRoot, relativePath);
+  const path = join(profileRoot, relativePath);
   await mkdir(resolve(path, ".."), { recursive: true });
   await writeFile(path, `${JSON.stringify(value, null, 2)}\n`, "utf8");
 }

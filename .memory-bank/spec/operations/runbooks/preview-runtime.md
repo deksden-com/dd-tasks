@@ -41,9 +41,32 @@ readback:
 
 ```text
 pnpm preview:build -- --run-id <run-id> --profile <profile>
-PREVIEW_PROFILE=<profile> PREVIEW_RUN_ID=<run-id> \
-  docker compose -f compose.preview.yml --project-name <compose-project> up -d postgres app
 ```
+
+The wrapper is the canonical binding generator because the project slug
+contains a readable run prefix plus a run-id hash. For a manual Compose
+operator, copy the value-free binding receipt and export the complete tuple
+before any Compose command:
+
+```text
+export PREVIEW_PROFILE=<profile>
+export PREVIEW_RUN_ID=<run-id>
+export PREVIEW_WORLD_ID=<world-id from bindings.json>
+export PREVIEW_DATABASE_NAME=<database from bindings.json>
+export PREVIEW_VOLUME=<volume from bindings.json>
+export PREVIEW_COMPOSE_PROJECT=<compose_project from bindings.json>
+export PREVIEW_PORT=<private loopback port>
+export PREVIEW_POSTGRES_PASSWORD=<operation-scoped secret, supplied out of band>
+docker compose -f compose.preview.yml --project-name "$PREVIEW_COMPOSE_PROJECT" \
+  up -d postgres app
+```
+
+`PREVIEW_POSTGRES_PASSWORD` is required for Compose interpolation and is never
+committed, baked into the image, or written to receipts. `PREVIEW_VOLUME` and
+`PREVIEW_COMPOSE_PROJECT` are part of the exact cleanup target. Prefer
+`pnpm scenario:preview -- --run-id <run-id> --profile <profile>` so the
+binding, secret split, browser output directory and cleanup are managed as one
+operation.
 
 The app is one built Node process. It serves the API and Vite `dist` assets on
 the one external port; PostgreSQL is reachable only by the Compose service

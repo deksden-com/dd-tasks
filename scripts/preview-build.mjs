@@ -21,16 +21,37 @@ if (!allowedProfiles.has(profile) || !isSafeToken(runId)) {
 
 const binding = previewBinding(profile, runId);
 const sourceRevision = (await run("git", ["rev-parse", "HEAD"])).stdout.trim();
+const branch = (await run("git", ["branch", "--show-current"])).stdout.trim();
 const gitStatus = await run("git", ["status", "--porcelain"]);
 const sourceDirty = gitStatus.stdout.trim().length > 0;
+if (sourceDirty) {
+  console.error(
+    JSON.stringify({
+      status: "blocked",
+      code: "SOURCE_DIRTY",
+      source_revision: sourceRevision,
+      branch,
+      reason: "preview source proof requires a clean accepted HEAD",
+    }),
+  );
+  process.exit(2);
+}
 const artifactDigest = await sourceArtifactDigest(sourceRevision);
 const buildTimestamp = new Date().toISOString();
 const imageName =
   process.env.PREVIEW_IMAGE_NAME ?? `dd-tasks-preview:${binding.slug}`;
 const password =
   process.env.PREVIEW_POSTGRES_PASSWORD ?? `preview_${binding.slug}_local`;
+const cleanEnvironment = { ...process.env };
+for (const name of [
+  "PREVIEW_OWNER_PASSWORD",
+  "PREVIEW_MEMBER_PASSWORD",
+  "PREVIEW_OUTSIDER_PASSWORD",
+]) {
+  delete cleanEnvironment[name];
+}
 const environment = {
-  ...process.env,
+  ...cleanEnvironment,
   PREVIEW_PROFILE: profile,
   PREVIEW_RUN_ID: runId,
   PREVIEW_WORLD_ID: binding.worldId,
@@ -73,8 +94,24 @@ const inspect = await run(
   { env: environment },
 );
 const imageId = inspect.status === 0 ? inspect.stdout.trim() : "unavailable";
-const scenarioRoot = resolve(workspaceRoot, ".scenario-runs", runId);
+const scenarioRoot = resolve(workspaceRoot, ".scenario-runs", runId, profile);
 await mkdir(scenarioRoot, { recursive: true });
+const observedRevision = (
+  await run("git", ["rev-parse", "HEAD"])
+).stdout.trim();
+const observedStatus = await run("git", ["status", "--porcelain"]);
+if (observedRevision !== sourceRevision || observedStatus.stdout.trim()) {
+  console.error(
+    JSON.stringify({
+      status: "blocked",
+      code: "SOURCE_CHANGED_DURING_BUILD",
+      expected_revision: sourceRevision,
+      observed_revision: observedRevision,
+      source_dirty: observedStatus.stdout.trim().length > 0,
+    }),
+  );
+  process.exit(2);
+}
 const manifest = {
   schema_id: "dd-flow/preview-build-manifest@1",
   status: "built",
@@ -82,6 +119,9 @@ const manifest = {
   profile,
   source_revision: sourceRevision,
   source_dirty: sourceDirty,
+  branch,
+  expected_start_head: process.env.EXPECTED_START_HEAD ?? null,
+  observed_head: observedRevision,
   artifact_digest: artifactDigest,
   image: imageName,
   image_id: imageId,
@@ -116,10 +156,16 @@ function isSafeToken(value) {
 }
 
 function previewBinding(profileName, operationId) {
-  const slug = operationId
+  const readable = operationId
     .toLowerCase()
     .replaceAll(/[^a-z0-9]+/g, "_")
-    .replace(/^_+|_+$/g, "");
+    .replace(/^_+|_+$/g, "")
+    .slice(0, 16);
+  const identity = createHash("sha256")
+    .update(operationId)
+    .digest("hex")
+    .slice(0, 10);
+  const slug = `${readable || "run"}_${identity}`;
   const profileSlug = profileName.replaceAll("-", "_");
   return {
     slug,

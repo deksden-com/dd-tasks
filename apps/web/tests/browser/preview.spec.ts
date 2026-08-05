@@ -21,6 +21,29 @@ async function login(
 }
 
 test.describe("SCN-003 private preview source acceptance", () => {
+  test("keeps unauthenticated API and SPA boundaries explicit", async ({
+    page,
+  }) => {
+    const unauthenticated = await page.request.get("/api/workspaces");
+    expect(unauthenticated.status()).toBe(401);
+    expect(await unauthenticated.json()).toMatchObject({
+      code: "UNAUTHORIZED",
+    });
+
+    const missingApi = await page.request.get("/api/__missing__");
+    expect(missingApi.status()).toBe(404);
+    expect(missingApi.headers()["content-type"]).toMatch(/^application\/json/);
+
+    const deepLink = await page.goto("/workspaces/ws-alpha");
+    expect(deepLink?.status()).toBe(200);
+    expect(await page.locator("body").textContent()).toContain("Sign in");
+
+    const committedDemoPassword = await page.request.post("/api/auth/login", {
+      data: { email: "owner@example.test", password: "local-demo-only" },
+    });
+    expect(committedDemoPassword.status()).toBe(401);
+  });
+
   test("owner completes the browser core path on the built one-port runtime", async ({
     page,
   }) => {

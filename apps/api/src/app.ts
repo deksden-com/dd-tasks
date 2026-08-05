@@ -64,6 +64,20 @@ export function createApiApp(
     });
   });
 
+  app.use("/api/*", async (c, next) => {
+    if (c.req.path === "/api/health" || c.req.path === "/api/ready") {
+      await next();
+      return;
+    }
+    if (runtime.requireSeedMarker) {
+      const readiness = await checkReadiness(sql, runtime);
+      if (!readiness.ready) {
+        return publicErrorResponse(c, 503, "NOT_READY", "Service is not ready");
+      }
+    }
+    await next();
+  });
+
   const account = async (c: Context<ApiEnv>) =>
     core.accountForToken(getCookie(c, SESSION_COOKIE));
   const body = async (c: Context<ApiEnv>): Promise<Record<string, unknown>> => {
@@ -248,13 +262,15 @@ export function createApiApp(
   );
 
   if (options.staticRoot) {
+    const isApiPath = (path: string) =>
+      path === "/api" || path.startsWith("/api/");
     const staticFiles = serveStatic({ root: options.staticRoot });
     app.use("*", async (c, next) => {
-      if (c.req.path.startsWith("/api/")) return next();
+      if (isApiPath(c.req.path)) return next();
       return staticFiles(c, next);
     });
     app.get("*", async (c, next) => {
-      if (c.req.path.startsWith("/api/")) return next();
+      if (isApiPath(c.req.path)) return next();
       return serveStatic({ root: options.staticRoot, path: "index.html" })(
         c,
         next,

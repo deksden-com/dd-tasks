@@ -110,6 +110,23 @@ describe("foundation reset target guard", () => {
     });
   });
 
+  it("rejects preview migrate without the exact world binding", () => {
+    const result = classifyMutationTarget({
+      databaseUrl: "postgresql://dd_tasks@postgres/dd_tasks_preview_checkpoint",
+      profile: "preview-checkpoint",
+      runId: "RUN-300-preview-runtime",
+      operation: "migrate",
+      requireRunId: true,
+      requireWorldBinding: true,
+    });
+
+    expect(result).toMatchObject({
+      safe: false,
+      binding: "missing",
+    });
+    expect(result.reason).toMatch(/world binding/i);
+  });
+
   it.each([
     ["missing profile", { profile: undefined }],
     [

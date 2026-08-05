@@ -2,7 +2,7 @@
 file: '.memory-bank/protocol/PRT-004-exe-preview-runtime/summary.md'
 description: 'Рабочая сводка протокола preview runtime и операционного контура Exe.dev.'
 purpose: 'Фиксирует problem-space цель, scope, Git workspace, начальные gaps и handoff в SPECIFY.'
-version: '0.4.0'
+version: '0.5.0'
 date: '2026-08-04'
 status: 'ACTIVE'
 c4_level: 'operations'
@@ -18,6 +18,9 @@ source_user_input:
 continuation_prompt: 'code.md после явного запуска CODE'
 tags: [protocol, plan, ready-for-code, exe-dev, preview, runtime, runbook]
 history:
+  - version: '0.5.0'
+    date: '2026-08-05'
+    changes: 'CODE/readiness source-package evidence is promoted; final clean head, manifests, reviews and exact provider boundary are handed to the separate merge session.'
   - version: '0.4.0'
     date: '2026-08-04'
     changes: 'CODE implementation registered in the exact feature worktree; one-port preview runtime, guarded data lifecycle, readiness, source SCN-003 and local/eval smoke are being closed before readiness handoff.'
@@ -41,8 +44,8 @@ protocol:
   id: PRT-004-exe-preview-runtime
   title: Exe preview runtime and operations contour
   mode: normal
-  current_stage: implementation
-  next_action: complete CODE verification/readiness, then hand exact source HEAD to the separate merge session
+  current_stage: readiness
+  next_action: call protocol ready-for-merge and hand exact source HEAD to the separate merge session; do not merge here
 scope_sizing_verdict: single_executable_protocol
 stage_verdict: ready_for_code
 plan_id: PLAN-004-exe-preview-runtime

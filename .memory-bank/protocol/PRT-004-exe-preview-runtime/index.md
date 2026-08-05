@@ -15,6 +15,7 @@ children:
   - .memory-bank/protocol/PRT-004-exe-preview-runtime/trace/20260804T214804+0200-planning-start.md
   - .memory-bank/protocol/PRT-004-exe-preview-runtime/trace/20260804T232400+0200-planning-report.md
   - .memory-bank/protocol/PRT-004-exe-preview-runtime/trace/20260804T235701+0200-code-start.md
+  - .memory-bank/protocol/PRT-004-exe-preview-runtime/evidence/verification-passport.md
 tags: [protocol, exe-dev, preview, runtime, operations]
 history:
   - version: '0.4.0'
@@ -40,6 +41,7 @@ history:
 - [Старт planning-сессии](trace/20260804T214804+0200-planning-start.md)
 - [SPECIFY/PLAN report](trace/20260804T232400+0200-planning-report.md)
 - [CODE start trace](trace/20260804T235701+0200-code-start.md)
+- [Source-package verification passport](evidence/verification-passport.md)
 
 Runtime artifacts создаются под project-scoped `dd-flow` run home для
 `RUN-300-exe-preview-runtime`. Фактическая provider mutation не входит в

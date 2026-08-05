@@ -27,7 +27,7 @@ test.describe("SCN-003 private preview source acceptance", () => {
     const unauthenticated = await page.request.get("/api/workspaces");
     expect(unauthenticated.status()).toBe(401);
     expect(await unauthenticated.json()).toMatchObject({
-      code: "UNAUTHORIZED",
+      code: "UNAUTHENTICATED",
     });
 
     const missingApi = await page.request.get("/api/__missing__");

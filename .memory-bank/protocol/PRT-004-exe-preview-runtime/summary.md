@@ -2,9 +2,9 @@
 file: '.memory-bank/protocol/PRT-004-exe-preview-runtime/summary.md'
 description: 'Рабочая сводка протокола preview runtime и операционного контура Exe.dev.'
 purpose: 'Фиксирует problem-space цель, scope, Git workspace, начальные gaps и handoff в SPECIFY.'
-version: '0.5.0'
-date: '2026-08-04'
-status: 'ACTIVE'
+version: '0.6.0'
+date: '2026-08-05'
+status: 'CLOSED'
 c4_level: 'operations'
 parent: '.memory-bank/protocol/PRT-004-exe-preview-runtime/index.md'
 blocked_by_protocols: []
@@ -15,9 +15,12 @@ related_scenarios:
   - .memory-bank/scenarios/SCN-003-private-preview-runtime.md
 source_user_input:
   - .memory-bank/protocol/PRT-004-exe-preview-runtime/intake/user-input.md
-continuation_prompt: 'code.md после явного запуска CODE'
-tags: [protocol, plan, ready-for-code, exe-dev, preview, runtime, runbook]
+continuation_prompt: 'deploy.md as a separate explicitly authorized provider flow'
+tags: [protocol, merged-local, deploy-handoff, exe-dev, preview, runtime, runbook]
 history:
+  - version: '0.6.0'
+    date: '2026-08-05'
+    changes: 'Accepted feature source was fast-forwarded to local main, fresh integrated quality/docs/DB/SCN-003 gates passed, and the source protocol closed with deploy-required-next and no provider or remote mutation.'
   - version: '0.5.0'
     date: '2026-08-05'
     changes: 'CODE/readiness source-package evidence is promoted; final clean head, manifests, reviews and exact provider boundary are handed to the separate merge session.'
@@ -44,10 +47,10 @@ protocol:
   id: PRT-004-exe-preview-runtime
   title: Exe preview runtime and operations contour
   mode: normal
-  current_stage: readiness
-  next_action: call protocol ready-for-merge and hand exact source HEAD to the separate merge session; do not merge here
+  current_stage: closed
+  next_action: run deploy.md separately only after fresh provider identity, authority, target and private-share preflight
 scope_sizing_verdict: single_executable_protocol
-stage_verdict: ready_for_code
+stage_verdict: merged_local_source_deploy_required_next
 plan_id: PLAN-004-exe-preview-runtime
 plan_items: 11
 ```
@@ -194,3 +197,18 @@ task packets и fresh focused sessions закрыли review; это не CODE b
 `CODE` зарегистрирован после `ready_for_code` handoff в exact feature worktree.
 Source-package preview checks не являются Exe.dev evidence: provider identity,
 team, VM, private share, transport and capacity остаются отдельным deploy gate.
+
+## Local merge closure
+
+Accepted feature HEAD `3cd39525b998ed38b29ba5da7fd87e2c15700821`
+was integrated into local `main` with exact `git merge --ff-only`. A merge-lane
+test-budget finding was fixed in commit
+`83c0ae695784787ff69dd1f1163d17c8df0cb90c`; the command guard assertion and
+pre-SQL rejection semantics were unchanged. Fresh stable-checkout bootstrap,
+`pnpm quality`, `pnpm docs:check`, guarded `pnpm db:check`, both SCN-003 source
+profiles, secret/value scans and Git reachability passed on that commit.
+
+The RUN-300 `04-merge` report owns exact queue/session/lane/cleanup readback.
+Remote refs were not changed; no push, tag, release, publish, Exe.dev login,
+account/team/VM/share or other provider mutation occurred. The only next gate
+is a separate `deploy.md` flow with fresh operational-access authorization.

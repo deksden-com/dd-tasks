@@ -2,7 +2,7 @@
 file: '.memory-bank/spec/engineering/index.md'
 description: 'Подтверждённый engineering/test contour checkpoint-02-core и private preview runtime.'
 purpose: 'Фиксирует canonical commands, test ownership, container smoke и границы локального доказательства.'
-version: '0.5.0'
+version: '0.6.0'
 date: '2026-08-04'
 status: 'ACTIVE'
 c4_level: 'documentation'
@@ -31,6 +31,9 @@ test_files:
   - apps/web/tests/browser/preview.spec.ts
 tags: [dd-tasks, engineering, checkpoint-02, preview, quality, playwright, container]
 history:
+  - version: '0.6.0'
+    date: '2026-08-05'
+    changes: 'Добавлены access-policy unit/API/UI/browser gates, build-manifest policy handoff и closed-registration SCN-003 readback.'
   - version: '0.5.0'
     date: '2026-08-04'
     changes: 'Добавлены preview build/scenario commands, Docker runtime smoke, guarded negative checks, readiness integration и SCN-003 browser ownership.'
@@ -65,6 +68,14 @@ Preview source-package gates дополнительно используют:
   API/browser role matrix, checkpoint restart или eval volume cleanup;
 - `pnpm --filter @dd-tasks/web exec playwright test --config
   playwright.preview.config.ts --project chromium` — SCN-003 browser contour.
+
+The preview build manifest carries a value-free access-policy object with
+requested proxy visibility, requested registration mode, pair validity and the
+resolved application mode. `/api/config` is the only application registration
+readback; Exe.dev `share show` is the only provider visibility readback. The
+browser/API gates cover direct `/register`, closed-mode rejection before body
+parsing, application login/session/workspace authorization and the forbidden
+`public+open` pair.
 
 Unit tests не заменяют readiness: SCN-002 требует fresh integration и browser
 evidence. Playwright не переиспользует чужой localhost server. CI, release и

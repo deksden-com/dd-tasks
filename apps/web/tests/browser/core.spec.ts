@@ -125,6 +125,9 @@ test.describe("SCN-002 workspace task core", () => {
   test("validation, keyboard focus, and narrow layout remain usable", async ({
     page,
   }) => {
+    const config = await page.request.get("/api/config");
+    expect(config.status()).toBe(200);
+    expect(await config.json()).toEqual({ registration_mode: "open" });
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/login");
     await page.getByTestId("auth-email").fill("");

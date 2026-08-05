@@ -1,8 +1,8 @@
 ---
 file: '.memory-bank/spec/operations/index.md'
-description: 'Operational, preview-runtime and Git delivery contour dd-tasks through PRT-004.'
+description: 'Operational, preview-runtime and Git delivery contour dd-tasks through PRT-006.'
 purpose: 'Fixes bootstrap, stage/check/access/secrets safety, one-port preview runtime, evidence contour and source delivery.'
-version: '1.3.0'
+version: '1.4.0'
 date: '2026-08-05'
 status: 'ACTIVE'
 c4_level: 'operations'
@@ -19,6 +19,9 @@ children:
   - .memory-bank/spec/operations/runbooks/exe-dev-preview.md
 tags: [dd-tasks, operations, git, checkpoint-02, delivery]
 history:
+  - version: '1.4.0'
+    date: '2026-08-05'
+    changes: 'PRT-006 добавляет независимые provider visibility и application registration policy, public+closed Exe.dev handoff и отдельные readback gates.'
   - version: '1.3.0'
     date: '2026-08-05'
     changes: 'Deploy теперь требует опубликованный main и immutable checkpoint tag с remote readback; active preview сохраняет только текущий volume, superseded volumes удаляются после принятия нового runtime.'
@@ -65,8 +68,8 @@ history:
 
 # Операции
 
-PRT-004 CODE выполняется только в exact feature worktree
-`feature/prt-004-exe-preview-runtime`; stable `main` изменяется только
+PRT-004/PRT-006 CODE выполняется только в exact feature worktree
+`feature/prt-<number>-<slug>`; stable `main` изменяется только
 canonical merge flow после readiness. Runtime управляется штатным `dd-flow` CLI
 0.4.0, без ручной правки DB/JSON.
 
@@ -76,7 +79,9 @@ Local/test PostgreSQL остаётся на loopback `55433`. `pnpm db:migrate`,
 `preview-checkpoint`/`preview-eval-output` profiles, internal host `postgres`,
 one-port Hono/Vite app, transaction-level advisory lock, checksum ledger,
 seed marker и exact world/compose/volume binding. Preview data disposable и не
-является production provisioning.
+является production provisioning. Access policy разделена: provider
+`proxy_visibility` (`private|public`) и application `registration_mode`
+(`closed|open`); hosted default `private+closed`, `public+open` запрещён.
 
 `pnpm scenario:preview` владеет built preview port `4173`, не переиспользует
 посторонний server и records only source-package evidence. `pnpm test:browser`

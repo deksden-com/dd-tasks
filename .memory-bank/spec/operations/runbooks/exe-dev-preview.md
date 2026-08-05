@@ -1,8 +1,8 @@
 ---
 file: '.memory-bank/spec/operations/runbooks/exe-dev-preview.md'
-description: 'Exe.dev provider overlay for deploying a private dd-tasks preview.'
+description: 'Exe.dev provider overlay for deploying a policy-controlled dd-tasks preview.'
 purpose: 'Binds an accepted source artifact and the verified workstation SSH identity to a guarded private Exe.dev deployment.'
-version: '0.3.0'
+version: '0.4.0'
 date: '2026-08-05'
 status: 'ACTIVE'
 c4_level: 'operations'
@@ -18,6 +18,7 @@ related_runbooks:
   - .memory-bank/spec/operations/runbooks/preview-runtime.md
 related_protocols:
   - .memory-bank/protocol/PRT-004-exe-preview-runtime/index.md
+  - .memory-bank/protocol/PRT-006-preview-access-policy/index.md
 tags: [dd-tasks, runbook, exe-dev, provider, deploy, private]
 ---
 
@@ -35,6 +36,12 @@ published `main` SHA, immutable checkpoint tag, exact clean SHA, source
 archive/build identity, artifact digest, profile, `run_id` and runbook version.
 A fresh preflight is required even when an earlier plan or runbook contains an
 observed provider fact.
+
+The access handoff has two independent fields: `proxy_visibility` (`private` or
+`public`) and `registration_mode` (`closed` or `open`). This operation is
+authorized for `public+closed` on the existing `ddtasks-cp02` target. The
+standard contour rejects `public+open`; provider visibility never replaces
+application login, session or workspace authorization.
 
 ## Immutable Git checkpoint gate
 
@@ -118,19 +125,16 @@ ssh <explicit-options> exe.dev ls --json
 ssh <explicit-options> exe.dev share show <vm> --json   # existing target only
 ```
 
-Redact email addresses and public-key material from durable evidence. A create
-operation also proves that the requested VM name is absent before `new`.
+Redact email addresses and public-key material from durable evidence. This run
+uses the existing target only; an absent or mismatched VM is a hard stop, not a
+reason to create a substitute.
 
-## Create and source transfer
+## Existing target and source transfer
 
-The checkpoint-02 target is `ddtasks-cp02`. Unless a later protocol changes the
-resource envelope, create it with the default `exeuntu` image, two CPUs, 4 GB
-memory and a 25 GB disk:
-
-```text
-ssh <explicit-options> exe.dev new --name=ddtasks-cp02 --cpu=2 \
-  --memory=4GB --disk=25GB --comment='dd-tasks checkpoint-02 private preview' --json
-```
+The checkpoint-02 target is the existing `ddtasks-cp02`. This run does not
+create a VM or select a substitute target. Read back ownership, lifecycle,
+resource capacity and the existing target before any source transfer; an absent
+or mismatched target is a hard stop.
 
 Exeuntu supports Docker. Transfer an exact clean source tree with `rsync` over
 the explicit SSH binding; do not perform Git mutation from the VM and do not
@@ -145,14 +149,15 @@ PostgreSQL and actor passwords on the VM, keep them in a mode-`0600`
 operation-scoped environment file, and never print or copy their values into
 the flow evidence.
 
-## Private proxy and verification
+## Provider share and verification
 
-After the app is healthy on VM loopback port `8000`, explicitly set and read
-back the provider proxy:
+After the app is healthy on VM loopback port `8000`, explicitly set the
+requested public share through Exe.dev and read it back. The HTTPS proxy remains
+the only external transport; never expose a raw VM port:
 
 ```text
 ssh <explicit-options> exe.dev share port ddtasks-cp02 8000
-ssh <explicit-options> exe.dev share set-private ddtasks-cp02
+ssh <explicit-options> exe.dev share set-public ddtasks-cp02
 ssh <explicit-options> exe.dev share show ddtasks-cp02 --json
 ```
 
@@ -161,10 +166,14 @@ The accepted URL is `https://ddtasks-cp02.exe.xyz/`. Success requires all of:
 - exact source SHA and artifact digest read back from `/api/ready`;
 - exact remote checkpoint tag and commit SHA recorded in the deploy handoff;
 - `/api/health` and `/api/ready` passing from the VM;
-- the private HTTPS route and an application deep link passing in an
-  authenticated browser session;
+- the public HTTPS route opening without an Exe.dev login gate and showing the
+  application login screen on an application deep link;
+- `/api/config` returning `{"registration_mode":"closed"}` and direct
+  registration returning `403 REGISTRATION_CLOSED` before body validation;
+- application login/session/workspace authorization and an authenticated deep
+  link passing in the browser;
 - live SCN-003 role/isolation checks with operation-scoped actors;
-- explicit private-share and port-8000 readback;
+- explicit public-share and port-8000 readback;
 - checkpoint retention readback after a controlled restart.
 
 Reviewer access is added only for an explicit reviewer identity and removed in
@@ -185,17 +194,17 @@ new explicit destructive authorization, then read back absence by exact name.
 
 ## Protected action order
 
-After a fresh approved Git and provider gate, the deploy operation may create
-or update only the exact target bound by the preflight, transfer the accepted
-artifact, start one app process plus internal PostgreSQL, and read back private
-proxy, port, revision, `/api/health` and `/api/ready`. It then runs live SCN-003
-with operation-scoped actors, revokes reviewer access, accepts the new runtime,
-and removes/readbacks any superseded exact Compose project and volume. A
-failed replacement never triggers old-runtime cleanup.
+After a fresh approved Git and provider gate, the deploy operation may update
+only the exact existing target bound by the preflight, transfer the accepted
+artifact, start one app process plus internal PostgreSQL, and read back public
+proxy, port, revision, `/api/health`, `/api/ready` and `/api/config`. It then
+runs live SCN-003 with operation-scoped actors, revokes reviewer access,
+accepts the new runtime, and removes/readbacks any superseded exact Compose
+project and volume. A failed replacement never triggers old-runtime cleanup.
 
 Timeouts and provider errors require target readback before retry. Partial
-create/start/transfer outcomes are retired or resumed only under the exact
-provider contract. A public share, wrong port, wrong revision, missing cleanup
+start/transfer outcomes are retired or resumed only under the exact provider
+contract. A public+open pair, wrong port, wrong revision, missing cleanup
 readback or stale access state is a failed/blocked rollout, never a source
 readiness pass.
 
@@ -204,7 +213,7 @@ readiness pass.
 The deploy ledger revalidated the following official pages on 2026-08-05; the
 deploy owner must revalidate them immediately before use:
 
-- [Exe.dev proxy](https://exe.dev/docs/proxy) — HTTPS proxy, private default,
+- [Exe.dev proxy](https://exe.dev/docs/proxy) — HTTPS proxy, share modes,
   explicit port and forwarding.
 - [Exe.dev sharing](https://exe.dev/docs/sharing) — access/share semantics.
 - [Exe.dev CLI new](https://exe.dev/docs/cli-new) — VM creation inputs.
@@ -215,6 +224,6 @@ deploy owner must revalidate them immediately before use:
 - [Exe.dev VM customization](https://exe.dev/docs/customization) — source
   transfer with SSH, SCP or rsync.
 
-Account identity, current key status, quota, target absence/ownership, private
-share state and capacity are still fresh-operation facts and cannot be inferred
-from this document.
+Account identity, current key status, quota, target ownership, requested share
+state and capacity are still fresh-operation facts and cannot be inferred from
+this document.

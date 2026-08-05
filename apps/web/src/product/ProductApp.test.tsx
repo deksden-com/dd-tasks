@@ -17,6 +17,12 @@ beforeEach(() => {
   window.history.replaceState({}, "", "/login");
 });
 
+function configResponse(mode: "open" | "closed" = "open") {
+  return new Response(JSON.stringify({ registration_mode: mode }), {
+    status: 200,
+  });
+}
+
 describe("product route shell", () => {
   it("renders an accessible login contract", () => {
     render(<ProductApp />);
@@ -36,6 +42,7 @@ describe("product route shell", () => {
 
   it("moves from login to API-backed workspaces", async () => {
     vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(configResponse())
       .mockResolvedValueOnce(
         new Response(
           JSON.stringify({
@@ -63,15 +70,16 @@ describe("product route shell", () => {
   });
 
   it("shows only the safe public API error", async () => {
-    vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      new Response(
-        JSON.stringify({
-          code: "UNAUTHENTICATED",
-          message: "Email or password is incorrect",
-          requestId: "hidden-request",
-        }),
-        { status: 401 },
-      ),
+    vi.spyOn(globalThis, "fetch").mockImplementation(
+      async () =>
+        new Response(
+          JSON.stringify({
+            code: "UNAUTHENTICATED",
+            message: "Email or password is incorrect",
+            requestId: "hidden-request",
+          }),
+          { status: 401 },
+        ),
     );
     render(<ProductApp />);
     fireEvent.submit(
@@ -97,6 +105,26 @@ describe("product route shell", () => {
     expect(screen.queryByTestId("project-name")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "New project" }));
     expect(screen.getByTestId("project-name")).toBeVisible();
+  });
+
+  it("reflects closed server registration without rendering a signup form", async () => {
+    window.history.replaceState({}, "", "/register");
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(configResponse("closed"));
+    render(<ProductApp />);
+    expect(
+      await screen.findByTestId("registration-closed-state"),
+    ).toHaveTextContent("Registration is closed");
+    expect(screen.queryByTestId("auth-email")).not.toBeInTheDocument();
+  });
+
+  it("fails closed when the registration policy cannot be read", async () => {
+    window.history.replaceState({}, "", "/register");
+    vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("offline"));
+    render(<ProductApp />);
+    expect(
+      await screen.findByTestId("registration-closed-state"),
+    ).toHaveTextContent("service is not ready");
+    expect(screen.queryByTestId("auth-submit")).not.toBeInTheDocument();
   });
 
   it("exposes task editing and guarded deletion on a deep link", async () => {

@@ -1,6 +1,8 @@
 export type Workspace = { id: string; name: string; role: "owner" | "member" };
 export type Project = { id: string; name: string; archivedAt: string | null };
 export type Task = { id: string; title: string; description: string | null };
+export type RegistrationMode = "open" | "closed";
+export type RegistrationConfig = { registration_mode: RegistrationMode };
 
 export class ProductApiError extends Error {
   public constructor(
@@ -39,6 +41,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 const json = (value: unknown) => JSON.stringify(value);
 
 export const productApi = {
+  config: () => request<RegistrationConfig>("/api/config"),
   login: (email: string, password: string) =>
     request<{ account: { id: string; email: string } }>("/api/auth/login", {
       method: "POST",

@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { Context, Next } from "hono";
+import type { RegistrationMode } from "../runtime.js";
 
 export type ApiEnvironment = "development" | "test" | "production";
 
@@ -33,6 +34,10 @@ export type ReadyResponse = {
   };
 };
 
+export type RegistrationConfigResponse = {
+  registration_mode: RegistrationMode;
+};
+
 export type PublicErrorResponse = {
   code:
     | "NOT_FOUND"
@@ -41,6 +46,7 @@ export type PublicErrorResponse = {
     | "FORBIDDEN"
     | "VALIDATION_ERROR"
     | "CONFLICT"
+    | "REGISTRATION_CLOSED"
     | "PROJECT_ARCHIVED"
     | "NOT_READY";
   message: string;
@@ -107,6 +113,14 @@ export function readyResponse(
     requestId: c.get("requestId"),
     revision,
   };
+  return c.json(body, 200);
+}
+
+export function registrationConfigResponse(
+  c: Context<ApiEnv>,
+  mode: RegistrationMode,
+): Response {
+  const body: RegistrationConfigResponse = { registration_mode: mode };
   return c.json(body, 200);
 }
 

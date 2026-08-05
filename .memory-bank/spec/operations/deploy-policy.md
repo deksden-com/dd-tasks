@@ -1,8 +1,8 @@
 ---
 file: '.memory-bank/spec/operations/deploy-policy.md'
-description: 'Source-to-preview deployment policy for the PRT-004 local and Exe.dev contours.'
+description: 'Source-to-preview deployment policy for the PRT-004/PRT-006 local and Exe.dev contours.'
 purpose: 'Defines the immutable Git checkpoint gate, source handoff and separate provider gate for preview deployment.'
-version: '0.2.0'
+version: '0.3.0'
 date: '2026-08-05'
 status: 'ACTIVE'
 c4_level: 'operations'
@@ -15,6 +15,7 @@ related_runbooks:
   - .memory-bank/spec/operations/runbooks/exe-dev-preview.md
 related_protocols:
   - .memory-bank/protocol/PRT-004-exe-preview-runtime/index.md
+  - .memory-bank/protocol/PRT-006-preview-access-policy/index.md
 tags: [dd-tasks, operations, deploy, source-merge, exe-dev]
 ---
 
@@ -43,7 +44,7 @@ mutation. The operation has one exact target and one run id; no provider adapter
 or alternate public hosting path is introduced in source CODE.
 
 The future success state is `accepted_live_provider` only after exact remote
-checkpoint and artifact revision, private access, API/browser, reviewer
+checkpoint and artifact revision, requested share access, API/browser, reviewer
 grant/revoke and current/superseded preview lifecycle readback.
 Missing provider identity, authority, target, capacity, approval or current
 transport is `blocked/deferred`, not a source defect and not an excuse to
@@ -65,6 +66,14 @@ The provider flow does not push Git. It transfers and builds only the accepted
 source artifact, and `/api/ready` must match the handoff SHA and digest. A
 local-only commit, mutable branch label, missing tag or failed remote readback
 is a hard deploy blocker.
+
+The deploy handoff carries independent `proxy_visibility` and
+`registration_mode` fields. `private|public` is read back from the provider
+share, while `closed|open` is read back from `/api/config` and direct
+registration behavior. The accepted PRT-006 target request is
+`public+closed`: the public HTTPS URL must open without an Exe.dev login gate,
+but application login/session/workspace authorization remains mandatory.
+`public+open` is prohibited by the standard contour.
 
 ## Explicit exclusions
 

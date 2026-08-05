@@ -1,8 +1,8 @@
 ---
 file: '.memory-bank/spec/operations/runbooks/preview-runtime.md'
-description: 'Base runbook for the one-port built dd-tasks private preview composition.'
+description: 'Base runbook for the one-port built dd-tasks policy-controlled preview composition.'
 purpose: 'Provides exact, guarded local/source-package lifecycle commands and evidence boundaries.'
-version: '0.2.0'
+version: '0.3.0'
 date: '2026-08-05'
 status: 'ACTIVE'
 c4_level: 'operations'
@@ -16,6 +16,7 @@ related_specs:
   - .memory-bank/spec/operations/secrets-policy.md
 related_protocols:
   - .memory-bank/protocol/PRT-004-exe-preview-runtime/index.md
+  - .memory-bank/protocol/PRT-006-preview-access-policy/index.md
 evidence_files:
   - .memory-bank/protocol/PRT-004-exe-preview-runtime/evidence/verification-passport.md
 tags: [dd-tasks, runbook, preview, runtime, docker, private]
@@ -30,7 +31,10 @@ For the current active checkpoint use `preview-checkpoint`; for a disposable
 result use `preview-eval-output`. The checkpoint profile is not a historical
 volume archive: only the currently accepted binding is retained. Do not use a
 production-like database name, a public share or a committed local fixture
-password as a hosted credential.
+password as a hosted credential. Set `PREVIEW_PROXY_VISIBILITY` to `private` or
+`public` only as a deploy handoff value; it does not expose a raw port. Set
+`PREVIEW_REGISTRATION_MODE` to `closed` or `open`. Hosted preview defaults to
+`private+closed`; `public+open` is rejected before build/provider mutation.
 
 The Compose project, database and volume names are explicit inputs. Cleanup
 targets only the recorded Compose project/volume; prefix discovery and inferred
@@ -59,6 +63,8 @@ export PREVIEW_VOLUME=<volume from bindings.json>
 export PREVIEW_COMPOSE_PROJECT=<compose_project from bindings.json>
 export PREVIEW_PORT=<private loopback port>
 export PREVIEW_POSTGRES_PASSWORD=<operation-scoped secret, supplied out of band>
+export PREVIEW_PROXY_VISIBILITY=<private|public>
+export PREVIEW_REGISTRATION_MODE=<closed|open>
 docker compose -f compose.preview.yml --project-name "$PREVIEW_COMPOSE_PROJECT" \
   up -d postgres app
 ```
@@ -93,7 +99,11 @@ docker compose -f compose.preview.yml --project-name <compose-project> run --rm 
 Readiness must remain false until migration identities/checksums and the exact
 seed marker are present. Then check `/api/health` and `/api/ready`, compare the
 observed source revision and artifact digest with the image/build manifest,
-and run `pnpm scenario:preview` against the managed HTTP URL.
+read `/api/config` and require the exact `registration_mode` from the build
+manifest, and run `pnpm scenario:preview` against the managed HTTP URL. In
+closed mode, POST `/api/auth/register` must return `403 REGISTRATION_CLOSED`
+before body validation and without account/session mutation. A public provider
+share is verified only by the provider's `share show` readback.
 
 ## Restart and cleanup
 
@@ -111,4 +121,5 @@ artifacts.
 All logs and evidence are redacted. The run records exact phase statuses and
 commands but no database URLs, passwords, cookies, email values, raw payloads
 or provider credentials. Source-package proof does not prove Exe.dev or any
-production behavior.
+production behavior. Provider visibility and application registration are
+separate evidence fields; one never substitutes for the other.

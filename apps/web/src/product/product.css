@@ -207,6 +207,11 @@ button:disabled {
   font-weight: 400;
 }
 
+.auth-policy-card > p:not(.product-kicker) {
+  color: #d8d9d0;
+  line-height: 1.6;
+}
+
 .auth-card .product-kicker {
   color: var(--accent);
 }
@@ -619,6 +624,12 @@ button:disabled {
 .empty-state,
 .state-copy {
   color: var(--muted);
+}
+
+.auth-policy-card .state-copy {
+  border-color: #42443f;
+  background: #272925;
+  color: #c4c8b8;
 }
 
 .sr-only {

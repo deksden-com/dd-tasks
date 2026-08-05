@@ -1,11 +1,11 @@
 import {
-  type FormEvent,
   type MouseEvent,
   type ReactNode,
   useCallback,
   useEffect,
   useState,
 } from "react";
+import { AuthScreen } from "./AuthScreen.js";
 import {
   ProductApiError,
   type Project,
@@ -109,101 +109,6 @@ function ErrorNotice({ error }: { error: string | null }) {
       {error}
     </p>
   ) : null;
-}
-
-function AuthScreen({ mode }: { mode: "login" | "register" }) {
-  const [email, setEmail] = useState(
-    mode === "login" ? "owner@example.test" : "",
-  );
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-
-  const submit = async (event: FormEvent) => {
-    event.preventDefault();
-    setBusy(true);
-    setError(null);
-    try {
-      await (mode === "login"
-        ? productApi.login(email, password)
-        : productApi.register(email, password));
-      go("/workspaces");
-    } catch (caught) {
-      setError(messageOf(caught));
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  return (
-    <main
-      className="auth-layout"
-      data-screen={`auth-${mode}`}
-      data-testid={`auth-${mode}`}
-    >
-      <section className="auth-story" aria-labelledby="auth-heading">
-        <p className="product-kicker">checkpoint 02 / workspace core</p>
-        <h1 id="auth-heading">
-          Make the work <em>visible.</em>
-        </h1>
-        <p>
-          A focused home for projects and the next concrete task. Local, clear,
-          and deliberately small.
-        </p>
-      </section>
-      <form className="auth-card" onSubmit={submit}>
-        <p className="product-kicker">
-          {mode === "login" ? "Welcome back" : "Create account"}
-        </p>
-        <h2>{mode === "login" ? "Sign in" : "Start here"}</h2>
-        <label htmlFor="auth-email">
-          Email
-          <input
-            id="auth-email"
-            data-testid="auth-email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            spellCheck={false}
-            required
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-          />
-        </label>
-        <label htmlFor="auth-password">
-          Password
-          <input
-            id="auth-password"
-            data-testid="auth-password"
-            name="password"
-            type="password"
-            autoComplete={
-              mode === "login" ? "current-password" : "new-password"
-            }
-            minLength={10}
-            required
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-          />
-        </label>
-        <ErrorNotice error={error} />
-        <button data-testid="auth-submit" type="submit" disabled={busy}>
-          {busy
-            ? "Working…"
-            : mode === "login"
-              ? "Enter workspace"
-              : "Create account"}
-        </button>
-        <button
-          className="text-button"
-          type="button"
-          onClick={() => go(mode === "login" ? "/register" : "/login")}
-        >
-          {mode === "login" ? "Need an account?" : "Already registered?"}
-        </button>
-      </form>
-    </main>
-  );
 }
 
 function Shell({ children }: { children: ReactNode }) {
@@ -931,7 +836,7 @@ export function ProductApp() {
     return () => window.removeEventListener("popstate", update);
   }, []);
   if (view.kind === "login" || view.kind === "register")
-    return <AuthScreen mode={view.kind} />;
+    return <AuthScreen mode={view.kind} onNavigate={go} />;
   if (view.kind === "workspaces") return <WorkspaceScreen />;
   if (view.kind === "projects")
     return <ProjectScreen workspaceId={view.workspaceId} />;

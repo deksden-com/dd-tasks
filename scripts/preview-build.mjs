@@ -19,6 +19,18 @@ if (!allowedProfiles.has(profile) || !isSafeToken(runId)) {
   process.exit(2);
 }
 
+const accessPolicy = resolveAccessPolicy(profile, process.env);
+if (!accessPolicy.valid) {
+  console.error(
+    JSON.stringify({
+      status: "blocked",
+      code: accessPolicy.code,
+      reason: accessPolicy.reason,
+    }),
+  );
+  process.exit(2);
+}
+
 const binding = previewBinding(profile, runId);
 const sourceRevision = (await run("git", ["rev-parse", "HEAD"])).stdout.trim();
 const branch = (await run("git", ["branch", "--show-current"])).stdout.trim();
@@ -62,6 +74,7 @@ const environment = {
   PREVIEW_SOURCE_REVISION: sourceRevision,
   PREVIEW_ARTIFACT_DIGEST: artifactDigest,
   PREVIEW_BUILD_TIMESTAMP: buildTimestamp,
+  PREVIEW_REGISTRATION_MODE: accessPolicy.resolved_registration_mode,
 };
 
 const composeArgs = [
@@ -134,6 +147,7 @@ const manifest = {
     database_host: "postgres",
     external_port: Number(process.env.PREVIEW_PORT ?? "4173"),
   },
+  access_policy: accessPolicy,
   no_secret_values: true,
   proof_limits: ["source-package only", "does not prove Exe.dev or production"],
 };
@@ -176,6 +190,50 @@ function previewBinding(profileName, operationId) {
       profileName === "preview-checkpoint"
         ? "dd_tasks_preview_checkpoint"
         : "dd_tasks_preview_eval_output",
+  };
+}
+
+function resolveAccessPolicy(profileName, environment) {
+  const requestedProxyVisibility =
+    environment.PREVIEW_PROXY_VISIBILITY ?? "private";
+  const requestedRegistrationMode =
+    environment.PREVIEW_REGISTRATION_MODE ?? "closed";
+  const validProxyVisibility = ["private", "public"].includes(
+    requestedProxyVisibility,
+  );
+  const validRegistrationMode = ["open", "closed"].includes(
+    requestedRegistrationMode,
+  );
+
+  if (!validProxyVisibility || !validRegistrationMode) {
+    return {
+      valid: false,
+      code: "INVALID_ACCESS_POLICY",
+      reason: "unsupported_policy_value",
+    };
+  }
+  if (
+    requestedProxyVisibility === "public" &&
+    requestedRegistrationMode === "open"
+  ) {
+    return {
+      valid: false,
+      code: "PUBLIC_OPEN_FORBIDDEN",
+      reason: "public_proxy_requires_closed_registration",
+    };
+  }
+
+  return {
+    requested_proxy_visibility: requestedProxyVisibility,
+    requested_registration_mode: requestedRegistrationMode,
+    pair_valid: true,
+    resolved_registration_mode: requestedRegistrationMode,
+    profile_default:
+      profileName === "preview-checkpoint" ||
+      profileName === "preview-eval-output"
+        ? "private+closed"
+        : "unsupported",
+    valid: true,
   };
 }
 

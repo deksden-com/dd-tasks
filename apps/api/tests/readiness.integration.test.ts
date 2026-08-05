@@ -10,6 +10,7 @@ import type { RuntimeConfig } from "../src/runtime.js";
 const sql: Sql<Record<string, unknown>> = createSqlClient();
 const runtime: RuntimeConfig = {
   profile: "local",
+  registration: { mode: "open", valid: true, source: "explicit" },
   runId: "SCN002",
   worldId: "world_local_scn002",
   requireSeedMarker: true,

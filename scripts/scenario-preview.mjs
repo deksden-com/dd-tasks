@@ -47,6 +47,8 @@ const environment = {
   PREVIEW_IMAGE_NAME:
     process.env.PREVIEW_IMAGE_NAME ?? `dd-tasks-preview:${binding.slug}`,
   PREVIEW_PORT: process.env.PREVIEW_PORT ?? "4173",
+  PREVIEW_PROXY_VISIBILITY: "private",
+  PREVIEW_REGISTRATION_MODE: "closed",
 };
 const scenarioRoot = resolve(workspaceRoot, ".scenario-runs", runId);
 const profileRoot = resolve(scenarioRoot, profile);
@@ -92,7 +94,14 @@ try {
     if (buildManifest.source_dirty !== false) {
       throw new Error("preview build source was not clean");
     }
+    if (
+      buildManifest.access_policy?.pair_valid !== true ||
+      buildManifest.access_policy?.resolved_registration_mode !== "closed"
+    ) {
+      throw new Error("preview build access policy was not private+closed");
+    }
     result.artifact = safeArtifact(buildManifest);
+    result.access_policy = buildManifest.access_policy;
   });
 
   if (phasePassed("phase-01-build")) {
@@ -155,6 +164,12 @@ try {
     await phase("phase-04-api-role-smoke", async (result) => {
       const health = await fetchJson("/api/health");
       const ready = await fetchJson("/api/ready");
+      const config = await fetchJson("/api/config");
+      const closedRegistration = await fetchJson("/api/auth/register", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: "not-json",
+      });
       const unauthenticated = await fetchJson("/api/workspaces");
       const missingApi = await fetchJson("/api/__missing__");
       const deepLink = await fetchText("/workspaces/ws-alpha");
@@ -166,7 +181,15 @@ try {
           password: "local-demo-only",
         }),
       });
-      if (health.status !== 200 || ready.status !== 200)
+      if (
+        health.status !== 200 ||
+        ready.status !== 200 ||
+        config.status !== 200 ||
+        config.body?.registration_mode !==
+          buildManifest?.access_policy?.resolved_registration_mode ||
+        closedRegistration.status !== 403 ||
+        closedRegistration.body?.code !== "REGISTRATION_CLOSED"
+      )
         throw new Error("health/readiness API smoke failed");
       if (
         unauthenticated.status !== 401 ||
@@ -208,6 +231,15 @@ try {
       );
       result.health = health.status;
       result.ready = safeReady(ready);
+      result.registration_config = {
+        status: config.status,
+        registration_mode: config.body?.registration_mode ?? null,
+      };
+      result.closed_registration = {
+        status: closedRegistration.status,
+        code: closedRegistration.body?.code ?? null,
+        body_rejected_before_parse: closedRegistration.status === 403,
+      };
       result.unauthenticated = unauthenticated.status;
       result.unauthenticated_code = unauthenticated.body?.code ?? null;
       result.api_missing = missingApi.status;
@@ -342,6 +374,7 @@ const finalEvidence = {
   image: buildManifest?.image ?? null,
   image_id: buildManifest?.image_id ?? null,
   build_timestamp: buildManifest?.build_timestamp ?? null,
+  access_policy: buildManifest?.access_policy ?? null,
   proof_id: `SCN-003-${profile}-${runId}`,
   passport_id:
     ".memory-bank/protocol/PRT-004-exe-preview-runtime/evidence/verification-passport.md",
@@ -364,6 +397,8 @@ const finalEvidence = {
     committed_demo_password_code: "UNAUTHENTICATED",
     member_owner_mutation: "403",
     outsider_cross_workspace: "404",
+    registration_closed: 403,
+    registration_closed_code: "REGISTRATION_CLOSED",
   },
   data_safety: {
     exact_profile: true,
@@ -404,6 +439,7 @@ await writeJson("run.json", {
   source_revision: finalEvidence.source_revision,
   source_dirty: finalEvidence.source_dirty,
   artifact_digest: finalEvidence.artifact_digest,
+  access_policy: finalEvidence.access_policy,
   proof_id: finalEvidence.proof_id,
   binding: safeBinding(binding),
 });
@@ -468,6 +504,7 @@ function safeArtifact(value) {
     artifact_digest: value.artifact_digest,
     image: value.image,
     image_id: value.image_id,
+    access_policy: value.access_policy,
   };
 }
 

@@ -24,6 +24,16 @@ test.describe("SCN-003 private preview source acceptance", () => {
   test("keeps unauthenticated API and SPA boundaries explicit", async ({
     page,
   }) => {
+    const config = await page.request.get("/api/config");
+    expect(config.status()).toBe(200);
+    expect(await config.json()).toEqual({ registration_mode: "closed" });
+
+    await page.goto("/register");
+    await expect(page.getByTestId("registration-closed-state")).toContainText(
+      "Registration is closed",
+    );
+    await expect(page.getByTestId("auth-email")).toHaveCount(0);
+
     const unauthenticated = await page.request.get("/api/workspaces");
     expect(unauthenticated.status()).toBe(401);
     expect(await unauthenticated.json()).toMatchObject({

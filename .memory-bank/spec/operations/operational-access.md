@@ -1,8 +1,8 @@
 ---
 file: '.memory-bank/spec/operations/operational-access.md'
-description: 'Operational access policy for local source proof and future private Exe.dev preview.'
+description: 'Operational access policy for local source proof and policy-controlled Exe.dev preview.'
 purpose: 'Separates local CODE authority from fresh provider identity, team, target and sharing gates.'
-version: '0.1.0'
+version: '0.2.0'
 date: '2026-08-04'
 status: 'ACTIVE'
 c4_level: 'operations'
@@ -36,14 +36,16 @@ for exactly one run/request id. It must return an explicit `verified`,
 - authenticated identity and authority to operate the selected account/team;
 - exact target ownership or an explicitly approved create operation;
 - source transport capability and current CLI/documentation contract;
-- private proxy/share state, external port and reviewer access;
+- requested private/public proxy/share state, external port and reviewer access;
 - approval, quota and capacity needed for the bounded one-VM contour.
 
 `mismatch` and `not_observable` block protected mutation. Login, token refresh,
-context/team switching, inferred targets, blind retry and public-share fallback
-are forbidden. A timeout or ambiguous provider response requires exact target
-readback before any retry. A share is never considered private because a prior
-run was private.
+context/team switching, inferred targets and blind retry are forbidden. A
+public share is allowed only when the handoff explicitly requests
+`public+closed`; `public+open` and any public-share fallback are forbidden. A
+timeout or ambiguous provider response requires exact target readback before
+any retry. A share is never considered private or public because a prior run
+used that state.
 
 Provider observations are bound to the operation id, exact target, artifact,
 profile and timestamp. They expire on context, target, artifact or access

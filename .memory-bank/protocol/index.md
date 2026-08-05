@@ -2,7 +2,7 @@
 file: '.memory-bank/protocol/index.md'
 description: 'Curated протоколы работ проекта.'
 purpose: 'Сохраняет долговечные следы инициализации и дальнейших работ, включая pre-CODE handoff.'
-version: '1.1.0'
+version: '1.2.0'
 date: '2026-08-05'
 status: 'ACTIVE'
 c4_level: 'project'
@@ -13,8 +13,12 @@ children:
   - .memory-bank/protocol/PRT-003-checkpoint-02-core/index.md
   - .memory-bank/protocol/PRT-004-exe-preview-runtime/index.md
   - .memory-bank/protocol/PRT-005-linear-workflow-ui/index.md
+  - .memory-bank/protocol/PRT-006-preview-access-policy/index.md
 tags: [protocol]
 history:
+  - version: '1.2.0'
+    date: '2026-08-05'
+    changes: 'Добавлен plan-ready PRT-006 для независимых preview visibility и registration mode с безопасной decision matrix.'
   - version: '1.1.0'
     date: '2026-08-05'
     changes: 'Добавлен PRT-005 для исправления project/task interaction model и компактного Linear-подобного UI.'
@@ -63,3 +67,6 @@ history:
 - [Linear workflow UI](PRT-005-linear-workflow-ui/index.md): нормализует
   создание и редактирование проектов, добавляет task detail route и доступные
   rename/delete interactions без новых backend-контрактов.
+- [Preview access policy](PRT-006-preview-access-policy/index.md): задаёт
+  независимые deploy-параметры private/public visibility и open/closed
+  registration, безопасные defaults, readback и границу `public + open`.

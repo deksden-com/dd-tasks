@@ -12,6 +12,7 @@ export type ReadinessCheck = {
   reason:
     | "ready"
     | "invalid_profile"
+    | "policy_invalid"
     | "build_metadata_missing"
     | "database_unavailable"
     | "migration_ledger_incomplete"
@@ -28,6 +29,9 @@ export async function checkReadiness(
   config: RuntimeConfig,
 ): Promise<ReadinessCheck> {
   if (!config.profile) return { ready: false, reason: "invalid_profile" };
+  if (!config.registration.valid) {
+    return { ready: false, reason: "policy_invalid" };
+  }
   const profile = config.profile;
   if (
     !config.build.sourceRevision ||

@@ -1,8 +1,8 @@
 ---
 file: '.memory-bank/spec/operations/check-profiles.md'
-description: 'Canonical local, built-package and SCN-003 check profiles for PRT-004.'
+description: 'Canonical local, built-package and SCN-003 check profiles for PRT-004/PRT-006.'
 purpose: 'Keeps command names, setup, evidence and proof limits aligned across source, container and later provider checks.'
-version: '0.1.0'
+version: '0.2.0'
 date: '2026-08-04'
 status: 'ACTIVE'
 c4_level: 'operations'
@@ -14,6 +14,7 @@ related_runbooks:
   - .memory-bank/spec/operations/runbooks/preview-runtime.md
 related_protocols:
   - .memory-bank/protocol/PRT-004-exe-preview-runtime/index.md
+  - .memory-bank/protocol/PRT-006-preview-access-policy/index.md
 tags: [dd-tasks, operations, checks, evidence, SCN-003]
 ---
 
@@ -53,10 +54,17 @@ The browser runner uses the managed HTTP base URL and never `file://`. It
 records role labels and safe response shapes, not cookies, passwords, email
 values or raw authenticated payloads.
 
+The source-package policy row additionally records the independent
+`proxy_visibility`/`registration_mode` handoff, build-manifest policy and
+server `/api/config` readback. In the default preview scenario, direct
+registration is rejected as `403 REGISTRATION_CLOSED` before body parsing;
+`public+open` is rejected before provider mutation.
+
 ## Later live profile
 
 The future Exe.dev runbook owns fresh provider preflight and live SCN-003. Its
-row stays `pending` until exact provider identity, private access, revision,
+row stays `pending` until exact provider identity, requested share access,
+application registration, revision,
 API/browser, reviewer access and cleanup readback exist. Source-package green
 does not promote a live row.
 

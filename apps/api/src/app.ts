@@ -12,6 +12,7 @@ import {
   notFoundResponse,
   publicErrorResponse,
   readyResponse,
+  registrationConfigResponse,
   requestContext,
   shouldInjectUnexpected,
   unexpectedErrorResponse,
@@ -33,7 +34,12 @@ export function createApiApp(
   const environment = options.environment;
   const sql = options.sql ?? createSqlClient();
   const core = new CoreService(sql);
-  const runtime = options.runtime ?? createRuntimeConfig();
+  const runtime =
+    options.runtime ??
+    createRuntimeConfig({
+      ...process.env,
+      NODE_ENV: environment ?? process.env.NODE_ENV,
+    });
 
   app.use("*", async (c, next) => {
     if (environment) {
@@ -64,8 +70,19 @@ export function createApiApp(
     });
   });
 
+  app.get("/api/config", (c) => {
+    if (!runtime.registration.valid) {
+      return publicErrorResponse(c, 503, "NOT_READY", "Service is not ready");
+    }
+    return registrationConfigResponse(c, runtime.registration.mode);
+  });
+
   app.use("/api/*", async (c, next) => {
-    if (c.req.path === "/api/health" || c.req.path === "/api/ready") {
+    if (
+      c.req.path === "/api/health" ||
+      c.req.path === "/api/ready" ||
+      c.req.path === "/api/config"
+    ) {
       await next();
       return;
     }
@@ -97,6 +114,12 @@ export function createApiApp(
     });
 
   app.post("/api/auth/register", async (c) => {
+    if (!runtime.registration.valid) {
+      return publicErrorResponse(c, 503, "NOT_READY", "Service is not ready");
+    }
+    if (runtime.registration.mode === "closed") {
+      throw new CoreError(403, "REGISTRATION_CLOSED", "Registration is closed");
+    }
     const input = await body(c);
     const validation = validateCredentials(input.email, input.password);
     if (validation) throw new CoreError(400, "VALIDATION_ERROR", validation);

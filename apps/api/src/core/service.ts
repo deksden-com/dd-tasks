@@ -19,6 +19,7 @@ export class CoreError extends Error {
       | "NOT_FOUND"
       | "VALIDATION_ERROR"
       | "CONFLICT"
+      | "REGISTRATION_CLOSED"
       | "PROJECT_ARCHIVED",
     message: string,
   ) {

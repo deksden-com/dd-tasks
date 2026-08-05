@@ -2,7 +2,7 @@
 file: '.memory-bank/protocol/index.md'
 description: 'Curated протоколы работ проекта.'
 purpose: 'Сохраняет долговечные следы инициализации и дальнейших работ, включая pre-CODE handoff.'
-version: '1.2.0'
+version: '1.3.0'
 date: '2026-08-05'
 status: 'ACTIVE'
 c4_level: 'project'
@@ -16,6 +16,9 @@ children:
   - .memory-bank/protocol/PRT-006-preview-access-policy/index.md
 tags: [protocol]
 history:
+  - version: '1.3.0'
+    date: '2026-08-05'
+    changes: 'PRT-006 прошёл CODE/readiness и передан в canonical merge с clean source-package evidence; merge, immutable checkpoint и Exe.dev live deploy остаются отдельными воротами.'
   - version: '1.2.0'
     date: '2026-08-05'
     changes: 'Добавлен plan-ready PRT-006 для независимых preview visibility и registration mode с безопасной decision matrix.'

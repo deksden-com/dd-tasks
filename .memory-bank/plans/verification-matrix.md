@@ -2,7 +2,7 @@
 file: '.memory-bank/plans/verification-matrix.md'
 description: 'Canonical verification rows for accepted dd-tasks checkpoint capabilities.'
 purpose: 'Binds scenarios, fresh evidence and verification passports to bounded acceptance claims.'
-version: '0.9.0'
+version: '1.0.0'
 date: '2026-08-05'
 status: 'ACTIVE'
 acceptance_status: 'ACCEPTED_LOCAL'
@@ -10,6 +10,9 @@ c4_level: 'project'
 parent: '.memory-bank/plans/index.md'
 tags: [dd-tasks, verification, SCN-001, SCN-002, SCN-003, local, preview]
 history:
+  - version: '1.0.0'
+    date: '2026-08-05'
+    changes: 'PRT-006 source-package row promoted after CODE/readiness gates; merge, immutable checkpoint delivery and live provider row remain explicit.'
   - version: '0.9.0'
     date: '2026-08-05'
     changes: 'Добавлена PRT-006 access-policy row: независимые provider visibility и application registration с source-package и live-provider evidence split.'
@@ -48,7 +51,7 @@ recorded only after the named fresh evidence and verification passport exist.
 | `PRT-003-checkpoint-02-core`: account/session, workspace isolation, project lifecycle and task CRUD work as one local slice | `SCN-002-workspace-task-core` | local `main`, implementation content `5027fa1`, annotated `checkpoint-02-core` | `local` | `applicable` | `accepted_local_integrated` | `pass` | `accepted_local_fixed` | `merge orchestrator` | feature readiness plus fresh integrated `pnpm quality`, real PostgreSQL integration `6 passed`, deterministic reset/seed, serialized Chromium `6 passed`, `pnpm db:check`, docs and ref readback | `.memory-bank/protocol/PRT-003-checkpoint-02-core/evidence/verification-passport.md` | Does not prove remote publication, CI, staging, production, external IdP, invitations, deploy or checkpoint-03. |
 | `PRT-004 source package`: one built Hono process serves API and Vite SPA on one external port with internal PostgreSQL; guarded lifecycle, readiness and immutable revision/digest work under exact preview binding | `SCN-003-private-preview-runtime` | local `main@83c0ae6` contains feature `3cd3952` | `local-container` | `applicable` | `accepted_integrated_source_package` | `pass` | `merged_local_source` | `merge orchestrator` | RUN-300/04-merge fresh checkpoint and eval profiles; API/browser role matrix; wrong-binding rejection; readiness-before-init; retained-volume restart; exact eval cleanup/readback; `pnpm quality`; `pnpm docs:check`; `pnpm db:check`; secret/value and Git reachability readback | `.memory-bank/protocol/PRT-004-exe-preview-runtime/evidence/verification-passport.md` | Does not prove Exe.dev, provider identity/team/VM/share/transport/capacity, CI/CD, production availability, backup or public sharing. |
 | `PRT-004 live preview`: later Exe.dev rollout preserves requested share and exact source/artifact/data binding | `SCN-003-private-preview-runtime` | future deploy commit and provider readback | `external-provider` | `planned` | `not_run` | `not_run` | `pending_deploy_flow` | `deploy.md owner` | Fresh identity/team/authority/VM/share/transport/capacity preflight, source/artifact/readiness/browser proof and cleanup/readback | future PRT-004 deploy passport | Not executable in CODE; no provider mutation or live claim is allowed before the separate deploy flow. |
-| `PRT-006 preview access policy`: independent provider visibility and server-authoritative registration mode with fail-closed public/open boundary | `SCN-003-private-preview-runtime` | `main` after merge and exact checkpoint deploy | `source-package + external-provider` | applicable | source-package pending readiness | pending | pending_live_deploy | `merge/deploy owner` | runtime/unit/API/UI/browser policy gates, build-manifest handoff, `/api/config`, Exe.dev `share show`, public URL without provider login gate, application login/session/workspace checks and exact superseded-runtime cleanup | PRT-006 readiness/deploy evidence | Source package does not prove provider visibility; public+open is prohibited; live claim requires the separate provider flow. |
+| `PRT-006 preview access policy`: independent provider visibility and server-authoritative registration mode with fail-closed public/open boundary | `SCN-003-private-preview-runtime` | `main` after merge and exact checkpoint deploy | `source-package + external-provider` | applicable | accepted_source_package | pass | ready_for_merge_pending_delivery | `merge/deploy owner` | CODE/readiness gates, build-manifest handoff, source SCN-003 retained-volume and cleanup profiles, `/api/config`, public+open guard; provider `share show`, public URL without provider login gate, application login/session/workspace checks and exact superseded-runtime cleanup remain deploy evidence | PRT-006 readiness/deploy evidence | Source package does not prove provider visibility; public+open is prohibited; live claim requires the separate provider flow. |
 
 Rows are promoted only after fresh readiness evidence. Merge and checkpoint
 fixation remain explicit closures; local acceptance must not be interpreted as

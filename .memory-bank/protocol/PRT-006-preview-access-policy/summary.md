@@ -2,9 +2,9 @@
 file: '.memory-bank/protocol/PRT-006-preview-access-policy/summary.md'
 description: 'Problem-space specification для provider visibility и управляемой регистрации preview.'
 purpose: 'Фиксирует безопасную матрицу режимов, scope, acceptance и handoff в plan без преждевременного technical design.'
-version: '0.2.0'
+version: '0.3.0'
 date: '2026-08-05'
-status: 'READY_FOR_CODE'
+status: 'READY_FOR_MERGE'
 c4_level: 'operations'
 parent: '.memory-bank/protocol/PRT-006-preview-access-policy/index.md'
 blocked_by_protocols: []
@@ -22,6 +22,9 @@ continuation_prompt: 'plan.md'
 implements_scope: 'Управляемая видимость Exe.dev preview и server-authoritative open/closed registration policy.'
 tags: [protocol, specified, preview, visibility, registration, auth, security]
 history:
+  - version: '0.3.0'
+    date: '2026-08-05'
+    changes: 'CODE/readiness gate completed: clean source-package evidence, readiness assessment/review and project-specific acceptance passed with disclosed non-blocking gaps.'
   - version: '0.2.0'
     date: '2026-08-05'
     changes: 'Plan completed with explicit degraded aspect recovery: independent provider/application authority, API precedence, executable manifest handoff, stage/retry matrix and CODE/readiness gate are accepted.'
@@ -39,11 +42,11 @@ protocol:
   id: PRT-006-preview-access-policy
   title: Preview visibility and registration policy
   mode: normal
-  current_stage: plan
+  current_stage: readiness
   stage_status: completed
-  next_action: run code.md in the exact feature worktree after fresh canonical bootstrap
-scope_sizing_verdict: single_executable_protocol
-  stage_verdict: plan_ready_with_degraded_review
+  next_action: canonical fast-forward merge into main, post-merge checks and source delivery gate
+  scope_sizing_verdict: single_executable_protocol
+  stage_verdict: ready_for_merge
 run_id: RUN-304-preview-access-policy
 runtime_cli: degraded_unavailable
 ```
@@ -209,14 +212,16 @@ fixed_questions:
 
 ## Plan handoff
 
-Plan stage report and dashboard are RUN-local provenance under
-`.tasks/dd-flow-runs/RUN-304-preview-access-policy/02-plan/`; this durable
-summary and its plan trace carry the accepted decisions without requiring that
-ignored folder. The plan is `plan_ready` with explicit degraded-review
-conditions: fresh CODE bootstrap, API/observability rechecks,
-architecture/Memory Bank/Git and other readiness reviewers are mandatory.
-`DEF-MBU-RUNTIME-ACTIVE-STATE` remains `not_touched`. No implementation,
-merge, remote checkpoint or provider mutation is claimed by this handoff.
+Plan, CODE and readiness reports are RUN-local provenance under
+`.tasks/dd-flow-runs/RUN-304-preview-access-policy/`; this durable summary and
+its traces carry the accepted decisions without requiring that ignored folder.
+CODE and readiness are `ready_for_merge` with explicit non-blocking generic
+maturity gaps and file-only dd-flow CLI degradation. Fresh project-specific
+gates and source-package scenarios passed on clean feature HEAD
+`e2f8eee4e7200f2b65d14cf2399b92e140d3df0f`; the source artifact digest is
+`sha256:b4e6e1fa9ee7a6f606a9624ad63e71b5e1a39da0b9d01010aba3ee60346cc665`.
+`DEF-MBU-RUNTIME-ACTIVE-STATE` remains `not_touched`. Merge, remote checkpoint
+delivery and provider mutation are still required and are not claimed here.
 ```
 
 ## Design aspects

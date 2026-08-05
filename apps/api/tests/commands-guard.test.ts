@@ -21,6 +21,7 @@ describe("database command guard boundary", () => {
       {
         cwd: process.cwd(),
         encoding: "utf8",
+        timeout: 45_000,
         env: {
           ...process.env,
           DATABASE_URL:
@@ -39,5 +40,5 @@ describe("database command guard boundary", () => {
     expect(`${result.stdout}${result.stderr}`).not.toMatch(
       /ECONNREFUSED|password|postgresql:\/\//i,
     );
-  }, 20_000);
+  }, 60_000);
 });

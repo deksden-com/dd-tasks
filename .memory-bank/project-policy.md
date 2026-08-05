@@ -1,14 +1,17 @@
 ---
 file: '.memory-bank/project-policy.md'
 description: 'Компактная карта политик, влияющих на маршрутизацию работ, Git cleanup и local delivery.'
-purpose: 'Собирает подтверждённые правила Git, checkpoint fixation и безопасного удаления завершённых worktree.'
-version: '0.4.0'
-date: '2026-08-04'
+purpose: 'Собирает подтверждённые правила Git, checkpoint fixation, deploy handoff и безопасного удаления завершённых worktree.'
+version: '0.5.0'
+date: '2026-08-05'
 status: 'ACTIVE'
 c4_level: 'operations'
 parent: '.memory-bank/index.md'
 tags: [dd-tasks, policy, git]
 history:
+  - version: '0.5.0'
+    date: '2026-08-05'
+    changes: 'Deploy разрешён только после commit/push exact main и immutable checkpoint tag с remote readback; superseded preview volumes удаляются после принятия нового runtime.'
   - version: '0.4.0'
     date: '2026-08-04'
     changes: 'PRT-004 adds a bounded local/private preview contour and a separate Exe.dev deploy overlay; source readiness still stops before merge/provider mutation.'
@@ -40,7 +43,7 @@ history:
 
 # Политика проекта
 
-Подтверждено: main отслеживает origin/main; checkpoint-00-initial — неизменяемый аннотированный тег; каждый будущий checkpoint должен содержать согласованные код, тесты, фикстуры, миграции и Банк памяти; секреты не коммитятся; .tasks не публикуется.
+Подтверждено: main отслеживает origin/main; checkpoint-00-initial — неизменяемый аннотированный тег; каждый будущий checkpoint должен содержать согласованные код, тесты, фикстуры, миграции и Банк памяти; секреты не коммитятся; .tasks не публикуется. Провайдерный deploy никогда не выполняется из local-only состояния: задеплоен может быть только exact commit, уже опубликованный в `origin/main` и закреплённый immutable checkpoint tag.
 
 Для mb-init пользователь выбрал публикацию активного Банка памяти напрямую в main; .tasks остаётся локальной рабочей зоной. Это решение относится к инициализации и не устанавливает постоянную стратегию для будущих изменений.
 
@@ -83,8 +86,27 @@ push exact `main` в `origin/main` с readback, создание immutable annot
 `checkpoint-NN-<slug>` на принятом commit, push exact tag с readback, затем
 cleanup одноразовых worktree и feature-веток. Если пользователь явно выбрал
 local-only fixation, protocol не заявляет remote delivery, а незавершённые push
-и tag фиксируются как точные следующие действия. Force push и изменение уже
+и tag фиксируются как точные следующие действия; такой local-only результат
+никогда не передаётся в deploy. Force push и изменение уже
 опубликованного checkpoint tag запрещены.
+
+## Deploy source gate
+
+Любой deploy на Exe.dev или другой preview provider начинается только после
+полного checkpoint delivery. Минимальный порядок такой:
+
+1. принять чистый `main` после merge и post-merge checks;
+2. выполнить `git push origin main` и прочитать обратно exact SHA
+   `origin/main`;
+3. создать immutable annotated tag `checkpoint-NN-<slug>` на том же SHA,
+   выполнить `git push origin <tag>` и прочитать обратно exact tag target;
+4. передать в deploy handoff remote URL, branch, tag, commit SHA и artifact
+   digest; `/api/ready` обязан вернуть тот же source SHA и digest;
+5. при любом mismatch, failed push/readback или отсутствии tag deploy
+   останавливается до исправления Git delivery.
+
+Provider deploy не делает Git push сам: он потребляет уже опубликованный
+checkpoint, а источник для transfer всё равно сверяется с зафиксированным SHA.
 
 ## Cleanup feature worktree
 
@@ -112,4 +134,5 @@ default/protected branch. Удаление подтверждается remote r
 `--force`, удаление dirty/unmerged worktree и remote branch до попадания её tip в
 remote integration branch не разрешены. Если push не входит в текущий scope либо
 target unsafe или неясен, ветка сохраняется, а merge report фиксирует причину и
-точное следующее действие.
+точное следующее действие. Для deploy отсутствие push/tag/readback является
+блокером, а не основанием для direct/local-only обхода.

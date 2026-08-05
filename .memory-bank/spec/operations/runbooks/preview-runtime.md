@@ -2,8 +2,8 @@
 file: '.memory-bank/spec/operations/runbooks/preview-runtime.md'
 description: 'Base runbook for the one-port built dd-tasks private preview composition.'
 purpose: 'Provides exact, guarded local/source-package lifecycle commands and evidence boundaries.'
-version: '0.1.0'
-date: '2026-08-04'
+version: '0.2.0'
+date: '2026-08-05'
 status: 'ACTIVE'
 c4_level: 'operations'
 parent: '.memory-bank/spec/operations/index.md'
@@ -26,9 +26,11 @@ tags: [dd-tasks, runbook, preview, runtime, docker, private]
 ## Inputs and safety
 
 Use a fresh sanitized `run_id`, one exact profile and one exact world binding.
-For a retained checkpoint use `preview-checkpoint`; for a disposable result
-use `preview-eval-output`. Do not use a production-like database name, a public
-share or a committed local fixture password as a hosted credential.
+For the current active checkpoint use `preview-checkpoint`; for a disposable
+result use `preview-eval-output`. The checkpoint profile is not a historical
+volume archive: only the currently accepted binding is retained. Do not use a
+production-like database name, a public share or a committed local fixture
+password as a hosted credential.
 
 The Compose project, database and volume names are explicit inputs. Cleanup
 targets only the recorded Compose project/volume; prefix discovery and inferred
@@ -95,11 +97,16 @@ and run `pnpm scenario:preview` against the managed HTTP URL.
 
 ## Restart and cleanup
 
-For `preview-checkpoint`, stop/start the exact Compose project, run guarded
-migrate only, and prove the seed marker/world is retained. For
-`preview-eval-output`, stop the exact app and PostgreSQL services, remove only
-the recorded project volume, and read back that the exact binding is absent.
-Cleanup failure blocks the verdict and keeps the run's diagnostic artifacts.
+For `preview-checkpoint`, an ordinary restart of the current exact Compose
+project runs guarded migrate only and proves the seed marker/world is retained.
+When replacing an active checkpoint, start and fully verify the new exact
+binding first; only after health, readiness and live checks pass, stop the old
+exact Compose project, remove its exact volume and read back that the binding
+is absent. If replacement fails, keep the old active project and volume.
+For `preview-eval-output`, stop the exact app and PostgreSQL services, remove
+only the recorded project volume, and read back that the exact binding is
+absent. Cleanup failure blocks the verdict and keeps the run's diagnostic
+artifacts.
 
 All logs and evidence are redacted. The run records exact phase statuses and
 commands but no database URLs, passwords, cookies, email values, raw payloads

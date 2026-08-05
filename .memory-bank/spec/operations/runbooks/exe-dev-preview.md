@@ -2,7 +2,7 @@
 file: '.memory-bank/spec/operations/runbooks/exe-dev-preview.md'
 description: 'Exe.dev provider overlay for deploying a private dd-tasks preview.'
 purpose: 'Binds an accepted source artifact and the verified workstation SSH identity to a guarded private Exe.dev deployment.'
-version: '0.2.0'
+version: '0.3.0'
 date: '2026-08-05'
 status: 'ACTIVE'
 c4_level: 'operations'
@@ -30,10 +30,29 @@ a VM or preview exists. Exe.dev login, token refresh and account/team switching
 are not deploy shortcuts. VM, proxy/share and lifecycle mutations require the
 fresh operation-scoped gate below.
 
-The deploy owner first consumes the accepted source handoff: exact clean SHA,
-source archive/build identity, artifact digest, profile, `run_id` and runbook
-version. A fresh preflight is required even when an earlier plan or runbook
-contains an observed provider fact.
+The deploy owner first consumes the accepted source handoff: remote URL,
+published `main` SHA, immutable checkpoint tag, exact clean SHA, source
+archive/build identity, artifact digest, profile, `run_id` and runbook version.
+A fresh preflight is required even when an earlier plan or runbook contains an
+observed provider fact.
+
+## Immutable Git checkpoint gate
+
+Provider mutation is blocked until the deploy owner reads back a complete
+remote checkpoint. The required order is:
+
+1. verify the stable checkout is clean and post-merge checks passed;
+2. push exact `main` to `origin/main` and read back the same commit SHA;
+3. create an immutable annotated `checkpoint-NN-<slug>` tag at that SHA, push
+   the exact tag and read back its remote target;
+4. record the remote URL, branch, tag, commit SHA and artifact digest in the
+   deploy handoff;
+5. only then transfer/build the source and require `/api/ready` to return the
+   recorded SHA and digest.
+
+The Exe.dev operation does not push Git itself. A local-only SHA, mutable
+branch label, missing tag or failed remote readback is a hard stop, even when
+the local build and provider preflight are otherwise healthy.
 
 ## Verified workstation SSH binding
 
@@ -114,10 +133,11 @@ ssh <explicit-options> exe.dev new --name=ddtasks-cp02 --cpu=2 \
 ```
 
 Exeuntu supports Docker. Transfer an exact clean source tree with `rsync` over
-the explicit SSH binding; do not require a remote Git push or provider Git
-credential. Exclude `.git`, `node_modules`, `.scenario-runs`, local environment
-files and other generated or secret-bearing paths. Record the local source SHA
-and verify the transferred source manifest before build.
+the explicit SSH binding; do not perform Git mutation from the VM and do not
+require a provider Git credential. The Git push/tag gate above must already be
+complete. Exclude `.git`, `node_modules`, `.scenario-runs`, local environment
+files and other generated or secret-bearing paths. Record the accepted remote
+source SHA and verify the transferred source manifest before build.
 
 On the VM, use `.memory-bank/spec/operations/runbooks/preview-runtime.md` with
 profile `preview-checkpoint`, a fresh run id and port `8000`. Generate the
@@ -139,6 +159,7 @@ ssh <explicit-options> exe.dev share show ddtasks-cp02 --json
 The accepted URL is `https://ddtasks-cp02.exe.xyz/`. Success requires all of:
 
 - exact source SHA and artifact digest read back from `/api/ready`;
+- exact remote checkpoint tag and commit SHA recorded in the deploy handoff;
 - `/api/health` and `/api/ready` passing from the VM;
 - the private HTTPS route and an application deep link passing in an
   authenticated browser session;
@@ -153,19 +174,24 @@ step is `partial_failure` or `failed`, never `accepted_live_provider`.
 
 ## Retain, stop and delete
 
-The `preview-checkpoint` default is to retain the exact VM and Compose volume,
-with no background workload beyond the app and PostgreSQL. Stop only the exact
-recorded Compose project when idle. Delete the VM or volume only under a new
-explicit destructive authorization, then read back absence by exact name.
+The `preview-checkpoint` default retains only the current accepted VM and
+Compose volume, with no background workload beyond the app and PostgreSQL.
+Historical or superseded preview volumes are not retained. During a
+replacement, the old exact Compose project and volume are removed only after
+the new runtime passes health, readiness and live checks; exact absence is
+read back afterward. If the replacement fails, the old active runtime remains
+and its volume is not removed. Delete the current VM or volume only under a
+new explicit destructive authorization, then read back absence by exact name.
 
 ## Protected action order
 
-After a fresh approved gate, the deploy operation may create or update
-only the exact target bound by the preflight, transfer the accepted artifact,
-start one app process plus internal PostgreSQL, and read back private proxy,
-port, revision, `/api/health` and `/api/ready`. It then runs live SCN-003 with
-operation-scoped actors, revokes reviewer access, and proves retain/delete
-readback for the chosen checkpoint/eval lifecycle.
+After a fresh approved Git and provider gate, the deploy operation may create
+or update only the exact target bound by the preflight, transfer the accepted
+artifact, start one app process plus internal PostgreSQL, and read back private
+proxy, port, revision, `/api/health` and `/api/ready`. It then runs live SCN-003
+with operation-scoped actors, revokes reviewer access, accepts the new runtime,
+and removes/readbacks any superseded exact Compose project and volume. A
+failed replacement never triggers old-runtime cleanup.
 
 Timeouts and provider errors require target readback before retry. Partial
 create/start/transfer outcomes are retired or resumed only under the exact

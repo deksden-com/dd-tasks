@@ -2,8 +2,8 @@
 file: '.memory-bank/spec/operations/preview-stages.md'
 description: 'Accepted local and private preview stage policy for PRT-004.'
 purpose: 'Defines the smallest reproducible execution contours without creating production, CI or control-plane semantics.'
-version: '0.1.0'
-date: '2026-08-04'
+version: '0.2.0'
+date: '2026-08-05'
 status: 'ACTIVE'
 c4_level: 'operations'
 parent: '.memory-bank/spec/operations/index.md'
@@ -23,7 +23,7 @@ PRT-004 defines four bounded profiles, not four availability tiers:
 | --- | --- | --- | --- | --- |
 | `local` | developer loopback | existing `dd_tasks_foundation_local*` convention | migrate, explicit reset/seed | loopback |
 | `test` | test-only loopback | existing `dd_tasks_foundation_test*` convention | migrate, explicit reset/seed | loopback |
-| `preview-checkpoint` | retained disposable preview | `dd_tasks_preview_checkpoint` | migrate on restart; explicit reset/seed | private |
+| `preview-checkpoint` | active checkpoint preview | `dd_tasks_preview_checkpoint` | migrate on restart; explicit reset/seed; remove superseded volume after accepted replacement | private |
 | `preview-eval-output` | short-lived disposable preview | `dd_tasks_preview_eval_output` | migrate; explicit reset/seed; mandatory cleanup | private |
 
 The application execution is production-like only where that improves the
@@ -34,10 +34,12 @@ availability target, multi-tenant control plane, background worker, queue or
 autoscaling behavior.
 
 Preview is private by default. A source-package smoke run is not provider
-evidence and never opens a share. A retained checkpoint may keep its disposable
-volume through an ordinary restart, but it has no backup or recovery promise.
-`preview-eval-output` has an owner/run binding and a bounded TTL; cleanup is a
-required phase, not an optional convenience.
+evidence and never opens a share. The active checkpoint may keep its disposable
+volume through an ordinary restart, but it has no backup or recovery promise;
+only the current accepted volume is retained per target. Superseded checkpoint
+volumes are removed after the replacement passes health/readiness/live checks
+and exact absence is read back. `preview-eval-output` has an owner/run binding
+and a bounded TTL; cleanup is a required phase, not an optional convenience.
 
 Every mutation records a sanitized `run_id`, exact profile and exact world
 binding. Unknown profiles, malformed URLs, host/database mismatches,

@@ -2,8 +2,8 @@
 file: '.memory-bank/spec/operations/index.md'
 description: 'Operational, preview-runtime and Git delivery contour dd-tasks through PRT-004.'
 purpose: 'Fixes bootstrap, stage/check/access/secrets safety, one-port preview runtime, evidence contour and source delivery.'
-version: '1.2.0'
-date: '2026-08-04'
+version: '1.3.0'
+date: '2026-08-05'
 status: 'ACTIVE'
 c4_level: 'operations'
 parent: '.memory-bank/spec/index.md'
@@ -19,6 +19,9 @@ children:
   - .memory-bank/spec/operations/runbooks/exe-dev-preview.md
 tags: [dd-tasks, operations, git, checkpoint-02, delivery]
 history:
+  - version: '1.3.0'
+    date: '2026-08-05'
+    changes: 'Deploy теперь требует опубликованный main и immutable checkpoint tag с remote readback; active preview сохраняет только текущий volume, superseded volumes удаляются после принятия нового runtime.'
   - version: '1.2.0'
     date: '2026-08-04'
     changes: 'PRT-004 materializes local/private preview stages, check profiles, access/secrets/deploy policy and base/Exe.dev runbooks; live provider remains deferred.'
@@ -100,6 +103,12 @@ readback. Local-only fixation допустима только как явно н
 delivery outcome. После local merge cleanup gate удаляет disposable worktree и
 локальную feature-ветку; remote feature-ветка удаляется после полного remote
 delivery.
+
+Provider deploy может начаться только после этого remote checkpoint delivery.
+Deploy handoff обязан сохранять remote URL, branch, tag, commit SHA и artifact
+digest; `/api/ready` сверяется с ними. Для preview сохраняется только текущий
+принятый checkpoint volume: superseded exact Compose project/volume удаляются
+после успешного replacement и readback, а при неуспехе старый runtime остаётся.
 
 Завершённые protocol feature worktree больше не сохраняются по умолчанию.
 После terminal merge merge flow применяет cleanup gate из

@@ -17,11 +17,12 @@ Readiness verdict: `ready_for_merge` with
 
 ## Exact source
 
-- branch: `feature/prt-006-preview-access-policy`;
-- clean feature HEAD: `e2f8eee4e7200f2b65d14cf2399b92e140d3df0f`;
-- source-package artifact digest:
-  `sha256:b4e6e1fa9ee7a6f606a9624ad63e71b5e1a39da0b9d01010aba3ee60346cc665`;
-- RUN evidence: `.tasks/dd-flow-runs/RUN-304-preview-access-policy/04-readiness/`.
+The final source commit, clean-state result and artifact digest are bound in
+the RUN readiness stage report at
+`.tasks/dd-flow-runs/RUN-304-preview-access-policy/04-readiness/`. This avoids
+stale durable hashes if a later source commit changes only protocol evidence;
+the provider flow must consume the refreshed stage report for the exact
+checkpoint SHA.
 
 ## Accepted gates
 

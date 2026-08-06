@@ -216,10 +216,9 @@ Plan, CODE and readiness reports are RUN-local provenance under
 `.tasks/dd-flow-runs/RUN-304-preview-access-policy/`; this durable summary and
 its traces carry the accepted decisions without requiring that ignored folder.
 CODE and readiness are `ready_for_merge` with explicit non-blocking generic
-maturity gaps and file-only dd-flow CLI degradation. Fresh project-specific
-gates and source-package scenarios passed on clean feature HEAD
-`e2f8eee4e7200f2b65d14cf2399b92e140d3df0f`; the source artifact digest is
-`sha256:b4e6e1fa9ee7a6f606a9624ad63e71b5e1a39da0b9d01010aba3ee60346cc665`.
+maturity gaps and file-only dd-flow CLI degradation. The exact final source
+commit and artifact digest are bound in the RUN readiness stage report and
+must be refreshed whenever a later source commit is created.
 `DEF-MBU-RUNTIME-ACTIVE-STATE` remains `not_touched`. Merge, remote checkpoint
 delivery and provider mutation are still required and are not claimed here.
 ```

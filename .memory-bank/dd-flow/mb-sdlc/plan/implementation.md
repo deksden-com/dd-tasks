@@ -34,6 +34,13 @@
 
 Твоя задача - превратить протокол в исполнимый план реализации. План должен быть понятен основному исполнителю, субагентам и проверяющим.
 
+Сначала прочитай RUN snapshot consumer gate из `common/flow-flags.md` и
+используй effective `planning.mode`, `plan.review.mode`, `knowledge.*`,
+`workspace.bootstrap.mode` и `evidence.level`. Планируй только включённые
+контуры; выключенные optional работы помечай `not_applicable` с причиной, а
+не превращай их в пустые задачи. При mismatch snapshot revision/checksum
+остановись до дальнейшего разрешения маршрута.
+
 Запиши start trace по `common/trace.md` в активный протокол. Если доступен `dd-flow` CLI, зарегистрируй planning session по `common/runtime-cli.md`: `flow_kind: planning`, `continuation_policy: go_router`, `current_stage: f2_implementation_plan`, `next_action: build task graph`.
 
 План должен доказывать свою пригодность: из него должно быть видно, что выбранные задачи действительно ведут к операционной цели (operational goal), учитывают исходные ограничения и дают проверяемый результат.

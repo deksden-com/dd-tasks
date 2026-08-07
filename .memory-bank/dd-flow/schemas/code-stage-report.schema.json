@@ -1,9 +1,18 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "dd-flow/code-stage-report@1",
+  "$id": "dd-flow/code-stage-report@2",
   "title": "Code stage report data",
   "type": "object",
   "additionalProperties": true,
+  "allOf": [
+    {
+      "if": {
+        "properties": { "schema_id": { "const": "dd-flow/code-stage-report@2" } },
+        "required": ["schema_id"]
+      },
+      "then": { "required": ["flow_flags"] }
+    }
+  ],
   "required": [
     "schema_id",
     "run",
@@ -20,11 +29,12 @@
     "defs"
   ],
   "properties": {
-    "schema_id": { "const": "dd-flow/code-stage-report@1" },
+    "schema_id": { "enum": ["dd-flow/code-stage-report@1", "dd-flow/code-stage-report@2"] },
     "run": { "$ref": "#/definitions/run" },
     "stage": { "$ref": "#/definitions/stage" },
     "project": { "$ref": "#/definitions/namedEntity" },
     "subject": { "$ref": "#/definitions/namedEntity" },
+    "flow_flags": { "$ref": "#/definitions/flowFlags" },
     "overall": { "$ref": "#/definitions/overall" },
     "breadcrumbs": {
       "type": "array",
@@ -322,6 +332,44 @@
         "checks": { "type": "object", "additionalProperties": true },
         "delivery": { "type": "object", "additionalProperties": true },
         "gaps": { "type": "object", "additionalProperties": true }
+      }
+    },
+    "flowFlags": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["flow_kind", "snapshot_revision", "resolution_status", "values", "snapshot_checksum"],
+      "properties": {
+        "contract": { "type": "object", "additionalProperties": true },
+        "flow_kind": { "type": "string", "minLength": 1 },
+        "preset": { "type": "object", "additionalProperties": true },
+        "snapshot_revision": { "type": "integer", "minimum": 1 },
+        "resolution_status": { "type": "string", "enum": ["valid", "legacy_incomplete", "reconciliation_required"] },
+        "values": { "type": "object", "additionalProperties": { "$ref": "#/definitions/flagValue" } },
+        "snapshot_checksum": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "floors_applied": { "type": "array", "items": { "type": "string" } },
+        "resolved_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "flagValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "value_type", "owner", "source", "rationale", "resolved_at"],
+      "properties": {
+        "value": {},
+        "value_type": { "type": "string", "minLength": 1 },
+        "owner": { "type": "string", "minLength": 1 },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "ref"],
+          "properties": {
+            "kind": { "type": "string", "minLength": 1 },
+            "ref": { "type": "string", "minLength": 1 },
+            "revision": { "type": ["integer", "null"] }
+          }
+        },
+        "rationale": { "type": "string", "minLength": 1 },
+        "resolved_at": { "type": "string", "format": "date-time" }
       }
     }
   }

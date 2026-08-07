@@ -2,8 +2,8 @@
 file: '.memory-bank/mbb/frontmatter-standards.md'
 description: 'Canonical YAML frontmatter standards for Memory Bank files: required fields, optional relations, versioning, and history.'
 purpose: 'Use when creating or reviewing Markdown files so metadata stays machine-readable and useful for navigation.'
-version: '0.6.0'
-date: '2026-07-07'
+version: '0.7.0'
+date: '2026-08-06'
 status: 'ACTIVE'
 c4_level: 'standard'
 tags: [frontmatter, metadata, yaml, standards, documentation]
@@ -14,6 +14,9 @@ related_files:
   - .memory-bank/mbb/indexing-guide.md
   - .memory-bank/mbb/cross-references.md
 history:
+  - version: '0.7.0'
+    date: '2026-08-06'
+    changes: 'Added SPC-* as the project-local sequential identifier and filename prefix for new durable specification records.'
   - version: '0.1.0'
     date: '2026-05-12'
     changes: 'Canonicalized frontmatter standards for reusable Memory Banks.'
@@ -261,6 +264,7 @@ Rules:
 For spec/sub-spec:
 
 ```yaml
+spec_id: SPC-001
 related_epics:
   - memory-bank/plans/epics/EP-XXX-<slug>/index.md
 related_features:
@@ -272,6 +276,12 @@ related_scenarios:
 implementation_files: []
 test_files: []
 ```
+
+New independent specification records use
+`spec/<product|system|engineering|operations>/SPC-XXX-<slug>.md`. The
+`spec_id` must match the filename prefix. `index.md` files are navigation and
+do not receive `SPC-*`. Existing unnumbered or legacy `SPEC-*` records remain
+valid until an explicit migration; do not silently renumber them.
 
 For ADR:
 

@@ -6,24 +6,31 @@
 
 ## Общий принцип
 
-Memory-flow сначала выбирает единицы покрытия, затем гарантирует выполнение выбранного покрытия.
-
-Единица покрытия:
+Memory-flow сначала выбирает semantic coverage units, затем строит из них
+execution jobs и гарантирует результат по каждой выбранной unit. Единица
+покрытия - это не worker session и не report file:
 
 - canonical aspect для `mb-init`;
 - upgrade target для `mb-upgrade`;
 - audit aspect для `mb-audit`;
 - domain/process aspect для `mb-distill`.
 
-Правило:
-
 ```text
-selected unit -> task packet + subagent report required
+selected applicable unit -> one coverage row + one unit verdict/evidence
+self_check -> source-backed orchestrator evidence, no worker claim
+grouped_subagent -> one allowlisted group packet, separate unit sections
+focused_subagent -> one focused packet/report for the unit
 skipped unit -> explicit reason required
 technical no-subagents -> degraded mode + trust reduction + coverage row
 ```
 
-Если единица выбрана, оркестратор не должен заменять её анализ собственной сводкой. Исключение - только технически невозможный запуск субагентов, оформленный как degraded mode.
+Для `grouped_subagent` один execution job может закрыть несколько units, но
+не может заменить их отдельные verdicts, evidence или completeness. Для
+`focused_subagent` выбранная unit получает отдельную session согласно
+существующему contract-у. Оркестратор не подменяет delegated analysis своей
+сводкой; `self_check` допустим только если его разрешил owning flow и оставил
+проверяемое source-backed evidence. Технически невозможный запуск оформляется
+как `degraded_orchestrator_fallback`, а не как обычная оптимизация.
 
 Явное разрешение пользователя на делегирование не требуется, если текущий memory-flow требует subagents или выбирает selected units по этому contract-у. Требование flow является достаточным разрешением на запуск scouts/workers/reviewers через доступный агентный механизм. Пользовательский запрет или ограничение на subagents имеет приоритет, но его нужно явно записать как downgrade/degraded condition.
 
@@ -46,7 +53,9 @@ technical no-subagents -> degraded mode + trust reduction + coverage row
 - units в статусе `not_applicable`;
 - hard triggers, если они есть;
 - degraded mode, если субагенты недоступны;
-- expected reports.
+- expected reports;
+- canonical route, `job_id`/`group_id` и hard/soft dependency references для
+  каждой selected unit.
 
 Не используй `recommended` как итоговое состояние. Рекомендация должна быть сведена к выбранному режиму и списку selected/skipped units.
 
@@ -55,17 +64,22 @@ technical no-subagents -> degraded mode + trust reduction + coverage row
 Каждый memory-flow должен иметь coverage artifact или coverage section:
 
 ```markdown
-| Unit | Selected | Task packet | Subagent/report | Mode | Result | Gaps/DEF | Notes |
-| --- | --- | --- | --- | --- | --- | --- | --- |
+| Unit | Selected | Route | Job/group | Task packet | Subagent/report | Result | Gaps/DEF | Notes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
 ```
+
+`pending` и `running` являются transient job states; они не закрывают
+coverage row и не являются terminal coverage results.
 
 Статусы:
 
-- `selected` - unit выбран и должен иметь task/report;
+- `selected` - unit выбран; route определяет обязательный worker packet или
+  source-backed orchestrator evidence;
 - `skipped` - unit не выбран, причина обязательна;
 - `not_applicable` - unit честно неприменим;
 - `degraded_orchestrator_fallback` - субагент технически невозможен, оркестратор сделал отдельный отчёт/раздел и снизил доверие;
 - `blocked` - unit нужен, но не выполнен;
+- `incomplete` - packet/report есть, но unit-level result ещё не принят;
 - `completed` - отчёт получен и обработан;
 - `verified` - ключевые выводы перепроверены оркестратором или отдельным reviewer-аgent.
 
@@ -77,16 +91,19 @@ Recovery preserves the original packet and original report. The orchestrator wri
 
 ## Гранулярность
 
-Один selected unit = один task packet и один фокусный report.
+Одна selected unit всегда получает одну coverage row и один unit-level
+verdict/evidence. Кардинальность packet/session/report зависит от route:
 
-Не объединяй несколько units ради удобства. Ограниченный пул субагентов меняет только параллельность:
+- `self_check` оставляет source-backed orchestrator evidence без worker packet;
+- `focused_subagent` использует один task packet и один focused report;
+- `grouped_subagent` использует один group packet, но отдельную section,
+  verdict, findings, evidence и completeness для каждой unit.
 
-- запускай доступный batch;
-- держи очередь;
-- после завершения сохраняй report и запускай следующий unit;
-- не делай остаток сам, если субагенты доступны после освобождения слота.
-
-Если unit слишком большой, раздели его на sub-scope только внутри того же unit и сохрани один итоговый report для coverage.
+Не объединяй units вне flow-owned allowlist. Ограниченный пул меняет только
+параллельность: запускай доступные jobs batch-ами, держи transient pending
+список и после освобождения слота продолжай ту же wave. Не делай остаток сам,
+если субагент технически доступен. Если unit слишком большой, раздели её на
+sub-scope только внутри той же unit и сохрани один итоговый unit report.
 
 ## Degraded mode
 
@@ -117,6 +134,17 @@ Degraded mode не допустим как обычная оптимизация
 Для SDLC-related gaps сначала классифицируй gap: `not_applicable`, `question`, `BLOCK-*`, `DEF-*` или accepted project-specific policy. Отсутствие release/deploy policy само по себе не DEF для маленького проекта; DEF нужен, когда gap влияет на active gate, future flow or discoverability.
 
 Отчёт субагента является входом для решения, а не истиной сам по себе.
+
+## Ownership
+
+- Этот файл владеет semantic coverage rows, applicability, selected/skipped/
+  degraded statuses и правилами закрытия coverage.
+- `common/subagents.md` владеет route selection, allowlist checks, packing,
+  dependency gating и job acceptance.
+- `common/worker-session.md` владеет task packet, grouped report и recovery
+  vocabulary.
+- Каждый конкретный flow владеет своим compatibility catalog и separation
+  triggers; flow не меняет общий смысл routes и status mapping.
 
 ## Flow-specific interpretation
 

@@ -40,6 +40,13 @@
 
 Твоя задача - провести ревью протокола и связанных документов сверху вниз: от смысла и границ до кода, проверок, интерфейса и эксплуатации.
 
+Перед выбором количества аспектов и reviewer sessions примени RUN snapshot
+consumer gate из `common/flow-flags.md`: читай effective flags из `run.json`,
+проверяй revision/checksum против `run-index.json` и сохраняй причину для
+каждого `skip`/`not_applicable`. `plan.review.mode` и `subagents.route`
+регулируют proportional coverage, но не отменяют applicable security,
+contract, data-integrity или acceptance gates.
+
 Запиши start trace по `common/trace.md` в активный протокол. Если доступен `dd-flow` CLI, зарегистрируй planning session по `common/runtime-cli.md`: `flow_kind: planning`, `continuation_policy: go_router`, `current_stage: f1_review`, `next_action: protocol/system review`.
 
 Ревью должно ответить не только "что ещё можно улучшить", но и "ведёт ли предложенный набор работ к операционной цели с сохранением исходных ограничений".
@@ -131,7 +138,47 @@ Hard trigger:
 
 Если несколько аспектов покрыты одним субагентом, это не сокращает coverage-карту: каждая строка аспекта остаётся отдельной и ссылается на общий `group_id`, `subagent_id` и `report_path`.
 
-Группировка аспектов в один task packet допустима только для простого/локального протокола, где applicable aspects имеют совместимый фокус, нет hard trigger, нет high-risk, а `execution.mode: solo` или явный compact-review route не противоречит профилю. Для сложных задач, full plan, high-risk или hard-trigger контуров каждый applicable aspect with `coverage_mode: focused_subagent` получает отдельный task packet и отдельный report. Ограниченный пул субагентов меняет только параллельность: запускай очередь, но не объединяй focused aspects ради удобства.
+По умолчанию группировка аспектов в один task packet запрещена для full/high-risk
+плана и для hard-trigger контуров: каждый `focused_subagent` получает отдельный
+packet и report. Исключение задаётся только flow-owned adapter-ом ниже. Лимит
+пула меняет только параллельность и не является основанием для неявного
+объединения аспектов.
+
+### Flow-owned route adapter (PRT-336)
+
+До создания packet для каждого applicable/unknown aspect зафиксируй одно
+решение маршрута в `aspect-map.json`:
+
+| Decision | Route | Когда |
+| --- | --- | --- |
+| `self_check_allowed` | `self_check` | Детерминированная applicability/graph/DEF-проверка или очевидный `not_applicable`, где независимый контекст не добавляет уверенности. |
+| `group_allowed` | `grouped_subagent` | Только unit из allowlist ниже, общий immutable snapshot, read-only scope, нет hard edge и отдельные verdict/evidence сохраняются. |
+| `keep_separate` | `focused_subagent` | Critical/trust boundary, глубокое исследование, writer/mutation/operational access или любой separation trigger. |
+
+Allowlist plan-review bundles (не более трёх units в одном group):
+
+| Group | Units |
+| --- | --- |
+| `system_design` | `architecture_design_quality`, `coding_standards_design_review`, `data_persistence_migration_review` |
+| `contract_and_trust` | `api_contract_design_review`, `contract_propagation_design`, `security_privacy_review` |
+| `product_surface` | `ui_ux_accessibility_review`, `design_aspect_traceability_review`, `scenario_seed_eval_review` |
+| `verification_and_knowledge` | `testing_system_design_review`, `verification_evidence_review`, `memorybank_documentation_review` |
+
+Bundle не создаётся, если unit не перечислена в allowlist, snapshot/read scope
+различается, есть write scope/conflict, incompatible report contract или
+`requires_output_of` между members. Separation trigger имеет приоритет над
+экономией jobs/waves: public/persisted или security boundary, destructive/
+backfill/migration, concurrency/irreversible/new mechanism boundary,
+операционный доступ, mutation/apply/merge/cleanup и conflicting evidence
+остаются `keep_separate`.
+
+`requires_output_of` означает hard dependency: dependent packet запускается
+только после принятого predecessor report по явному пути и в следующей готовой
+wave. `related_to`/`informed_by` означают soft context и не сериализуют jobs.
+Grouped report допустим только с отдельной секцией на unit: scope, findings,
+verdict, evidence, limitations и completeness. Coverage row сохраняется для
+каждой unit; общий verdict не заменяет unit verdict. При partial failure
+recovery повторяет только affected unit с новым attempt/report path.
 
 Аспектные субагенты обязательны для full `plan`, если выполняется хотя бы одно условие:
 

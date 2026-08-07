@@ -52,6 +52,13 @@
 
 Если readiness запускается отдельно после прерванного code-flow, найди текущий `RUN-*` и code stage через `run-index.json` (`03-code` в новом layout, `02-code` в legacy layout). Финальный readiness verdict должен обновить code stage report или явно объяснить, почему code stage report не обновлялся в этом rerun.
 
+Перед readiness verdict проверь RUN snapshot consumer gate из
+`common/flow-flags.md`: `run.json` authority, совпадение revision/checksum с
+index и effective `verification.depth`/`evidence.level`. Optional HTML,
+knowledge и ceremony могут быть `not_applicable` только с видимой причиной;
+обязательные security/data/queue-lock/fixation/acceptance/final-verification
+gates остаются активными.
+
 Примени `Code Guard` из `common/lifecycle-guards.md`. Readiness можно запускать отдельно только если implementation/code stage действительно существует или было явно прервано после реализации. Если пользователь пытается запустить readiness вместо plan/code, остановись с `blocked: code_flow_requires_plan_ready` или более точным predecessor blocker.
 
 Readiness gate - это не только отчёт перед слиянием (merge). Это ворота доведения протокола до максимально полного состояния. Если после реализации остались `DEF-*`, сначала попытайся закрыть всё, что можно закрыть сейчас, и только потом докладывай готовность ветки.
@@ -83,6 +90,29 @@ Readiness gate также проверяет, достигла ли ветка �
 - `evidence_reviewer`: `workers/verify.md`, режим `evidence_review`;
 - `def_reviewer`: `workers/verify.md`, режим `def_review`;
 - `git_ops_reviewer`: `workers/verify.md`, режим `git_ops_review`.
+
+### Flow-owned route adapter (PRT-336)
+
+Для каждого readiness reviewer зафиксируй `self_check_allowed`,
+`group_allowed` или `keep_separate`; это не отменяет обязательное покрытие.
+
+| Route | Allowlist/decision |
+| --- | --- |
+| `self_check` | Только локальные deterministic result/evidence/DEF/Git checks низкого риска с явной причиной в readiness report. |
+| `grouped_subagent` | `delivery_readiness`: `evidence_reviewer`, `def_reviewer`, `git_ops_reviewer` после принятого `result_verifier`; для compact low-risk change допускается один reviewer с отдельными секциями. |
+| `focused_subagent` | `result_verifier` и `quality_reviewer` для high-risk change; architecture/security/concurrency/agentic/pipeline и любой reviewer с critical boundary. |
+
+`result_verifier -> quality_reviewer` и `DEF plan -> DEF fix` — hard
+dependencies: successor ждёт принятый report по явному пути. `related_to` и
+`informed_by` передают контекст без обязательной сериализации. Не группируй
+implementation workers, writers, mutation/apply, merge/cleanup или
+operational-access chains; независимые work items можно только запускать
+батчами в пределах pool.
+
+Grouped readiness report обязан иметь отдельные reviewer sections, findings,
+verdict, evidence и limitations, а также per-unit report references. Сводный
+`ready_for_merge` не выводится из числа jobs; missing/partial unit получает
+`incomplete` и targeted recovery с новым attempt/report path.
 
 Для задач с архитектурным, contract, AI/prompt/runtime, concurrency, canonical-flow или high-risk влиянием добавь специализированные readiness gates. Их можно поручить отдельным verifier-ам или выполнить как явные разделы self-review, если compact route честно обоснован:
 

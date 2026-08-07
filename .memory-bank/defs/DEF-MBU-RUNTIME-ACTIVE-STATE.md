@@ -2,8 +2,8 @@
 file: '.memory-bank/defs/DEF-MBU-RUNTIME-ACTIVE-STATE.md'
 description: 'Отложение по gated runtime/home migration и отсутствующему backup evidence.'
 purpose: 'Отделяет безопасный файловый upgrade от миграции runtime/home primary data.'
-version: '0.1.0'
-date: '2026-08-04'
+version: '0.2.0'
+date: '2026-08-07'
 status: 'ACTIVE'
 c4_level: 'operations'
 parent: '.memory-bank/defs/index.md'
@@ -37,9 +37,9 @@ tags: [deferral, mb-upgrade, runtime, backup, operations]
 
 ## Summary
 
-Runtime/home migration не выполнялась. `03-upgrade/migration-report.json`
+Runtime/home migration не выполнялась. `RUN-303/03-upgrade/migration-report.json`
 содержит `migration.status: blocked`, поскольку backup evidence отсутствует,
-текущий `RUN-299` активен, а исторический `RUN-003` остаётся blocked. Это
+текущие `RUN-303` и `RUN-302` активны, а исторический `RUN-003` остаётся blocked. Это
 отдельный operations contour; runtime JSON/SQLite вручную не менялись.
 
 ## Current Status
@@ -48,17 +48,20 @@ Runtime/home migration не выполнялась. `03-upgrade/migration-report
 - Type: `operations_blocker`
 - Severity: `high`
 - Owner: dd-flow runtime/operations owner
-- Opened: 2026-08-04
+- Opened: 2026-08-04; updated: 2026-08-07
 - Review condition: backup/rollback evidence, compatible inactive-state plan и
   post-migration verification доступны через supported CLI.
 
 ## Origin and evidence
 
-- Flow/run: `mb-upgrade / RUN-299-mb-upgrade-dd-tasks / 03-upgrade`
-- Evidence: `01-preflight/report.md`, `03-upgrade/migration-report.json`,
+- Flow/run: `mb-upgrade / RUN-303-mb-upgrade-2-16-0-dd-tasks / 03-upgrade`
+- Evidence: `RUN-303/01-preflight/report.md`,
+  `RUN-303/03-upgrade/migration-report.json`,
   `03-upgrade/defs/DEF-MBU-RUNTIME-ACTIVE-STATE.md`
-- Read-only facts: `backup.status: missing`; active state includes `RUN-299`
-  and blocked `RUN-003-prt-001-checkpoint-01-foundation-code`.
+- Read-only facts: `backup.status: planned`; active state includes `RUN-303`,
+  `RUN-302-linear-workflow-ui` and blocked `RUN-003-prt-001-checkpoint-01-foundation-code`.
+- Target static upgrade: Memory Bank `2.15.0 → 2.16.0` completed; runtime
+  primary-data migration remains unapplied.
 
 ## Context for follow-up
 

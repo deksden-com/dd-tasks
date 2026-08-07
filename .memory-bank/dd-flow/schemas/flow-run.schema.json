@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/flow-run@1",
+  "title": "dd-flow runtime snapshot",
+  "description": "Continuation/runtime authority for one RUN; navigation is projected separately to flow-run-index@3.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schema_id", "run_index_schema_id", "run_id", "runtime_revision", "snapshot_revision", "snapshot_checksum", "flow_flags"],
+  "properties": {
+    "schema_id": { "const": "dd-flow/flow-run@1" },
+    "run_index_schema_id": { "type": "string" },
+    "run_id": { "type": "string", "minLength": 1 },
+    "runtime_revision": { "type": "integer", "minimum": 1 },
+    "snapshot_revision": { "type": "integer", "minimum": 1 },
+    "snapshot_checksum": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "flow_flags": { "$ref": "#/definitions/flowFlags" },
+    "flag_revision_history": { "type": "array", "maxItems": 32, "items": { "type": "object" } }
+  },
+  "definitions": {
+    "flowFlags": {
+      "type": "object",
+      "required": ["contract", "flow_kind", "snapshot_revision", "resolution_status", "values", "snapshot_checksum"],
+      "properties": {
+        "contract": { "type": "object" },
+        "flow_kind": { "type": "string" },
+        "preset": { "type": "object" },
+        "snapshot_revision": { "type": "integer", "minimum": 1 },
+        "resolution_status": { "type": "string" },
+        "values": { "type": "object" },
+        "snapshot_checksum": { "type": "string" },
+        "compatibility_projection": { "type": "object" },
+        "floors_applied": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

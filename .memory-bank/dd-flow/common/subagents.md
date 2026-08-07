@@ -28,6 +28,90 @@
 
 Если профиль указывает `solo`, но во время работы появляется значимый риск, можно повысить `execution.mode`, объяснив причину. Если профиль указывает workers/verifiers/mixed, но работа стала тривиальной, понижение допустимо только с объяснением в отчёте.
 
+## Route Selection and Bounded Packing
+
+The canonical route is recorded in the selection/job map and carried into the
+task packet where a worker is launched:
+
+- `self_check` is an allowlisted low-risk confirmation of a known rule. It
+  produces source-backed orchestrator evidence and does not claim an
+  independent session.
+- `grouped_subagent` covers two or more units in one read-only session only
+  when the owning flow allowlist permits the exact group.
+- `focused_subagent` gives a unit its own session when depth, trust or
+  mutation isolation requires it.
+
+Route selection is deterministic and ordered by safety: a separation trigger
+forces `focused_subagent` or the flow's existing `keep_separate` worker;
+otherwise an explicit `self_check_allowed` may use `self_check`, an exact
+`group_allowed` entry may use `grouped_subagent`, and the default is one
+focused job per unit. A technically possible group is optional, not a reason
+to merge units.
+
+The common contract does not invent flow bundles. The owning flow records
+`self_check_allowed`, `group_allowed` or `keep_separate` and its separation
+reasons. A group is valid only when all members share an immutable or
+read-equivalent snapshot, have no write conflict, have no
+`requires_output_of` edge between them, use the same trust/report contract,
+and retain separate findings and verdicts. The initial group limit is three
+units. Grouping is rejected for mutation/write scope, critical or security
+boundaries, operational-access chains, different source owners/snapshots,
+required predecessor output, missing metadata or any explicit flow trigger.
+
+`requires_output_of` is a hard dependency: the successor waits for the
+accepted predecessor report/artifact. `related_to` and `informed_by` are soft
+context links and do not create a wave or block launch. Hidden context from a
+previous session never satisfies a hard dependency.
+
+Resolve pool capacity once for the run-local execution map:
+
+```text
+effective_pool =
+  min(explicit max_subagents, runtime capacity), if both are known;
+  explicit max_subagents, if only it is known;
+  runtime capacity, if only it is known;
+  1, if capacity is unknown.
+```
+
+Record `effective_pool.value` and `effective_pool.source` as
+`explicit`, `runtime` or `fallback`. A value below one is invalid; do not
+probe capacity with speculative spawns. Launch ready jobs in batches up to
+the effective pool, retain excess jobs in a transient pending list and
+continue after a slot is released. This is bounded packing, not a persistent
+queue or scheduler.
+
+## Job Status and Acceptance
+
+Lifecycle owners keep their existing state machines; this table only maps
+route execution to coverage and gate behavior:
+
+| Situation | Coverage/job result | Next action |
+| --- | --- | --- |
+| Selected but slot unavailable | `selected` + transient `pending` | Keep the job queued in the current wave; do not drop coverage. |
+| Worker launched | `selected` + transient `running` | Wait for the report; hard successors stay locked. |
+| Every unit report accepted | `completed` or `verified` | Accept the job and unlock only its hard successors. |
+| Group has mixed results | Accepted units stay accepted; affected units are `incomplete` | Keep the job non-green and recover only affected units. |
+| Missing, invalid, timeout or lost report | `blocked` or `incomplete` | Preserve the original attempt and launch focused recovery. |
+| Recovery accepted | Affected unit becomes `completed`/`verified` with a new attempt path | Reconcile that unit and then unlock its hard successors. |
+| Repeated recovery failure or external slot block | `blocked`/`degraded` | Stop with a visible reason and precise DEF/handoff; never silently self-check. |
+
+A grouped job is green only when all of its unit reports are accepted. Job
+count or session count never substitutes for coverage, evidence or a stage
+acceptance decision.
+
+## Ownership
+
+- `worker-session.md` owns packet vocabulary, grouped wrapper/report shape and
+  recovery attempt rules.
+- This file owns route choice, allowlist checks, bounded packing, dependency
+  gating and job acceptance.
+- `memory-flow-subagents.md` owns semantic coverage units, coverage statuses
+  and the selected/skipped/degraded contract.
+- Each flow owns its compatibility allowlist and separation triggers; it does
+  not redefine the common packet vocabulary.
+- Lifecycle/flow-run owners own stage and attempt transitions; run artifacts
+  own concrete session and timing facts.
+
 ## Граница роли оркестратора
 
 Если принято решение `run_subagents`, оркестратор не должен сам выполнять deep-анализ делегированных аспектов, пакетов реализации или reviewer-зон. Его роль в таком режиме:

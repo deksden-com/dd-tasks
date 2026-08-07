@@ -30,6 +30,12 @@
 - `.memory-bank/dd-flow/workers/protocol-archive.md`
 - `.memory-bank/dd-flow/mb-sdlc/merge/integrate.md`
 
+Перед claim/integration прочитай effective RUN flags из `run.json`; index
+является только navigation projection. При mismatch revision/checksum job
+останавливается с `reconciliation_required`. Один project-scoped merge worker
+остаётся единственным владельцем claim/lock; preset/ceremony не порождает
+дополнительный worker или обход очереди.
+
 ## Preflight authority
 
 Перед Git merge проверь и докажи:
@@ -108,7 +114,7 @@
 
 ## Merge stage report
 
-`stage-report.json` должен валидироваться схемой `dd-flow/merge-stage-report@1` и показывать:
+`stage-report.json` должен валидироваться схемой `dd-flow/merge-stage-report@2` для нового RUN (legacy `@1` остаётся читаемым) и показывать текущий `flow_flags` snapshot projection:
 
 - `invocation_mode`: `one_shot` или `long_lived_worker`;
 - protocol/run/project;

@@ -2,7 +2,7 @@
 file: '.memory-bank/dd-flow/common/flow-runs.md'
 description: 'Common Flow Run contract for concrete dd-flow launches, stage workspaces and stage report chains.'
 purpose: 'Read before starting any practical dd-flow, Memory Bank flow or experiment run.'
-version: '0.3.0'
+version: '0.4.0'
 date: '2026-06-28'
 status: 'DRAFT'
 c4_level: 'documentation'
@@ -24,6 +24,9 @@ history:
   - version: '0.3.0'
     date: '2026-06-28'
     changes: 'Moved primary RUN artifact home to project-scoped dd-flow home; project .tasks is legacy/projection/manual scratch only.'
+  - version: '0.4.0'
+    date: '2026-08-07'
+    changes: 'Separated runtime snapshot from compact index projection and linked flow-flag revisions, checksums and typed session coverage.'
 ---
 
 # Flow Runs
@@ -94,9 +97,9 @@ Every run has:
 Rules:
 
 - stage directories use `NN-stage-slug/`, where `NN` is local to the run;
-- `run-index.json` is the navigation/index contract; it carries current state and timing summaries, not an ever-growing event history;
+- `run-index.json` is the compact navigation/index contract; it carries current state and timing summaries, not an ever-growing event history;
 - `timeline.jsonl` is an append-only local mechanical event stream for run/stage/session lifecycle timing;
-- `run.json` is the machine/runtime snapshot for continuation, hooks and diagnostics;
+- `run.json` is the authoritative machine/runtime snapshot for continuation, hooks, flag resolution and diagnostics. It is not a byte-for-byte copy of the index;
 - `stage-report.json` is the canonical data payload for a stage;
 - old names such as `plan-stage-report.json` or flow-specific names such as `review-data.json` may exist only as compatibility aliases;
 - important acceptance evidence must be promoted to verification passports or curated protocol evidence.
@@ -146,9 +149,27 @@ Use `<run-home>` in prompt instructions for current runs. Use `.tasks/dd-flow-ru
 
 Lifecycle mutations create timestamps automatically. New runs use `started_at` and `timing_status: measured`; legacy records without these facts remain readable as `legacy_incomplete`. A stage attempt records its own `started_at`, terminal `completed_at` and `try-###` identifier.
 
-When a registered Codex session supplies a local `transcript_path`, the CLI may create versioned `codex_transcript_v1` usage snapshots at run/stage/session checkpoints. The source is cumulative, so reports calculate deltas from the run-session baseline. `run usage` reconciles the current local transcript before reporting and must expose unavailable states instead of a false zero.
+When a registered Codex session supplies a local `transcript_path`, the CLI may create versioned `codex_transcript_v1` usage snapshots at run/stage/session checkpoints. The source is cumulative, so reports calculate deltas from the run-session baseline. `run usage` refreshes idempotently and must expose unavailable states instead of a false zero. Counter resets are stale-source diagnostics, not zero-cost work.
 
 Transcript counters can be emitted after the lifecycle command that changes a stage. A delta crossing such a boundary is displayed as `cross_stage_turn` with `indeterminate` confidence, not silently assigned to either stage. Run/session totals can remain measured while stage attribution is incomplete. No prompt, response, raw transcript event, secret or tool output is promoted into run artifacts or dashboard data.
+
+Flow flags are resolved once at RUN start and kept in the runtime snapshot:
+
+```yaml
+flow_flags:
+  snapshot_revision: 1
+  snapshot_checksum: <sha256>
+  values:
+    report.html:
+      value: false
+      source: { kind: preset, ref: normal }
+      rationale: optional HTML is not required for the selected route
+```
+
+`run-index.json` projects only the current revision/checksum and the values
+needed for navigation. A later escalation updates `run.json`, appends a
+`flow_flags_revised` timeline event and refreshes the index through a guarded
+revision; stages never silently fall back to `task_profile`.
 
 ## Flow-Specific Stage Layouts
 
@@ -270,9 +291,9 @@ Stage report HTML is generated output, not a design surface. The visual shell mu
 | Stage | Data schema | Template | Embedded JSON script id |
 | --- | --- | --- | --- |
 | `specify` | `.memory-bank/dd-flow/schemas/specification-stage-report.schema.json` / `dd-flow/specification-stage-report@1` | `.memory-bank/dd-flow/mb-sdlc/specify/stage-report-template.html` | `specification-data` |
-| `plan` | `.memory-bank/dd-flow/schemas/plan-stage-report.schema.json` / `dd-flow/plan-stage-report@1` | `.memory-bank/dd-flow/mb-sdlc/plan/stage-report-template.html` | `plan-data` |
-| `code` | `.memory-bank/dd-flow/schemas/code-stage-report.schema.json` / `dd-flow/code-stage-report@1` | `.memory-bank/dd-flow/mb-sdlc/code/stage-report-template.html` | `code-data` |
-| `merge` | `.memory-bank/dd-flow/schemas/merge-stage-report.schema.json` / `dd-flow/merge-stage-report@1` | `.memory-bank/dd-flow/mb-sdlc/merge/stage-report-template.html` | `merge-data` |
+| `plan` | `.memory-bank/dd-flow/schemas/plan-stage-report.schema.json` / `dd-flow/plan-stage-report@2` (legacy `@1` readable) | `.memory-bank/dd-flow/mb-sdlc/plan/stage-report-template.html` | `plan-data` |
+| `code` | `.memory-bank/dd-flow/schemas/code-stage-report.schema.json` / `dd-flow/code-stage-report@2` (legacy `@1` readable) | `.memory-bank/dd-flow/mb-sdlc/code/stage-report-template.html` | `code-data` |
+| `merge` | `.memory-bank/dd-flow/schemas/merge-stage-report.schema.json` / `dd-flow/merge-stage-report@2` (legacy `@1` readable) | `.memory-bank/dd-flow/mb-sdlc/merge/stage-report-template.html` | `merge-data` |
 | `release` | `.memory-bank/dd-flow/schemas/release-stage-report.schema.json` / `dd-flow/release-stage-report@1` | `.memory-bank/dd-flow/stage-reports/release-stage-report-template.html` | `release-data` |
 | `deploy` | `.memory-bank/dd-flow/schemas/deploy-stage-report.schema.json` / `dd-flow/deploy-stage-report@1` | `.memory-bank/dd-flow/stage-reports/deploy-stage-report-template.html` | `deploy-data` |
 | `publish` | `.memory-bank/dd-flow/schemas/publish-stage-report.schema.json` / `dd-flow/publish-stage-report@1` | `.memory-bank/dd-flow/stage-reports/publish-stage-report-template.html` | `publish-data` |

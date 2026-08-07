@@ -15,10 +15,14 @@ children:
   - .memory-bank/spec/operations/check-profiles.md
   - .memory-bank/spec/operations/operational-access.md
   - .memory-bank/spec/operations/deploy-policy.md
+  - .memory-bank/spec/operations/changelog-policy.md
   - .memory-bank/spec/operations/runbooks/preview-runtime.md
   - .memory-bank/spec/operations/runbooks/exe-dev-preview.md
 tags: [dd-tasks, operations, git, checkpoint-02, delivery]
 history:
+  - version: '1.5.0'
+    date: '2026-08-07'
+    changes: 'Добавлена явная политика разделения package version и Memory Bank canon marker; продуктовый release/version bump остаётся отдельным user gate.'
   - version: '1.4.0'
     date: '2026-08-05'
     changes: 'PRT-006 добавляет независимые provider visibility и application registration policy, public+closed Exe.dev handoff и отдельные readback gates.'

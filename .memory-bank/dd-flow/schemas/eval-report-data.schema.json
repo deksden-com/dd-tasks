@@ -78,6 +78,73 @@
           "what_it_does_not_prove": { "type": "string" }
         }
       }
-    }
+    },
+    "scenario_id": { "type": "string", "minLength": 1 },
+    "fixture_hash": { "type": "string", "minLength": 1 },
+    "status": { "type": "string", "enum": ["passed", "failed", "invalid"] },
+    "gate_status": { "type": "string", "enum": ["pass", "fail"] },
+    "threshold": { "type": "string", "minLength": 1 },
+    "group_verdict": { "type": "string", "minLength": 1 },
+    "stage_verdict": { "type": "string", "minLength": 1 },
+    "effective_pool": { "type": "integer", "minimum": 1 },
+    "pool_source": { "type": "string", "enum": ["runtime", "explicit", "fallback"] },
+    "counts": { "type": "object", "additionalProperties": true },
+    "baseline_unit_ids": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "optimized_unit_ids": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "unit_evidence_equal": { "type": "boolean" },
+    "unit_results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["unit_id", "applicability", "route", "group_id", "job_id", "session_id", "session_id_status", "completeness", "verdict", "evidence_refs", "report_ref", "attempt_id"],
+        "properties": {
+          "unit_id": { "type": "string", "minLength": 1 },
+          "applicability": { "type": "string", "minLength": 1 },
+          "route": { "type": "string", "minLength": 1 },
+          "group_id": { "type": ["string", "null"] },
+          "job_id": { "type": "string", "minLength": 1 },
+          "session_id": { "type": ["string", "null"] },
+          "session_id_status": { "type": "string", "minLength": 1 },
+          "completeness": { "type": "string", "minLength": 1 },
+          "verdict": { "type": "string", "minLength": 1 },
+          "evidence_refs": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+          "report_ref": { "type": "string", "minLength": 1 },
+          "attempt_id": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "attempts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["unit_id", "attempt_id", "parent_attempt_id", "report_ref", "promotion", "stale_or_duplicate_rejected"],
+        "properties": {
+          "unit_id": { "type": "string", "minLength": 1 },
+          "attempt_id": { "type": "string", "minLength": 1 },
+          "parent_attempt_id": { "type": ["string", "null"] },
+          "report_ref": { "type": "string", "minLength": 1 },
+          "promotion": { "type": "string", "minLength": 1 },
+          "stale_or_duplicate_rejected": { "type": "boolean" }
+        }
+      }
+    },
+    "successor_locks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["unit_id", "reason", "locked"],
+        "properties": {
+          "unit_id": { "type": "string", "minLength": 1 },
+          "reason": { "type": "string", "minLength": 1 },
+          "locked": { "type": "boolean" }
+        }
+      }
+    },
+    "rejections": { "type": "array", "items": { "type": "object", "additionalProperties": true } },
+    "what_it_does_not_prove": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "case_results": { "type": "array", "items": { "type": "object", "additionalProperties": true } }
   }
 }

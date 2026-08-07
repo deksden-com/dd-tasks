@@ -2,8 +2,8 @@
 file: '.memory-bank/defs/index.md'
 description: 'Индекс долговечных именованных отложений проекта dd-tasks.'
 purpose: 'Даёт будущим flow discoverable lookup для известных внешних и follow-up gates.'
-version: '0.2.0'
-date: '2026-08-04'
+version: '0.3.0'
+date: '2026-08-07'
 status: 'ACTIVE'
 c4_level: 'project'
 parent: '.memory-bank/index.md'
@@ -22,6 +22,9 @@ tags: [dd-tasks, deferrals, memory-lifecycle]
 
 ## История
 
+- `0.3.0` — runtime active-state DEF обновлён для `RUN-303` и перехода
+  `2.15.0 → 2.16.0`; файловый canonical upgrade не блокируется, runtime
+  migration остаётся отдельным gate.
 - `0.2.0` — canonical compatibility DEF закрыт после release-fix `8cb14de` и
   синхронизации target flow pack.
 - `0.1.0` — создан durable lookup для двух RUN-299 deferrals.
@@ -29,7 +32,8 @@ tags: [dd-tasks, deferrals, memory-lifecycle]
 ## Активный внешний gate
 
 - [Runtime active state](DEF-MBU-RUNTIME-ACTIVE-STATE.md) — не начинать
-  runtime/home migration до backup, inactive-state и supported verification gates.
+  runtime/home migration до backup, inactive-state и supported verification gates;
+  для `RUN-303` migration report остаётся blocked.
 
 ## Закрытые
 

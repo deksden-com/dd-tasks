@@ -2,8 +2,8 @@
 file: '.memory-bank/mbb/spec-layer-guide.md'
 description: 'Canonical guide for the normative spec layer: product, system, engineering, and operations.'
 purpose: 'Read when structuring project specifications so product value, system architecture, engineering discipline, and rollout operations have clear homes.'
-version: '0.2.0'
-date: '2026-06-30'
+version: '0.3.0'
+date: '2026-08-06'
 status: 'ACTIVE'
 c4_level: 'standard'
 parent: '.memory-bank/mbb/index.md'
@@ -17,6 +17,9 @@ related_files:
   - .memory-bank/mbb/code-contracts-guide.md
 tags: [mbb, spec, product, system, engineering, operations, architecture]
 history:
+  - version: '0.3.0'
+    date: '2026-08-06'
+    changes: 'Added project-local sequential SPC-* identifiers and filenames for new durable specification records.'
   - version: '0.1.0'
     date: '2026-05-12'
     changes: 'Added the four-part normative spec model for product, system, engineering, and operations.'
@@ -26,6 +29,31 @@ history:
 ---
 
 # Слой спецификаций
+
+## Идентификаторы спецификаций
+
+Новые самостоятельные durable specification records используют project-local
+последовательность `SPC-*` независимо от контура `product`, `system`,
+`engineering` или `operations`:
+
+```text
+SPC-001-<slug>.md
+SPC-002-<slug>.md
+...
+SPC-1000-<slug>.md
+```
+
+- `SPC-001` является short id и записывается в `spec_id` frontmatter;
+- sequence дополняется минимум до трёх цифр и не имеет потолка `999`;
+- allocator просматривает `spec/**/SPC-*` внутри одного проекта и выбирает
+  следующий свободный номер;
+- `index.md` не получает `SPC-*`, потому что является навигацией, а не
+  specification record;
+- существующие unnumbered или legacy `SPEC-*` документы не перенумеровываются
+  молча; новая или явная migration-норма использует `SPC-*`;
+- номер не переиспользуется после удаления, архивации или перемещения спеки.
+
+Канонический шаблон: `.memory-bank/mbb/templates/spec.md`.
 
 ## Зачем нужен этот слой
 

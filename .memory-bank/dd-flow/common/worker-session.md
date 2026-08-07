@@ -16,6 +16,9 @@ related_files:
   - .memory-bank/dd-flow/mb-sdlc/plan-aspects/aspect-worker.md
 tags: [dd-flow, subagents, workers, priming, task-packet]
 history:
+  - version: '0.5.0'
+    date: '2026-08-07'
+    changes: 'Added route-aware grouped packet, per-unit report and focused recovery contract for PRT-336.'
   - version: '0.4.0'
     date: '2026-07-25'
     changes: 'Added deterministic rendered-prompt contract: one registered profile, selected plan-item execution context, semantic spine, bounded discovery and RUN-local provenance artifacts.'
@@ -64,6 +67,16 @@ handoff:
       verdict: accepted | not_applicable
       report_path:
   recovery_attempt_paths: []
+routing:
+  route: self_check | grouped_subagent | focused_subagent
+  coverage_unit_ids: []
+  job_id:
+  group_id:
+  requires_output_of: []
+  related_to: []
+  effective_pool:
+    value:
+    source: runtime | explicit | fallback
 constraints:
 checks:
 workspace_bootstrap:
@@ -79,6 +92,89 @@ workspace_bootstrap:
 ```
 
 This is the sole normative definition of common packet fields and incomplete-packet behavior. `common/subagents.md` owns delegation, launch, recovery and acceptance, but references this contract instead of defining a second field vocabulary.
+
+`routing` is run-local execution metadata, not a new lifecycle entity. The
+selection/coverage artifact records all three canonical routes:
+`self_check`, `grouped_subagent` and `focused_subagent`. `self_check` has no
+worker packet or independent session claim; it must leave source-backed
+orchestrator evidence. A delegated packet uses `focused_subagent` for one
+unit or `grouped_subagent` for an allowlisted group.
+
+`requires_output_of` names accepted predecessor artifacts needed to start the
+packet. `related_to` (or `informed_by`) names context only and does not gate
+launch. `effective_pool` records the resolved positive pool and its source;
+unknown capacity uses `source: fallback` and value `1`.
+
+## Grouped Packet Variant
+
+The focused one-leaf packet remains the default. A grouped packet uses one
+explicit `grouped_review` wrapper and one checked leaf entry per covered unit;
+it does not paste unrelated leaf prompts into one field:
+
+```yaml
+group_manifest:
+  group_id: <stable run-local id>
+  route: grouped_subagent
+  snapshot_anchor: <immutable/read-equivalent snapshot>
+  effective_pool:
+    value: <positive integer>
+    source: runtime | explicit | fallback
+  units:
+    - unit_id: <coverage unit>
+      aspect_prompt: <one checked leaf path>
+      read_scope: []
+      write_scope: []
+      report_obligation:
+        layout: grouped_sections | per_unit_file
+        path: <group or unit report path>
+```
+
+The grouped wrapper is valid only when its flow-owned allowlist, snapshot,
+read-only write scope, trust level and report contract have already passed the
+orchestrator checks. Missing metadata is not inferred from session context.
+
+## Grouped Report and Recovery
+
+A grouped report keeps unit evidence addressable even when one session covers
+several units:
+
+```yaml
+group_id:
+session_id:
+snapshot_anchor:
+units:
+  - unit_id:
+    attempt_id:
+    completeness: complete | incomplete
+    verdict: accepted | incomplete | blocked | degraded
+    findings: []
+    evidence_refs: []
+    limitations: []
+    report_ref:
+cross_unit_synthesis: <after all unit sections>
+```
+
+An affected-unit recovery keeps the original attempt addressable:
+
+```yaml
+recovery:
+  unit_id: <affected coverage unit>
+  original_packet: <path>
+  failure_note: <path>
+  prior_report: <path>
+  attempt_id: <new attempt>
+  parent_attempt_id: <failed attempt>
+  report_path: <new report path>
+  promotion: pending | authoritative
+```
+
+The group is accepted only when every covered unit is accepted. A partial
+result preserves accepted units, marks the affected unit `incomplete` and
+does not use a shared synthesis as its evidence. Recovery preserves the
+original packet/report, adds a failure note and a new attempt/report path for
+only the affected unit; accepted units are not rerun. The recovery packet
+uses `session_mode: recovery_continuation` and names the authoritative report
+after acceptance.
 
 ## Rendered Packet Route
 
@@ -106,7 +202,14 @@ acceptance owner and reserved recovery attempt paths. Do not copy graph
 dependencies into the generic manifest or rely on the orchestrator session to
 remember them.
 
-Resolve exactly one leaf specialization. `role_prompt` can itself be the complete leaf, or it can be a consumed shared wrapper when one `aspect_prompt` or `target_prompt` supplies the leaf. For example, an SDLC aspect packet may read `worker-session -> workers/verify -> aspect-worker role wrapper -> one selected aspect prompt`. Two leaf aspect/target prompts, or a wrapper without a leaf, are incomplete.
+For `focused_subagent`, resolve exactly one leaf specialization. `role_prompt`
+can itself be the complete leaf, or it can be a consumed shared wrapper when
+one `aspect_prompt` or `target_prompt` supplies the leaf. For example, an SDLC
+aspect packet may read `worker-session -> workers/verify -> aspect-worker role
+wrapper -> one selected aspect prompt`. Two leaf aspect/target prompts, or a
+wrapper without a leaf, are incomplete. For `grouped_subagent`, the single
+leaf is the validated `grouped_review` wrapper and its `group_manifest` is
+the complete list of unit leaves.
 
 If the task packet is missing the goal, read sources, write boundary or report path, return `blocked: incomplete_task_packet`. Do not infer a large task from hidden session memory.
 

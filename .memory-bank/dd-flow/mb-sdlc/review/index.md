@@ -42,6 +42,42 @@ source map
 
 `stage-report.json` is the source of truth for the visible HTML and final summary.
 
+## Flow-owned route adapter (PRT-336)
+
+Перед запуском critics зафиксируй для каждого applicable review aspect одну
+route: `self_check`, `grouped_subagent` или `focused_subagent`.
+
+| Decision | Route | Rule |
+| --- | --- | --- |
+| `self_check_allowed` | `self_check` | Deterministic source-map/coverage/schema/HTML-JSON checks; не закрывает aspect без coverage row. |
+| `group_allowed` | `grouped_subagent` | Только named read-only group из allowlist ниже, общий snapshot и per-aspect report sections. |
+| `keep_separate` | `focused_subagent` | Critical/security/contract boundary, hard predecessor, conflicting evidence или mutation/operational chain. |
+
+- `self_check` разрешён для source-map/coverage/schema/HTML-JSON equality и
+  других deterministic checks; он не закрывает aspect без явной coverage row.
+- `grouped_subagent` разрешён только для read-only critics одного immutable
+  snapshot из flow allowlist: `navigation_and_trace`
+  (`structure_navigation_review`, `frontmatter_crosslink_review`,
+  `protocol_delivery_trace_review`), `system_and_contract`
+  (`spec_conformance_review`, `architecture_harmonization_review`,
+  `contract_traceability_review`) и `evidence_and_operations`
+  (`scenario_evidence_review`, `operations_policy_review`,
+  `def_followup_review`). Не более трёх aspects в группе.
+- `focused_subagent` обязателен для critical/security/contract boundary,
+  conflicting evidence, hard predecessor или отдельного доверительного
+  контекста. Writers, mutation, merge и operational-access chains не
+  группируются.
+
+`requires_output_of` — hard dependency и открывает следующий critic только
+после принятого predecessor report; `related_to`/`informed_by` — soft context
+и не создают wave. Existing `multi_subagent` в `aspects.md` является только
+report/UI adapter для canonical `grouped_subagent`.
+
+Один grouped report может обслуживать несколько coverage rows только при
+отдельной секции на aspect с findings, verdict, evidence, limitations и
+report reference. Partial/missing section делает group non-green и запускает
+recovery только для affected aspect; aggregate report не заменяет coverage.
+
 ## Minimum Accepted Review
 
 An accepted review must have:

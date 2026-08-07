@@ -166,7 +166,34 @@ dd-flow memory permissions preflight --root . --memory-bank .memory-bank --tasks
 
 Если пользователь выбрал быстрый или ручной аудит, skipped aspects должны быть явно отмечены как `skipped`, а не исчезнуть из контекста.
 
-`audit-selection.md` должен быть создан до запуска субагентов. Нельзя сначала написать summary или общий отчёт, а потом объявить его покрытием аспектов. Каждый selected audit aspect должен иметь отдельный task packet и отдельный report path.
+`audit-selection.md` должен быть создан до запуска субагентов. Нельзя сначала написать summary или общий отчёт, а потом объявить его покрытием аспектов. Каждый selected audit aspect должен иметь отдельную coverage row и report section/path: в `focused_subagent` это отдельные task packet и report, в allowlisted `grouped_subagent` — отдельная entry в group packet и отдельная секция в group report.
+
+## Flow-owned route adapter (PRT-336)
+
+Для каждого selected audit aspect зафиксируй route до запуска:
+
+| Decision | Route | Rule |
+| --- | --- | --- |
+| `self_check_allowed` | `self_check` | Только preflight, selection/skip visibility, coverage, schema и report consistency; self-check не закрывает selected aspect. |
+| `group_allowed` | `grouped_subagent` | Только read-only aspects из allowlist ниже, общий immutable audit snapshot, отсутствие hard edge и отдельные verdict/evidence/DEF candidates. |
+| `keep_separate` | `focused_subagent` | Critical/trust boundary, conflicting or privileged evidence, hard predecessor, recovery/recheck и любой аспект вне allowlist. |
+
+Allowlisted audit bundles (до трёх aspects):
+
+| Group | Aspects |
+| --- | --- |
+| `structure_and_truth` | `01-structure-and-indexes.md`, `02-links-frontmatter-traceability.md`, `03-ssot-duplicates-actuality.md` |
+| `delivery_and_system` | `04-delivery-docs.md`, `05-system-adr-contracts.md`, `06-scenarios-evidence-runners.md` |
+| `surface_and_operations` | `07-ui-and-guides.md`, `08-engineering-code-contracts.md`, `09-operations-release-deferrals.md` |
+| `lifecycle_and_agents` | `10-memory-lifecycle.md`, `11-code-traceability.md`, `12-agent-skills.md` |
+
+`requires_output_of` — hard dependency: aspect waits for the accepted
+predecessor artifact/report and its hard successors stay locked otherwise.
+`related_to`/`informed_by` — soft context and do not serialize a group. A
+group report repeats the existing aspect report format for every covered
+aspect; one shared summary or shared verdict is not enough. If one section is
+incomplete, the group and audit remain non-green and recovery reruns only the
+affected aspect with a new attempt/report path.
 
 ## Рабочая папка
 
@@ -196,7 +223,10 @@ dd-flow memory permissions preflight --root . --memory-bank .memory-bank --tasks
 
 ## Постановка задач субагентам
 
-Для каждого выбранного аспекта создай отдельный файл задачи в `<run-dir>/02-audit/tasks/<aspect-id>.md`.
+В `focused_subagent` создай отдельный файл задачи для каждого выбранного
+аспекта в `<run-dir>/02-audit/tasks/<aspect-id>.md`. В `grouped_subagent` создай
+один group packet в этой папке с отдельной entry, read scope и report section
+для каждого allowlisted аспекта.
 
 Задача должна включать:
 
@@ -214,7 +244,11 @@ dd-flow memory permissions preflight --root . --memory-bank .memory-bank --tasks
 - путь для отчёта в `<run-dir>/02-audit/reports/`;
 - путь для `DEF-*` в `<run-dir>/02-audit/defs/`.
 
-Путь отчёта должен быть отдельным для аспекта: `<run-dir>/02-audit/reports/<aspect-id>.md`. Агрегированный файл вроде `<run-dir>/02-audit/reports/aspect-summary.md` не считается отчётом selected aspect и не закрывает coverage gate.
+В `focused_subagent` путь отчёта должен быть отдельным для аспекта:
+`<run-dir>/02-audit/reports/<aspect-id>.md`. В `grouped_subagent` group report
+может быть общим только с отдельной секцией и report reference для каждого
+аспекта. Агрегированный файл без таких секций не считается отчётом selected
+aspect и не закрывает coverage gate.
 
 Субагенты работают в режиме чтения и анализа. Они не редактируют Банк памяти и код проекта.
 
@@ -346,9 +380,9 @@ normative_base:
 5. Отдельно выпиши `lint-candidate`, если аудит обнаружил проблему, которую можно проверять детерминированно через будущий или существующий `mb-lint`.
 6. Составь `<run-dir>/03-report/summary.md`.
 
-Перед `<run-dir>/03-report/summary.md` проверь coverage: каждый selected aspect из `<run-dir>/02-audit/audit-selection.md` имеет отдельный task packet и отдельный report либо documented degraded fallback. Если selected aspect не покрыт, аудит не может называться completed.
+Перед `<run-dir>/03-report/summary.md` проверь coverage: каждый selected aspect из `<run-dir>/02-audit/audit-selection.md` имеет focused task/report, allowlisted group entry/section либо documented degraded fallback. Если selected aspect не покрыт, аудит не может называться completed.
 
-Если к этому моменту уже есть summary или aggregated report, но нет отдельных reports для selected aspects, запусти recovery pass: создай недостающие task packets, отправь отдельного субагента на каждый missing aspect, попроси сверить aggregated findings с источниками и написать фокусный `<run-dir>/02-audit/reports/<aspect-id>.md`. Нельзя писать отчёты задним числом от имени несуществовавших субагентов.
+Если к этому моменту уже есть summary или aggregated report, но нет отдельных aspect sections/entries для selected aspects, запусти recovery pass: создай недостающие task packets, отправь отдельного субагента на каждый missing aspect, попроси сверить aggregated findings с источниками и написать фокусный `<run-dir>/02-audit/reports/<aspect-id>.md`. Нельзя писать отчёты задним числом от имени несуществовавших субагентов.
 
 ## Итоговый доклад
 

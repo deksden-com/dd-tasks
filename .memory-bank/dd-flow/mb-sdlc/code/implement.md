@@ -42,6 +42,14 @@
 
 `code/implement.md` является основным оркестраторским prompt-ом code-flow. Нормальный путь не останавливается после кодовых изменений и не ждёт Stop hook для перехода к readiness. Оркестратор в этом же запуске доводит работу до readiness verdict:
 
+До выбора worker route и optional artifacts примени RUN snapshot consumer gate
+из `common/flow-flags.md`. Effective `subagents.route`, `report.*`,
+`knowledge.*`, `workspace.bootstrap.mode` и `observability.detail` читаются из
+`run.json`; legacy `task_profile` используется только как явно отмеченная
+projection. Для пропущенного HTML/knowledge/bootstrap запиши
+`not_applicable` или `reduced_artifact` с причиной и не создавай placeholder
+report.
+
 ```text
 implementation work -> local checks -> readiness reviewers -> fixes -> fresh checks -> ready_for_merge | close_protocol | ask_user | blocked
 ```
@@ -74,7 +82,7 @@ implementation work -> local checks -> readiness reviewers -> fixes -> fresh che
 В начале code stage:
 
 ```bash
-dd-flow run attach-stage "<RUN-ID>" --project-root "<project-root>" --stage code --dir 03-code --status running --data-schema-id dd-flow/code-stage-report@1 --json
+dd-flow run attach-stage "<RUN-ID>" --project-root "<project-root>" --stage code --dir 03-code --status running --data-schema-id dd-flow/code-stage-report@2 --json
 ```
 
 Если run был создан до внедрения specification stage и уже содержит legacy layout, используй существующую папку `02-code/` и запиши `legacy_stage_layout: true` в report.
@@ -141,7 +149,7 @@ Legacy fallback:
 
 Если найден `02-plan/stage-report.json`, legacy `01-plan/stage-report.json` или legacy `plan-stage-report.json`:
 
-1. Проверь, что `schema_id` равен `dd-flow/plan-stage-report@1`.
+1. Проверь, что `schema_id` равен `dd-flow/plan-stage-report@2` для нового RUN (legacy `@1` только читается), а `flow_flags.snapshot_revision` и `snapshot_checksum` совпадают с authoritative `run.json`.
 2. Если доступен CLI, выполни:
 
    ```bash
@@ -181,7 +189,7 @@ Legacy fallback:
 
 Для legacy layout используй существующие `02-code/*` пути.
 
-`stage-report.json` должен соответствовать `.memory-bank/dd-flow/schemas/code-stage-report.schema.json` (`schema_id: dd-flow/code-stage-report@1`) и показывать пользователю:
+`stage-report.json` должен соответствовать `.memory-bank/dd-flow/schemas/code-stage-report.schema.json` (`schema_id: dd-flow/code-stage-report@2`) и показывать пользователю текущий `flow_flags` snapshot projection; legacy `@1` остаётся читаемым:
 
 - реализованные пользовательские цели;
 - сценарии приемки: шаги, ожидаемое поведение, verdict;

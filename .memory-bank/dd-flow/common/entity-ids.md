@@ -1,9 +1,9 @@
 ---
 file: '.memory-bank/dd-flow/common/entity-ids.md'
-description: 'Canonical typed entity id rules for dd-flow projects, experiments, runs, protocols and findings.'
+description: 'Canonical typed entity id rules for dd-flow projects, experiments, runs, protocols, specifications and findings.'
 purpose: 'Read before creating durable dd-flow entities or implementing CLI id resolution.'
-version: '0.2.0'
-date: '2026-07-31'
+version: '0.3.0'
+date: '2026-08-06'
 status: 'ACTIVE'
 c4_level: 'documentation'
 parent: '.memory-bank/dd-flow/README.md'
@@ -15,6 +15,9 @@ source_only_references:
   - '$DD_MEMORYBANK/.memory-bank/protocol/2026-05-31-entity-ids-project-workspaces.md'
 tags: [dd-flow, ids, registry, aliases, cli]
 history:
+  - version: '0.3.0'
+    date: '2026-08-06'
+    changes: 'Added project-local SPC-* allocation for new durable specification records.'
   - version: '0.2.0'
     date: '2026-07-31'
     changes: 'Separated global PRJ allocation from project-scoped PRT/RUN allocation and defined composite resolution and ambiguity rules.'
@@ -46,6 +49,7 @@ PRJ-001-dd-flow-playground
 EXP-001-playground-merge-queue-live
 RUN-001-flowboard-safe-ui-smoke
 PRT-001-flowboard-safe-ui-smoke
+SPC-001-subagent-grouping-and-pool-aware-routing
 DEF-001-runtime-state-outside-worktree
 CHK-001-flowboard-safe-ui-smoke
 VP-001-live-acceptance
@@ -71,7 +75,7 @@ the entity namespace rather than one global counter:
 
 - `PRJ-*` is global to the active project registry because a project owns the
   namespace below it;
-- `PRT-*` and `RUN-*` are allocated inside one stable project namespace;
+- `PRT-*`, `RUN-*` and file-backed `SPC-*` are allocated inside one stable project namespace;
 - worktrees inherit the stable project's namespace and never create a new
   allocator;
 - nested entities use their declared parent namespace;
@@ -137,6 +141,20 @@ CLI allocation owns `RUN-*` ids. Prompt-side allocation is allowed only as a deg
 
 RUN histories, stage reports, usage snapshots and session links are resolved by
 project plus run id. Migration preserves both the id and artifact paths.
+
+## Specification IDs
+
+New independent durable specifications use full ids such as:
+
+```text
+SPC-001-subagent-grouping-and-pool-aware-routing
+```
+
+`SPC-*` is a project-local file-backed sequence shared across
+`spec/product`, `spec/system`, `spec/engineering` and `spec/operations`.
+Allocation scans the selected project's `spec/**/SPC-*` records. Spec indexes
+are not entities and remain `index.md`. Existing unnumbered or legacy
+`SPEC-*` files keep their identity until an explicit migration.
 
 ## Command UX
 

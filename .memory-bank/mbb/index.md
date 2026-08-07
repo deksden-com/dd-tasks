@@ -2,8 +2,8 @@
 file: '.memory-bank/mbb/index.md'
 description: 'Canonical Memory Bank Bible: rules, standards, templates, and SDLC practices for project memory banks.'
 purpose: 'Read first when bootstrapping or upgrading a Memory Bank so structure, metadata, delivery docs, and verification docs stay consistent.'
-version: '0.9.7'
-date: '2026-07-08'
+version: '0.9.9'
+date: '2026-08-07'
 status: 'DRAFT'
 c4_level: 'documentation'
 parent: null
@@ -41,6 +41,12 @@ children:
   - templates/index.md
 tags: [mbb, memory-bank, standards, documentation, sdlc, canonical]
 history:
+  - version: '2.16.0'
+    date: '2026-08-07'
+    changes: 'Updated canonical Memory Bank release marker to 2.16.0.'
+  - version: '0.9.9'
+    date: '2026-08-06'
+    changes: 'Standardized new durable specification records on project-local sequential SPC-* identifiers.'
   - version: '2.15.0'
     date: '2026-08-03'
     changes: 'Updated canonical Memory Bank release marker to 2.15.0.'
@@ -117,7 +123,7 @@ history:
 
 # Memory Bank Bible
 
-Текущая версия канона Memory Bank: `2.15.0`.
+Текущая версия канона Memory Bank: `2.16.0`.
 
 Memory Bank Bible (MBB) is the canonical rule set for creating and maintaining a project Memory Bank: a compact, linked, agent-friendly knowledge base that preserves context, decisions, contracts, and delivery evidence.
 
@@ -234,7 +240,7 @@ memory-bank/
 │   ├── product/             # User-facing semantics, features, UI map, guides
 │   ├── architecture/        # C4 boundaries, contracts, invariants, interactions
 │   └── engineering/         # Setup, workflow, quality, tooling, delivery, runbooks
-├── specs/                   # ADR-* and SPEC-* as SSOT for decisions and implementation plans
+├── specs/                   # ADR-* and legacy SPEC-* / current SPC-* records
 ├── epics/                   # Legacy/project-local value grouping when explicitly retained
 ├── scenarios/               # SCN-* executable verification contracts
 ├── plans/                   # Optional planning, feature maps, and verification matrices

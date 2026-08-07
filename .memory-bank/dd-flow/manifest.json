@@ -1,14 +1,14 @@
 {
   "schema_id": "dd-flow/project-flow-pack-manifest@2",
-  "pack_version": "2.15.0",
+  "pack_version": "2.16.0",
   "flow_origin_policy": "project_local_pack",
   "canon_root": "/Users/deksden/Documents/_Projects/dd-memorybank",
   "canon_memory_bank_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank",
   "canon_flow_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank/dd-flow",
-  "source_commit": "8cb14def1b939d38a4cfcd00a20426337e18ede1",
-  "canon_version_at_source_commit": "2.15.0",
+  "source_commit": "4f98e82398746639b6e3a40d5c6bc7a8c6850dda",
+  "canon_version_at_source_commit": "2.16.0",
   "flow_contract": "dd-flow-canonical-2026-06",
-  "installed_at": "2026-08-04T09:10:00.000Z",
+  "installed_at": "2026-08-07T14:20:00.000Z",
   "included_files": [
     "README.md",
     "code.md",
@@ -185,7 +185,9 @@
     "schemas/examples/status-report.valid.json",
     "schemas/examples/version-report.valid.json",
     "schemas/flow-guidance.schema.json",
+    "schemas/flow-run-index-v3.schema.json",
     "schemas/flow-run-index.schema.json",
+    "schemas/flow-run.schema.json",
     "schemas/global-dashboard-data.schema.json",
     "schemas/index.md",
     "schemas/knowledge-candidates.schema.json",
@@ -232,5 +234,5 @@
   "generated_allow_patterns": [
     ".generated/**"
   ],
-  "notes": "Curated project-local flow pack upgraded to canonical Memory Bank 2.15.0 at source commit 8cb14def1b939d38a4cfcd00a20426337e18ede1; project-owned policies remain locally governed."
+  "notes": "Curated project-local flow pack upgraded to canonical Memory Bank 2.16.0 at source commit 4f98e82398746639b6e3a40d5c6bc7a8c6850dda; project-owned policies remain locally governed."
 }

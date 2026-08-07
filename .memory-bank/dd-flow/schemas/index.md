@@ -12,6 +12,8 @@ children:
   - mb-sdlc-review-report.schema.json
   - plan-stage-report.schema.json
   - flow-run-index.schema.json
+  - flow-run-index-v3.schema.json
+  - flow-run.schema.json
   - code-stage-report.schema.json
   - merge-stage-report.schema.json
   - release-stage-report.schema.json
@@ -39,6 +41,9 @@ history:
   - version: '1.10.0'
     date: '2026-07-10'
     changes: 'Added operational-access preflight contract and required authorized/not-required evidence for completed release, deploy, publish and merge reports.'
+  - version: '1.10.2'
+    date: '2026-08-07'
+    changes: 'Added the separate flow-run@1 runtime snapshot contract linked to flow-run-index@3.'
   - version: '0.1.0'
     date: '2026-06-04'
     changes: 'Created canonical schema registry for flow data contracts.'
@@ -87,6 +92,12 @@ history:
   - version: '1.6.0'
     date: '2026-06-28'
     changes: 'Updated flow-run-index to @2 home-run layout and moved project/protocol dashboard examples to project-scoped dd-flow home.'
+  - version: '1.10.1'
+    date: '2026-08-07'
+    changes: 'Added flow-run-index@3 with RUN-local flag snapshot links and typed session coverage projection.'
+  - version: '1.10.3'
+    date: '2026-08-07'
+    changes: 'Added stage-report @2 projections for the current flow-flag snapshot while keeping @1 readable.'
   - version: '1.7.0'
     date: '2026-06-30'
     changes: 'Added mb-sdlc-review-report contract for project-level review JSON/HTML reports.'
@@ -110,10 +121,11 @@ Schemas live in the canon first. Project copies under `.memory-bank/dd-flow/sche
 | --- | --- | --- | --- |
 | `mb-upgrade-review-data` | `mb-upgrade-review-data.schema.json` | `dd-flow/mb-upgrade-review-data@1` | Validates `review-data.json` produced by `mb-upgrade` stage `05-review`. |
 | `mb-sdlc-review-report` | `mb-sdlc-review-report.schema.json` | `dd-flow/mb-sdlc-review-report@1` | Validates `stage-report.json` produced by project-level `mb-sdlc-review`. |
-| `plan-stage-report` | `plan-stage-report.schema.json` | `dd-flow/plan-stage-report@1` | Validates `plan-stage-report.json` produced by the main `mb-sdlc` plan stage and consumed by code-flow handoff. |
-| `flow-run-index` | `flow-run-index.schema.json` | `dd-flow/flow-run-index@2` / legacy `@1` | Validates `<run-home>/run-index.json`, the navigation contract for a concrete flow execution. |
-| `code-stage-report` | `code-stage-report.schema.json` | `dd-flow/code-stage-report@1` | Validates `03-code/stage-report.json` or legacy `02-code/stage-report.json` for the coding stage report. |
-| `merge-stage-report` | `merge-stage-report.schema.json` | `dd-flow/merge-stage-report@1` | Validates `04-merge/stage-report.json` or legacy `03-merge/stage-report.json` for the merge/integration stage report. |
+| `plan-stage-report` | `plan-stage-report.schema.json` | `dd-flow/plan-stage-report@2` / readable legacy `@1` | Validates `plan-stage-report.json`; @2 carries the RUN-local flow-flag snapshot projection. |
+| `flow-run-index` | `flow-run-index.schema.json`, `flow-run-index-v3.schema.json` | `dd-flow/flow-run-index@3` / readable legacy `@1` and `@2` | Validates `<run-home>/run-index.json`; @3 adds revision/checksum, expanded flag projection and typed session coverage. |
+| `flow-run` | `flow-run.schema.json` | `dd-flow/flow-run@1` | Validates authoritative `run.json` continuation state and its revision/checksum link to the index. |
+| `code-stage-report` | `code-stage-report.schema.json` | `dd-flow/code-stage-report@2` / readable legacy `@1` | Validates `03-code/stage-report.json` or legacy `02-code/stage-report.json`; @2 carries the RUN-local flow-flag snapshot projection. |
+| `merge-stage-report` | `merge-stage-report.schema.json` | `dd-flow/merge-stage-report@2` / readable legacy `@1` | Validates `04-merge/stage-report.json` or legacy `03-merge/stage-report.json`; @2 carries the RUN-local flow-flag snapshot projection. |
 | `release-stage-report` | `release-stage-report.schema.json` | `dd-flow/release-stage-report@1` | Validates release flow reports that fix release set, version decision, artifacts and release readback evidence. |
 | `deploy-stage-report` | `deploy-stage-report.schema.json` | `dd-flow/deploy-stage-report@1` | Validates deploy flow reports that prove runtime stage/provider/target, source artifact, deployment execution and post-deploy checks. |
 | `publish-stage-report` | `publish-stage-report.schema.json` | `dd-flow/publish-stage-report@1` | Validates publish flow reports that combine release fixation, publication target, artifact execution, readback and consumer smoke. |

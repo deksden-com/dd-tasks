@@ -116,7 +116,7 @@ Flow origin policy: `project_local`.
 
 ```bash
 dd-flow run start --project-root "<project-root>" --workspace-root "<workspace-root>" --flow-kind mb_sdlc --subject-type protocol --subject-id "<PRT-ID>" --slug "<slug>" --json
-dd-flow run attach-stage "<RUN-ID>" --project-root "<project-root>" --stage plan --dir 02-plan --status running --data-schema-id dd-flow/plan-stage-report@1 --json
+dd-flow run attach-stage "<RUN-ID>" --project-root "<project-root>" --stage plan --dir 02-plan --status running --data-schema-id dd-flow/plan-stage-report@2 --json
 ```
 
 Если run был создан до внедрения specification stage и уже содержит `01-plan/`, не перенумеровывай его. Продолжай legacy layout и запиши `legacy_stage_layout: true` в report.
@@ -224,7 +224,7 @@ dd-flow plan set "<protocol-id>" --file "<plan.json>" --json
 
 Для legacy run layout допустимо продолжить запись в `01-plan/`; report должен явно указать, что specification stage отсутствует как отдельная папка из-за старого layout.
 
-`stage-report.json` является source of truth для stage report и входом для `code` flow. Он должен соответствовать `.memory-bank/dd-flow/schemas/plan-stage-report.schema.json` (`schema_id: dd-flow/plan-stage-report@1`) и содержать:
+`stage-report.json` является source of truth для stage report и входом для `code` flow. Новый отчёт должен соответствовать `.memory-bank/dd-flow/schemas/plan-stage-report.schema.json` (`schema_id: dd-flow/plan-stage-report@2`) и содержать текущий `flow_flags` snapshot projection (`snapshot_revision`, `snapshot_checksum`, effective values и provenance). Старый `@1` остаётся читаемым для legacy RUN-ов.
 
 - `protocol`: id, project, branch, stage and compact title;
 - `overall`: verdict, score, next action and short summary;

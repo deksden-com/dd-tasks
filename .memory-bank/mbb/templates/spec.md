@@ -1,11 +1,12 @@
 ---
-file: 'memory-bank/spec/<product|system|engineering|operations>/SPEC-XXX-<slug>.md'
+file: 'memory-bank/spec/<product|system|engineering|operations>/SPC-XXX-<slug>.md'
 description: '<Implementation-ready technical specification.>'
 purpose: '<Read before implementation to understand target design, migration, tests, risks, and rollout.>'
-version: '0.2.0'
+version: '0.3.0'
 date: 'YYYY-MM-DD'
 status: 'DRAFT'
 c4_level: 'documentation'
+spec_id: 'SPC-XXX'
 parent: 'memory-bank/spec/index.md'
 related_files: []
 related_epics: []
@@ -19,7 +20,7 @@ test_files: []
 tags: [spec]
 ---
 
-# SPEC-XXX: <Title>
+# SPC-XXX: <Title>
 
 > Spec хранит нормативную истину. Если документ в основном объясняет почему выбрали путь, используй ADR. Если документ фиксирует ход конкретной волны, используй protocol.
 

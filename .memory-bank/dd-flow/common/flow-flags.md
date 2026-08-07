@@ -52,6 +52,88 @@
 
 `specify` должен записать или доложить профиль задачи. Для маленькой правки профиль может быть коротким, но структура должна сохраняться, чтобы следующие фазы одинаково понимали решение. Старое имя `flow_profile` допустимо только как compatibility alias.
 
+## RUN-local resolution
+
+Для нового RUN профиль не является изменяемым источником поведения. В начале
+RUN оркестратор оценивает факты задачи, выбирает поддерживаемый preset и
+расширяет его в полный `flow_flags` snapshot. Приоритет источников:
+
+```text
+flow_default < preset < task_profile < protocol_override < run_override
+```
+
+Каждое effective value хранит `source.kind`, ссылку на источник, revision,
+rationale и время разрешения. После каждого кандидата применяются mandatory
+floors. Если новый факт требует более строгого режима, создаётся новая
+append-only revision; предыдущий snapshot не переписывается. Явный downgrade
+ниже floor отклоняется.
+
+`run.json` — authoritative continuation snapshot. `run-index.json` — compact
+навигационная проекция; они связаны `snapshot_revision` и
+`snapshot_checksum`. Stage report может показать выбранные значения, но не
+разрешает флаги заново.
+
+Оценка режима автоматическая, но объяснимая:
+
+| Сигнал задачи | Режим | Правило |
+| --- | --- | --- |
+| локальная обратимая правка без изменения контракта/данных | `compact` | короткий маршрут, self-check, без HTML/knowledge ceremony |
+| обычная фича с ограниченным риском | `normal` | compact plan, grouped review, условные knowledge/bootstrap |
+| контракт, runtime, данные, безопасность, CI/release или высокий риск | `full` | полный plan/review/evidence и все применимые receipts |
+
+Название preset — только удобный вход. Реальное решение определяется
+фактами, flow-owned defaults и floors, поэтому `compact` не может отключить
+обязательный gate.
+
+## Reduction and consumer matrix
+
+Сокращение считается только если работа действительно не запускается или
+помечается `not_applicable`/`reduced_artifact`; запись полного snapshot сама
+по себе экономией не считается.
+
+| Участок | Compact | Normal | Full | Обязательное сохранение |
+| --- | --- | --- | --- | --- |
+| specify/plan | no-plan или короткий план | compact plan | full plan + review | оценка задачи, ограничения, критерии выхода |
+| subagents/review | self-check | allowlisted grouped | focused/mixed independent | критическое разделение ролей и semantic coverage |
+| reports | Markdown по разрешению | Markdown, HTML явно выключен по умолчанию | Markdown + template HTML | required report выбранного gate |
+| knowledge | skip с причиной | conditional | required | substantive fact и явная promotion applicability |
+| bootstrap | not-required только для docs-only | revalidate | required receipt | identity/freshness/status fail-closed |
+| merge | compact ceremony | normal ceremony | full ceremony | queue/lock, fixation, acceptance, final verification |
+| observability | lifecycle checkpoints | checkpoints + stage/session joins | полный bounded detail | timing/usage status и privacy-safe projection |
+
+Consumer matrix хранится рядом с canonical `flow-contract.json`: каждый
+consumer должен либо прочитать RUN snapshot, либо явно назвать loss-aware
+legacy projection. Неиспользуемый флаг считается ошибкой контракта, а не
+поводом запускать лишнюю работу.
+
+## RUN snapshot consumer gate
+
+Перед выбором маршрута stage прочитай `run.json` как authority и проверь, что
+`run-index.json` содержит тот же `snapshot_revision` и
+`snapshot_checksum`. При несовпадении остановись с
+`reconciliation_required`; не разрешай флаги заново из `task_profile`.
+Старый RUN без snapshot можно продолжить только через явно отмеченный
+`legacy_incomplete`/loss-aware путь и без новых flag-driven claims.
+
+Применение effective values должно быть механическим:
+
+- `skip`/`not_required` не запускает optional работу и создаёт короткую запись
+  `not_applicable` с причиной;
+- `conditional` запускает optional работу только при найденном применимом
+  факте и сохраняет этот факт рядом с результатом;
+- `required` создаёт обычный artifact и проходит соответствующий gate;
+- `report.html` включается только явным effective value и только для flow,
+  где HTML-контракт объявлен поддержанным;
+- `observability.detail` уменьшает плотность bounded checkpoints, но не
+  отключает timing/usage status, privacy redaction или обязательные events.
+
+`workspace.bootstrap.mode` не отменяет identity/freshness/fail-closed gate:
+`not_required` допустим только для docs-only contour. `merge.ceremony` и
+`merge.report_detail` сокращают повторный checklist, формат и optional
+summary, но один project-scoped merge worker остаётся владельцем claim/lock;
+обязательные queue/lock, Git fixation, acceptance и final verification не
+являются optional flags.
+
 ```yaml
 task_profile:
   intent:

@@ -34,9 +34,17 @@ Read first:
 - `.memory-bank/dd-flow/common/subagents.md`
 - `.memory-bank/dd-flow/common/git-ops.md`
 - `.memory-bank/dd-flow/common/browser-verification.md`
+- `.memory-bank/dd-flow/common/flow-flags.md`
 - `.memory-bank/dd-flow/mb-sdlc/plan-aspects/index.md`
 - `.memory-bank/dd-flow/mb-sdlc/review/index.md`
 - `.memory-bank/dd-flow/mb-sdlc/review/aspects.md`
+
+Перед выбором глубины review примени `common/flow-flags.md` RUN snapshot
+consumer gate: используй effective `plan.review.mode`, `subagents.route`,
+`verification.depth` и `evidence.level` из `run.json`; при mismatch revision/
+checksum остановись с `reconciliation_required`. Если optional report,
+knowledge или HTML выключены, зафиксируй `not_applicable`/`reduced_artifact`,
+не создавая пустой ceremony.
 
 Then read durable MBB guidance:
 

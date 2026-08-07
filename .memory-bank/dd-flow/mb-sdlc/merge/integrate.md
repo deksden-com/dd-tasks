@@ -45,6 +45,14 @@
 
 Выполненные доработки нужно интегрировать по правилам проекта и по актуальному `flow_profile`.
 
+Для продолжения coding RUN сначала прочитай effective flags из `run.json` и
+сверь revision/checksum с `run-index.json` по RUN snapshot consumer gate.
+`merge.ceremony` и `merge.report_detail` выбирают только объём optional
+checklist/summary в уже claimed job или bundle. Они не создают второго
+worker-а и не ослабляют project-scoped claim, merge lane lock, Git fixation,
+acceptance, final verification или queue completion. Выключенные optional
+reports/knowledge фиксируй как `not_applicable`/`reduced_artifact`.
+
 Если `merge/integrate.md` выполняется внутри claimed merge job и доступен `dd-flow` CLI, зарегистрируй merge job session по `common/runtime-cli.md`:
 
 - `flow_kind: merge_job`;
@@ -58,7 +66,7 @@
 В начале integration stage:
 
 ```bash
-dd-flow run attach-stage "<RUN-ID>" --project-root "<project-root>" --stage merge --dir 03-merge --status running --data-schema-id dd-flow/merge-stage-report@1 --json
+dd-flow run attach-stage "<RUN-ID>" --project-root "<project-root>" --stage merge --dir 03-merge --status running --data-schema-id dd-flow/merge-stage-report@2 --json
 ```
 
 Если проект использует `dd-flow` merge queue, `merge/integrate.md` нельзя запускать из обычной `planning` или `implementation` session. Перед любыми merge-действиями проверь, что job or bundle уже claimed в очереди, текущий `worker_id` совпадает с claimed owner for every included protocol, session зарегистрирована как `merge_job`, а `workspace_path` является merge workspace проекта. Если эти условия не выполнены, остановись с навигационным блоком и передай работу `merge.md`; не пытайся перерегистрировать текущую implementation session в merge role.
@@ -312,7 +320,7 @@ Each row should include `status` and `evidence`. Evidence may be a command log, 
 
 Для legacy run layout используй существующие `03-merge/*` пути.
 
-`stage-report.json` должен соответствовать `.memory-bank/dd-flow/schemas/merge-stage-report.schema.json` (`schema_id: dd-flow/merge-stage-report@1`) и показывать:
+`stage-report.json` должен соответствовать `.memory-bank/dd-flow/schemas/merge-stage-report.schema.json` (`schema_id: dd-flow/merge-stage-report@2`) и показывать текущий `flow_flags` snapshot projection; legacy `@1` остаётся читаемым:
 
 - claimed job/protocol;
 - source branch/commit and target branch;

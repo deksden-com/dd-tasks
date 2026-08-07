@@ -38,6 +38,24 @@ Flow origin policy: `project_local`.
 
 `mb-fix` не обязан чинить все проблемы последнего аудита. Он читает найденные `DEF-*`, группирует их, объясняет варианты пользователю и выполняет только выбранный набор.
 
+## Flow-owned route adapter (PRT-336)
+
+Для fix-run зафиксируй route до создания worker packet:
+
+| Decision | Route | Rule |
+| --- | --- | --- |
+| `self_check_allowed` | `self_check` | Fix selection, overlap/write-scope check, status/closure reconciliation и post-fix verification planning. |
+| `group_allowed` | scheduling batch only | Независимые DEF workers с непересекающимися worktrees можно запускать одной pool wave; это не grouped mutation packet/report. |
+| `keep_separate` | `focused_subagent` | Writers, mutation/apply, overlapping files, shared indexes, critical/operational access и hard fix/verify chains. |
+
+Существующее grouping DEF по write scope остаётся execution-planning
+механикой; оно не объединяет writer responsibilities, reports или verdicts.
+`requires_output_of` — hard edge, поэтому fix/verification ждёт принятого
+predecessor report или changed-files handoff. `related_to`/`informed_by` — soft
+context и не сериализуют независимые workers. Каждый worker сохраняет свой
+task/report, а verification остаётся отдельной unit с собственным evidence;
+partial failure запускает recovery только для affected DEF/worker.
+
 Если доступен `dd-flow` CLI, зарегистрируй memory flow session по `common/runtime-cli.md`: `flow_kind: memory_flow`, `continuation_policy: memory_flow`, `current_stage: mb_fix`, `next_action`: выбранная группа `DEF-*` или verification gate.
 
 `mb-fix` исправляет выбранные Memory Bank findings, но не является runtime migration flow. Если выбранный `DEF-*` касается active legacy lifecycle/runtime (`current_stage`, `raw_stage`, `job`, merge queue, lane locks, flow-contract drift), сначала классифицируй:

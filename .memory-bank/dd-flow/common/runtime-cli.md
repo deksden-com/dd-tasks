@@ -31,6 +31,26 @@ CLI отвечает за механическое состояние:
 - какой queued protocol / `queue_item` claimed в merge queue;
 - какие dashboard markdown files надо обновить.
 
+## Flow flags and RUN snapshot
+
+Для нового RUN CLI фиксирует flow-flag snapshot до начала stage work:
+
+```bash
+dd-flow run start ... --preset normal --json
+dd-flow run flags status RUN-001 --project-root <root> --json
+dd-flow run flags revise RUN-001 --project-root <root> \
+  --expected-revision 1 --idempotency-key risk-escalation-1 \
+  --flag verification.depth=full --json
+```
+
+`--preset` — только входной preset. CLI расширяет его по canonical
+`flow-contract.json`, применяет `task_profile`/override и mandatory floors,
+после чего сохраняет revision/checksum в `run.json` и compact projection в
+`run-index.json`. `flags revise` использует CAS по expected revision и
+idempotency key; повтор того же запроса возвращает первоначальный результат.
+Старые RUN и legacy `flow_profile` остаются читаемыми как
+`legacy_incomplete`/loss-aware projection.
+
 ## Flow Guidance
 
 Status-like CLI commands may include a structured `flow_guidance` block when they have enough project/protocol/run/merge context.
@@ -418,7 +438,7 @@ dd-flow run attach-stage "<RUN-ID-or-RUN-short-id>" \
   --stage code \
   --dir 03-code \
   --status running \
-  --data-schema-id dd-flow/code-stage-report@1 \
+  --data-schema-id dd-flow/code-stage-report@2 \
   --json
 
 dd-flow run complete-stage "<RUN-ID-or-RUN-short-id>" \

@@ -39,8 +39,12 @@ tags: [deferral, mb-upgrade, runtime, backup, operations]
 
 Runtime/home migration не выполнялась. `RUN-303/03-upgrade/migration-report.json`
 содержит `migration.status: blocked`, поскольку backup evidence отсутствует,
-текущие `RUN-303` и `RUN-302` активны, а исторический `RUN-003` остаётся blocked. Это
+`RUN-302` остаётся активным, а исторический `RUN-003` остаётся blocked. Это
 отдельный operations contour; runtime JSON/SQLite вручную не менялись.
+
+`RUN-303` завершён со статусом `done` и verdict `accepted_with_deferrals` после
+интеграции статического Memory Bank upgrade в `main`; это не означает применения
+runtime/home migration.
 
 ## Current Status
 
@@ -58,8 +62,9 @@ Runtime/home migration не выполнялась. `RUN-303/03-upgrade/migratio
 - Evidence: `RUN-303/01-preflight/report.md`,
   `RUN-303/03-upgrade/migration-report.json`,
   `03-upgrade/defs/DEF-MBU-RUNTIME-ACTIVE-STATE.md`
-- Read-only facts: `backup.status: planned`; active state includes `RUN-303`,
-  `RUN-302-linear-workflow-ui` and blocked `RUN-003-prt-001-checkpoint-01-foundation-code`.
+- Read-only facts: `backup.status: planned`; active state includes
+  `RUN-302-linear-workflow-ui` and blocked
+  `RUN-003-prt-001-checkpoint-01-foundation-code`.
 - Target static upgrade: Memory Bank `2.15.0 → 2.16.0` completed; runtime
   primary-data migration remains unapplied.
 

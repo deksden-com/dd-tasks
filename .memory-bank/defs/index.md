@@ -9,6 +9,7 @@ c4_level: 'project'
 parent: '.memory-bank/index.md'
 children:
   - .memory-bank/defs/DEF-MBU-CANONICAL-COMPATIBILITY-VERSION.md
+  - .memory-bank/defs/DEF-MBU-PROTOCOL-EVIDENCE-SHELF.md
   - .memory-bank/defs/DEF-MBU-RUNTIME-ACTIVE-STATE.md
 tags: [dd-tasks, deferrals, memory-lifecycle]
 ---
@@ -31,6 +32,8 @@ tags: [dd-tasks, deferrals, memory-lifecycle]
 
 ## Активный внешний gate
 
+- [Protocol evidence shelf](DEF-MBU-PROTOCOL-EVIDENCE-SHELF.md) — не делать
+  durable acceptance claim из raw run-local evidence до публикации паспорта.
 - [Runtime active state](DEF-MBU-RUNTIME-ACTIVE-STATE.md) — не начинать
   runtime/home migration до backup, inactive-state и supported verification gates;
   для `RUN-303` migration report остаётся blocked.

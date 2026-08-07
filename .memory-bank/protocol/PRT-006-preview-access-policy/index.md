@@ -4,7 +4,8 @@ description: 'Навигация протокола управляемой ви�
 purpose: 'Связывает пользовательский ввод, specification, trace и будущую реализацию безопасных deploy-параметров.'
 version: '0.3.0'
 date: '2026-08-05'
-status: 'READY_FOR_MERGE'
+status: 'ACTIVE'
+protocol_lifecycle: 'READY_FOR_MERGE'
 c4_level: 'operations'
 parent: '.memory-bank/protocol/index.md'
 children:

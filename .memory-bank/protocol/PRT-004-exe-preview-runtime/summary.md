@@ -4,7 +4,8 @@ description: 'Рабочая сводка протокола preview runtime и 
 purpose: 'Фиксирует problem-space цель, scope, Git workspace, начальные gaps и handoff в SPECIFY.'
 version: '0.6.0'
 date: '2026-08-05'
-status: 'CLOSED'
+status: 'ACTIVE'
+protocol_lifecycle: 'CLOSED'
 c4_level: 'operations'
 parent: '.memory-bank/protocol/PRT-004-exe-preview-runtime/index.md'
 blocked_by_protocols: []

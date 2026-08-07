@@ -4,7 +4,8 @@ description: 'Навигация протокола preview runtime и опер�
 purpose: 'Связывает исходный запрос, рабочую сводку, trace и будущие SPECIFY/PLAN/evidence artifacts.'
 version: '0.5.0'
 date: '2026-08-05'
-status: 'CLOSED'
+status: 'ACTIVE'
+protocol_lifecycle: 'CLOSED'
 c4_level: 'operations'
 parent: '.memory-bank/protocol/index.md'
 children:

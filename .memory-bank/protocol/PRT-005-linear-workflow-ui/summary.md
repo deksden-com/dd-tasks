@@ -4,7 +4,8 @@ description: 'Scope, UX findings and executable acceptance for Linear-подоб
 purpose: 'Ограничивает изменение project/task interaction model минимальным полезным контуром.'
 version: '0.2.0'
 date: '2026-08-05'
-status: 'READY_FOR_MERGE'
+status: 'ACTIVE'
+protocol_lifecycle: 'READY_FOR_MERGE'
 c4_level: 'product'
 parent: '.memory-bank/protocol/PRT-005-linear-workflow-ui/index.md'
 source_user_input:

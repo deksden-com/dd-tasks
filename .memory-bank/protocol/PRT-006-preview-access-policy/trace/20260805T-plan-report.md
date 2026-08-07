@@ -1,3 +1,16 @@
+---
+file: '.memory-bank/protocol/PRT-006-preview-access-policy/trace/20260805T-plan-report.md'
+description: 'Plan-stage handoff for the PRT-006 preview access policy protocol.'
+purpose: 'Records accepted plan decisions, evidence boundaries and the next CODE gate.'
+version: '0.1.0'
+date: '2026-08-05'
+status: 'ACTIVE'
+c4_level: 'operations'
+parent: '.memory-bank/protocol/PRT-006-preview-access-policy/index.md'
+protocol_lifecycle: 'READY_FOR_MERGE'
+tags: [protocol, plan, preview, access-policy]
+---
+
 # PRT-006 plan handoff — 2026-08-05
 
 `plan` stage completed in the exact protocol worktree with verdict

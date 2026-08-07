@@ -4,7 +4,10 @@ description: 'Проверки реализации Linear-inspired project/task
 purpose: 'Фиксирует воспроизводимые automated и browser evidence перед merge.'
 version: '0.1.0'
 date: '2026-08-05'
-status: 'PASSED'
+status: 'ACTIVE'
+evidence_kind: 'test'
+verdict: 'pass'
+environment: 'local'
 c4_level: 'product'
 parent: '.memory-bank/protocol/PRT-005-linear-workflow-ui/index.md'
 tags: [protocol, evidence, verification, ui, browser]

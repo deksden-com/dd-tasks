@@ -4,7 +4,8 @@ description: 'Problem-space specification для provider visibility и упра
 purpose: 'Фиксирует безопасную матрицу режимов, scope, acceptance и handoff в plan без преждевременного technical design.'
 version: '0.3.0'
 date: '2026-08-05'
-status: 'READY_FOR_MERGE'
+status: 'ACTIVE'
+protocol_lifecycle: 'READY_FOR_MERGE'
 c4_level: 'operations'
 parent: '.memory-bank/protocol/PRT-006-preview-access-policy/index.md'
 blocked_by_protocols: []

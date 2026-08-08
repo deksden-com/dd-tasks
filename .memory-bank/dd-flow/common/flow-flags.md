@@ -20,9 +20,10 @@
 
 Профиль задачи/процесса (`task_profile`; legacy имя `flow_profile`) делится на три типа полей.
 
-### Оценка
+### Контекст профиля (не task assessment)
 
-Оценочные поля объясняют, что агент понял о задаче. Они не командуют действием напрямую, но обосновывают маршрут:
+Эти legacy/profile fields объясняют intent и impact, но не заменяют пять
+канонических осей `task_assessment` и не являются источником обратного вывода:
 
 - `intent` - как понята пользовательская хотелка;
 - `impact` - какое влияние изменение оказывает на поведение, контракт, эксплуатацию и риск.
@@ -46,11 +47,47 @@
 - `evidence` - какой уровень доказательств нужен;
 - `execution` - нужны ли субагенты и параллельная раздача задач.
 
-Если позже появляется новый факт, профиль повышается.
+Если позже появляется новый source fact, сначала обновляется соответствующая
+ось `task_assessment`, затем только зависимые policy fields.
+
+## Task Assessment
+
+До выбора preset, flags или route `specify` записывает отдельный верхнеуровневый
+`task_assessment`. Это факты исходной задачи, а не изменяемые flow flags и не
+часть compatibility `task_profile`:
+
+```yaml
+task_assessment:
+  scope_breadth: {level: narrow | cross_layer | system_wide, surfaces: [], reason:}
+  solution_novelty: {level: reuse_existing | extend_existing | new_mechanism, surfaces: [], reason:}
+  solution_uncertainty: {level: known | bounded | research_required, surfaces: [], reason:}
+  failure_impact: {level: low | medium | high, surfaces: [], reason:}
+  plan_floor: {level: no_plan | compact_plan | full_plan, surfaces: [], reason:}
+```
+
+Все пять осей независимы и обязательны. У каждой есть `surfaces` и `reason`;
+пустой `surfaces` допустим только с явной причиной неприменимости. Assessment
+выводится из user/project facts и не читается обратно из выбранного route,
+flags, числа файлов, reviewers или созданных flow artifacts.
+
+Сначала переиспользуй существующие project patterns. Новая dependency,
+service, layer, process, abstraction или generalized framework допустима
+только по требованию задачи. Critical rule повышает evidence/depth только на
+затронутой поверхности, а не сложность всей архитектуры.
 
 ## Task Profile
 
-`specify` должен записать или доложить профиль задачи. Для маленькой правки профиль может быть коротким, но структура должна сохраняться, чтобы следующие фазы одинаково понимали решение. Старое имя `flow_profile` допустимо только как compatibility alias.
+`task_profile` сохраняется как compatibility и policy view; старое имя
+`flow_profile` допустимо только как alias. Legacy assessment fields являются
+строго односторонней source-labelled проекцией:
+
+- `size`: `narrow -> small`, `cross_layer -> medium`, `system_wide -> large`;
+- `risk <- failure_impact`;
+- `planning_route_hint <- plan_floor`;
+- `verification_mode` остаётся независимым policy decision.
+
+Не выводи novelty/uncertainty из legacy полей и не используй compatibility
+projection для изменения `task_assessment`.
 
 ## RUN-local resolution
 
@@ -59,7 +96,7 @@ RUN оркестратор оценивает факты задачи, выби�
 расширяет его в полный `flow_flags` snapshot. Приоритет источников:
 
 ```text
-flow_default < preset < task_profile < protocol_override < run_override
+flow_default < preset < task_profile policy fields < protocol_override < run_override
 ```
 
 Каждое effective value хранит `source.kind`, ссылку на источник, revision,
@@ -94,7 +131,7 @@ append-only revision; предыдущий snapshot не переписывае�
 | Участок | Compact | Normal | Full | Обязательное сохранение |
 | --- | --- | --- | --- | --- |
 | specify/plan | no-plan или короткий план | compact plan | full plan + review | оценка задачи, ограничения, критерии выхода |
-| subagents/review | self-check | allowlisted grouped | focused/mixed independent | критическое разделение ролей и semantic coverage |
+| subagents/review | self-check | compatible grouped | local focused/grouped/self-check mix | только aspect-local independence и semantic coverage |
 | reports | Markdown по разрешению | Markdown, HTML явно выключен по умолчанию | Markdown + template HTML | required report выбранного gate |
 | knowledge | skip с причиной | conditional | required | substantive fact и явная promotion applicability |
 | bootstrap | not-required только для docs-only | revalidate | required receipt | identity/freshness/status fail-closed |
@@ -135,7 +172,24 @@ summary, но один project-scoped merge worker остаётся владел
 являются optional flags.
 
 ```yaml
+task_assessment:
+  scope_breadth: {level:, surfaces: [], reason:}
+  solution_novelty: {level:, surfaces: [], reason:}
+  solution_uncertainty: {level:, surfaces: [], reason:}
+  failure_impact: {level:, surfaces: [], reason:}
+  plan_floor: {level:, surfaces: [], reason:}
+
 task_profile:
+  size: small | medium | large
+  risk: low | medium | high
+  planning_route_hint: no_plan | compact_plan | full_plan
+  verification_mode:
+  sources:
+    size: task_assessment.scope_breadth
+    risk: task_assessment.failure_impact
+    planning_route_hint: task_assessment.plan_floor
+    verification_mode: independent_policy
+
   intent:
     understood_as:
     boundaries:
@@ -279,7 +333,9 @@ task_profile:
 - `low` - локальная обратимая правка.
 - `medium` - затронуты несколько зон, общий пакет, пользовательский путь или важная проверка.
 - `high` - данные, безопасность, деньги, внешние действия, публикации, права, irreversible side effects.
-- `research_required` - реализацию начинать нельзя: нужны варианты, внешняя документация, проверка гипотез или решение пользователя.
+- legacy `research_required` остаётся только читаемым старым значением;
+  новые writers используют `solution_uncertainty: research_required`, а
+  `impact.risk` проецируют только как `low | medium | high`.
 
 Зачем нужно: риск повышает глубину планирования, verification и evidence, даже если кодовая правка небольшая.
 
@@ -576,7 +632,10 @@ execution:
 - `verifiers` - независимые проверяющие проверяют diff, evidence, сценарии или качество `DEF-*`.
 - `mixed` - нужны разные роли.
 
-Если `impact.risk: high` или меняется runtime/data/queue/session/hook/dashboard контракт, `plan` обязан использовать аспектных субагентов на стадии review либо записать явный downgrade. `execution.mode: mixed`, `workers` или `verifiers` без task packets и без downgrade-записи считается неполным планированием.
+`full_plan`, task-level high risk или наличие runtime/data/contract/security
+поверхности не переводят все аспекты в focused mode. Каждый focused aspect
+должен иметь собственный `independence_reason`; остальные применимые аспекты
+сохраняют минимально достаточный self/grouped/focused route.
 
 ### `execution.parallelism`
 
@@ -613,14 +672,14 @@ execution:
 
 ## Контракт применения
 
-Каждый downstream-промпт, который получает `task_profile` или legacy `flow_profile`, обязан:
+Каждый downstream-промпт, который получает `task_assessment`, `task_profile` или legacy `flow_profile`, обязан:
 
 1. прочитать `.memory-bank/dd-flow/common/flow-flags.md`;
-2. найти последний актуальный `task_profile` в specification stage report, протоколе или отчёте предыдущей фазы; legacy fallback: `.tasks/prime-.../flow-profile.md`;
-3. применить релевантные блоки профиля к своей фазе;
+2. найти последний актуальный `task_assessment` и compatibility `task_profile` в specification stage report, протоколе или отчёте предыдущей фазы; legacy fallback: `.tasks/prime-.../flow-profile.md`;
+3. применить assessment как факты, а релевантные policy blocks профиля — к своей фазе; не восстанавливать novelty/uncertainty из legacy данных;
 4. сверить route-affecting decisions with `.memory-bank/project-policy.md`, если он есть;
 5. если фаза будет изменять checkout или запускать project tooling, применить `workspace.bootstrap` по `.memory-bank/dd-flow/common/workspace-bootstrap.md`;
-6. повысить профиль, если обнаружен новый риск, и объяснить причину;
+6. при новом source fact обновить соответствующую assessment axis и затем повысить только зависимые policy fields, объяснив причину;
 7. не понижать профиль молча;
 8. в итоговом докладе указать, какие блоки профиля реально повлияли на действия.
 
@@ -628,7 +687,7 @@ execution:
 
 `protocol.md`/`common/specification.md`:
 
-- формирует `task_profile`;
+- формирует независимый five-axis `task_assessment`, затем его одностороннюю compatibility projection в `task_profile`;
 - запускает `research`, если значительная неопределённость мешает выбрать маршрут;
 - объясняет причины по каждому блоку;
 - задаёт блокирующие вопросы только там, где проект не снимает неопределённость.
@@ -641,7 +700,7 @@ execution:
 - запускает вспомогательный `research`, если новая неопределённость вскрылась уже при планировании;
 - превращает `impact`, `documentation`, `verification`, `route`, `evidence`, `execution` в плановые задачи `plan/*`;
 - формирует compact `workspace.bootstrap` handoff: policy source, canonical entrypoint, owning runbook, producer/gate and planned receipt path;
-- для high-risk или contract/runtime работ запускает аспектных субагентов на стадии review либо фиксирует обоснованный downgrade;
+- назначает focused review только аспектам с aspect-local `independence_reason`; task-level route не усиливает остальные аспекты;
 - повышает профиль, если плановая проработка нашла новый риск.
 
 `plan/reflection.md`:

@@ -1,0 +1,143 @@
+{
+  "schema_id": "dd-flow/eval-report-data@2",
+  "generated_at": "2026-08-08T12:00:00Z",
+  "subject": {
+    "id": "EVL-338-clarification-gate",
+    "title": "Adaptive routing clarification gate",
+    "mode": "gate",
+    "scenario_id": "SCN-338-10",
+    "run_id": "RUN-338-eval-example"
+  },
+  "overall": {
+    "verdict": "accepted",
+    "summary": "The exact clarification packet passed before plan.",
+    "score": 10,
+    "score_max": 10,
+    "threshold": 10,
+    "next_action": "keep_gate"
+  },
+  "aspects": [
+    {
+      "id": "input_provenance",
+      "label": "Input provenance",
+      "score": 5,
+      "score_max": 5,
+      "verdict": "accepted",
+      "summary": "Packet identity and timing match."
+    }
+  ],
+  "findings": [],
+  "evidence": [
+    {
+      "label": "Clarification packet",
+      "href": "../evidence/clarification-packet.json",
+      "what_it_proves": "The stored packet matches the applied packet."
+    }
+  ],
+  "task_assessment": {
+    "scope_breadth": {
+      "level": "cross_layer",
+      "surfaces": ["eval-controller", "plan"],
+      "reason": "The gate spans two controller goals."
+    },
+    "solution_novelty": {
+      "level": "extend_existing",
+      "surfaces": ["eval-report"],
+      "reason": "The existing eval report gains provenance."
+    },
+    "solution_uncertainty": {
+      "level": "known",
+      "surfaces": ["packet-validation"],
+      "reason": "Exact hash comparison is deterministic."
+    },
+    "failure_impact": {
+      "level": "high",
+      "surfaces": ["quality-gate"],
+      "reason": "A mismatch must not enter model quality scoring."
+    },
+    "plan_floor": {
+      "level": "compact_plan",
+      "surfaces": ["plan"],
+      "reason": "The gate needs an explicit two-goal handoff."
+    }
+  },
+  "legacy_projection": {
+    "size": "medium",
+    "risk": "high",
+    "planning_route_hint": "compact_plan",
+    "verification_mode": "automated",
+    "sources": {
+      "size": "task_assessment.scope_breadth",
+      "risk": "task_assessment.failure_impact",
+      "planning_route_hint": "task_assessment.plan_floor",
+      "verification_mode": "independent_policy"
+    }
+  },
+  "routing_summary": {
+    "coverage_units": {
+      "applicable": 2,
+      "self_check": 0,
+      "grouped": 2,
+      "focused": 0
+    },
+    "groups": 1,
+    "jobs": 1,
+    "waves": 1,
+    "batches": 1
+  },
+  "capacity_summary": {
+    "pool_observation": {
+      "status": "observed",
+      "source": "runtime_free_child_slots",
+      "free_slots": 1,
+      "probe_attempts": 0,
+      "probe_accepted": 0,
+      "probe_refused": 0,
+      "probe_cost": {
+        "status": "unavailable",
+        "value": null,
+        "unit": "tokens",
+        "source_coverage": "No probe ran because runtime capacity was fresh."
+      }
+    },
+    "launch": {
+      "accepted": 1,
+      "refused": 0,
+      "prevented_duplicates": 0
+    },
+    "recovery": {
+      "attempted": 0,
+      "exhausted": 0
+    },
+    "timing": {
+      "status": "known",
+      "wall_clock_ms": 1200,
+      "source": "eval_harness"
+    },
+    "usage": {
+      "status": "unavailable",
+      "tokens": null,
+      "source_coverage": "The harness did not expose token usage.",
+      "counting_basis": "unique_session",
+      "reviewer_sessions": 1,
+      "probe_sessions": 0,
+      "reason": "Provider usage was unavailable."
+    }
+  },
+  "eval_provenance": {
+    "validity_verdict": "valid",
+    "clarification_required": true,
+    "exact_match": true,
+    "plan_started": true,
+    "evaluation_goal_id": "PRT-338-evaluation-goal",
+    "clarification_goal_id": "PRT-338-clarification-goal",
+    "packet": {
+      "artifact_ref": "../evidence/clarification-packet.json",
+      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "event_id": "evt-338-001",
+      "timestamp": "2026-08-08T11:55:00Z",
+      "recipient": "eval-goal-b",
+      "run_id": "RUN-338-eval-example"
+    }
+  }
+}

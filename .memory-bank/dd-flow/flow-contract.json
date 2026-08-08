@@ -134,7 +134,7 @@
         "type": "enum",
         "values": ["one", "runtime"],
         "owner": "subagent_routing",
-        "description": "Resolve runtime capacity or use the safe pool-one fallback."
+        "description": "Observe runtime capacity; legacy explicit one remains readable only as a cap and is never inferred from unknown or zero capacity."
       },
       "report.markdown": {
         "type": "boolean",
@@ -201,7 +201,7 @@
         "plan.review.mode": "self",
         "subagents.route": "self_check",
         "subagents.grouping": "off",
-        "subagents.pool_fallback": "one",
+        "subagents.pool_fallback": "runtime",
         "report.markdown": true,
         "report.html": false,
         "observability.detail": "compact",

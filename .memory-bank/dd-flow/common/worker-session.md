@@ -44,7 +44,8 @@ Use the simplest sufficient context. Do not add extra prompt layers, statuses, f
 The task packet is the source of truth. It must name:
 
 ```yaml
-role: <semantic worker role id, for example code_worker, knowledge_extraction or mb_upgrade_diff_analysis>
+role: <semantic worker role id, for example code_worker, knowledge_extraction, capacity_probe or mb_upgrade_diff_analysis>
+session_kind: llm_worker
 session_mode: fresh_empty_session_required | fresh_empty_session_preferred | forked_context_allowed | recovery_continuation
 context_authority:
   task_packet: primary
@@ -72,11 +73,11 @@ routing:
   coverage_unit_ids: []
   job_id:
   group_id:
+  wave_id:
+  batch_id:
   requires_output_of: []
   related_to: []
-  effective_pool:
-    value:
-    source: runtime | explicit | fallback
+  capacity_observation_ref:
 constraints:
 checks:
 workspace_bootstrap:
@@ -98,12 +99,18 @@ selection/coverage artifact records all three canonical routes:
 `self_check`, `grouped_subagent` and `focused_subagent`. `self_check` has no
 worker packet or independent session claim; it must leave source-backed
 orchestrator evidence. A delegated packet uses `focused_subagent` for one
-unit or `grouped_subagent` for an allowlisted group.
+unit or `grouped_subagent` for a compatible subset.
 
-`requires_output_of` names accepted predecessor artifacts needed to start the
-packet. `related_to` (or `informed_by`) names context only and does not gate
-launch. `effective_pool` records the resolved positive pool and its source;
-unknown capacity uses `source: fallback` and value `1`.
+`requires_output_of` names the exact accepted predecessor output needed to
+start the packet. `related_to`/`informed_by` name context only. `group_id`
+identifies units sharing one job, `wave_id` is semantic dependency depth, and
+`batch_id` is only the capacity slice. Capacity comes from the referenced
+RUN-local observation; zero is valid and unknown capacity is never replaced by
+one.
+
+For a probe, keep `session_kind: llm_worker` and set `role: capacity_probe`.
+Its bounded packet reads no project sources, performs no priming/project tools,
+holds the accepted slot for 60 seconds and returns its assigned unique token.
 
 ## Grouped Packet Variant
 
@@ -116,9 +123,8 @@ group_manifest:
   group_id: <stable run-local id>
   route: grouped_subagent
   snapshot_anchor: <immutable/read-equivalent snapshot>
-  effective_pool:
-    value: <positive integer>
-    source: runtime | explicit | fallback
+  anchor_unit_id: <optional focused anchor>
+  compatibility_source: .memory-bank/dd-flow/mb-sdlc/plan-aspects/index.md
   units:
     - unit_id: <coverage unit>
       aspect_prompt: <one checked leaf path>
@@ -129,9 +135,10 @@ group_manifest:
         path: <group or unit report path>
 ```
 
-The grouped wrapper is valid only when its flow-owned allowlist, snapshot,
-read-only write scope, trust level and report contract have already passed the
-orchestrator checks. Missing metadata is not inferred from session context.
+The grouped wrapper is valid only when the flow-owned compatibility and
+separation rules, snapshot, read-only scope, trust level and report contract
+have passed orchestrator checks. A focused anchor may carry two compatible
+secondary units without changing their routes. Missing metadata is not inferred.
 
 ## Grouped Report and Recovery
 
@@ -162,6 +169,7 @@ recovery:
   original_packet: <path>
   failure_note: <path>
   prior_report: <path>
+  original_job_id:
   attempt_id: <new attempt>
   parent_attempt_id: <failed attempt>
   report_path: <new report path>
@@ -174,7 +182,9 @@ does not use a shared synthesis as its evidence. Recovery preserves the
 original packet/report, adds a failure note and a new attempt/report path for
 only the affected unit; accepted units are not rerun. The recovery packet
 uses `session_mode: recovery_continuation` and names the authoritative report
-after acceptance.
+after acceptance. Recovery identity is `unit_id + original_job_id`; the initial
+attempt is `1`, the sole recovery is `2`, and attempt `3` is invalid. The repair
+packet contains the original packet, invalid output and validation findings.
 
 ## Rendered Packet Route
 

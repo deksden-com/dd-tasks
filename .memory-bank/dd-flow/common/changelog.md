@@ -128,6 +128,8 @@
 | compatibility manifest | .memory-bank/dd-flow/compatibility.json | `memory_bank_version`, `migrations.from_previous`, `migrations.to_this` | release_only | Update on every canon release; CLI/engine values change only when compatibility requirements change |
 ```
 
+`release_only` означает, что изменение canonical compatibility manifest принадлежит release contour. `mb-upgrade` не придумывает новую migration window: он синхронизирует target copy с выбранным canon release и проверяет её schema/consistency. Если manifest не входит в выбранный project flow pack, upgrade обязан явно записать `not_applicable` с причиной.
+
 ## Merge Changelog Gate
 
 После успешного real merge job агент должен обработать changelog до финального закрытия merge stage:

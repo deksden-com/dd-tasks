@@ -2,8 +2,8 @@
 file: '.memory-bank/mbb/mb-lint-guide.md'
 description: 'Canonical guide for deterministic Memory Bank linting with mb-lint.'
 purpose: 'Read before running, configuring, or interpreting mb-lint so formal Memory Bank checks are consistent across flows.'
-version: '0.5.0'
-date: '2026-07-04'
+version: '0.6.0'
+date: '2026-08-07'
 status: 'ACTIVE'
 c4_level: 'standard'
 parent: '.memory-bank/mbb/index.md'
@@ -17,6 +17,9 @@ related_files:
   - .memory-bank/dd-flow/compatibility.json
 tags: [mbb, mb-lint, lint, verification, memory-bank]
 history:
+  - version: '0.6.0'
+    date: '2026-08-07'
+    changes: 'Added an explicit policy for excluding historical or otherwise non-active files that are intentionally outside the current fix scope.'
   - version: '0.1.0'
     date: '2026-05-24'
     changes: 'Added canonical mb-lint usage, configuration, finding classification, and rule-candidate guidance.'
@@ -131,6 +134,27 @@ Typical starting point:
 ```
 
 Adapt this config to the project. Canonical templates may be ignored because they contain placeholders rather than active project truth. Never hide active `spec/`, `adr/`, `plans/`, `ui/`, `protocol/`, `scenarios/`, `guides/`, or `evidence/` findings just to get a green run.
+
+## Intentional Exclusions
+
+If a finding belongs to historical, archived, generated, or otherwise non-active material and the project does not plan to fix that material in the current or future active workflow, add the narrowest matching path to `.mb-lint.json` `ignorePaths` instead of carrying a permanent known failure. For example:
+
+```json
+{
+  "ignorePaths": [
+    ".memory-bank/protocol/archive/**"
+  ]
+}
+```
+
+Before adding an exclusion:
+
+- classify the finding as `archive_noise`, `build_output_noise`, or another explicitly non-active category;
+- use the smallest file or directory pattern that covers the material;
+- record the reason and scope in the project operations documentation or changelog, since `ignorePaths` has no per-entry reason field;
+- rerun `mb-lint` and report the exact exclusion and remaining findings.
+
+Do not use an exclusion for an active source of truth merely because its fix is deferred. Keep that finding visible and track the correction through the relevant protocol, `DEF-*`, or follow-up gate. An exclusion is a scope declaration, not a substitute for fixing active Memory Bank truth.
 
 ## Git-Aware Ignore Policy
 

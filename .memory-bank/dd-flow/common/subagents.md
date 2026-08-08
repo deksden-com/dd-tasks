@@ -30,27 +30,24 @@
 
 ## Route Selection and Bounded Packing
 
-The canonical route is recorded in the selection/job map and carried into the
-task packet where a worker is launched:
+Build coverage units and choose each unit's minimum sufficient local route
+before grouping or capacity packing:
 
 - `self_check` is an allowlisted low-risk confirmation of a known rule. It
   produces source-backed orchestrator evidence and does not claim an
   independent session.
-- `grouped_subagent` covers two or more units in one read-only session only
-  when the owning flow allowlist permits the exact group.
+- `grouped_subagent` covers a compatible subset of two or three units in one
+  read-only session.
 - `focused_subagent` gives a unit its own session when depth, trust or
   mutation isolation requires it.
 
-Route selection is deterministic and ordered by safety: a separation trigger
-forces `focused_subagent` or the flow's existing `keep_separate` worker;
-otherwise an explicit `self_check_allowed` may use `self_check`, an exact
-`group_allowed` entry may use `grouped_subagent`, and the default is one
-focused job per unit. A technically possible group is optional, not a reason
-to merge units.
+`focused_subagent` requires a unit-local `independence_reason`. Task-level
+`full_plan`, high risk or another unit's boundary never promotes all units.
+The flow-owned compatibility table supplies preferences and separation rules,
+not exact bundles; a group stays valid when a preferred member is absent.
 
-The common contract does not invent flow bundles. The owning flow records
-`self_check_allowed`, `group_allowed` or `keep_separate` and its separation
-reasons. A group is valid only when all members share an immutable or
+The owning flow records `self_check_allowed`, `group_eligible` or
+`keep_separate` and reasons. A group is valid only when all members share an immutable or
 read-equivalent snapshot, have no write conflict, have no
 `requires_output_of` edge between them, use the same trust/report contract,
 and retain separate findings and verdicts. The initial group limit is three
@@ -58,27 +55,56 @@ units. Grouping is rejected for mutation/write scope, critical or security
 boundaries, operational-access chains, different source owners/snapshots,
 required predecessor output, missing metadata or any explicit flow trigger.
 
-`requires_output_of` is a hard dependency: the successor waits for the
-accepted predecessor report/artifact. `related_to` and `informed_by` are soft
-context links and do not create a wave or block launch. Hidden context from a
-previous session never satisfies a hard dependency.
+Keep the terms separate:
 
-Resolve pool capacity once for the run-local execution map:
+- group: compatible units packed into one job/session;
+- wave: a DAG layer created only by `requires_output_of`, which must name the
+  exact consumed predecessor output;
+- batch: a capacity-limited concurrent slice of one existing wave.
 
-```text
-effective_pool =
-  min(explicit max_subagents, runtime capacity), if both are known;
-  explicit max_subagents, if only it is known;
-  runtime capacity, if only it is known;
-  1, if capacity is unknown.
+`related_to` and `informed_by` are soft links and never create waves. Hidden
+session context never satisfies a hard dependency. Capacity/refusal changes
+batch size only; it never rebuilds groups, waves or coverage.
+
+At each packing point use a current runtime free-child-slot reading only when
+its semantics, session scope and freshness are reliable. A configured maximum
+is only a cap, not free capacity. Without reliable free slots, run exactly 15
+independent probe spawns with `allSettled`-equivalent per-attempt results; each
+accepted `llm_worker` has `role: capacity_probe`, is persisted immediately,
+holds its slot for 60 seconds, then is explicitly awaited/closed. Record all
+acceptances, refusals, cost, scope, freshness and closure. Probe sessions count
+in total time/usage, not reviewer or semantic coverage counts.
+
+Observed free capacity `0` stays `0`. Wait for the runtime child-operation
+timeout, or 60 seconds if none exists, then reobserve once. If it remains zero,
+use self-check only for units that permit it; otherwise block visibly. Launch
+ready jobs in batches up to the fresh free-slot observation (and any configured
+cap), retaining excess jobs as pending in the same wave.
+
+### RUN-local aspect job map
+
+The sole execution receipt is
+`<run-home>/<stage-dir>/aspect-job-map.json` with
+`schema_id: dd-flow/aspect-job-map@1`. It is not a queue or scheduler. Its
+compact shape is:
+
+```yaml
+schema_id: dd-flow/aspect-job-map@1
+run_id:
+stage:
+snapshot: {revision:, checksum:}
+capacity_observations: []
+units: [{unit_id:, route:, independence_reason:, group_id:, wave_id:, job_id:}]
+jobs: [{job_id:, state:, group_id:, wave_id:, batch_id:, session_id:, attempt:, packet_path:, report_path:}]
+attempts: [{coverage_unit_id:, original_job_id:, attempt:, state:, report_path:}]
 ```
 
-Record `effective_pool.value` and `effective_pool.source` as
-`explicit`, `runtime` or `fallback`. A value below one is invalid; do not
-probe capacity with speculative spawns. Launch ready jobs in batches up to
-the effective pool, retain excess jobs in a transient pending list and
-continue after a slot is released. This is bounded packing, not a persistent
-queue or scheduler.
+The orchestrator is the only writer and updates it by atomic replace inside the
+RUN directory. Immediately after every accepted spawn, persist
+`job_id -> session_id` before launching anything else; if that write fails,
+stop launching. On resume reconcile by `job_id` against registered sessions:
+one unambiguous match repairs the map and is never relaunched, no match stays
+pending, and multiple matches block as an idempotency violation.
 
 ## Job Status and Acceptance
 
@@ -91,24 +117,27 @@ route execution to coverage and gate behavior:
 | Worker launched | `selected` + transient `running` | Wait for the report; hard successors stay locked. |
 | Every unit report accepted | `completed` or `verified` | Accept the job and unlock only its hard successors. |
 | Group has mixed results | Accepted units stay accepted; affected units are `incomplete` | Keep the job non-green and recover only affected units. |
-| Missing, invalid, timeout or lost report | `blocked` or `incomplete` | Preserve the original attempt and launch focused recovery. |
+| Missing, invalid, timeout or lost report | `blocked` or `incomplete` | Preserve the original attempt and launch at most one focused recovery. |
 | Recovery accepted | Affected unit becomes `completed`/`verified` with a new attempt path | Reconcile that unit and then unlock its hard successors. |
 | Repeated recovery failure or external slot block | `blocked`/`degraded` | Stop with a visible reason and precise DEF/handoff; never silently self-check. |
 
-A grouped job is green only when all of its unit reports are accepted. Job
-count or session count never substitutes for coverage, evidence or a stage
-acceptance decision.
+A grouped job is green only when all of its unit reports are accepted. Valid
+unit sections are accepted independently. Recovery identity is
+`coverage_unit_id + original_job_id`: initial `attempt: 1`, one recovery
+`attempt: 2`, never attempt 3. Recovery receives the original packet, invalid
+output and findings; accepted siblings are not rerun. Job/session counts never
+substitute for coverage, evidence or stage acceptance.
 
 ## Ownership
 
 - `worker-session.md` owns packet vocabulary, grouped wrapper/report shape and
   recovery attempt rules.
-- This file owns route choice, allowlist checks, bounded packing, dependency
-  gating and job acceptance.
+- This file owns route choice, compatibility checks, capacity observation,
+  bounded packing, the aspect-job-map shape, dependency gating and acceptance.
 - `memory-flow-subagents.md` owns semantic coverage units, coverage statuses
   and the selected/skipped/degraded contract.
-- Each flow owns its compatibility allowlist and separation triggers; it does
-  not redefine the common packet vocabulary.
+- Each flow owns its compatibility preferences and separation triggers; it
+  does not redefine the common packet vocabulary.
 - Lifecycle/flow-run owners own stage and attempt transitions; run artifacts
   own concrete session and timing facts.
 
@@ -128,18 +157,22 @@ Deep-анализ делает назначенный субагент. Орке
 
 Оркестратор может выполнять самостоятельный анализ только когда принято `no_subagents`, задача простая/локальная, нет hard trigger и выбранный flow допускает solo mode. Если в режиме `run_subagents` оркестратор уже успел глубоко исследовать делегированный аспект до запуска субагента, зафиксируй `contamination_risk` в `subagent-decision.md`, coverage artifact или фазовом отчёте и объясни, как независимость проверки была восстановлена: fresh subagent, ограничение входов, второй verifier или явный degraded status.
 
-Понижение `execution` никогда не должно быть молчаливым. Если агент не запускает субагентов там, где профиль или риск их предполагает, он обязан записать в рабочую сводку:
+Выбор локального route никогда не должен быть молчаливым. Запиши в рабочую сводку:
 
 - исходное значение `execution.mode` и `execution.parallelism`;
-- aspect relevance map со статусами `not_applicable`, `light`, `deep`, `unknown`;
+- полный aspect map с отдельными `applicability`, `coverage_mode` и
+  `independence_reason` для focused units;
 - binary decision: `run_subagents` или `no_subagents`;
-- hard triggers и количество `deep`/критичных `unknown` аспектов;
+- aspect-local independence signals и критичные `unknown`;
 - почему субагенты не добавят качества или скорости именно в этом запуске, если решение `no_subagents`;
 - какие аспекты агент проверил сам;
 - какие аспекты сознательно не проверялись и становятся `DEF-*`, `coverage debt` или явным риском;
 - почему это не нарушает цель, ограничения и выбранный уровень evidence.
 
-Для high-risk работы downgrade допустим только если независимых `deep` аспектов реально меньше двух, нет hard trigger, или внешнее ограничение среды не позволяет запуск. В этом случае агент всё равно создаёт короткую запись `subagent-decision.md` в рабочей папке фазы.
+Task-level high risk/full plan не создаёт blanket delegation gate. Если
+aspect-local independence требует worker, отсутствие доступной capacity даёт
+bounded wait/re-observation, затем blocker/degraded route; оно не превращает
+этот aspect в self-check и не повышает остальные aspects.
 
 Не используй `execution` для выбора worktree. Worktree выбирается через `flow_profile.route.git: feature_worktree`: тогда весь протокол выполняется в feature-ветке рабочего дерева. `execution.parallelism` означает параллельную раздачу задач субагентам внутри выбранного Git-контура, а не создание дополнительных worktree. Субагенты не должны самовольно создавать отдельные worktree без задачи оркестратора и правил проекта.
 
@@ -271,7 +304,10 @@ dependent worker до приёмки этих фактов и не заменя�
 - инструкцию явно отметить в отчёте, что работа была возобновлена после сбоя.
 - имя report, который orchestration owner признал авторитетным после recovery.
 
-Если сбой связан с ограниченным пулом субагентов (bounded subagent pool), дождись свободного слота и запусти восстановление после освобождения ресурса. Если сбои повторяются, сузь пакет задачи, раздели работу на меньшие части или зафиксируй честный блокер в отчёте/`DEF-*` по правилам текущего flow.
+Если сбой связан с ограниченным пулом субагентов, используй bounded wait и одну
+re-observation из этого файла. На invalid unit разрешена только одна recovery
+попытка; повторный сбой завершается честным blocker/degraded/`DEF-*`, без
+attempt 3 и без повторного запуска принятых siblings.
 
 ## Приёмка работы субагента
 

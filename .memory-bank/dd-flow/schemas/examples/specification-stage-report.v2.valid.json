@@ -1,0 +1,85 @@
+{
+  "schema_id": "dd-flow/specification-stage-report@2",
+  "run": {
+    "run_id": "RUN-338-specification-example",
+    "run_index": ".memory-bank/runs/RUN-338-specification-example/run-index.json"
+  },
+  "stage": {
+    "name": "specify",
+    "dir": "01-specify",
+    "status": "completed"
+  },
+  "project": {
+    "id": "PRJ-004-dd-memorybank",
+    "title": "dd-memorybank"
+  },
+  "subject": {
+    "id": "PRT-338-adaptive-planning-routing-capacity",
+    "title": "Adaptive planning, routing and capacity"
+  },
+  "overall": {
+    "verdict": "specified_ready_for_plan",
+    "summary": "The task facts and compatibility projection are complete.",
+    "next_action": "Enter plan."
+  },
+  "breadcrumbs": [],
+  "specification": {
+    "problem": "Planning depth and review capacity need independent, observable inputs.",
+    "goal": "Choose the least expensive sufficient route without losing evidence.",
+    "in_scope": ["task assessment", "legacy projection"],
+    "out_of_scope": ["general scheduler"],
+    "acceptance_criteria": ["The five assessment axes validate."],
+    "verification_plan": "Validate the report against the canonical schema."
+  },
+  "questions": [],
+  "task_profile": {
+    "size": "large",
+    "risk": "high",
+    "planning_route_hint": "full_plan",
+    "verification_mode": "automated"
+  },
+  "task_assessment": {
+    "scope_breadth": {
+      "level": "system_wide",
+      "surfaces": ["specify", "plan", "eval"],
+      "reason": "The report contract crosses flow stages."
+    },
+    "solution_novelty": {
+      "level": "extend_existing",
+      "surfaces": ["stage-reports"],
+      "reason": "Existing stage reports remain authoritative."
+    },
+    "solution_uncertainty": {
+      "level": "bounded",
+      "surfaces": ["schemas", "validation"],
+      "reason": "Compatibility behavior needs schema validation."
+    },
+    "failure_impact": {
+      "level": "high",
+      "surfaces": ["route-selection"],
+      "reason": "A bad projection can select the wrong route."
+    },
+    "plan_floor": {
+      "level": "full_plan",
+      "surfaces": ["plan"],
+      "reason": "The versioned rollout crosses report contracts."
+    }
+  },
+  "legacy_projection": {
+    "size": "large",
+    "risk": "high",
+    "planning_route_hint": "full_plan",
+    "verification_mode": "automated",
+    "sources": {
+      "size": "task_assessment.scope_breadth",
+      "risk": "task_assessment.failure_impact",
+      "planning_route_hint": "task_assessment.plan_floor",
+      "verification_mode": "independent_policy"
+    }
+  },
+  "handoff": {
+    "plan_prompt": ".memory-bank/dd-flow/plan.md",
+    "must_read": ["specification.md"],
+    "next_gate": "plan"
+  }
+}

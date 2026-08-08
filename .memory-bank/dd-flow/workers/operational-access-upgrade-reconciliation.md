@@ -12,8 +12,7 @@ related_files:
   - .memory-bank/dd-flow/common/operational-access.md
   - .memory-bank/dd-flow/workers/docs.md
   - .memory-bank/dd-flow/workers/operational-access-discovery.md
-source_only_references:
-  - '$DD_MEMORYBANK/.memory-bank/dd-flow/mb-upgrade/targets/06-spec-operations.md'
+  - .memory-bank/dd-flow/mb-upgrade/targets/06-spec-operations.md
 tags: [dd-flow, worker, operations, operational-access, mb-upgrade, reconciliation]
 history:
   - version: '0.1.0'

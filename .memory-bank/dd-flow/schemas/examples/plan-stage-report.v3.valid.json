@@ -1,0 +1,169 @@
+{
+  "schema_id": "dd-flow/plan-stage-report@3",
+  "generated_at": "2026-08-08T12:00:00Z",
+  "protocol": {
+    "id": "PRT-338-adaptive-planning-routing-capacity",
+    "title": "Adaptive planning, routing and capacity",
+    "project": "dd-memorybank",
+    "branch": "feature/prt-338-adaptive-planning-routing-capacity",
+    "stage": "plan"
+  },
+  "overall": {
+    "verdict": "ready_for_code",
+    "verdict_label": "Ready for code",
+    "score": 9,
+    "score_max": 10,
+    "next_action": "Implement the bounded plan.",
+    "summary": "Assessment, routing and capacity evidence are complete."
+  },
+  "route": [
+    {
+      "label": "planning",
+      "value": "full_plan",
+      "note": "The plan floor requires complete propagation."
+    }
+  ],
+  "task_profile": {
+    "size": "large",
+    "risk": "high",
+    "planning_route_hint": "full_plan",
+    "verification_mode": "automated"
+  },
+  "task_assessment": {
+    "scope_breadth": {
+      "level": "system_wide",
+      "surfaces": ["specify", "plan", "eval"],
+      "reason": "The report contract crosses flow stages."
+    },
+    "solution_novelty": {
+      "level": "extend_existing",
+      "surfaces": ["routing", "observability"],
+      "reason": "Existing routing and observability owners are extended."
+    },
+    "solution_uncertainty": {
+      "level": "bounded",
+      "surfaces": ["capacity", "compatibility"],
+      "reason": "Capacity and compatibility behavior need validation."
+    },
+    "failure_impact": {
+      "level": "high",
+      "surfaces": ["review-routing"],
+      "reason": "A bad route can lose independent review."
+    },
+    "plan_floor": {
+      "level": "full_plan",
+      "surfaces": ["plan", "rollout"],
+      "reason": "The rollout crosses canonical and CLI contracts."
+    }
+  },
+  "legacy_projection": {
+    "size": "large",
+    "risk": "high",
+    "planning_route_hint": "full_plan",
+    "verification_mode": "automated",
+    "sources": {
+      "size": "task_assessment.scope_breadth",
+      "risk": "task_assessment.failure_impact",
+      "planning_route_hint": "task_assessment.plan_floor",
+      "verification_mode": "independent_policy"
+    }
+  },
+  "routing_summary": {
+    "coverage_units": {
+      "applicable": 4,
+      "self_check": 1,
+      "grouped": 2,
+      "focused": 1
+    },
+    "groups": 2,
+    "jobs": 2,
+    "waves": 1,
+    "batches": 1
+  },
+  "capacity_summary": {
+    "pool_observation": {
+      "status": "probed",
+      "source": "bounded_probe",
+      "free_slots": 2,
+      "probe_attempts": 15,
+      "probe_accepted": 2,
+      "probe_refused": 13,
+      "probe_cost": {
+        "status": "partial",
+        "value": 300,
+        "unit": "tokens",
+        "source_coverage": "Provider usage was available for some probe sessions."
+      }
+    },
+    "launch": {
+      "accepted": 2,
+      "refused": 0,
+      "prevented_duplicates": 0
+    },
+    "recovery": {
+      "attempted": 0,
+      "exhausted": 0
+    },
+    "timing": {
+      "status": "known",
+      "wall_clock_ms": 60000,
+      "source": "run_timeline"
+    },
+    "usage": {
+      "status": "partial",
+      "tokens": 1200,
+      "source_coverage": "Two reviewer sessions and probe sessions; one provider omitted tokens.",
+      "counting_basis": "unique_session",
+      "reviewer_sessions": 2,
+      "probe_sessions": 2
+    }
+  },
+  "flow_flags": {
+    "flow_kind": "plan",
+    "snapshot_revision": 1,
+    "resolution_status": "valid",
+    "values": {},
+    "snapshot_checksum": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "plan",
+        "label": "Plan",
+        "x": 0,
+        "y": 0,
+        "status": "done",
+        "note": "The bounded plan is ready."
+      }
+    ],
+    "edges": []
+  },
+  "aspects": [
+    {
+      "id": "contracts",
+      "label": "Contracts",
+      "score": 5,
+      "status": "reviewed",
+      "summary": "The report contracts are versioned.",
+      "note": "Legacy IDs remain readable.",
+      "findings": []
+    }
+  ],
+  "plan_items": [
+    {
+      "id": "P1",
+      "title": "Publish report schemas",
+      "owner": "orchestrator",
+      "status": "ready",
+      "depends_on": [],
+      "verification": "Schema examples validate.",
+      "note": "Keep the change additive.",
+      "details": []
+    }
+  ],
+  "handoff": {
+    "code_prompt": ".memory-bank/dd-flow/code.md",
+    "must_read": ["implementation-plan.md"],
+    "next_gate": "code readiness"
+  }
+}

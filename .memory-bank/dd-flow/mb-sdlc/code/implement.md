@@ -149,7 +149,7 @@ Legacy fallback:
 
 Если найден `02-plan/stage-report.json`, legacy `01-plan/stage-report.json` или legacy `plan-stage-report.json`:
 
-1. Проверь, что `schema_id` равен `dd-flow/plan-stage-report@2` для нового RUN (legacy `@1` только читается), а `flow_flags.snapshot_revision` и `snapshot_checksum` совпадают с authoritative `run.json`.
+1. Проверь, что новый RUN использует `schema_id: dd-flow/plan-stage-report@3`; legacy `@1` и `@2` остаются read-only inputs. `flow_flags.snapshot_revision` и `snapshot_checksum` должны совпадать с authoritative `run.json`.
 2. Если доступен CLI, выполни:
 
    ```bash
@@ -417,7 +417,15 @@ Stop hook является страховкой для прерванной се
 - `def_reviewer` через `workers/verify.md` в режиме `def_review`: открытые `DEF-*`, корректность блокеров, что можно закрыть сейчас, что блокирует merge.
 - `git_ops_reviewer` через `workers/verify.md` в режиме `git_ops_review`: ветка, worktree, чужие изменения, base commit, readiness к handoff или direct integration.
 
-Для high-risk/runtime/queue/session/hooks/dashboard/data/public-contract/pipeline изменений запускай как минимум `result_verifier`, `quality_reviewer`, `evidence_reviewer`, `def_reviewer` и `git_ops_reviewer`, если среда позволяет параллельных субагентов. Для pipeline-changing tasks добавь focused `pipeline_review` verifier или явный compact self-review с причиной downgrade.
+Для high-risk/runtime/queue/session/hooks/dashboard/data/public-contract/pipeline
+изменений обеспечь полную coverage-карту readiness, но выбирай execution route
+для каждой роли локально. `result_verifier` и `quality_reviewer` обычно требуют
+независимого запуска; `evidence_reviewer`, `def_reviewer` и
+`git_ops_reviewer` запускаются focused только когда соответствующая evidence,
+DEF или Git boundary применима, иначе получают явный self-check/not-applicable
+reason. Task-level risk не blanket-promotes все роли. Для pipeline-changing
+tasks добавь focused `pipeline_review` verifier или явный compact self-review с
+причиной downgrade.
 
 Для маленькой безопасной правки можно пропустить readiness reviewers, но только с явной записью в отчёте:
 

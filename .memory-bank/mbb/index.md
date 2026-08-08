@@ -3,7 +3,7 @@ file: '.memory-bank/mbb/index.md'
 description: 'Canonical Memory Bank Bible: rules, standards, templates, and SDLC practices for project memory banks.'
 purpose: 'Read first when bootstrapping or upgrading a Memory Bank so structure, metadata, delivery docs, and verification docs stay consistent.'
 version: '0.9.9'
-date: '2026-08-07'
+date: '2026-08-08'
 status: 'DRAFT'
 c4_level: 'documentation'
 parent: null
@@ -41,6 +41,12 @@ children:
   - templates/index.md
 tags: [mbb, memory-bank, standards, documentation, sdlc, canonical]
 history:
+  - version: '2.17.0'
+    date: '2026-08-08'
+    changes: 'Updated the canonical marker for adaptive planning, routing/capacity and flow-contract schema validation.'
+  - version: '2.16.1'
+    date: '2026-08-07'
+    changes: 'Updated canonical Memory Bank release marker to 2.16.1; added intentional lint-exclusion guidance.'
   - version: '2.16.0'
     date: '2026-08-07'
     changes: 'Updated canonical Memory Bank release marker to 2.16.0.'
@@ -123,7 +129,7 @@ history:
 
 # Memory Bank Bible
 
-Текущая версия канона Memory Bank: `2.16.0`.
+Текущая версия канона Memory Bank: `2.17.0`.
 
 Memory Bank Bible (MBB) is the canonical rule set for creating and maintaining a project Memory Bank: a compact, linked, agent-friendly knowledge base that preserves context, decisions, contracts, and delivery evidence.
 

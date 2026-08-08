@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "dd-flow/plan-stage-report@2",
+  "$id": "dd-flow/plan-stage-report@3",
   "title": "dd-flow plan stage report data",
   "type": "object",
   "additionalProperties": false,
@@ -11,6 +11,68 @@
         "required": ["schema_id"]
       },
       "then": { "required": ["flow_flags"] }
+    },
+    {
+      "if": {
+        "properties": { "schema_id": { "const": "dd-flow/plan-stage-report@3" } },
+        "required": ["schema_id"]
+      },
+      "then": {
+        "required": ["flow_flags", "task_assessment", "legacy_projection", "routing_summary", "capacity_summary"],
+        "properties": {
+          "capacity_summary": {
+            "properties": {
+              "pool_observation": {
+                "allOf": [
+                  {
+                    "if": { "properties": { "status": { "const": "unavailable" } }, "required": ["status"] },
+                    "then": {
+                      "properties": {
+                        "free_slots": { "const": null },
+                        "probe_attempts": { "const": 0 },
+                        "probe_accepted": { "const": 0 },
+                        "probe_refused": { "const": 0 },
+                        "probe_cost": { "properties": { "status": { "const": "unavailable" }, "value": { "const": null } } }
+                      }
+                    }
+                  },
+                  {
+                    "if": { "properties": { "status": { "enum": ["observed", "probed"] } }, "required": ["status"] },
+                    "then": { "properties": { "free_slots": { "type": "integer" } } }
+                  }
+                ]
+              },
+              "usage": {
+                "if": { "properties": { "status": { "const": "unavailable" } }, "required": ["status"] },
+                "then": { "properties": { "tokens": { "const": null } } }
+              }
+            }
+          }
+        },
+        "allOf": [
+          {
+            "oneOf": [
+              { "properties": { "task_assessment": { "properties": { "scope_breadth": { "properties": { "level": { "const": "narrow" } } } } }, "legacy_projection": { "properties": { "size": { "const": "small" } } } } },
+              { "properties": { "task_assessment": { "properties": { "scope_breadth": { "properties": { "level": { "const": "cross_layer" } } } } }, "legacy_projection": { "properties": { "size": { "const": "medium" } } } } },
+              { "properties": { "task_assessment": { "properties": { "scope_breadth": { "properties": { "level": { "const": "system_wide" } } } } }, "legacy_projection": { "properties": { "size": { "const": "large" } } } } }
+            ]
+          },
+          {
+            "oneOf": [
+              { "properties": { "task_assessment": { "properties": { "failure_impact": { "properties": { "level": { "const": "low" } } } } }, "legacy_projection": { "properties": { "risk": { "const": "low" } } } } },
+              { "properties": { "task_assessment": { "properties": { "failure_impact": { "properties": { "level": { "const": "medium" } } } } }, "legacy_projection": { "properties": { "risk": { "const": "medium" } } } } },
+              { "properties": { "task_assessment": { "properties": { "failure_impact": { "properties": { "level": { "const": "high" } } } } }, "legacy_projection": { "properties": { "risk": { "const": "high" } } } } }
+            ]
+          },
+          {
+            "oneOf": [
+              { "properties": { "task_assessment": { "properties": { "plan_floor": { "properties": { "level": { "const": "no_plan" } } } } }, "legacy_projection": { "properties": { "planning_route_hint": { "const": "no_plan" } } } } },
+              { "properties": { "task_assessment": { "properties": { "plan_floor": { "properties": { "level": { "const": "compact_plan" } } } } }, "legacy_projection": { "properties": { "planning_route_hint": { "const": "compact_plan" } } } } },
+              { "properties": { "task_assessment": { "properties": { "plan_floor": { "properties": { "level": { "const": "full_plan" } } } } }, "legacy_projection": { "properties": { "planning_route_hint": { "const": "full_plan" } } } } }
+            ]
+          }
+        ]
+      }
     }
   ],
   "required": [
@@ -26,7 +88,7 @@
   ],
   "properties": {
     "schema_id": {
-      "enum": ["dd-flow/plan-stage-report@1", "dd-flow/plan-stage-report@2"]
+      "enum": ["dd-flow/plan-stage-report@1", "dd-flow/plan-stage-report@2", "dd-flow/plan-stage-report@3"]
     },
     "generated_at": {
       "type": "string",
@@ -85,6 +147,10 @@
         "verification_mode": {"type": "string"}
       }
     },
+    "task_assessment": { "$ref": "#/definitions/taskAssessment" },
+    "legacy_projection": { "$ref": "#/definitions/legacyProjection" },
+    "routing_summary": { "$ref": "#/definitions/routingSummary" },
+    "capacity_summary": { "$ref": "#/definitions/capacitySummary" },
     "route_decision": {
       "type": "object",
       "additionalProperties": true,
@@ -293,6 +359,181 @@
     }
   },
   "definitions": {
+    "taskAssessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope_breadth", "solution_novelty", "solution_uncertainty", "failure_impact", "plan_floor"],
+      "properties": {
+        "scope_breadth": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["level", "surfaces", "reason"],
+          "properties": {
+            "level": { "enum": ["narrow", "cross_layer", "system_wide"] },
+            "surfaces": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+            "reason": { "type": "string", "minLength": 1 }
+          }
+        },
+        "solution_novelty": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["level", "surfaces", "reason"],
+          "properties": {
+            "level": { "enum": ["reuse_existing", "extend_existing", "new_mechanism"] },
+            "surfaces": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+            "reason": { "type": "string", "minLength": 1 }
+          }
+        },
+        "solution_uncertainty": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["level", "surfaces", "reason"],
+          "properties": {
+            "level": { "enum": ["known", "bounded", "research_required"] },
+            "surfaces": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+            "reason": { "type": "string", "minLength": 1 }
+          }
+        },
+        "failure_impact": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["level", "surfaces", "reason"],
+          "properties": {
+            "level": { "enum": ["low", "medium", "high"] },
+            "surfaces": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+            "reason": { "type": "string", "minLength": 1 }
+          }
+        },
+        "plan_floor": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["level", "surfaces", "reason"],
+          "properties": {
+            "level": { "enum": ["no_plan", "compact_plan", "full_plan"] },
+            "surfaces": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+            "reason": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "legacyProjection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["size", "risk", "planning_route_hint", "verification_mode", "sources"],
+      "properties": {
+        "size": { "enum": ["small", "medium", "large"] },
+        "risk": { "enum": ["low", "medium", "high"] },
+        "planning_route_hint": { "enum": ["no_plan", "compact_plan", "full_plan"] },
+        "verification_mode": { "type": "string", "minLength": 1 },
+        "sources": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["size", "risk", "planning_route_hint", "verification_mode"],
+          "properties": {
+            "size": { "const": "task_assessment.scope_breadth" },
+            "risk": { "const": "task_assessment.failure_impact" },
+            "planning_route_hint": { "const": "task_assessment.plan_floor" },
+            "verification_mode": { "const": "independent_policy" }
+          }
+        }
+      }
+    },
+    "routingSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["coverage_units", "groups", "jobs", "waves", "batches"],
+      "properties": {
+        "coverage_units": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["applicable", "self_check", "grouped", "focused"],
+          "properties": {
+            "applicable": { "type": "integer", "minimum": 0 },
+            "self_check": { "type": "integer", "minimum": 0 },
+            "grouped": { "type": "integer", "minimum": 0 },
+            "focused": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "groups": { "type": "integer", "minimum": 0 },
+        "jobs": { "type": "integer", "minimum": 0 },
+        "waves": { "type": "integer", "minimum": 0 },
+        "batches": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "capacitySummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pool_observation", "launch", "recovery", "timing", "usage"],
+      "properties": {
+        "pool_observation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "source", "free_slots", "probe_attempts", "probe_accepted", "probe_refused", "probe_cost"],
+          "properties": {
+            "status": { "enum": ["observed", "probed", "unavailable"] },
+            "source": { "type": "string", "minLength": 1 },
+            "free_slots": { "type": ["integer", "null"], "minimum": 0 },
+            "probe_attempts": { "type": "integer", "minimum": 0 },
+            "probe_accepted": { "type": "integer", "minimum": 0 },
+            "probe_refused": { "type": "integer", "minimum": 0 },
+            "probe_cost": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["status", "value", "unit", "source_coverage"],
+              "properties": {
+                "status": { "enum": ["known", "partial", "unknown", "unavailable"] },
+                "value": { "type": ["number", "null"], "minimum": 0 },
+                "unit": { "type": "string", "minLength": 1 },
+                "source_coverage": { "type": "string", "minLength": 1 }
+              }
+            }
+          }
+        },
+        "launch": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["accepted", "refused", "prevented_duplicates"],
+          "properties": {
+            "accepted": { "type": "integer", "minimum": 0 },
+            "refused": { "type": "integer", "minimum": 0 },
+            "prevented_duplicates": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "recovery": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["attempted", "exhausted"],
+          "properties": {
+            "attempted": { "type": "integer", "minimum": 0 },
+            "exhausted": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "timing": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "wall_clock_ms", "source"],
+          "properties": {
+            "status": { "enum": ["known", "partial", "unknown", "unavailable"] },
+            "wall_clock_ms": { "type": ["integer", "null"], "minimum": 0 },
+            "source": { "type": "string", "minLength": 1 }
+          }
+        },
+        "usage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "tokens", "source_coverage", "counting_basis", "reviewer_sessions", "probe_sessions"],
+          "properties": {
+            "status": { "enum": ["known", "partial", "unknown", "unavailable"] },
+            "tokens": { "type": ["integer", "null"], "minimum": 0 },
+            "source_coverage": { "type": "string", "minLength": 1 },
+            "counting_basis": { "const": "unique_session" },
+            "reviewer_sessions": { "type": "integer", "minimum": 0 },
+            "probe_sessions": { "type": "integer", "minimum": 0 },
+            "reason": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
     "link": {
       "type": "object",
       "additionalProperties": true,

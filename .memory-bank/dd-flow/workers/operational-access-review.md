@@ -12,8 +12,7 @@ related_files:
   - .memory-bank/dd-flow/common/operational-access.md
   - .memory-bank/dd-flow/workers/verify.md
   - .memory-bank/dd-flow/workers/operational-access-discovery.md
-source_only_references:
-  - '$DD_MEMORYBANK/.memory-bank/dd-flow/mb-audit/aspects/09-operations-release-deferrals.md'
+  - .memory-bank/dd-flow/mb-audit/aspects/09-operations-release-deferrals.md
 tags: [dd-flow, worker, operations, operational-access, review, audit]
 history:
   - version: '0.1.0'

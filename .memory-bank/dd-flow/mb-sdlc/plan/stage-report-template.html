@@ -608,7 +608,7 @@
 <body>
   <script id="plan-data" type="application/json">
 {
-  "schema_id": "dd-flow/plan-stage-report@1",
+  "schema_id": "dd-flow/plan-stage-report@3",
   "generated_at": "2026-06-04T17:10:00Z",
   "protocol": {
     "id": "PRT-2026-06-04-plan-dashboard-sample",
@@ -647,6 +647,103 @@
       "note": "Удаленный CI не требуется для примера; локальные проверки и browser smoke остаются обязательными."
     }
   ],
+  "flow_flags": {
+    "flow_kind": "plan",
+    "snapshot_revision": 1,
+    "resolution_status": "valid",
+    "values": {},
+    "snapshot_checksum": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "task_assessment": {
+    "scope_breadth": {
+      "level": "system_wide",
+      "surfaces": ["plan", "report", "template"],
+      "reason": "The sample covers the plan contract and its rendered report."
+    },
+    "solution_novelty": {
+      "level": "extend_existing",
+      "surfaces": ["schema", "dashboard"],
+      "reason": "The current plan report extends the existing dashboard contract."
+    },
+    "solution_uncertainty": {
+      "level": "bounded",
+      "surfaces": ["rendering", "validation"],
+      "reason": "Schema and render checks bound the remaining uncertainty."
+    },
+    "failure_impact": {
+      "level": "medium",
+      "surfaces": ["code_handoff", "reporting"],
+      "reason": "A stale report can misroute the code handoff."
+    },
+    "plan_floor": {
+      "level": "full_plan",
+      "surfaces": ["implementation", "verification"],
+      "reason": "The sample spans implementation, reporting and verification."
+    }
+  },
+  "legacy_projection": {
+    "size": "large",
+    "risk": "medium",
+    "planning_route_hint": "full_plan",
+    "verification_mode": "automated",
+    "sources": {
+      "size": "task_assessment.scope_breadth",
+      "risk": "task_assessment.failure_impact",
+      "planning_route_hint": "task_assessment.plan_floor",
+      "verification_mode": "independent_policy"
+    }
+  },
+  "routing_summary": {
+    "coverage_units": {
+      "applicable": 8,
+      "self_check": 2,
+      "grouped": 5,
+      "focused": 1
+    },
+    "groups": 3,
+    "jobs": 3,
+    "waves": 1,
+    "batches": 1
+  },
+  "capacity_summary": {
+    "pool_observation": {
+      "status": "unavailable",
+      "source": "template_sample",
+      "free_slots": null,
+      "probe_attempts": 0,
+      "probe_accepted": 0,
+      "probe_refused": 0,
+      "probe_cost": {
+        "status": "unavailable",
+        "value": null,
+        "unit": "tokens",
+        "source_coverage": "No live child-session adapter is used by the static template."
+      }
+    },
+    "launch": {
+      "accepted": 0,
+      "refused": 0,
+      "prevented_duplicates": 0
+    },
+    "recovery": {
+      "attempted": 0,
+      "exhausted": 0
+    },
+    "timing": {
+      "status": "unavailable",
+      "wall_clock_ms": null,
+      "source": "template_sample"
+    },
+    "usage": {
+      "status": "unavailable",
+      "tokens": null,
+      "source_coverage": "Static sample only; no runtime usage was collected.",
+      "counting_basis": "unique_session",
+      "reviewer_sessions": 0,
+      "probe_sessions": 0,
+      "reason": "The template is not a live RUN report."
+    }
+  },
   "graph": {
     "nodes": [
       { "id": "request", "label": "Запрос", "x": 205, "y": 24, "status": "done", "note": "Пользовательская идея превращена в проверяемую цель plan-фазы." },

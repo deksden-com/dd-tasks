@@ -11,8 +11,7 @@ related_files:
   - entity-ids.md
   - runtime-cli.md
   - git-ops.md
-source_only_references:
-  - '$DD_MEMORYBANK/.memory-bank/protocol/2026-05-31-entity-ids-project-workspaces.md'
+  - ../.memory-bank/protocol/2026-05-31-entity-ids-project-workspaces.md
 tags: [dd-flow, workspace, runtime, checkouts, experiments]
 history:
   - version: '0.1.0'

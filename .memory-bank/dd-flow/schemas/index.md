@@ -2,12 +2,13 @@
 file: '.memory-bank/dd-flow/schemas/index.md'
 description: 'Canonical JSON Schema contracts used by dd-flow prompts and dd-flow CLI.'
 purpose: 'Read before adding or validating machine-readable flow artifacts.'
-version: '1.10.0'
+version: '1.11.0'
 date: '2026-07-10'
 status: 'DRAFT'
 c4_level: 'documentation'
 parent: 'README.md'
 children:
+  - flow-contract.schema.json
   - mb-upgrade-review-data.schema.json
   - mb-sdlc-review-report.schema.json
   - plan-stage-report.schema.json
@@ -38,6 +39,9 @@ children:
   - eval-report-data.schema.json
 tags: [dd-flow, schemas, json-schema, validation]
 history:
+  - version: '1.11.0'
+    date: '2026-08-08'
+    changes: 'Added flow-contract@3 catalog validation and versioned PRT-338 assessment/routing/eval report writers while retaining legacy report readers.'
   - version: '1.10.0'
     date: '2026-07-10'
     changes: 'Added operational-access preflight contract and required authorized/not-required evidence for completed release, deploy, publish and merge reports.'
@@ -119,9 +123,10 @@ Schemas live in the canon first. Project copies under `.memory-bank/dd-flow/sche
 
 | Schema name | File | Schema id | Purpose |
 | --- | --- | --- | --- |
+| `flow-contract` | `flow-contract.schema.json` | `dd-flow/flow-contract@3` | Validates the complete canonical catalog structurally; the CLI then applies the same semantic normalizer used by runtime loading. |
 | `mb-upgrade-review-data` | `mb-upgrade-review-data.schema.json` | `dd-flow/mb-upgrade-review-data@1` | Validates `review-data.json` produced by `mb-upgrade` stage `05-review`. |
 | `mb-sdlc-review-report` | `mb-sdlc-review-report.schema.json` | `dd-flow/mb-sdlc-review-report@1` | Validates `stage-report.json` produced by project-level `mb-sdlc-review`. |
-| `plan-stage-report` | `plan-stage-report.schema.json` | `dd-flow/plan-stage-report@2` / readable legacy `@1` | Validates `plan-stage-report.json`; @2 carries the RUN-local flow-flag snapshot projection. |
+| `plan-stage-report` | `plan-stage-report.schema.json` | `dd-flow/plan-stage-report@3` / readable legacy `@1`, `@2` | Validates plan stage data; @3 adds assessment, routing and capacity summaries to the @2 RUN-local flow-flag projection. |
 | `flow-run-index` | `flow-run-index.schema.json`, `flow-run-index-v3.schema.json` | `dd-flow/flow-run-index@3` / readable legacy `@1` and `@2` | Validates `<run-home>/run-index.json`; @3 adds revision/checksum, expanded flag projection and typed session coverage. |
 | `flow-run` | `flow-run.schema.json` | `dd-flow/flow-run@1` | Validates authoritative `run.json` continuation state and its revision/checksum link to the index. |
 | `code-stage-report` | `code-stage-report.schema.json` | `dd-flow/code-stage-report@2` / readable legacy `@1` | Validates `03-code/stage-report.json` or legacy `02-code/stage-report.json`; @2 carries the RUN-local flow-flag snapshot projection. |
@@ -139,14 +144,14 @@ Schemas live in the canon first. Project copies under `.memory-bank/dd-flow/sche
 | `flow-guidance` | `flow-guidance.schema.json` | `dd-flow/flow-guidance@1` | Validates reusable `flow_guidance` blocks emitted by status-like CLI commands to show current stage, normalized lifecycle, allowed transitions, recommended prompt/action, guards and missing evidence. |
 | `project-flow-pack-manifest` | `project-flow-pack-manifest.schema.json` | `dd-flow/project-flow-pack-manifest@1` / `@2` | Validates `.memory-bank/dd-flow/manifest.json`, the curated project-local flow pack allowlist. New writes use `@2`; `@1` remains legacy-compatible. |
 | `archived-flow-manifest` | `archived-flow-manifest.schema.json` | `dd-flow/archived-flow-manifest@1` | Validates archive manifests for obsolete/custom flow files moved out of active `.memory-bank/dd-flow/`. |
-| `specification-stage-report` | `specification-stage-report.schema.json` | `dd-flow/specification-stage-report@1` | Validates `01-specify/stage-report.json` before plan translates problem space into solution space. |
+| `specification-stage-report` | `specification-stage-report.schema.json` | `dd-flow/specification-stage-report@2` / readable legacy `@1` | Validates `01-specify/stage-report.json`; @2 adds the factual task assessment and source-labelled legacy projection. |
 | `project-check-profiles` | `project-check-profiles.schema.json` | `dd-flow/project-check-profiles@1` | Validates project check profiles that define what "green" means on local/dev/beta/prod or project-specific stages. |
 | `global-dashboard-data` | `global-dashboard-data.schema.json` | `dd-flow/global-dashboard-data@1` | Validates `~/.dd-flow/dashboard/global-dashboard.json`, the local-machine project overview with lifecycle/resource summaries, project-summary version groups and unsupported project visibility. |
 | `project-dashboard-data` | `project-dashboard-data.schema.json` | `dd-flow/project-dashboard-data@1` | Validates `~/.dd-flow/projects/<PRJ-ID>/dashboard/project-dashboard.json`, the project-level protocol/runtime overview with lifecycle/resource/queued-protocol fields. |
 | `protocol-dashboard-data` | `protocol-dashboard-data.schema.json` | `dd-flow/protocol-dashboard-data@1` | Validates `~/.dd-flow/projects/<PRJ-ID>/dashboard/protocols/<PRT-ID>.json`, the protocol-as-task page with lifecycle, queue item, claim and multi-run history. |
 | `knowledge-candidates` | `knowledge-candidates.schema.json` | `dd-flow/knowledge-candidates@1` | Validates specify-time knowledge candidate registers extracted from substantive raw user input. |
 | `knowledge-promotion-report` | `knowledge-promotion-report.schema.json` | `dd-flow/knowledge-promotion-report@1` | Validates merge-time reports that resolve candidates and code-derived knowledge into durable Memory Bank outcomes. |
-| `eval-report-data` | `eval-report-data.schema.json` | `dd-flow/eval-report-data@1` | Validates static HTML+JSON eval/experiment reports with aspect scores, findings and evidence links. |
+| `eval-report-data` | `eval-report-data.schema.json` | `dd-flow/eval-report-data@2` / readable legacy `@1` | Validates eval report data; @2 adds assessment, routing, capacity and clarification provenance. |
 
 ## Validation
 
@@ -154,6 +159,7 @@ Use:
 
 ```bash
 dd-flow schema validate --schema mb-upgrade-review-data --file review-data.json --project-root /path/to/project --json
+dd-flow schema validate --schema flow-contract --file .memory-bank/dd-flow/flow-contract.json --project-root /path/to/project --json
 dd-flow schema validate --schema mb-sdlc-review-report --file ~/.dd-flow/projects/PRJ-001-demo/runs/RUN-020-review/04-review/stage-report.json --project-root /path/to/project --json
 dd-flow schema validate --schema plan-stage-report --file plan-stage-report.json --project-root /path/to/project --json
 dd-flow schema validate --schema flow-run-index --file ~/.dd-flow/projects/PRJ-001-demo/runs/RUN-001-demo/run-index.json --project-root /path/to/project --json
@@ -194,6 +200,7 @@ Lookup order:
 Validated examples live in `examples/` and should be kept current with schema changes:
 
 - `plan-stage-report.valid.json`
+- `flow-contract.valid.json` plus focused `invalid/flow-contract.*.json` fixtures
 - `code-stage-report.valid.json`
 - `merge-stage-report.one-shot.valid.json`
 - `merge-stage-report.long-lived-worker.valid.json`

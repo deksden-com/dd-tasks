@@ -150,7 +150,12 @@ Every baseline aspect from [review/aspects.md](review/aspects.md) must appear wi
 - report path;
 - status and verdict.
 
-For non-trivial, high-risk, architecture/runtime/data/API/operations/release or user-requested deep review, use focused subagents. If subagents are technically unavailable, record a degraded review and explain the impact; do not pretend a solo pass is equivalent to aspect review.
+For non-trivial or user-requested deep review, choose route per applicable
+aspect. High risk or an architecture/runtime/data/API/operations/release fact
+requires focused independence only for the affected aspect and trust boundary;
+it never blanket-promotes the whole coverage map. If a required focused
+subagent is technically unavailable, record a degraded review and explain the
+impact; do not pretend a solo pass is equivalent.
 
 ## Critic Pass
 

@@ -88,6 +88,20 @@ If the result needs model-assisted review, use focused reviewers:
 - the orchestrator fact-checks reports before synthesis;
 - final report separates evidence, inference and judgment.
 
+## External Clarification Gate
+
+An eval that requires an external clarification across `specify -> plan` uses
+two controller goals. Goal A stops at `waiting_for_user` before any plan
+artifact. Between goals the controller persists the exact packet (text or
+immutable artifact), content hash, event/message id, timestamp, recipient and
+RUN id. Goal B may apply it and enter plan only after an exact match.
+
+Missing or mismatched packet provenance yields `invalid_eval_input` before
+plan. Exclude that run from model/flow quality scoring; auto-continuation,
+session memory or an agent-generated substitute is not external input. The
+eval report names both goal ids, their stop boundaries and the provenance
+record used for the match.
+
 ## Template Rule
 
 Do not invent a one-off design for eval reports. Reuse existing `dd-flow` visual language and template conventions. Validate JSON data when the eval is a gate. Run browser/DOM smoke for non-trivial HTML, including light/dark/system theme behavior.

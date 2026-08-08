@@ -175,10 +175,10 @@ dd-flow memory permissions preflight --root . --memory-bank .memory-bank --tasks
 | Decision | Route | Rule |
 | --- | --- | --- |
 | `self_check_allowed` | `self_check` | Только preflight, selection/skip visibility, coverage, schema и report consistency; self-check не закрывает selected aspect. |
-| `group_allowed` | `grouped_subagent` | Только read-only aspects из allowlist ниже, общий immutable audit snapshot, отсутствие hard edge и отдельные verdict/evidence/DEF candidates. |
-| `keep_separate` | `focused_subagent` | Critical/trust boundary, conflicting or privileged evidence, hard predecessor, recovery/recheck и любой аспект вне allowlist. |
+| `group_allowed` | `grouped_subagent` | Совместимый read-only subset из preference table ниже, общий immutable audit snapshot, отсутствие hard edge и отдельные verdict/evidence/DEF candidates. |
+| `keep_separate` | `focused_subagent` | Critical/trust boundary, conflicting or privileged evidence, hard predecessor, recovery/recheck или separation trigger. |
 
-Allowlisted audit bundles (до трёх aspects):
+Audit preference families (`preferred_with`, до трёх aspects):
 
 | Group | Aspects |
 | --- | --- |
@@ -186,6 +186,10 @@ Allowlisted audit bundles (до трёх aspects):
 | `delivery_and_system` | `04-delivery-docs.md`, `05-system-adr-contracts.md`, `06-scenarios-evidence-runners.md` |
 | `surface_and_operations` | `07-ui-and-guides.md`, `08-engineering-code-contracts.md`, `09-operations-release-deferrals.md` |
 | `lifecycle_and_agents` | `10-memory-lifecycle.md`, `11-code-traceability.md`, `12-agent-skills.md` |
+
+Любой присутствующий совместимый subset family допустим; отсутствующий или
+skipped aspect не ломает группу. Cross-family комбинации не выводятся без
+изменения этой таблицы, а separation trigger всегда сильнее preference.
 
 `requires_output_of` — hard dependency: aspect waits for the accepted
 predecessor artifact/report and its hard successors stay locked otherwise.

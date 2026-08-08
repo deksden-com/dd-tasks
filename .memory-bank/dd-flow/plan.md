@@ -8,7 +8,7 @@ Flow origin policy: `project_local`.
 
 Он объединяет плановые стадии из `.memory-bank/dd-flow/mb-sdlc/plan/`: reflection, review, implementation, operations и scenarios, но не заменяет их. На каждой стадии прочитай соответствующий фазовый файл и выполни его инструкции. Старый путь `.memory-bank/dd-flow/plan/` является compatibility alias.
 
-Перед запуском полного `plan` должна быть выполнена стадия `specify`, если пользователь не предоставил уже готовую спецификацию задачи. `specify` уточняет problem space, фиксирует acceptance criteria, верхнеуровневые вопросы и `task_profile`. `plan` переводит это в solution space: архитектуру, work graph, проверки, evidence и handoff в code.
+Перед запуском полного `plan` должна быть выполнена стадия `specify`, если пользователь не предоставил уже готовую спецификацию задачи. `specify` уточняет problem space, фиксирует acceptance criteria, верхнеуровневые вопросы, независимый `task_assessment` и compatibility `task_profile`. `plan` переводит это в solution space: архитектуру, work graph, проверки, evidence и handoff в code.
 
 Не запускай реализацию, кодирование, слияние (merge), выкладку или закрытие `code/merge gates` без отдельного прямого указания пользователя.
 
@@ -51,7 +51,7 @@ Flow origin policy: `project_local`.
 - `.memory-bank/mbb/named-deferrals-guide.md`
 - `.memory-bank/mbb/ai-runtime-prompt-architecture.md`, если задача затрагивает prompt-ы, model calls, agent pipeline, provider profiles, retry/repair или AI-generated artifacts
 
-Субагентов использовать разрешено при необходимости. На стадии review используй правила `plan/review.md`: сначала aspect relevance map, затем бинарное решение `run_subagents` или `no_subagents`. Для high-risk/full plan запуск аспектных субагентов является нормальным путём, а отказ требует явного downgrade-обоснования.
+Субагентов использовать разрешено при необходимости. На стадии review используй правила `plan/review.md`: сначала полная aspect coverage map и локальный route каждого аспекта, затем бинарное решение `run_subagents` или `no_subagents`. `full_plan` и task-level risk сами по себе не требуют focused route для каждого аспекта.
 
 Перед планированием выполни active DEF preflight из `common/memorybank.md`. План должен учитывать relevant `DEF-*` как входные ограничения: закрыть их в текущем scope, поднять в blockers, включить в проверки/evidence или явно оставить как non-blocking follow-up с причиной. Не планируй работу так, будто уже зафиксированных DEF не существует.
 
@@ -75,9 +75,15 @@ Flow origin policy: `project_local`.
 
 Твоя задача - довести идею, задачу или черновой протокол до состояния, когда реализацию можно начинать осознанно.
 
-`plan` не является обязательным для каждой мелкой правки. Если `specify`/`task_profile` выбрал `route.planning: no_plan` или `route.planning: compact_plan`, не запускай полный плановый проход без причины. Выполни только тот объём планирования, который указан в профиле, и объясни почему полного плана не требуется.
+`plan` не является обязательным для каждой мелкой правки. Выполни минимум,
+разрешённый `task_assessment.plan_floor` и effective `route.planning`; не
+усиливай его из-за артефактов самого flow. Сначала переиспользуй существующие
+patterns и не добавляй dependency/service/layer/process/abstraction/framework
+без подтверждённого требования.
 
-Если в процессе короткого планирования найдено изменение пользовательской ценности, публичного контракта, данных, сценариев, эксплуатации, UI-контракта или существенный риск, повысь `route.planning` до `full_plan` и объясни причину.
+Если найден новый source fact, обнови только соответствующую assessment axis,
+а затем пересчитай зависимый floor/flag. Critical fact повышает только
+применимые evidence и aspect gates.
 
 Если задача затрагивает Git policy, environment/stage policy, release, deploy, publish, verification gates, CI, package publishing, rollout, rollback или runbooks, включи SDLC contour coverage из `common/sdlc-contours.md`. Не добавляй operational noise в локальные задачи, где контуры действительно `not_applicable`, но причину неприменимости запиши.
 
@@ -116,7 +122,7 @@ Flow origin policy: `project_local`.
 
 ```bash
 dd-flow run start --project-root "<project-root>" --workspace-root "<workspace-root>" --flow-kind mb_sdlc --subject-type protocol --subject-id "<PRT-ID>" --slug "<slug>" --json
-dd-flow run attach-stage "<RUN-ID>" --project-root "<project-root>" --stage plan --dir 02-plan --status running --data-schema-id dd-flow/plan-stage-report@2 --json
+dd-flow run attach-stage "<RUN-ID>" --project-root "<project-root>" --stage plan --dir 02-plan --status running --data-schema-id dd-flow/plan-stage-report@3 --json
 ```
 
 Если run был создан до внедрения specification stage и уже содержит `01-plan/`, не перенумеровывай его. Продолжай legacy layout и запиши `legacy_stage_layout: true` в report.
@@ -171,13 +177,24 @@ next safe action: run protocol/specify or create protocol set/member protocols
 
 Не превращай этот blocker в технический план всего объёма. Допустимо дать краткую recommended slicing proposal, но не code-ready work graph для mega-scope.
 
-После `specify` действуй по `route.planning`:
+Сначала проверь, что specification содержит ровно пять независимых axes
+`task_assessment` с `level`, `surfaces` и `reason`. Пустой `surfaces` допустим
+только с явной non-applicability reason. Не выводи axes из `task_profile`,
+effective flags, route, reviewer count или generated artifacts. Legacy
+`size`, `risk` и `planning_route_hint` должны быть source-labelled one-way
+projection из breadth, impact и floor; verification остаётся independent.
+
+После `specify` действуй по effective `route.planning`, который не может быть
+ниже `task_assessment.plan_floor`:
 
 - `no_plan` или legacy `none` - полный `plan` не нужен; верни короткий grounding и переходи к следующему шагу, если пользователь просил реализацию.
 - `compact_plan` или legacy `short` - составь короткий план без полного планового прохода.
 - `full_plan` - выполняй полный плановый проход.
 
-`plan` обязан сохранить `task_profile` из specification и добавить `route_decision`: почему выбран именно этот уровень планирования, execution mode, Git route, verification depth и evidence level. Не затирай specification техническим планом; link back instead.
+`plan` обязан сохранить `task_assessment` отдельно от `task_profile` и добавить
+`route_decision`: почему выбран именно этот уровень планирования, execution
+mode, Git route, verification depth и evidence level. Не затирай specification
+техническим планом и не изменяй assessment из-за route artifacts; link back.
 
 Короткий план должен содержать:
 
@@ -224,11 +241,11 @@ dd-flow plan set "<protocol-id>" --file "<plan.json>" --json
 
 Для legacy run layout допустимо продолжить запись в `01-plan/`; report должен явно указать, что specification stage отсутствует как отдельная папка из-за старого layout.
 
-`stage-report.json` является source of truth для stage report и входом для `code` flow. Новый отчёт должен соответствовать `.memory-bank/dd-flow/schemas/plan-stage-report.schema.json` (`schema_id: dd-flow/plan-stage-report@2`) и содержать текущий `flow_flags` snapshot projection (`snapshot_revision`, `snapshot_checksum`, effective values и provenance). Старый `@1` остаётся читаемым для legacy RUN-ов.
+`stage-report.json` является source of truth для stage report и входом для `code` flow. Новый RUN пишет `.memory-bank/dd-flow/schemas/plan-stage-report.schema.json` с `schema_id: dd-flow/plan-stage-report@3` и текущим `flow_flags` snapshot projection (`snapshot_revision`, `snapshot_checksum`, effective values и provenance). Legacy `@1` и `@2` остаются читаемыми.
 
 - `protocol`: id, project, branch, stage and compact title;
 - `overall`: verdict, score, next action and short summary;
-- `task_profile` и/или `route_decision`, если schema/project version это поддерживает; если текущая schema ещё legacy, продублируй их в `handoff`/`report.md`;
+- top-level `task_assessment`, source-labelled legacy projection и `route_decision`; если текущая schema ещё legacy, продублируй их в `handoff`/`report.md` без обратного вывода assessment;
 - `route`: planning/git/merge/ci/delivery values with hover notes;
 - `graph`: structural nodes/edges of the plan, not raw Mermaid source;
 - `aspects`: aspect coverage, status, notes and findings;
@@ -298,7 +315,9 @@ dd-flow run complete-stage "<RUN-ID>" --project-root "<project-root>" --stage pl
 
 Если пользователь уже указал конкретный протокол, фичу, эпик или задачу, начни с них, но всё равно проверь индексы Банка памяти и структуру проекта.
 
-Если `specify` уже дал `task_profile`, не перезапускай scouts без причины. Используй профиль как вход для фаз и повышай флаги только при новых фактах.
+Если `specify` уже дал `task_assessment`, не перезапускай scouts без причины.
+Используй assessment как immutable source facts, а profile/flags как policy
+input; обновляй их только при новом source fact.
 
 На каждой фазе применяй профиль так:
 
@@ -312,7 +331,7 @@ dd-flow run complete-stage "<RUN-ID>" --project-root "<project-root>" --stage pl
 - `evidence` - определяет будущие proof bundles, verification passports или rollout evidence;
 - `execution` - определяет, нужны ли субагенты, какие роли им поручаются и можно ли раздавать независимые task packets параллельно.
 
-Если профиль меняется, обнови его в рабочей папке или протоколе и объясни, какой новый факт вызвал изменение.
+Если assessment/profile меняется, обнови его в рабочей папке или протоколе и объясни, какой новый source fact вызвал изменение.
 
 ### 1. Переосмысление протокола
 
@@ -334,13 +353,12 @@ dd-flow run complete-stage "<RUN-ID>" --project-root "<project-root>" --stage pl
 
 На стадии review сначала составь aspect relevance map по правилам `plan/review.md`, затем прими бинарное решение `run_subagents` или `no_subagents`. Не используй формулировку "recommended" как итоговое решение: она должна быть сведена к запуску или незапуску с обоснованием.
 
-Если аспектов много или профиль попадает под обязательный gate из `plan/review.md`, используй субагентов. В задачах субагентам указывай прочитать `.memory-bank/dd-flow/workers/verify.md`, а сам передавай только операционные сведения: что проверить, какие документы читать, куда писать отчёт.
-
-Для high-risk full plan нельзя молча проходить review в solo-режиме. План не считается `plan_ready`, если одновременно выполнены условия:
-
-- `impact.risk: high` или затронут runtime/data/queue/session/hook/dashboard контракт;
-- `execution.mode` не равен `solo`, есть hard trigger из `plan/review.md`, `deep_aspects >= 3`, или `deep_aspects >= 2` с критичным аспектом;
-- в рабочей папке нет ни отчётов аспектных субагентов, ни явной записи `subagent-decision.md` с aspect map и обоснованием downgrade/no-subagents.
+Используй субагента только для aspect с выбранным delegated route. Каждый
+`focused_subagent` требует aspect-local `independence_reason`; `full_plan`,
+task-level `high` и число аспектов сами по себе не являются причиной. Остальные
+аспекты сохраняют минимально достаточный self/grouped/focused route. В packet
+указывай `.memory-bank/dd-flow/workers/verify.md`, bounded read scope и report
+path.
 
 После отчётов не принимай выводы механически. Сопоставь их с проектом и явно зафиксируй, что принято, что отклонено и почему.
 

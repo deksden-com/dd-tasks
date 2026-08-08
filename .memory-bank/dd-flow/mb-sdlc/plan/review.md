@@ -51,7 +51,10 @@ contract, data-integrity или acceptance gates.
 
 Ревью должно ответить не только "что ещё можно улучшить", но и "ведёт ли предложенный набор работ к операционной цели с сохранением исходных ограничений".
 
-Если есть `task_profile` или legacy `flow_profile`, ревью должно проверить его адекватность:
+Сначала проверь отдельный `task_assessment`: все пять axes имеют допустимый
+level, `surfaces` и `reason`, не получены из route/flags/artifact count, а
+legacy projection односторонняя и source-labelled. Затем проверь adequacy
+`task_profile` или legacy `flow_profile` как compatibility/policy view:
 
 - `impact`/risk не занижает поведение, контракт, эксплуатацию и риск;
 - `route.planning` соответствует найденной сложности и сохраняет adaptive complexity из specification;
@@ -83,6 +86,7 @@ applicability: applicable | not_applicable | unknown
 applicability_reason:
 coverage_mode: none | self_check | focused_subagent | grouped_subagent | external_evidence | deferred_as_DEF | blocked
 coverage_reason:
+independence_reason: <required only for focused_subagent>
 planned_artifacts:
 actual_artifacts:
 verdict:
@@ -114,10 +118,12 @@ deferrals:
 
 Бинарное решение:
 
-- `run_subagents`, если есть hard trigger, `impact.risk: high`, `execution.mode` не `solo`, applicable high-risk aspects require independent review, or multiple applicable aspects relate to runtime/data/contract/concurrency/security/merge/evidence;
-- `no_subagents`, только если hard trigger отсутствует, applicable aspects can be covered by `self_check`/`external_evidence`, изменение локальное/обратимое, проверки понятны, а `execution.mode: solo`.
+- `run_subagents`, если хотя бы один applicable aspect выбрал
+  `focused_subagent`/`grouped_subagent` по своей локальной причине;
+- `no_subagents`, если все applicable aspects честно закрываются
+  `self_check`/`external_evidence` и ни одному не нужна независимость.
 
-Hard trigger:
+Aspect-local independence signals:
 
 - runtime state, data schema, persistence;
 - public API, CLI command contract, protocol format, hooks, config, dashboard/status;
@@ -126,7 +132,11 @@ Hard trigger:
 - canonical flow/Memory Bank правила, которыми будут пользоваться агенты;
 - release/merge/evidence gate или `verification_passport`.
 
-Запиши решение в `.tasks/.../subagent-decision.md`: ссылку на `aspect-map.json`, hard triggers, applicable aspects, chosen coverage modes, решение, delegated aspects или причина `no_subagents`, остаточные риски и проверки, которые покрывают solo-проход.
+Сигнал повышает только затронутый aspect. Для его `focused_subagent` запиши
+конкретный `independence_reason`; task-level `full_plan`/`high` и количество
+aspects не являются blanket promotion.
+
+Запиши решение в `.tasks/.../subagent-decision.md`: ссылку на `aspect-map.json`, local signals, applicable aspects, chosen coverage modes, решение, delegated aspects или причина `no_subagents`, остаточные риски и проверки, которые покрывают solo-проход.
 
 Если решение `run_subagents`, оркестратор не выполняет deep-анализ delegated aspects сам. Он делает intake, tasking, acceptance, fact-check и synthesis по `common/subagents.md`. Deep-анализ выполняет соответствующий aspect subagent. Если оркестратор уже глубоко исследовал delegated aspect до делегирования, зафиксируй `contamination_risk` и способ компенсации в `subagent-decision.md` и phase report.
 
@@ -138,11 +148,9 @@ Hard trigger:
 
 Если несколько аспектов покрыты одним субагентом, это не сокращает coverage-карту: каждая строка аспекта остаётся отдельной и ссылается на общий `group_id`, `subagent_id` и `report_path`.
 
-По умолчанию группировка аспектов в один task packet запрещена для full/high-risk
-плана и для hard-trigger контуров: каждый `focused_subagent` получает отдельный
-packet и report. Исключение задаётся только flow-owned adapter-ом ниже. Лимит
-пула меняет только параллельность и не является основанием для неявного
-объединения аспектов.
+Depth выбирается локально до packing. Critical separation rule оставляет unit
+отдельной; остальные units не становятся focused из-за общего plan floor или
+соседнего риска. Capacity меняет только batch size, не route или grouping.
 
 ### Flow-owned route adapter (PRT-336)
 
@@ -152,53 +160,25 @@ packet и report. Исключение задаётся только flow-owned 
 | Decision | Route | Когда |
 | --- | --- | --- |
 | `self_check_allowed` | `self_check` | Детерминированная applicability/graph/DEF-проверка или очевидный `not_applicable`, где независимый контекст не добавляет уверенности. |
-| `group_allowed` | `grouped_subagent` | Только unit из allowlist ниже, общий immutable snapshot, read-only scope, нет hard edge и отдельные verdict/evidence сохраняются. |
-| `keep_separate` | `focused_subagent` | Critical/trust boundary, глубокое исследование, writer/mutation/operational access или любой separation trigger. |
+| `group_eligible` | `grouped_subagent` | Любое совместимое подмножество из двух-трёх units по таблице catalog, с общим immutable snapshot, read-only scope, без hard edge и с отдельными verdict/evidence. |
+| `keep_separate` | `focused_subagent` | Есть aspect-local `independence_reason`: собственная critical/trust boundary, новый механизм, unresolved uncertainty, writer/mutation/operational access или обязательный independent verdict. |
 
-Allowlist plan-review bundles (не более трёх units в одном group):
-
-| Group | Units |
-| --- | --- |
-| `system_design` | `architecture_design_quality`, `coding_standards_design_review`, `data_persistence_migration_review` |
-| `contract_and_trust` | `api_contract_design_review`, `contract_propagation_design`, `security_privacy_review` |
-| `product_surface` | `ui_ux_accessibility_review`, `design_aspect_traceability_review`, `scenario_seed_eval_review` |
-| `verification_and_knowledge` | `testing_system_design_review`, `verification_evidence_review`, `memorybank_documentation_review` |
-
-Bundle не создаётся, если unit не перечислена в allowlist, snapshot/read scope
-различается, есть write scope/conflict, incompatible report contract или
-`requires_output_of` между members. Separation trigger имеет приоритет над
-экономией jobs/waves: public/persisted или security boundary, destructive/
-backfill/migration, concurrency/irreversible/new mechanism boundary,
-операционный доступ, mutation/apply/merge/cleanup и conflicting evidence
-остаются `keep_separate`.
+Используй единственную compatibility table из `plan-aspects/index.md` с
+`preferred_with`, `must_separate_when`, `max_group_size`. Именованные семьи —
+примеры, не exact allowlist: совместимое подмножество из двух или трёх valid.
+Separation wins. Один focused anchor может нести до двух совместимых secondary
+units; secondary сохраняют исходный route и не получают focused promotion.
 
 `requires_output_of` означает hard dependency: dependent packet запускается
-только после принятого predecessor report по явному пути и в следующей готовой
-wave. `related_to`/`informed_by` означают soft context и не сериализуют jobs.
+только после принятого predecessor report по явному пути; edge называет точный
+consumed output и только он создаёт следующую semantic wave.
+`related_to`/`informed_by` означают soft context и не сериализуют jobs. Batch —
+только capacity-limited launch slice внутри уже построенной wave.
 Grouped report допустим только с отдельной секцией на unit: scope, findings,
 verdict, evidence, limitations и completeness. Coverage row сохраняется для
 каждой unit; общий verdict не заменяет unit verdict. При partial failure
-recovery повторяет только affected unit с новым attempt/report path.
-
-Аспектные субагенты обязательны для full `plan`, если выполняется хотя бы одно условие:
-
-- `impact.risk: high`;
-- `impact.contract` затрагивает runtime state, data schema, public API, CLI command contract, queue/lock/session lifecycle или persistence;
-- `execution.mode` равен `scouts`, `workers`, `verifiers` или `mixed`;
-- multiple applicable aspects require `focused_subagent`;
-- at least one applicable aspect relates to runtime/data/contract/concurrency/security/merge/evidence and cannot be honestly covered by `self_check`;
-- план меняет merge queue, hooks, session continuation, cleanup/cancel, dashboard/status или evidence protocol.
-
-Если эти условия выполнены, но субагенты не запускаются, это считается downgrade. Downgrade допустим только с явной записью в `.tasks/.../subagent-decision.md` и кратким резюме в фазовом отчёте. Запись должна назвать исходный профиль, проверенные аспекты, причину отказа от субагентов, остаточные риски и почему план всё равно можно принять.
-
-Для high-risk CLI/runtime работы минимальный набор аспектов для review:
-
-- runtime storage/schema and state ownership;
-- protocol lifecycle and state transitions;
-- merge queue, lane locks and concurrency;
-- sessions, hooks and Stop hook continuation;
-- dashboard/status/help and operator UX;
-- scenarios, tests, evidence and cleanup safety.
+recovery повторяет только affected unit с attempt `2`, original packet, invalid
+output и findings. Attempt `3` запрещён; accepted siblings не перезапускаются.
 
 Каждая задача субагента должна объяснять:
 
@@ -228,12 +208,14 @@ program boundary and slice contribution into the semantic spine.
 Для selected applicable aspects прочитай `depends_on` и `informs` из
 frontmatter dedicated aspect prompts и создай `<run-home>/02-plan/aspect-graph.json`.
 В нём зафиксируй selected nodes, hard and informational edges, topological
-waves, packet path, launch prompt path, report path, acceptance owner and
-recovery attempt paths. До первого запуска проверь отсутствие циклов и
+waves, exact consumed output каждого hard edge, packet/launch/report paths,
+acceptance owner and recovery attempt paths. До первого запуска проверь отсутствие циклов и
 отсутствующих selected hard prerequisites. Эти ошибки блокируют plan; не
 обходи их порядком запуска, придуманным в памяти сессии.
 
-Независимые eligible aspects одной wave можно запускать параллельно. Dependent
+Независимые eligible aspects одной wave можно запускать параллельно batches по
+fresh capacity observation из `common/subagents.md`. Capacity refusal уменьшает
+только launch window и не перестраивает groups/waves. Dependent
 aspect получает новый RUN-local `dd-flow/worker-task@1` manifest после того,
 как каждый hard predecessor принят либо имеет обоснованный verdict
 `not_applicable`. В manifest/packet укажи `handoff.predecessor_reports` с
@@ -249,8 +231,9 @@ dd-flow prompt render --project-root "$PWD" --run "<RUN-ID>" --stage plan \
 ```
 
 `prompt render` не запускает worker-а, не ждёт его и не принимает отчёт.
-Оркестратор хранит initial packet, failure note и отдельный recovery report
-path для каждой попытки. После завершения всех hard aspects выполни один
+Оркестратор хранит initial packet, failure note и один reserved recovery report
+path на unit. Normal topology: одна initial wave, synthesis/fix, не более одной
+targeted recovery wave, затем final gate. После завершения всех hard aspects выполни один
 final integration review: перепроверь принятые findings, cross-aspect gaps и
 обнови aspect map/plan graph before declaring the review complete.
 

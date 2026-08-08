@@ -73,6 +73,7 @@ applicability: applicable | not_applicable | unknown
 applicability_reason:
 coverage_mode: none | self_check | focused_subagent | grouped_subagent | external_evidence | deferred_as_DEF | blocked
 coverage_reason:
+independence_reason: <required only for focused_subagent>
 ```
 
 - `applicability` answers whether the aspect belongs to the task.
@@ -80,6 +81,8 @@ coverage_reason:
 - Subagents are a coverage choice, not proof that an aspect applies.
 - `not_applicable` requires a reason. It is not a quiet omission.
 - `unknown` must become a question, context discovery, blocker or `DEF-*` before a gate passes.
+- `focused_subagent` requires an aspect-local `independence_reason`; task-level
+  `full_plan`, `high` or another aspect's critical boundary is not sufficient.
 
 Plan flow writes the current map to:
 
@@ -88,6 +91,25 @@ Plan flow writes the current map to:
 ```
 
 Readiness reads the plan map and verifies implementation coverage for applicable aspects.
+
+## Grouping Compatibility
+
+This compact table is a preference map, not an exact-bundle allowlist. Any
+compatible subset of two or three units may form a group; omitting a preferred
+member does not invalidate the rest. `must_separate_when` always wins.
+
+| Compatibility family | `preferred_with` | `must_separate_when` | `max_group_size` |
+| --- | --- | --- | --- |
+| `system_design` | `architecture_design_quality`, `coding_standards_design_review`, `data_persistence_migration_review` | independently changed public/persisted boundary; mutation; incompatible snapshot/report contract | 3 |
+| `contract_and_trust` | `api_contract_design_review`, `contract_propagation_design`, `security_privacy_review` | independent security/trust verdict; destructive or irreversible behavior; hard output dependency | 3 |
+| `product_surface` | `ui_ux_accessibility_review`, `design_aspect_traceability_review`, `scenario_seed_eval_review` | different source snapshot; operational access; incompatible evidence contract | 3 |
+| `verification_and_knowledge` | `testing_system_design_review`, `verification_evidence_review`, `memorybank_documentation_review` | independent gate required; conflicting evidence; hard output dependency | 3 |
+
+A valid group is read-only, uses one immutable or read-equivalent snapshot, has
+no `requires_output_of` edge or write conflict between members, and preserves
+one report section, verdict and evidence set per unit. One focused anchor may
+carry up to two compatible lower-depth secondary units without promoting their
+routes. Two independently critical boundaries stay separate by default.
 
 ## Dependency-Aware Execution
 
@@ -99,11 +121,12 @@ and cycles block the plan. Unselected or justified `not_applicable`
 prerequisites do not silently disappear; the aspect map records why the edge
 is satisfied or not required.
 
-Launch only the current topological wave. A dependent aspect may start after
-each hard predecessor has an accepted report or an accepted, justified
-`not_applicable` verdict. Its RUN-local `worker-task.json` names the accepted
-predecessor report paths explicitly. The renderer materializes the prompt;
-the orchestrator still owns launch, retry, acceptance and graph advancement.
+Launch only the current topological wave. A hard `requires_output_of` edge must
+name the exact consumed predecessor output; `related_to` and `informed_by` are
+soft links and never create a wave. A dependent aspect may start after each
+hard predecessor has an accepted report or justified `not_applicable` verdict.
+Capacity may split one wave into several runtime batches but never changes the
+semantic graph or groups. The RUN-local packet names accepted predecessor paths.
 
 After all selected hard aspects are accepted, the orchestrator runs one final
 integration review. It reconciles cross-aspect findings, updates the aspect
@@ -136,6 +159,7 @@ applicability:
 applicability_reason:
 coverage_mode:
 coverage_reason:
+independence_reason:
 planned_artifacts:
 actual_artifacts:
 verdict:

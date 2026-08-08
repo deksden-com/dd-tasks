@@ -111,3 +111,9 @@ Discovery may produce project facts, analogy proposals, conflicts, unknowns and
 questions for the gap ledger. It must not produce architecture, file layout,
 data structures, implementation order, worker topology or routine Git choices.
 Those belong to `plan` or to the agent's implementation work.
+
+Discovery may supply source facts for the five-axis `task_assessment`, especially
+`surfaces`, `reason` and `solution_uncertainty`. It does not choose flow flags,
+infer assessment from research depth or artifact count, or read the selected
+route back into assessment. The specification owner records the final five axes
+and the one-way legacy projection.

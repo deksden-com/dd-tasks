@@ -42,10 +42,23 @@
 - need for eval/experiment, если deterministic scenario недостаточен;
 - верхнеуровневые вопросы с постоянными идентификаторами;
 - зафиксированные ответы пользователя;
-- `task_profile` и рекомендуемый route для `plan`.
+- независимый five-axis `task_assessment`, одностороннюю compatibility projection
+  в `task_profile` и рекомендуемый route для `plan`;
 - выбранные источники semantic grounding: raw user intent, product/feature, system/C4, constraints and evidence level, либо краткое `not_applicable` reason для действительно локальной задачи.
 
 Specification не должна превращаться в technical design. Детали реализации, файлы и порядок code tasks принадлежат `plan`.
+
+До route выбора заполни ровно пять осей из `common/flow-flags.md`:
+`scope_breadth`, `solution_novelty`, `solution_uncertainty`, `failure_impact` и
+`plan_floor`. Каждая ось имеет `level`, `surfaces` и `reason`; пустой список
+поверхностей требует явной non-applicability reason. Не выводи assessment из
+flags, legacy `task_profile`, выбранной полноты plan или количества созданных
+артефактов. Legacy `size`, `risk` и `planning_route_hint` проецируются только
+из breadth, impact и floor; `verification_mode` остаётся независимым.
+
+Выбирай минимально достаточное решение: сначала reuse существующих patterns,
+и только затем extension/new mechanism, если этого требует задача. Critical
+fact повышает глубину только применимых gates и не делает всю задачу сложнее.
 
 `specify` не создаёт карточки для всех будущих tasks, но обязан оставить `plan` достаточно ясный semantic handoff: какой outcome нужен, какая system responsibility может быть затронута, что нельзя размывать и какие evidence claims потребуют более сильной проверки, чем local unit test.
 
@@ -155,6 +168,10 @@ gap_analysis:
 вопросов, а remaining unknowns стали explicit assumption, non-goal, DEF,
 blocker или user question. Design aspects остаются отдельным следующим
 контуром и не считаются requirements methods.
+
+Discovery findings могут обновить `surfaces`, `reason` и
+`solution_uncertainty`, но research route и число прочитанных источников не
+являются assessment axes сами по себе.
 
 ## Design Aspects
 
@@ -302,6 +319,10 @@ Q-001, Q-002, ...
 ```
 
 Для trivial/compact задач specification всё равно существует, но может быть короткой. `plan` должен иметь свежую specification или явный degraded reason.
+
+`specification.json` и stage report сохраняют `task_assessment` отдельно от
+`flow_flags` и `task_profile`; downstream не должен восстанавливать его из
+выбранного route.
 
 `stage-report.html` строится из `.memory-bank/dd-flow/mb-sdlc/specify/stage-report-template.html` и embedding JSON внутри `script#specification-data`.
 

@@ -86,6 +86,7 @@ Every run has:
   run-summary.md
 
   NN-stage-slug/
+    aspect-job-map.json
     stage-report.json
     report.md
     stage-report.html
@@ -101,6 +102,9 @@ Rules:
 - `timeline.jsonl` is an append-only local mechanical event stream for run/stage/session lifecycle timing;
 - `run.json` is the authoritative machine/runtime snapshot for continuation, hooks, flag resolution and diagnostics. It is not a byte-for-byte copy of the index;
 - `stage-report.json` is the canonical data payload for a stage;
+- when a stage launches aspect jobs, `aspect-job-map.json`
+  (`dd-flow/aspect-job-map@1`) is its RUN-local execution receipt; it is not
+  projected into a second job table in `run.json` or `run-index.json`;
 - old names such as `plan-stage-report.json` or flow-specific names such as `review-data.json` may exist only as compatibility aliases;
 - important acceptance evidence must be promoted to verification passports or curated protocol evidence.
 
@@ -153,6 +157,11 @@ When a registered Codex session supplies a local `transcript_path`, the CLI may 
 
 Transcript counters can be emitted after the lifecycle command that changes a stage. A delta crossing such a boundary is displayed as `cross_stage_turn` with `indeterminate` confidence, not silently assigned to either stage. Run/session totals can remain measured while stage attribution is incomplete. No prompt, response, raw transcript event, secret or tool output is promoted into run artifacts or dashboard data.
 
+Capacity probes reuse `session_kind: llm_worker` with `role: capacity_probe`.
+They contribute to total measured time/usage but are excluded from reviewer and
+semantic coverage counts. Missing usage or capacity remains
+`unknown`/`unavailable`; never fabricate numeric zero.
+
 Flow flags are resolved once at RUN start and kept in the runtime snapshot:
 
 ```yaml
@@ -170,6 +179,15 @@ flow_flags:
 needed for navigation. A later escalation updates `run.json`, appends a
 `flow_flags_revised` timeline event and refreshes the index through a guarded
 revision; stages never silently fall back to `task_profile`.
+
+For aspect execution, the orchestrator is the sole writer of
+`<run-home>/<stage-dir>/aspect-job-map.json` and uses atomic replace. The map
+owns snapshot identity, capacity observations, unit/job/group/wave/batch joins,
+attempts and report/session paths. After an accepted spawn its mapping is
+written immediately. Resume reconciles map jobs with registered sessions by
+`job_id`: one match repairs, no match stays pending, multiple matches block.
+`run.json`, `run-index.json`, timeline and session catalog keep their existing
+runtime/navigation ownership and link to the receipt rather than duplicating it.
 
 ## Flow-Specific Stage Layouts
 
@@ -290,8 +308,8 @@ Stage report HTML is generated output, not a design surface. The visual shell mu
 
 | Stage | Data schema | Template | Embedded JSON script id |
 | --- | --- | --- | --- |
-| `specify` | `.memory-bank/dd-flow/schemas/specification-stage-report.schema.json` / `dd-flow/specification-stage-report@1` | `.memory-bank/dd-flow/mb-sdlc/specify/stage-report-template.html` | `specification-data` |
-| `plan` | `.memory-bank/dd-flow/schemas/plan-stage-report.schema.json` / `dd-flow/plan-stage-report@2` (legacy `@1` readable) | `.memory-bank/dd-flow/mb-sdlc/plan/stage-report-template.html` | `plan-data` |
+| `specify` | `.memory-bank/dd-flow/schemas/specification-stage-report.schema.json` / `dd-flow/specification-stage-report@2` (legacy `@1` readable) | `.memory-bank/dd-flow/mb-sdlc/specify/stage-report-template.html` | `specification-data` |
+| `plan` | `.memory-bank/dd-flow/schemas/plan-stage-report.schema.json` / `dd-flow/plan-stage-report@3` (legacy `@1`/`@2` readable) | `.memory-bank/dd-flow/mb-sdlc/plan/stage-report-template.html` | `plan-data` |
 | `code` | `.memory-bank/dd-flow/schemas/code-stage-report.schema.json` / `dd-flow/code-stage-report@2` (legacy `@1` readable) | `.memory-bank/dd-flow/mb-sdlc/code/stage-report-template.html` | `code-data` |
 | `merge` | `.memory-bank/dd-flow/schemas/merge-stage-report.schema.json` / `dd-flow/merge-stage-report@2` (legacy `@1` readable) | `.memory-bank/dd-flow/mb-sdlc/merge/stage-report-template.html` | `merge-data` |
 | `release` | `.memory-bank/dd-flow/schemas/release-stage-report.schema.json` / `dd-flow/release-stage-report@1` | `.memory-bank/dd-flow/stage-reports/release-stage-report-template.html` | `release-data` |
@@ -350,9 +368,10 @@ Common stage report metadata:
 
 This folder is not a normal coding stage and does not replace `01-specify/`. It is used only when the agent needs task-specific context before creating a protocol or before asking focused specification questions.
 
-Do not create a `PRT-*` only to run discovery. If discovered knowledge must persist before protocols exist, promote a curated brief to an owner-approved destination. A feature research shelf is conditional and is not activated in the current dd-tasks Memory Bank; do not create it from this example alone:
+Do not create a `PRT-*` only to run discovery. If discovered knowledge must persist before protocols exist, promote a curated brief to the appropriate specification folder:
 
 ```text
+.memory-bank/spec/features/<feature-id>/research/context-brief.md
 .memory-bank/spec/system/<topic-id>/research/context-brief.md
 .memory-bank/protocol/_set/PSET-XXX-<slug>-context-brief.md
 ```

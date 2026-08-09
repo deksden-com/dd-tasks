@@ -139,7 +139,7 @@ When a protocol was implemented in a feature branch/worktree, CLI status surface
 Use these read-only commands before branch-level merge work:
 
 ```bash
-dd-flow protocol branch-status "<PRT-ID>" --json
+dd-flow protocol branch-status "<PRT-ID>" --project-root "<project-root>" --json
 dd-flow protocol branch-status --project-root "<project-root>" --path "<workspace>" --json
 dd-flow merge bundle status --project-root "<project-root>" --path "<workspace>" --json
 ```
@@ -581,6 +581,7 @@ Protocol lifecycle transitions выполняются явной командо�
 
 ```bash
 dd-flow protocol transition "<protocol-id>" \
+  --project-root "<project-root>" \
   --to "<stage>" \
   --payload-file "<payload.json>" \
   --json
@@ -592,6 +593,7 @@ Payload содержит `next_action`, route, workspace, `protocol_location`, `
 
 ```bash
 dd-flow protocol sync-from-run "<protocol-id>" \
+  --project-root "<project-root>" \
   --run "<RUN-ID-or-RUN-short-id>" \
   --target auto \
   --json
@@ -715,11 +717,11 @@ pwd -P
 Если есть протокол и план задач, отражай его в CLI:
 
 ```bash
-dd-flow plan set "<protocol-id>" --file "<plan.json>" --json
-dd-flow plan item start "<protocol-id>" "<item-id>" --json
-dd-flow plan item done "<protocol-id>" "<item-id>" --summary "<summary>" --evidence "<evidence>" --json
-dd-flow plan item block "<protocol-id>" "<item-id>" --reason "<reason>" --json
-dd-flow plan item skip "<protocol-id>" "<item-id>" --reason "<reason>" --json
+dd-flow plan set "<protocol-id>" --project-root "<project-root>" --file "<plan.json>" --json
+dd-flow plan item start "<protocol-id>" "<item-id>" --project-root "<project-root>" --json
+dd-flow plan item done "<protocol-id>" "<item-id>" --project-root "<project-root>" --summary "<summary>" --evidence "<evidence>" --json
+dd-flow plan item block "<protocol-id>" "<item-id>" --project-root "<project-root>" --reason "<reason>" --json
+dd-flow plan item skip "<protocol-id>" "<item-id>" --project-root "<project-root>" --reason "<reason>" --json
 ```
 
 Плановые пункты должны включать не только кодовые задачи, но и gates, если они значимы:
@@ -833,7 +835,7 @@ implementation -> readiness -> ready_for_merge | close_protocol | ask_user | blo
 После `readiness`, если feature branch готова:
 
 ```bash
-dd-flow protocol ready-for-merge "<protocol-id>" --json
+dd-flow protocol ready-for-merge "<protocol-id>" --project-root "<project-root>" --json
 ```
 
 Дальше один из merge entrypoints:
@@ -874,7 +876,7 @@ git worktree list
 Для отменённых или неудачных экспериментальных прогонов сначала используй штатную отмену runtime, а не ручное удаление папки:
 
 ```bash
-dd-flow protocol cancel "<protocol-id>" --reason "<why this run is stale>" --close-sessions true --cancel-queue true --release-locks true --worktree remove --force --json
+dd-flow protocol cancel "<protocol-id>" --project-root "<project-root>" --reason "<why this run is stale>" --close-sessions true --cancel-queue true --release-locks true --worktree remove --force --json
 ```
 
 Ожидаемое поведение CLI: protocol становится `cancelled/cancelled`, связанный disposable feature worktree удаляется даже если он был записан только в `state.workspace`, локальная feature branch удаляется при `--force`, dashboard/queue/locks можно проверить после refresh. Если CLI сообщает `removed`, но `git worktree list` или `git branch --list` всё ещё показывает хвост, это cleanup/runtime finding.

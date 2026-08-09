@@ -1,14 +1,14 @@
 {
   "schema_id": "dd-flow/project-flow-pack-manifest@2",
-  "pack_version": "2.17.0",
+  "pack_version": "2.17.1",
   "flow_origin_policy": "project_local_pack",
   "canon_root": "/Users/deksden/Documents/_Projects/dd-memorybank",
   "canon_memory_bank_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank",
   "canon_flow_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank/dd-flow",
-  "source_commit": "79f2eec863c3e4cf3712bca12b28254012de32a3",
-  "canon_version_at_source_commit": "2.17.0",
+  "source_commit": "4d541e8de19ae5edc67c109c96b97034b1b4b3d3",
+  "canon_version_at_source_commit": "2.17.1",
   "flow_contract": "dd-flow-canonical-2026-06",
-  "installed_at": "2026-08-08T08:50:00.000Z",
+  "installed_at": "2026-08-09T10:42:44.000Z",
   "included_files": [
     "README.md",
     "code.md",
@@ -249,5 +249,5 @@
   "generated_allow_patterns": [
     ".generated/**"
   ],
-  "notes": "Curated project-local flow pack upgraded to canonical Memory Bank 2.17.0 at source commit 79f2eec863c3e4cf3712bca12b28254012de32a3; project-owned policies remain locally governed."
+  "notes": "Curated project-local flow pack upgraded to canonical Memory Bank 2.17.1 at source commit 4d541e8de19ae5edc67c109c96b97034b1b4b3d3; project-owned policies remain locally governed."
 }

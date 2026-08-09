@@ -511,7 +511,7 @@ Readiness не должен финально писать release version. Он 
 Если проект использует очередь слияния через `dd-flow` CLI и ветка готова к интеграции, не выполняй merge из обычной рабочей сессии. Вместо этого явно поставь протокол в очередь:
 
 ```bash
-dd-flow protocol ready-for-merge "<protocol-id>" --json
+dd-flow protocol ready-for-merge "<protocol-id>" --project-root "<project-root>" --json
 ```
 
 Перед вызовом проверь, что:
@@ -526,7 +526,7 @@ dd-flow protocol ready-for-merge "<protocol-id>" --json
 
 Если CLI отказал в `ready-for-merge`, не обходи проверку. Исправь явный хвост, обнови протокол или оформи `DEF-*`, если блокер нельзя закрыть сейчас.
 
-Если отказ содержит `protocol_run_stage_mismatch`, сначала проверь latest linked run, stage reports and protocol summary. Для legacy/degraded run допускается `dd-flow protocol sync-from-run "<protocol-id>" --run "<RUN-ID>" --target auto --json`. Если evidence недостаточно, не выполняй merge и оформи blocker/DEF.
+Если отказ содержит `protocol_run_stage_mismatch`, сначала проверь latest linked run, stage reports and protocol summary. Для legacy/degraded run допускается `dd-flow protocol sync-from-run "<protocol-id>" --project-root "<project-root>" --run "<RUN-ID>" --target auto --json`. Если evidence недостаточно, не выполняй merge и оформи blocker/DEF.
 
 Если `summary.md` отсутствует или пустой, не вызывай `ready-for-merge`: это blocker `missing_feature_worktree_protocol_summary`, потому что merge worker не должен принимать job без файлового протокола.
 

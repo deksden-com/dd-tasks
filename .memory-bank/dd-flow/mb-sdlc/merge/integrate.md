@@ -180,7 +180,7 @@ git branch -r --merged origin/<integration>
 После cleanup, если job был закрыт через `merge-queue complete`, обнови финальную queue note:
 
 ```bash
-dd-flow merge-queue note "<protocol-id>" --worker-id "<worker-id>" --summary "<merged, pushed, checked, cleanup done/skipped final summary>" --json
+dd-flow merge-queue note "<protocol-id>" --project-root "<project-root>" --worker-id "<worker-id>" --summary "<merged, pushed, checked, cleanup done/skipped final summary>" --json
 ```
 
 Финальная `last_reason` должна описывать уже завершённый cleanup или явную причину его пропуска. Не оставляй `pending cleanup` как итоговый queue reason.
@@ -348,7 +348,7 @@ Each row should include `status` and `evidence`. Evidence may be a command log, 
 - stage report visible text/browser smoke or explicit degraded reason;
 - breadcrumbs link to specification, plan and code stage reports if they exist; legacy breadcrumbs may still link to `01-plan/stage-report.html` and `02-code/stage-report.html`.
 
-Перед integration и перед `merge-queue complete` проверь `dd-flow protocol status "<protocol-id>" --json`. Если diagnostics содержит `protocol_run_stage_mismatch` severity `error`, не продолжай merge: сначала выполни безопасный repair через `dd-flow protocol sync-from-run` или останови job как failed/requeued с понятной причиной. Merge stage не должен скрывать registered-but-merged или stale RUN/protocol state.
+Перед integration и перед `merge-queue complete` проверь `dd-flow protocol status "<protocol-id>" --project-root "<project-root>" --json`. Если diagnostics содержит `protocol_run_stage_mismatch` severity `error`, не продолжай merge: сначала выполни безопасный repair через `dd-flow protocol sync-from-run "<protocol-id>" --project-root "<project-root>" --run "<RUN-ID>" --target auto --json` или останови job как failed/requeued с понятной причиной. Merge stage не должен скрывать registered-but-merged или stale RUN/protocol state.
 
 В конце merge stage:
 

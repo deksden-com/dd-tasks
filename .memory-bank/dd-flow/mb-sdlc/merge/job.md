@@ -94,10 +94,10 @@
 3. Changelog/protocol summary/evidence updated.
 4. Stage report data/report updated.
 5. Close queue outcome:
-   - single protocol: `dd-flow merge-queue complete <PRT-ID> --worker-id <worker-id> --path <merge-workspace> --summary "<pre-cleanup summary>" --json`;
+   - single protocol: `dd-flow merge-queue complete <PRT-ID> --project-root <project-root> --worker-id <worker-id> --path <merge-workspace> --summary "<pre-cleanup summary>" --json`;
    - branch bundle: `dd-flow merge bundle complete --project-root "<project-root>" --worker-id "<worker-id>" --path "<merge-workspace>" --summary "<pre-cleanup summary>" --json`.
 6. Cleanup ветки/worktree/session/dashboard по политике проекта.
-7. `dd-flow merge-queue note <PRT-ID> --worker-id <worker-id> --summary "<final summary after cleanup>" --json`.
+7. `dd-flow merge-queue note <PRT-ID> --project-root <project-root> --worker-id <worker-id> --summary "<final summary after cleanup>" --json`.
 8. Release/stop handling:
    - one-shot session stops after the job;
    - long-lived worker continues waiting unless stop-after-current was requested;
@@ -107,7 +107,7 @@
 
 1. Зафиксируй reason.
 2. Record queue failure:
-   - single protocol: `dd-flow merge-queue fail <PRT-ID> --worker-id <worker-id> --path <merge-workspace> --reason "<reason>" --requeue true|false --json`;
+   - single protocol: `dd-flow merge-queue fail <PRT-ID> --project-root <project-root> --worker-id <worker-id> --path <merge-workspace> --reason "<reason>" --requeue true|false --json`;
    - branch bundle: `dd-flow merge bundle fail --project-root "<project-root>" --worker-id "<worker-id>" --path "<merge-workspace>" --reason "<reason>" --requeue true|false --json`.
 3. Release/stop handling по текущему worker state.
 4. Stage report or failure report must make next action explicit.

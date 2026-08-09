@@ -43,8 +43,13 @@ protocol created
 Check the strongest available evidence:
 
 - `dd-flow protocol status <PRT-ID> --project-root <root> --json`;
+- `dd-flow protocol branch-status <PRT-ID> --project-root <root> --json`;
 - `dd-flow protocol blockers <PRT-ID> --project-root <root> --json`;
 - `dd-flow protocol implement <PRT-ID> --project-root <root> --json`, when continuing an existing protocol;
+- `dd-flow protocol transition <PRT-ID> --project-root <root> ... --json`;
+- `dd-flow protocol sync-from-run <PRT-ID> --project-root <root> ... --json`;
+- `dd-flow protocol ready-for-merge <PRT-ID> --project-root <root> --json`;
+- `dd-flow protocol cancel <PRT-ID> --project-root <root> ... --json`;
 - `flow_guidance` blocks in status/transition/run/merge command outputs;
 - `run-index.json`;
 - `01-specify/stage-report.json` when present;

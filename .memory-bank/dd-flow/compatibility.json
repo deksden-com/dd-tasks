@@ -1,10 +1,10 @@
 {
   "schema_id": "dd-flow/compatibility@1",
-  "memory_bank_version": "2.17.0",
+  "memory_bank_version": "2.17.1",
   "dd_flow_cli": {
     "package_name": "@deksden-com/dd-flow-cli",
     "min_version": "0.4.0",
-    "recommended_version": "0.4.0",
+    "recommended_version": "0.4.2",
     "status_contract": "dd-flow/status-report@1",
     "version_contract": "dd-flow/version-report@1",
     "flow_contract": "dd-flow-canonical-2026-06"
@@ -12,7 +12,7 @@
   "router": {
     "package_name": "@deksden-com/dd-flow-cli",
     "min_version": "0.4.0",
-    "recommended_version": "0.4.0",
+    "recommended_version": "0.4.2",
     "routing_model": "legacy_direct_cli",
     "engine_store": "~/.dd-flow/engines",
     "notes": "PRT-061 will introduce routed engine dispatch. Until then dd_flow_cli is the effective command executor."
@@ -20,8 +20,8 @@
   "engine": {
     "package_name": "@deksden-com/dd-flow-cli",
     "version_range": ">=0.4.0 <0.5.0",
-    "recommended_version": "0.4.0",
-    "install_hint": "npm install -g @deksden-com/dd-flow-cli@0.4.0",
+    "recommended_version": "0.4.2",
+    "install_hint": "npm install -g @deksden-com/dd-flow-cli@0.4.2",
     "old_engine_install_hint": "npx @deksden-com/dd-flow-cli@<version> engine install",
     "first_engine_installable_version": "0.4.0",
     "legacy_direct_cli_before": "0.4.0",
@@ -43,8 +43,8 @@
   },
   "migrations": {
     "mode": "mb-upgrade-only",
-    "from_previous": "2.16.1",
-    "to_this": "2.17.0",
+    "from_previous": "2.17.0",
+    "to_this": "2.17.1",
     "adjacent_only": true,
     "normal_commands_may_migrate": false
   },

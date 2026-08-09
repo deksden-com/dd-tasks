@@ -2,8 +2,8 @@
 file: '.memory-bank/index.md'
 description: 'Рабочий вход в Банк памяти проекта dd-tasks.'
 purpose: 'Фиксирует подтверждённое состояние проекта на текущем Git-снимке.'
-version: '1.1.0'
-date: '2026-08-08'
+version: '1.2.0'
+date: '2026-08-09'
 status: 'ACTIVE'
 c4_level: 'project'
 parent: null
@@ -15,10 +15,13 @@ children:
   - .memory-bank/scenarios/index.md
   - .memory-bank/protocol/index.md
   - .memory-bank/defs/index.md
-memory_bank_version: '2.17.0'
+memory_bank_version: '2.17.1'
 initialization_status: 'initialized_published'
 tags: [dd-tasks, memory-bank]
 history:
+  - version: '1.2.0'
+    date: '2026-08-09'
+    changes: 'Canonical Memory Bank 2.17.1 синхронизирован; linked-CLI registry/artifact reconciliation добавлен в release gate, project-owned knowledge сохранено.'
   - version: '1.1.0'
     date: '2026-08-08'
     changes: 'Canonical Memory Bank 2.17.0 синхронизирован; compatibility marker, adjacent migration window и flow-pack provenance выровнены с каноном.'
@@ -59,8 +62,8 @@ history:
 
 # Банк памяти dd-tasks
 
-Канонический релиз Банка памяти: `2.17.0`. Curated project flow pack
-происходит из canonical commit `79f2eec863c3e4cf3712bca12b28254012de32a3`;
+Канонический релиз Банка памяти: `2.17.1`. Curated project flow pack
+происходит из canonical commit `4d541e8de19ae5edc67c109c96b97034b1b4b3d3`;
 canonical-only entrypoints запускаются только из canonical checkout.
 
 dd-tasks — небольшой командный трекер задач. После нулевого checkpoint и

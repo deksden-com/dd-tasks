@@ -2,8 +2,8 @@
 file: '.memory-bank/mbb/operations-release-guide.md'
 description: 'Canonical guide for git flow, integration, beta acceptance, release, rollout, rollback, and operational evidence.'
 purpose: 'Read when defining project operations so feature branches, develop, beta, production, and release evidence have clear gates.'
-version: '0.12.0'
-date: '2026-08-04'
+version: '0.13.0'
+date: '2026-08-09'
 status: 'ACTIVE'
 c4_level: 'standard'
 parent: '.memory-bank/mbb/index.md'
@@ -19,6 +19,9 @@ related_files:
   - .memory-bank/mbb/templates/secrets-policy.md
 tags: [mbb, operations, git-flow, release, rollout, beta, production, rollback, evidence, authorization, identity, access-bindings]
 history:
+  - version: '0.13.0'
+    date: '2026-08-09'
+    changes: 'Добавлен обязательный linked-CLI registry/artifact preflight для каждого Memory Bank release; неопубликованный обязательный CLI блокирует canon release или входит в coupled release set.'
   - version: '0.12.0'
     date: '2026-08-04'
     changes: 'Сделано обязательным обновление и schema/consistency validation compatibility manifest для каждого Memory Bank canon release, независимо от изменения runtime CLI.'
@@ -327,6 +330,18 @@ Deploy policy потребляет commit, tag, package, image, build или sta
 - актуальный `.memory-bank/dd-flow/compatibility.json` с `memory_bank_version`, совпадающим с каноном, и `migrations.from_previous`/`migrations.to_this`, соответствующими соседнему release-impact;
 - успешную проверку manifest через `dd-flow schema validate --schema compatibility`;
 - consistency check compatibility manifest с `VERSION`, canonical version marker и `.memory-bank/release-impact/<target-version>.json`;
+- reconciliation каждого CLI/package, связанного через project policy или
+  compatibility manifest: checkout HEAD, package version, peeled tag, registry
+  `latest`, published artifact build/source commit и pending Changesets либо
+  другие generated release-note inputs.
+
+Pending Changeset сам по себе не доказывает, что код не опубликован. Release
+set строится от published artifact commit: fragments уже вошедших в него
+изменений являются stale accounting debt и закрываются в фактическом
+changelog release без повторного bump. Если обязательное для нового канона
+CLI behavior существует только в checkout или source tag, package publication
+входит в coupled release set либо canon release блокируется. Compatibility
+manifest не может рекомендовать версию, отсутствующую в registry readback.
 
 Если release включает новую версию runtime CLI, дополнительно фиксируй:
 
@@ -342,6 +357,8 @@ Lessons learned для CLI-coupled Memory Bank release:
 - если новый Memory Bank release документирует CLI behavior, которого нет в опубликованной npm версии, сначала запланируй CLI package release или явно оформи publish deferral; не выпускай канон, который требует недоступный package behavior;
 - если CLI build metadata должен ссылаться на canon version and commit, финальный canon release commit должен существовать до `pnpm build`/`npm publish` CLI; если после publish меняются release docs or compatibility files, либо пересобери/перепубликуй CLI, либо явно запиши degraded metadata reason;
 - если package использует Changesets, `CHANGELOG.md` обычно является generated/derived target: агент создаёт или обновляет `.changeset/*`, затем запускает `changeset version`; не веди параллельный manual `Unreleased`, а если legacy manual entries уже есть, сверни их в generated release section перед publish;
+- pending Changesets сверяй с published artifact commit; уже опубликованные
+  implementation commits не должны повторно поднимать package version;
 - release readback для npm package должен проверять registry version, локально установленную/linked CLI version, build metadata, and Memory Bank compatibility verdict; registry readback alone is not enough;
 - token handling must remain command-local: source operator `.env` only into environment variables, use temporary npm config when needed, and never copy token values into reports, changelog, shell examples or committed files.
 

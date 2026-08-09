@@ -2,8 +2,8 @@
 file: '.memory-bank/dd-flow/release.md'
 description: 'Top-level flow prompt for release/version and change-set fixation.'
 purpose: 'Use when the user asks to release a project/canon/package version or fix a release set.'
-version: '0.4.0'
-date: '2026-08-04'
+version: '0.5.0'
+date: '2026-08-09'
 status: 'DRAFT'
 c4_level: 'flow-entrypoint'
 parent: '.memory-bank/dd-flow/index.md'
@@ -19,6 +19,9 @@ related_files:
   - .memory-bank/dd-flow/stage-reports/release-stage-report-template.html
 tags: [dd-flow, release, version, changelog, release-set]
 history:
+  - version: '0.5.0'
+    date: '2026-08-09'
+    changes: 'Added package and linked-CLI reconciliation against registry artifact commits so stale Changesets cannot create a duplicate release and a Memory Bank canon cannot recommend unpublished required behavior.'
   - version: '0.1.0'
     date: '2026-07-07'
     changes: 'Added first-class release flow prompt.'
@@ -58,9 +61,33 @@ Release does not deploy a runtime stage unless project policy explicitly says re
    - completed protocol set;
    - all merged changes since last release;
    - package/app/image/static artifact selected by policy.
-4. Determine whether the agent may execute the release or should prepare a release handoff.
-5. Check whether version decision requires user confirmation. If yes, stop and ask before changing version files/tags.
-6. For any protected tag, release-object, registry or provider mutation, resolve one exact access binding and complete fresh safe readback plus scoped approval under `common/operational-access.md`.
+4. For a package with generated release-note inputs, reconcile the registry
+   baseline before choosing a version:
+   - read the latest published version and the artifact source/build commit;
+   - read the current package version, peeled Git tag and pending release-note
+     inputs such as Changesets;
+   - build the candidate release set from commits after the published artifact
+     commit, not from pending fragments alone;
+   - classify a fragment as stale release-accounting debt when its
+     implementation commit is already contained in the published artifact;
+   - classify a newer package version or Git tag absent from the registry as
+     the current unpublished release, which must be completed or repaired
+     before another version is created.
+5. For every Memory Bank canon release, reconcile each CLI/package named by
+   project policy or `.memory-bank/dd-flow/compatibility.json`, even when the
+   canon diff does not change CLI code:
+   - compare checkout HEAD/package version/peeled tag with registry `latest`
+     and the published artifact build/source commit;
+   - inspect pending generated release-note inputs and classify them against
+     the published artifact commit;
+   - if canon-required behavior exists only in an unpublished checkout/tag,
+     either include that exact package publication in the coupled release set
+     or block the canon release;
+   - never set a compatibility recommended version to a package version that
+     registry readback cannot resolve.
+6. Determine whether the agent may execute the release or should prepare a release handoff.
+7. Check whether version decision requires user confirmation. If yes, stop and ask before changing version files/tags.
+8. For any protected tag, release-object, registry or provider mutation, resolve one exact access binding and complete fresh safe readback plus scoped approval under `common/operational-access.md`.
 
 ## Release Set
 
@@ -68,6 +95,10 @@ Build a release set with:
 
 - included protocols, features, issues, commits or artifacts;
 - excluded ready changes and reason;
+- published registry baseline, artifact commit and stale/current classification
+  of pending release-note inputs when package tooling is used;
+- linked CLI/package checkout, tag, registry, artifact-commit and pending
+  release-note reconciliation for a Memory Bank canon release;
 - source branch/tag/commit;
 - version decision and version source of truth;
 - changelog or release-note target;
@@ -87,11 +118,18 @@ Execute only the steps allowed by project policy:
 - verify that the manifest version and migration window agree with `VERSION`, the canonical version marker and `.memory-bank/release-impact/<target-version>.json`; preserve CLI/engine/contract values unless the release explicitly changes compatibility requirements;
 
 - update changelog source or release notes;
+- backfill and retire stale generated release-note fragments whose changes are
+  already present in the published artifact; never use them to bump the next
+  version;
 - update version map targets;
 - build or select release artifacts;
 - create tag/release object when policy requires;
 - run release checks;
 - perform readback of tag/release/package metadata when available.
+
+For package publication, completion requires the registry version, published
+artifact build/source commit and peeled Git tag to agree. A source-only tag is
+`release_not_published`, not a completed package release.
 
 The release-impact artifact is the authoritative input for future `mb-upgrade` scope selection. It is not generated blindly from Git: release authors declare the semantic impact and the release check proves that the declaration covers the changed surface. Missing, invalid or non-adjacent impact evidence blocks a lightweight downstream upgrade and must be reported as requiring `full_migration`.
 

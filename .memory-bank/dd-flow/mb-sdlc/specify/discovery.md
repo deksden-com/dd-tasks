@@ -105,6 +105,27 @@ supported and further browsing would only increase confidence without changing
 the decision. Record failed searches and unresolved facts; never turn silence
 into a requirement.
 
+## Execution adapter
+
+Discovery uses the canonical routing algorithm from `common/subagents.md`:
+
+1. The orchestrator writes the named research questions and performs the
+   baseline scan.
+2. Each independent question/source scope becomes one research unit with a
+   concrete finding consumer and stop condition.
+3. Every unit starts as `orchestrator_local`.
+4. Promote only units that pass the positive semantic gate. Parallel speedup
+   promotion requires at least two substantial independent source scopes;
+   independent-verdict or explicit-user requirements are `required`.
+5. Check packet readiness, then group compatible promoted units, build hard
+   dependency waves, determine capacity and launch batches in that order.
+6. While scouts run, the orchestrator resolves local units. It consolidates all
+   accepted findings into the single gap ledger.
+
+Grouping and available slots do not promote a research unit. A clear local
+case therefore completes without a probe, worker packet or delegation-decision
+artifact.
+
 ## Output boundary
 
 Discovery may produce project facts, analogy proposals, conflicts, unknowns and
@@ -112,8 +133,9 @@ questions for the gap ledger. It must not produce architecture, file layout,
 data structures, implementation order, worker topology or routine Git choices.
 Those belong to `plan` or to the agent's implementation work.
 
-Discovery may supply source facts for the five-axis `task_assessment`, especially
-`surfaces`, `reason` and `solution_uncertainty`. It does not choose flow flags,
+Discovery may supply source facts for the four independent assessment axes,
+especially `surfaces`, `reason` and `solution_uncertainty`. It does not derive
+`plan_floor`, choose flow flags,
 infer assessment from research depth or artifact count, or read the selected
-route back into assessment. The specification owner records the final five axes
-and the one-way legacy projection.
+route back into assessment. The specification owner records the four axes,
+derives `plan_floor` from canonical triggers and writes the one-way legacy projection.

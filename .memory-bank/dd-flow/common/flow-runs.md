@@ -103,7 +103,7 @@ Rules:
 - `run.json` is the authoritative machine/runtime snapshot for continuation, hooks, flag resolution and diagnostics. It is not a byte-for-byte copy of the index;
 - `stage-report.json` is the canonical data payload for a stage;
 - when a stage launches aspect jobs, `aspect-job-map.json`
-  (`dd-flow/aspect-job-map@1`) is its RUN-local execution receipt; it is not
+  (`dd-flow/aspect-job-map@2`; legacy `@1` remains readable) is its RUN-local execution receipt; it is not
   projected into a second job table in `run.json` or `run-index.json`;
 - old names such as `plan-stage-report.json` or flow-specific names such as `review-data.json` may exist only as compatibility aliases;
 - important acceptance evidence must be promoted to verification passports or curated protocol evidence.
@@ -182,10 +182,12 @@ revision; stages never silently fall back to `task_profile`.
 
 For aspect execution, the orchestrator is the sole writer of
 `<run-home>/<stage-dir>/aspect-job-map.json` and uses atomic replace. The map
-owns snapshot identity, capacity observations, unit/job/group/wave/batch joins,
-attempts and report/session paths. After an accepted spawn its mapping is
-written immediately. Resume reconciles map jobs with registered sessions by
-`job_id`: one match repairs, no match stays pending, multiple matches block.
+owns snapshot identity and one launch row per accepted semantic spawn: attempt,
+job, session, packet, report, state and optional retry identity. It does not
+store capacity observations, groups, waves, batches or derived totals. After an
+accepted spawn its mapping is written immediately. Resume reconciles map jobs
+with registered sessions by `job_id`: one match repairs, no match stays pending,
+multiple matches block.
 `run.json`, `run-index.json`, timeline and session catalog keep their existing
 runtime/navigation ownership and link to the receipt rather than duplicating it.
 
@@ -309,7 +311,7 @@ Stage report HTML is generated output, not a design surface. The visual shell mu
 | Stage | Data schema | Template | Embedded JSON script id |
 | --- | --- | --- | --- |
 | `specify` | `.memory-bank/dd-flow/schemas/specification-stage-report.schema.json` / `dd-flow/specification-stage-report@2` (legacy `@1` readable) | `.memory-bank/dd-flow/mb-sdlc/specify/stage-report-template.html` | `specification-data` |
-| `plan` | `.memory-bank/dd-flow/schemas/plan-stage-report.schema.json` / `dd-flow/plan-stage-report@3` (legacy `@1`/`@2` readable) | `.memory-bank/dd-flow/mb-sdlc/plan/stage-report-template.html` | `plan-data` |
+| `plan` | `.memory-bank/dd-flow/schemas/plan-stage-report.schema.json` / `dd-flow/plan-stage-report@4` (legacy `@1`/`@2`/`@3` readable) | `.memory-bank/dd-flow/mb-sdlc/plan/stage-report-template.html` | `plan-data` |
 | `code` | `.memory-bank/dd-flow/schemas/code-stage-report.schema.json` / `dd-flow/code-stage-report@2` (legacy `@1` readable) | `.memory-bank/dd-flow/mb-sdlc/code/stage-report-template.html` | `code-data` |
 | `merge` | `.memory-bank/dd-flow/schemas/merge-stage-report.schema.json` / `dd-flow/merge-stage-report@2` (legacy `@1` readable) | `.memory-bank/dd-flow/mb-sdlc/merge/stage-report-template.html` | `merge-data` |
 | `release` | `.memory-bank/dd-flow/schemas/release-stage-report.schema.json` / `dd-flow/release-stage-report@1` | `.memory-bank/dd-flow/stage-reports/release-stage-report-template.html` | `release-data` |

@@ -309,7 +309,7 @@
           "verification.depth": "full",
           "evidence.level": "verification_passport"
         },
-        "reason": "Contract/runtime/data/security work requires full planning, independent review and durable evidence."
+        "reason": "High-risk contract/runtime/data/security work requires full planning, independent review and durable evidence."
       },
       {
         "when": { "risk": ["high"], "operations": ["ci", "deploy", "release", "rollback"] },

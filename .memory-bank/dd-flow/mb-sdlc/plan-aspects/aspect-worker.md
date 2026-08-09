@@ -2,8 +2,8 @@
 file: '.memory-bank/dd-flow/mb-sdlc/plan-aspects/aspect-worker.md'
 description: 'Common entrypoint for MB-SDLC aspect reviewers running as fresh subagent sessions.'
 purpose: 'Read before a specific aspect prompt to prime a focused SDLC aspect reviewer from explicit files rather than hidden orchestrator context.'
-version: '0.2.0'
-date: '2026-07-09'
+version: '0.2.1'
+date: '2026-08-09'
 status: 'ACTIVE'
 c4_level: 'documentation'
 parent: '.memory-bank/dd-flow/mb-sdlc/plan-aspects/index.md'
@@ -14,6 +14,9 @@ related_files:
   - .memory-bank/dd-flow/mb-sdlc/plan-aspects/aspects/index.md
 tags: [dd-flow, mb-sdlc, aspects, subagents, worker, prompt]
 history:
+  - version: '0.2.1'
+    date: '2026-08-09'
+    changes: 'Clarified that hard predecessor handoff may reference accepted local aspect-map output or delegated report.'
   - version: '0.1.0'
     date: '2026-07-09'
     changes: 'Created common fresh-session aspect worker prompt for PRT-078.'
@@ -57,7 +60,7 @@ handoff:
   predecessor_reports:
     - aspect_id:
       verdict: accepted | not_applicable
-      report_path:
+      report_path: <accepted delegated report or local aspect-map artifact>
   recovery_attempt_paths: []
 constraints:
 ```
@@ -72,7 +75,9 @@ constraints:
 4. Read the specific `aspect_prompt`.
 5. Read any common/stage prompts named by the task packet.
 6. Read all task-specific project/protocol/stage sources from `read`, including
-   each explicit accepted predecessor report from `handoff` when present.
+   each explicit accepted predecessor output from `handoff` when present. The
+   compatibility field is named `predecessor_reports`, but a local predecessor
+   may point to its accepted row in `aspect-map.json`.
 7. Perform aspect-specific project grounding from the aspect prompt.
 8. Inspect the relevant diff, reports, docs, code, scenarios, evidence, DEFs, runtime state or policies.
 9. Write the aspect report to `write_report_to`.

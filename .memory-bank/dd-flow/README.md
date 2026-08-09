@@ -192,7 +192,7 @@ dd-flow status --project-root "<target-project-root>" --json
 - [dashboard/global-dashboard-template.html](dashboard/global-dashboard-template.html): canonical marker/template for `~/.dd-flow/dashboard/global-dashboard.html` over `global-dashboard-data@1`.
 - [dashboard/project-dashboard-template.html](dashboard/project-dashboard-template.html): canonical marker/template for `<project>/.tasks/dd-flow-dashboard/project-dashboard.html` over `project-dashboard-data@1`.
 - [dashboard/protocol-page-template.html](dashboard/protocol-page-template.html): canonical marker/template for `<project>/.tasks/dd-flow-dashboard/protocols/<PRT-ID>.html` over `protocol-dashboard-data@1`.
-- [experiments/eval-report-template.html](experiments/eval-report-template.html): canonical static HTML template for eval/experiment reports over current `eval-report-data@2`; legacy `@1` remains readable.
+- [experiments/eval-report-template.html](experiments/eval-report-template.html): canonical static HTML template for eval/experiment reports over current `eval-report-data@3`; legacy `@1` and `@2` remain readable.
 - [merge.md](merge.md): current-session one-shot/status entrypoint; не создаёт долгоживущий worker.
 - [merge-start.md](merge-start.md): старт или status долгоживущего project merge worker.
 - [merge-stop.md](merge-stop.md): мягкая остановка project merge worker.

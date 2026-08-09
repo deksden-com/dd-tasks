@@ -2,14 +2,13 @@
 file: '.memory-bank/dd-flow/mb-sdlc/plan-aspects/aspects/ui_ux_accessibility_review.md'
 description: 'Aspect prompt for UI, UX and accessibility review.'
 purpose: 'Review user-facing screens, components, dashboards, reports and interactions.'
-version: '0.1.0'
-date: '2026-07-09'
+version: '0.1.1'
+date: '2026-08-09'
 status: 'ACTIVE'
 c4_level: 'documentation'
 parent: 'index.md'
 design_stage: vertical_slice
-depends_on: [architecture_design_quality]
-informs: [contract_propagation_design]
+depends_on: []
 tags: [dd-flow, mb-sdlc, aspect, ui, accessibility]
 ---
 

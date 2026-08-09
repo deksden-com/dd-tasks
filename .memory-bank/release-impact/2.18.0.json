@@ -1,0 +1,28 @@
+{
+  "schema_id": "dd-flow/release-impact@1",
+  "from_version": "2.17.1",
+  "to_version": "2.18.0",
+  "minimum_upgrade_mode": "targeted_minor",
+  "domains": [
+    "canonical_layer",
+    "engineering",
+    "operations",
+    "plans",
+    "scenarios"
+  ],
+  "path_migration": false,
+  "runtime_migration": false,
+  "required_checks": [
+    "mb-lint",
+    "git diff --check",
+    "adaptive planning and capacity evals",
+    "flow-contract schema and semantic validation",
+    "report schema and template validation",
+    "release-impact schema validation",
+    "compatibility schema validation",
+    "compatibility consistency check",
+    "release-stage report schema validation",
+    "linked CLI registry/tag/artifact-commit reconciliation"
+  ],
+  "notes": "This minor release makes specify and plan routing local-first, delegates knowledge extraction and planning aspects only on positive unit-local triggers, removes redundant capacity and routing projections, and introduces compact plan-stage-report@4, specification-stage-report@2 and eval-report-data@3 contracts. Legacy report versions remain readable. No canonical path or persistent runtime migration is required, but upgrades should use targeted minor review because routing defaults and report writers changed."
+}

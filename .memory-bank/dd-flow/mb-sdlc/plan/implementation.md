@@ -142,7 +142,7 @@ validation. Bare link, недоступный worker-у или consumer-у, не
 Это не второй plan и не список всех транзитивных источников. `required_read` задаёт стартовый минимум, `discovery_boundary` - допустимое расширение исследования, а canonical worker profile остаётся владельцем общих правил. Для delegated meaningful item также нужен selected `semantic_spine`; tiny/local item может иметь explicit `not_applicable` reason и не обязан получать renderer. Планер не копирует в JSON общие Git, priming, recovery или MBB instructions.
 
 Для final `execution_efficiency_review` task manifest использует profile
-`verification` и дополняет этот минимум accepted predecessor reports,
+`verification` и дополняет этот минимум accepted predecessor outputs,
 плановыми и verification artifacts, aspect map/graph, project check policy и
 только теми scenario/seed/eval sources, которые действительно участвуют в
 acceptance. Эти inputs нужны потому, что worker проверяет уже спроектированную

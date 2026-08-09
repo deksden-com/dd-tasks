@@ -149,7 +149,7 @@ Legacy fallback:
 
 Если найден `02-plan/stage-report.json`, legacy `01-plan/stage-report.json` или legacy `plan-stage-report.json`:
 
-1. Проверь, что новый RUN использует `schema_id: dd-flow/plan-stage-report@3`; legacy `@1` и `@2` остаются read-only inputs. `flow_flags.snapshot_revision` и `snapshot_checksum` должны совпадать с authoritative `run.json`.
+1. Проверь, что новый RUN использует `schema_id: dd-flow/plan-stage-report@4`; legacy `@1`, `@2` и `@3` остаются read-only inputs. `flow_flags.snapshot_revision` и `snapshot_checksum` должны совпадать с authoritative `run.json`.
 2. Если доступен CLI, выполни:
 
    ```bash

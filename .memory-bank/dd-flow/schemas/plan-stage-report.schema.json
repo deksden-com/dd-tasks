@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "dd-flow/plan-stage-report@3",
+  "$id": "dd-flow/plan-stage-report@4",
   "title": "dd-flow plan stage report data",
   "type": "object",
   "additionalProperties": false,
@@ -14,11 +14,43 @@
     },
     {
       "if": {
+        "properties": { "schema_id": { "enum": ["dd-flow/plan-stage-report@3", "dd-flow/plan-stage-report@4"] } },
+        "required": ["schema_id"]
+      },
+      "then": {
+        "required": ["flow_flags", "task_assessment", "legacy_projection"],
+        "allOf": [
+          {
+            "oneOf": [
+              { "properties": { "task_assessment": { "properties": { "scope_breadth": { "properties": { "level": { "const": "narrow" } } } } }, "legacy_projection": { "properties": { "size": { "const": "small" } } } } },
+              { "properties": { "task_assessment": { "properties": { "scope_breadth": { "properties": { "level": { "const": "cross_layer" } } } } }, "legacy_projection": { "properties": { "size": { "const": "medium" } } } } },
+              { "properties": { "task_assessment": { "properties": { "scope_breadth": { "properties": { "level": { "const": "system_wide" } } } } }, "legacy_projection": { "properties": { "size": { "const": "large" } } } } }
+            ]
+          },
+          {
+            "oneOf": [
+              { "properties": { "task_assessment": { "properties": { "failure_impact": { "properties": { "level": { "const": "low" } } } } }, "legacy_projection": { "properties": { "risk": { "const": "low" } } } } },
+              { "properties": { "task_assessment": { "properties": { "failure_impact": { "properties": { "level": { "const": "medium" } } } } }, "legacy_projection": { "properties": { "risk": { "const": "medium" } } } } },
+              { "properties": { "task_assessment": { "properties": { "failure_impact": { "properties": { "level": { "const": "high" } } } } }, "legacy_projection": { "properties": { "risk": { "const": "high" } } } } }
+            ]
+          },
+          {
+            "oneOf": [
+              { "properties": { "task_assessment": { "properties": { "plan_floor": { "properties": { "level": { "const": "no_plan" } } } } }, "legacy_projection": { "properties": { "planning_route_hint": { "const": "no_plan" } } } } },
+              { "properties": { "task_assessment": { "properties": { "plan_floor": { "properties": { "level": { "const": "compact_plan" } } } } }, "legacy_projection": { "properties": { "planning_route_hint": { "const": "compact_plan" } } } } },
+              { "properties": { "task_assessment": { "properties": { "plan_floor": { "properties": { "level": { "const": "full_plan" } } } } }, "legacy_projection": { "properties": { "planning_route_hint": { "const": "full_plan" } } } } }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "if": {
         "properties": { "schema_id": { "const": "dd-flow/plan-stage-report@3" } },
         "required": ["schema_id"]
       },
       "then": {
-        "required": ["flow_flags", "task_assessment", "legacy_projection", "routing_summary", "capacity_summary"],
+        "required": ["routing_summary", "capacity_summary"],
         "properties": {
           "capacity_summary": {
             "properties": {
@@ -48,30 +80,20 @@
               }
             }
           }
-        },
-        "allOf": [
-          {
-            "oneOf": [
-              { "properties": { "task_assessment": { "properties": { "scope_breadth": { "properties": { "level": { "const": "narrow" } } } } }, "legacy_projection": { "properties": { "size": { "const": "small" } } } } },
-              { "properties": { "task_assessment": { "properties": { "scope_breadth": { "properties": { "level": { "const": "cross_layer" } } } } }, "legacy_projection": { "properties": { "size": { "const": "medium" } } } } },
-              { "properties": { "task_assessment": { "properties": { "scope_breadth": { "properties": { "level": { "const": "system_wide" } } } } }, "legacy_projection": { "properties": { "size": { "const": "large" } } } } }
-            ]
-          },
-          {
-            "oneOf": [
-              { "properties": { "task_assessment": { "properties": { "failure_impact": { "properties": { "level": { "const": "low" } } } } }, "legacy_projection": { "properties": { "risk": { "const": "low" } } } } },
-              { "properties": { "task_assessment": { "properties": { "failure_impact": { "properties": { "level": { "const": "medium" } } } } }, "legacy_projection": { "properties": { "risk": { "const": "medium" } } } } },
-              { "properties": { "task_assessment": { "properties": { "failure_impact": { "properties": { "level": { "const": "high" } } } } }, "legacy_projection": { "properties": { "risk": { "const": "high" } } } } }
-            ]
-          },
-          {
-            "oneOf": [
-              { "properties": { "task_assessment": { "properties": { "plan_floor": { "properties": { "level": { "const": "no_plan" } } } } }, "legacy_projection": { "properties": { "planning_route_hint": { "const": "no_plan" } } } } },
-              { "properties": { "task_assessment": { "properties": { "plan_floor": { "properties": { "level": { "const": "compact_plan" } } } } }, "legacy_projection": { "properties": { "planning_route_hint": { "const": "compact_plan" } } } } },
-              { "properties": { "task_assessment": { "properties": { "plan_floor": { "properties": { "level": { "const": "full_plan" } } } } }, "legacy_projection": { "properties": { "planning_route_hint": { "const": "full_plan" } } } } }
-            ]
-          }
-        ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "schema_id": { "const": "dd-flow/plan-stage-report@4" } },
+        "required": ["schema_id"]
+      },
+      "then": {
+        "required": ["execution_summary"],
+        "properties": {
+          "routing_summary": false,
+          "capacity_summary": false
+        }
       }
     }
   ],
@@ -88,7 +110,7 @@
   ],
   "properties": {
     "schema_id": {
-      "enum": ["dd-flow/plan-stage-report@1", "dd-flow/plan-stage-report@2", "dd-flow/plan-stage-report@3"]
+      "enum": ["dd-flow/plan-stage-report@1", "dd-flow/plan-stage-report@2", "dd-flow/plan-stage-report@3", "dd-flow/plan-stage-report@4"]
     },
     "generated_at": {
       "type": "string",
@@ -151,6 +173,7 @@
     "legacy_projection": { "$ref": "#/definitions/legacyProjection" },
     "routing_summary": { "$ref": "#/definitions/routingSummary" },
     "capacity_summary": { "$ref": "#/definitions/capacitySummary" },
+    "execution_summary": { "$ref": "#/definitions/executionSummary" },
     "route_decision": {
       "type": "object",
       "additionalProperties": true,
@@ -436,6 +459,16 @@
             "verification_mode": { "const": "independent_policy" }
           }
         }
+      }
+    },
+    "executionSummary": {
+      "type": "object",
+      "description": "Minimal runtime facts. wall_clock_ms is generated_at minus the first stage_attached timestamp for this logical stage and includes retries, waits and probes.",
+      "additionalProperties": false,
+      "required": ["wall_clock_ms"],
+      "properties": {
+        "wall_clock_ms": { "type": "integer", "minimum": 0 },
+        "available_subagent_slots": { "type": "integer", "minimum": 0 }
       }
     },
     "routingSummary": {

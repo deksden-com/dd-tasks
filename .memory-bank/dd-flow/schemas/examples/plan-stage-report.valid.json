@@ -83,7 +83,7 @@
     { "id": "scope", "label": "Границы", "radar_label": "Границы", "score": 5, "status": "reviewed", "summary": "Цель и границы ясны.", "note": "Stage report показывает readiness plan stage, не заменяет full protocol report.", "findings": ["Не смешивать plan stage report с code/readiness report.", "Показывать skipped/degraded aspects явно."] },
     { "id": "architecture", "label": "Архитектура", "radar_label": "Архит.", "score": 4, "status": "reviewed", "summary": "Контракт данных выбран.", "note": "Нужно определить schema и generator ownership в code flow.", "findings": ["Данные stage report и HTML должны проверяться на согласованность.", "Граф в UI должен строиться из структурных узлов, а не показывать исходник пользователю."] },
     { "id": "ux", "label": "UX", "radar_label": "UX", "score": 4, "status": "reviewed", "summary": "UI согласован с mb-upgrade-review.", "note": "Следить за overflow, first-screen density и hover/focus подсказками.", "findings": ["Details rows лучше таблиц с длинными hover-only notes.", "Route не должен занимать hero: это контекстный блок снизу."] },
-    { "id": "subagents", "label": "Субагенты", "radar_label": "Субаг.", "score": 3, "status": "watch", "summary": "Критерий запуска должен быть видим.", "note": "Dashboard обязан показать, какие aspect reviewers были запущены и почему.", "findings": ["Если subagents не запускались, нужен reason и degraded marker.", "Plan score не должен скрывать orchestration-only анализ."] },
+    { "id": "subagents", "label": "Маршрутизация", "radar_label": "Route", "score": 4, "status": "reviewed", "summary": "Аспекты по умолчанию закрываются локально.", "note": "Dashboard показывает promotion trigger только для фактически delegated aspects.", "findings": ["Local route не требует downgrade marker.", "Required delegated aspect требует accepted report или явный blocker."] },
     { "id": "verification", "label": "Проверки", "radar_label": "Проверки", "score": 4, "status": "reviewed", "summary": "Нужны schema + render smoke.", "note": "Schema validation ловит contract, browser smoke ловит пустой dashboard.", "findings": ["Проверять visible text, overflow и отсутствие sample data.", "Скриншот полезен как evidence, но не заменяет DOM checks."] },
     { "id": "runtime", "label": "Runtime", "radar_label": "Runtime", "score": 3, "status": "watch", "summary": "CLI/dashboard refresh требует решения.", "note": "Нужно решить, когда plan stage report обновляется автоматически.", "findings": ["Dashboard refresh может быть частью dd-flow CLI mutation hooks.", "Нужно избежать лишнего шума в cmux markdown/dashboard files."] },
     { "id": "delivery", "label": "Доставка", "radar_label": "Доставка", "score": 4, "status": "reviewed", "summary": "Handoff в code понятен.", "note": "Code flow должен получить next action, graph, gates и blockers.", "findings": ["Code prompt должен ссылаться на dashboard/data paths.", "Merge остается отдельной стадией после readiness."] },
@@ -154,7 +154,7 @@
   ],
   "handoff": {
     "code_prompt": ".memory-bank/dd-flow/code.md",
-    "must_read": ["plan-stage-report.json", "phase-summary.md", "subagent-decision.md"],
+    "must_read": ["plan-stage-report.json", "phase-summary.md"],
     "next_gate": "code readiness"
   }
 }

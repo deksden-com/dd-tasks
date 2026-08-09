@@ -1,14 +1,14 @@
 {
   "schema_id": "dd-flow/project-flow-pack-manifest@2",
-  "pack_version": "2.17.1",
+  "pack_version": "2.18.0",
   "flow_origin_policy": "project_local_pack",
   "canon_root": "/Users/deksden/Documents/_Projects/dd-memorybank",
   "canon_memory_bank_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank",
   "canon_flow_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank/dd-flow",
-  "source_commit": "4d541e8de19ae5edc67c109c96b97034b1b4b3d3",
-  "canon_version_at_source_commit": "2.17.1",
+  "source_commit": "af116584a66eab21a33a704a288a6ccb214c9885",
+  "canon_version_at_source_commit": "2.18.0",
   "flow_contract": "dd-flow-canonical-2026-06",
-  "installed_at": "2026-08-09T10:42:44.000Z",
+  "installed_at": "2026-08-09T22:37:35.000Z",
   "included_files": [
     "README.md",
     "code.md",
@@ -239,7 +239,9 @@
     "workers/operational-access-upgrade-reconciliation.md",
     "workers/protocol-archive.md",
     "workers/repair.md",
-    "workers/verify.md"
+    "workers/verify.md",
+    "schemas/examples/eval-report-data.v3.valid.json",
+    "schemas/examples/plan-stage-report.v4.valid.json"
   ],
   "excluded_canonical_only_flows": [
     "mb-init.md",
@@ -249,5 +251,5 @@
   "generated_allow_patterns": [
     ".generated/**"
   ],
-  "notes": "Curated project-local flow pack upgraded to canonical Memory Bank 2.17.1 at source commit 4d541e8de19ae5edc67c109c96b97034b1b4b3d3; project-owned policies remain locally governed."
+  "notes": "Curated project-local flow pack upgraded to canonical Memory Bank 2.18.0 at source commit af116584a66eab21a33a704a288a6ccb214c9885; project-owned policies remain locally governed."
 }

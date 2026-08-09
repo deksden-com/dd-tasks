@@ -2,14 +2,13 @@
 file: '.memory-bank/dd-flow/mb-sdlc/plan-aspects/aspects/def_blocker_review.md'
 description: 'Aspect prompt for DEF and blocker review.'
 purpose: 'Classify gaps as blockers, DEFs or not-applicable without hiding current-gate work.'
-version: '0.1.0'
-date: '2026-07-09'
+version: '0.1.1'
+date: '2026-08-09'
 status: 'ACTIVE'
 c4_level: 'documentation'
 parent: 'index.md'
 design_stage: vertical_slice
-depends_on: [goal_traceability]
-informs: []
+depends_on: []
 tags: [dd-flow, mb-sdlc, aspect, def, blockers]
 ---
 

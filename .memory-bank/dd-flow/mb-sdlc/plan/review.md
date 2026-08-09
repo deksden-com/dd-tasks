@@ -71,7 +71,11 @@ legacy projection односторонняя и source-labelled. Затем пр
 
 ## Как организовать ревью
 
-Создай рабочую папку в `.tasks/` для этой фазы. Сначала прочитай `.memory-bank/dd-flow/mb-sdlc/plan-aspects/index.md` и составь полный `aspect coverage map`, затем выведи бинарное решение: запускать фокусных субагентов или не запускать.
+Создай рабочую папку в `.tasks/` для этой фазы. Сначала прочитай
+`.memory-bank/dd-flow/mb-sdlc/plan-aspects/index.md`, составь полный
+`aspect coverage map` и выполни канонический алгоритм из
+`common/subagents.md`. Отдельного решения об «отказе от субагентов» нет:
+каждый применимый aspect начинает с local route.
 
 Не смешивай два разных вопроса:
 
@@ -86,6 +90,8 @@ applicability: applicable | not_applicable | unknown
 applicability_reason:
 coverage_mode: none | self_check | focused_subagent | grouped_subagent | external_evidence | deferred_as_DEF | blocked
 coverage_reason:
+promotion: none | required | opportunistic
+promotion_trigger:
 independence_reason: <required only for focused_subagent>
 planned_artifacts:
 actual_artifacts:
@@ -114,16 +120,12 @@ deferrals:
 - DEF links;
 - evidence/check links.
 
-Фильтруй запуск субагентов, а не финальную coverage-карту. Субагентов ставь только для applicable/unknown аспектов, где `coverage_mode` выбран как `focused_subagent` или `grouped_subagent`.
+Фильтруй delegation, а не финальную coverage-карту. Все applicable aspects
+сначала получают `coverage_mode: self_check`. `focused_subagent` или
+`grouped_subagent` назначается только после semantic promotion конкретного
+аспекта.
 
-Бинарное решение:
-
-- `run_subagents`, если хотя бы один applicable aspect выбрал
-  `focused_subagent`/`grouped_subagent` по своей локальной причине;
-- `no_subagents`, если все applicable aspects честно закрываются
-  `self_check`/`external_evidence` и ни одному не нужна независимость.
-
-Aspect-local independence signals:
+Aspect-local boundary candidates:
 
 - runtime state, data schema, persistence;
 - public API, CLI command contract, protocol format, hooks, config, dashboard/status;
@@ -132,13 +134,24 @@ Aspect-local independence signals:
 - canonical flow/Memory Bank правила, которыми будут пользоваться агенты;
 - release/merge/evidence gate или `verification_passport`.
 
-Сигнал повышает только затронутый aspect. Для его `focused_subagent` запиши
-конкретный `independence_reason`; task-level `full_plan`/`high` и количество
-aspects не являются blanket promotion.
+Boundary сама по себе не является trigger. Повышай только затронутый aspect,
+если его report реально входит в stage acceptance, а local evidence не даёт
+эквивалентной независимости. Для `focused_subagent` запиши конкретный
+`independence_reason`; task-level `full_plan`/`high` и количество aspects не
+являются blanket promotion. Parallel speedup trigger создаёт `opportunistic`
+promotion, остальные triggers — `required`, как определено в
+`common/subagents.md`.
 
-Запиши решение в `.tasks/.../subagent-decision.md`: ссылку на `aspect-map.json`, local signals, applicable aspects, chosen coverage modes, решение, delegated aspects или причина `no_subagents`, остаточные риски и проверки, которые покрывают solo-проход.
+Создавай `.tasks/.../subagent-decision.md` только если есть хотя бы один
+promoted aspect. Запиши ссылку на `aspect-map.json`, trigger и promotion type,
+promoted aspects, packet readiness, delegated jobs и остаточные риски. Для
+полностью local review этот файл не нужен.
 
-Если решение `run_subagents`, оркестратор не выполняет deep-анализ delegated aspects сам. Он делает intake, tasking, acceptance, fact-check и synthesis по `common/subagents.md`. Deep-анализ выполняет соответствующий aspect subagent. Если оркестратор уже глубоко исследовал delegated aspect до делегирования, зафиксируй `contamination_risk` и способ компенсации в `subagent-decision.md` и phase report.
+После запуска delegated job оркестратор не выполняет deep-анализ его aspects.
+Он делает intake, tasking, acceptance, fact-check и synthesis по
+`common/subagents.md`. Если оркестратор уже глубоко исследовал promoted aspect,
+зафиксируй `contamination_risk` и способ компенсации в
+`subagent-decision.md` и phase report.
 
 Разделяй:
 
@@ -148,32 +161,36 @@ aspects не являются blanket promotion.
 
 Если несколько аспектов покрыты одним субагентом, это не сокращает coverage-карту: каждая строка аспекта остаётся отдельной и ссылается на общий `group_id`, `subagent_id` и `report_path`.
 
-Depth выбирается локально до packing. Critical separation rule оставляет unit
-отдельной; остальные units не становятся focused из-за общего plan floor или
-соседнего риска. Capacity меняет только batch size, не route или grouping.
+Route выбирается локально до packing. Critical separation rule оставляет
+promoted unit отдельной; остальные units не становятся delegated из-за общего
+plan floor или соседнего риска. Capacity меняет только batch size, не semantic
+promotion, grouping или waves.
 
 ### Flow-owned route adapter (PRT-336)
 
-До создания packet для каждого applicable/unknown aspect зафиксируй одно
-решение маршрута в `aspect-map.json`:
+До создания packet для каждого applicable/unknown aspect зафиксируй route в
+`aspect-map.json`:
 
 | Decision | Route | Когда |
 | --- | --- | --- |
-| `self_check_allowed` | `self_check` | Детерминированная applicability/graph/DEF-проверка или очевидный `not_applicable`, где независимый контекст не добавляет уверенности. |
-| `group_eligible` | `grouped_subagent` | Любое совместимое подмножество из двух-трёх units по таблице catalog, с общим immutable snapshot, read-only scope, без hard edge и с отдельными verdict/evidence. |
-| `keep_separate` | `focused_subagent` | Есть aspect-local `independence_reason`: собственная critical/trust boundary, новый механизм, unresolved uncertainty, writer/mutation/operational access или обязательный independent verdict. |
+| `orchestrator_local` | `self_check` | Базовый route любого applicable aspect; оркестратор оставляет source-backed evidence. |
+| `delegate_group` | `grouped_subagent` | Aspect прошёл promotion gate и совместим ещё с одной-двумя promoted units. |
+| `delegate_focused` | `focused_subagent` | Aspect прошёл promotion и требует dedicated session на unit или separation rule. |
 
 Используй единственную compatibility table из `plan-aspects/index.md` с
 `preferred_with`, `must_separate_when`, `max_group_size`. Именованные семьи —
 примеры, не exact allowlist: совместимое подмножество из двух или трёх valid.
-Separation wins. Один focused anchor может нести до двух совместимых secondary
-units; secondary сохраняют исходный route и не получают focused promotion.
+Separation wins. Grouping применяется только к уже promoted units; focused
+anchor не переносит promotion на local secondary unit.
 
-`requires_output_of` означает hard dependency: dependent packet запускается
-только после принятого predecessor report по явному пути; edge называет точный
-consumed output и только он создаёт следующую semantic wave.
-`related_to`/`informed_by` означают soft context и не сериализуют jobs. Batch —
-только capacity-limited launch slice внутри уже построенной wave.
+`depends_on` из aspect prompt становится ребром `requires_output_of` только
+когда successor packet называет путь принятого predecessor output и точные
+данные, которые реально использует. Output может быть local row в
+`aspect-map.json` или delegated report; edge не повышает predecessor.
+Тематическая близость, общий frozen draft,
+предпочтительный порядок или потенциальная польза отчёта не создают ребро.
+Если consumed output нельзя назвать, aspects независимы и остаются в одной
+wave. Batch — только capacity-limited launch slice внутри существующей wave.
 Grouped report допустим только с отдельной секцией на unit: scope, findings,
 verdict, evidence, limitations и completeness. Coverage row сохраняется для
 каждой unit; общий verdict не заменяет unit verdict. При partial failure
@@ -194,7 +211,7 @@ output и findings. Attempt `3` запрещён; accepted siblings не пер�
 - какие риски искать;
 - куда записать отчёт.
 
-Task packet является маршрутизатором, а не заменой aspect prompt. Он должен содержать `common_prompt`, `worker_prompt`, `aspect_prompt`, `read`, `write_report_to`, `protocol_id`, `run_id`, `stage` and constraints. Aspect-specific project grounding берётся из dedicated aspect prompt. Если для delegated aspect нет aspect prompt или task packet не указывает prompt path, не закрывай аспект как `focused_subagent`; используй `blocked`, `degraded` or explicit downgrade.
+Task packet является маршрутизатором, а не заменой aspect prompt. Он должен содержать `common_prompt`, `worker_prompt`, `aspect_prompt`, `read`, `write_report_to`, `protocol_id`, `run_id`, `stage` and constraints. Aspect-specific project grounding берётся из dedicated aspect prompt. Если для required delegated aspect нет aspect prompt или task packet не указывает prompt path, не закрывай аспект как `focused_subagent`; используй `blocked` или `degraded` с точной причиной. Opportunistic aspect возвращается в local route.
 
 ### Dependency graph and rendered packets
 
@@ -205,21 +222,23 @@ affect the task. For meaningful work, each later selected level reads the
 accepted earlier artifact and carries user outcome, component responsibility,
 program boundary and slice contribution into the semantic spine.
 
-Для selected applicable aspects прочитай `depends_on` и `informs` из
-frontmatter dedicated aspect prompts и создай `<run-home>/02-plan/aspect-graph.json`.
-В нём зафиксируй selected nodes, hard and informational edges, topological
-waves, exact consumed output каждого hard edge, packet/launch/report paths,
-acceptance owner and recovery attempt paths. До первого запуска проверь отсутствие циклов и
+Для selected applicable aspects прочитай `depends_on` из frontmatter dedicated
+aspect prompts и создай `<run-home>/02-plan/aspect-graph.json`. Graph содержит
+local и delegated nodes; runtime waves запускают только delegated jobs с уже
+принятыми predecessors. Зафиксируй только hard edges, topological waves, exact consumed data и
+predecessor output path каждого edge, packet/launch/report paths, acceptance
+owner and recovery attempt paths. До первого запуска проверь отсутствие циклов и
 отсутствующих selected hard prerequisites. Эти ошибки блокируют plan; не
 обходи их порядком запуска, придуманным в памяти сессии.
 
 Независимые eligible aspects одной wave можно запускать параллельно batches по
-fresh capacity observation из `common/subagents.md`. Capacity refusal уменьшает
+`available_subagent_slots` из `common/subagents.md`. Capacity refusal уменьшает
 только launch window и не перестраивает groups/waves. Dependent
 aspect получает новый RUN-local `dd-flow/worker-task@1` manifest после того,
-как каждый hard predecessor принят либо имеет обоснованный verdict
-`not_applicable`. В manifest/packet укажи `handoff.predecessor_reports` с
-explicit paths, `handoff.acceptance_owner` and recovery attempt paths; не
+как каждый hard predecessor принят. `not_applicable` удовлетворяет edge только
+если successor contract явно допускает отсутствие данных. В compatibility
+field `handoff.predecessor_reports` укажи accepted local/delegated output paths,
+`handoff.acceptance_owner` and recovery attempt paths; не
 передавай plan dependencies как скрытый контекст.
 
 Материализуй prompt для каждого delegated worker через:
@@ -238,9 +257,9 @@ final integration review: перепроверь принятые findings, cros
 обнови aspect map/plan graph before declaring the review complete.
 
 Если выбран `execution_efficiency_review`, запускай его только финальной wave
-после принятых `testing_system_design_review` и
-`verification_evidence_review`. В его manifest передай accepted
-`handoff.predecessor_reports` и `required_read` для текущего protocol/spec,
+после принятых local/delegated outputs `testing_system_design_review` и
+`verification_evidence_review`. В его manifest передай их через compatibility
+field `handoff.predecessor_reports` и `required_read` для текущего protocol/spec,
 plan draft/`plan.json` when present, task/verification matrix,
 `aspect-map.json`, `aspect-graph.json`, project check-policy/command sources
 and selected scenario/seed/eval artifacts. RUN-local inputs are declared as
@@ -253,15 +272,15 @@ scheduler либо lifecycle state.
 
 После получения отчётов собери сводный отчёт. Не принимай выводы механически: проверь их по проектному контексту и явно укажи, что принято, что отклонено и почему.
 
-Фазовый отчёт review должен содержать раздел `Subagent coverage`:
+Фазовый отчёт review должен содержать раздел `Aspect coverage`:
 
 - полный aspect coverage map with `applicability` and `coverage_mode`;
-- binary decision: `run_subagents` или `no_subagents`;
+- default local route и promotion records для фактически promoted aspects;
 - какие аспектные task packets были созданы;
 - какие отчёты получены;
 - какие аспекты покрыты каждым report/group и какие остались `not_applicable`, `unknown`, `blocked`, `deferred_as_DEF` или `degraded`;
 - какие рекомендации приняты или отклонены;
-- если субагентов не было, ссылка на `subagent-decision.md` и краткое обоснование downgrade.
+- local evidence по аспектам, которые оркестратор закрыл сам.
 
 Если review разбит на пункты CLI plan graph, отмечай start/done/block по фактическому завершению аспектов. Не отмечай review `done`, пока не собран итоговый вердикт оркестратора.
 

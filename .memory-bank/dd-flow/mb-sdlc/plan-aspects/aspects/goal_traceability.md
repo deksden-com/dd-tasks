@@ -2,14 +2,13 @@
 file: '.memory-bank/dd-flow/mb-sdlc/plan-aspects/aspects/goal_traceability.md'
 description: 'Aspect prompt for goal traceability.'
 purpose: 'Verify that SDLC work traces from user goal to scope, plan items, checks and evidence.'
-version: '0.1.0'
-date: '2026-07-09'
+version: '0.1.1'
+date: '2026-08-09'
 status: 'ACTIVE'
 c4_level: 'documentation'
 parent: 'index.md'
 design_stage: product
 depends_on: []
-informs: []
 tags: [dd-flow, mb-sdlc, aspect, goal-traceability]
 ---
 

@@ -1,0 +1,65 @@
+{
+  "schema_id": "dd-flow/eval-report-data@3",
+  "generated_at": "2026-08-09T12:00:00Z",
+  "subject": {
+    "id": "EVL-example",
+    "title": "Minimal eval runtime report",
+    "mode": "gate",
+    "scenario_id": "SCN-example",
+    "run_id": "RUN-example"
+  },
+  "overall": {
+    "verdict": "accepted",
+    "summary": "The exact clarification packet passed before plan.",
+    "score": 10,
+    "score_max": 10,
+    "threshold": 10,
+    "next_action": "keep_gate"
+  },
+  "aspects": [
+    {"id": "input_provenance", "label": "Input provenance", "score": 5, "score_max": 5, "verdict": "accepted", "summary": "Packet identity and timing match."}
+  ],
+  "findings": [],
+  "evidence": [
+    {"label": "Clarification packet", "href": "../evidence/clarification-packet.json", "what_it_proves": "The stored packet matches the applied packet."}
+  ],
+  "task_assessment": {
+    "scope_breadth": {"level": "cross_layer", "surfaces": ["eval", "plan"], "reason": "The gate spans two controller goals."},
+    "solution_novelty": {"level": "extend_existing", "surfaces": ["eval-report"], "reason": "The existing report gains provenance."},
+    "solution_uncertainty": {"level": "known", "surfaces": ["packet-validation"], "reason": "Exact hash comparison is deterministic."},
+    "failure_impact": {"level": "high", "surfaces": ["quality-gate"], "reason": "A mismatch must not enter scoring."},
+    "plan_floor": {"level": "compact_plan", "surfaces": ["plan"], "reason": "The two-goal handoff must be explicit."}
+  },
+  "legacy_projection": {
+    "size": "medium",
+    "risk": "high",
+    "planning_route_hint": "compact_plan",
+    "verification_mode": "automated",
+    "sources": {
+      "size": "task_assessment.scope_breadth",
+      "risk": "task_assessment.failure_impact",
+      "planning_route_hint": "task_assessment.plan_floor",
+      "verification_mode": "independent_policy"
+    }
+  },
+  "execution_summary": {
+    "wall_clock_ms": 1200,
+    "available_subagent_slots": 1
+  },
+  "eval_provenance": {
+    "validity_verdict": "valid",
+    "clarification_required": true,
+    "exact_match": true,
+    "plan_started": true,
+    "evaluation_goal_id": "GOAL-evaluation",
+    "clarification_goal_id": "GOAL-clarification",
+    "packet": {
+      "artifact_ref": "../evidence/clarification-packet.json",
+      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "event_id": "evt-example",
+      "timestamp": "2026-08-09T11:55:00Z",
+      "recipient": "GOAL-clarification",
+      "run_id": "RUN-example"
+    }
+  }
+}

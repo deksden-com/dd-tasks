@@ -2,14 +2,13 @@
 file: '.memory-bank/dd-flow/mb-sdlc/plan-aspects/aspects/architecture_design_quality.md'
 description: 'Aspect prompt for architecture design quality.'
 purpose: 'Review conceptual fit, ownership and lifecycle of non-trivial changes.'
-version: '0.1.1'
-date: '2026-07-09'
+version: '0.1.2'
+date: '2026-08-09'
 status: 'ACTIVE'
 c4_level: 'documentation'
 parent: 'index.md'
 design_stage: system
-depends_on: [goal_traceability]
-informs: [design_aspect_traceability_review]
+depends_on: []
 tags: [dd-flow, mb-sdlc, aspect, architecture]
 history:
   - version: '0.1.1'

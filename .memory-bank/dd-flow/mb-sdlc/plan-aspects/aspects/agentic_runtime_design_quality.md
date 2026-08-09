@@ -2,14 +2,13 @@
 file: '.memory-bank/dd-flow/mb-sdlc/plan-aspects/aspects/agentic_runtime_design_quality.md'
 description: 'Aspect prompt for agentic runtime and AI model-call design quality.'
 purpose: 'Review prompts, model profiles, deterministic harness split, retry/repair, validation and usage accounting.'
-version: '0.2.0'
-date: '2026-07-31'
+version: '0.2.1'
+date: '2026-08-09'
 status: 'ACTIVE'
 c4_level: 'documentation'
 parent: 'index.md'
 design_stage: program
-depends_on: [architecture_design_quality]
-informs: [contract_propagation_design]
+depends_on: []
 tags: [dd-flow, mb-sdlc, aspect, ai, prompts, model-profiles]
 history:
   - version: '0.2.0'

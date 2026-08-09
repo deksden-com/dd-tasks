@@ -2,14 +2,13 @@
 file: '.memory-bank/dd-flow/mb-sdlc/plan-aspects/aspects/execution_efficiency_review.md'
 description: 'Aspect prompt for coverage-preserving execution-efficiency review.'
 purpose: 'Review a full plan for avoidable delivery work only after its testing and evidence design are accepted.'
-version: '0.1.0'
-date: '2026-07-27'
+version: '0.1.2'
+date: '2026-08-09'
 status: 'ACTIVE'
 c4_level: 'documentation'
 parent: 'index.md'
 design_stage: vertical_slice
 depends_on: [testing_system_design_review, verification_evidence_review]
-informs: [scenario_seed_eval_review, performance_capacity_review]
 tags: [dd-flow, mb-sdlc, aspect, verification, execution-efficiency]
 ---
 
@@ -26,7 +25,8 @@ from `testing_system_design_review` or `verification_evidence_review`.
 
 ## Grounding
 
-Read the accepted reports for both hard predecessors, then the current
+Read the accepted outputs for both hard predecessors: an accepted local row in
+`aspect-map.json` or a delegated report. Then read the current
 protocol/specification, plan draft and `plan.json` when present, task or
 verification matrix, `aspect-map.json`, `aspect-graph.json`, project check
 policy/command sources and any selected scenario, seed or eval artifacts whose
@@ -75,7 +75,7 @@ parallelism or shared setup still preserves isolation and reproducibility.
   contract;
 - unsafe shared fixture, seed or environment state is proposed as an
   optimization;
-- a final worker lacks accepted predecessor reports or a declared required
+- a final worker lacks accepted predecessor outputs or a declared required
   source.
 
 ## Acceptable DEF

@@ -51,7 +51,11 @@ Flow origin policy: `project_local`.
 - `.memory-bank/mbb/named-deferrals-guide.md`
 - `.memory-bank/mbb/ai-runtime-prompt-architecture.md`, если задача затрагивает prompt-ы, model calls, agent pipeline, provider profiles, retry/repair или AI-generated artifacts
 
-Субагентов использовать разрешено при необходимости. На стадии review используй правила `plan/review.md`: сначала полная aspect coverage map и локальный route каждого аспекта, затем бинарное решение `run_subagents` или `no_subagents`. `full_plan` и task-level risk сами по себе не требуют focused route для каждого аспекта.
+На стадии review используй правила `plan/review.md` и канонический алгоритм
+`common/subagents.md`: сначала полная aspect coverage map, затем базовый
+`orchestrator_local` route для каждого применимого аспекта. Повышай только
+конкретные аспекты, прошедшие positive promotion gate. `full_plan` и
+task-level risk сами по себе не требуют delegation.
 
 Перед планированием выполни active DEF preflight из `common/memorybank.md`. План должен учитывать relevant `DEF-*` как входные ограничения: закрыть их в текущем scope, поднять в blockers, включить в проверки/evidence или явно оставить как non-blocking follow-up с причиной. Не планируй работу так, будто уже зафиксированных DEF не существует.
 
@@ -122,7 +126,7 @@ patterns и не добавляй dependency/service/layer/process/abstraction/f
 
 ```bash
 dd-flow run start --project-root "<project-root>" --workspace-root "<workspace-root>" --flow-kind mb_sdlc --subject-type protocol --subject-id "<PRT-ID>" --slug "<slug>" --json
-dd-flow run attach-stage "<RUN-ID>" --project-root "<project-root>" --stage plan --dir 02-plan --status running --data-schema-id dd-flow/plan-stage-report@3 --json
+dd-flow run attach-stage "<RUN-ID>" --project-root "<project-root>" --stage plan --dir 02-plan --status running --data-schema-id dd-flow/plan-stage-report@4 --json
 ```
 
 Если run был создан до внедрения specification stage и уже содержит `01-plan/`, не перенумеровывай его. Продолжай legacy layout и запиши `legacy_stage_layout: true` в report.
@@ -177,12 +181,15 @@ next safe action: run protocol/specify or create protocol set/member protocols
 
 Не превращай этот blocker в технический план всего объёма. Допустимо дать краткую recommended slicing proposal, но не code-ready work graph для mega-scope.
 
-Сначала проверь, что specification содержит ровно пять независимых axes
-`task_assessment` с `level`, `surfaces` и `reason`. Пустой `surfaces` допустим
+Сначала проверь, что specification содержит четыре независимые assessment axes
+и производный `plan_floor` с `level`, `surfaces` и `reason`. Пустой `surfaces` допустим
 только с явной non-applicability reason. Не выводи axes из `task_profile`,
 effective flags, route, reviewer count или generated artifacts. Legacy
 `size`, `risk` и `planning_route_hint` должны быть source-labelled one-way
 projection из breadth, impact и floor; verification остаётся independent.
+Если `plan_floor: full_plan`, reason должен называть конкретный разрешённый
+триггер из `common/flow-flags.md`; иначе верни specification на исправление, а не
+создавай RUN override.
 
 После `specify` действуй по effective `route.planning`, который не может быть
 ниже `task_assessment.plan_floor`:
@@ -241,11 +248,15 @@ dd-flow plan set "<protocol-id>" --file "<plan.json>" --json
 
 Для legacy run layout допустимо продолжить запись в `01-plan/`; report должен явно указать, что specification stage отсутствует как отдельная папка из-за старого layout.
 
-`stage-report.json` является source of truth для stage report и входом для `code` flow. Новый RUN пишет `.memory-bank/dd-flow/schemas/plan-stage-report.schema.json` с `schema_id: dd-flow/plan-stage-report@3` и текущим `flow_flags` snapshot projection (`snapshot_revision`, `snapshot_checksum`, effective values и provenance). Legacy `@1` и `@2` остаются читаемыми.
+`stage-report.json` является source of truth для stage report и входом для `code` flow. Новый RUN пишет `.memory-bank/dd-flow/schemas/plan-stage-report.schema.json` с `schema_id: dd-flow/plan-stage-report@4` и текущим `flow_flags` snapshot projection (`snapshot_revision`, `snapshot_checksum`, effective values и provenance). Legacy `@1`, `@2` и `@3` остаются читаемыми.
 
 - `protocol`: id, project, branch, stage and compact title;
 - `overall`: verdict, score, next action and short summary;
 - top-level `task_assessment`, source-labelled legacy projection и `route_decision`; если текущая schema ещё legacy, продублируй их в `handoff`/`report.md` без обратного вывода assessment;
+- `execution_summary.wall_clock_ms`: обязательная разница между самым ранним `stage_attached.at` этого logical plan stage в RUN и `generated_at`; retries, ожидания и probe входят в интервал, `null` запрещён;
+- `execution_summary.available_subagent_slots`: добавляй только если delegated
+  jobs дошли до capacity step; это current slot count из runtime/probe, не
+  число probe attempts или sessions;
 - `route`: planning/git/merge/ci/delivery values with hover notes;
 - `graph`: structural nodes/edges of the plan, not raw Mermaid source;
 - `aspects`: aspect coverage, status, notes and findings;
@@ -255,9 +266,26 @@ dd-flow plan set "<protocol-id>" --file "<plan.json>" --json
 - `plan_items`: code-ready work items with dependencies, verification gates and details;
 - `handoff`: files and next gate that `code` must read.
 
+Не добавляй в `@4` `routing_summary`, `capacity_summary`, probe counters, token
+estimates или вручную пересчитанные totals. Coverage уже хранится в `aspects` и
+aspect map/graph, а фактические semantic launches — в `aspect-job-map@2`.
+
 `aspects` в stage report - это полная coverage-карта plan review, а не список запущенных субагентов. Она должна содержать все применимые planning aspects, а неприменимые аспекты показывать как `not_applicable` с причиной. Для каждого аспекта укажи, как он покрыт: `orchestrator`, `subagent`, `grouped_subagent` или `degraded`. Если несколько аспектов покрыты одним grouped subagent, каждая строка аспекта остаётся отдельной и ссылается на общий `group_id`/`report_path`.
 
-Если принято `run_subagents`, delegated `deep` aspects не должны закрываться анализом оркестратора. Отсутствующий aspect report нельзя заменить summary. Stage report не может показывать `plan_ready`/`ready_for_code`, если применимый `deep` aspect остался без task/report, documented degraded reason или явного blocker.
+Проекция из `aspect-map.json` в stage report однозначна:
+
+- `self_check` и принятое `external_evidence` -> `orchestrator`;
+- `focused_subagent` -> `subagent`;
+- `grouped_subagent` -> `grouped_subagent`;
+- `deferred_as_DEF`/`blocked` -> `degraded` с соответствующим status;
+- `applicability: not_applicable` -> `status: not_applicable` и reason.
+
+Promoted aspects не должны закрываться анализом оркестратора после запуска их
+jobs. Отсутствующий required aspect report нельзя заменить summary. Stage
+report не может показывать `plan_ready`/`ready_for_code`, если required
+delegated aspect остался без accepted report. `blocked` или documented
+`degraded` объясняют non-green verdict, но не заменяют required acceptance и не
+разрешают handoff в `code`.
 
 `stage-report.html` генерируй на основе `.memory-bank/dd-flow/mb-sdlc/plan/stage-report-template.html`: замени JSON внутри `<script id="plan-data" type="application/json">` на validated `stage-report.json`, не создавай визуальную структуру с нуля и не добавляй пользовательский шум вроде исходника Mermaid, JSON dump или внутренних debug blocks.
 
@@ -351,7 +379,10 @@ input; обновляй их только при новом source fact.
 
 Проверь, что каждый найденный риск или контур связан с операционной целью или исходным ограничением. Если ревью предлагает работу, которая не ведёт к цели и не снимает ограничение, пометь её как необязательную или вынеси за границы работы (scope).
 
-На стадии review сначала составь aspect relevance map по правилам `plan/review.md`, затем прими бинарное решение `run_subagents` или `no_subagents`. Не используй формулировку "recommended" как итоговое решение: она должна быть сведена к запуску или незапуску с обоснованием.
+На стадии review сначала составь aspect coverage map по правилам
+`plan/review.md`. Каждый применимый аспект начинает с `self_check`; затем
+примени positive promotion gate к каждому аспекту. Если promoted aspects нет,
+оркестратор сразу выполняет local review без отдельного decision artifact.
 
 Используй субагента только для aspect с выбранным delegated route. Каждый
 `focused_subagent` требует aspect-local `independence_reason`; `full_plan`,
@@ -465,7 +496,9 @@ path.
 `phase-summary.md` должен кратко отвечать по каждой фазе:
 
 - `reflection`: что было переосмыслено, какой главный пробел найден, что было вынесено в долговечные документы;
-- `review`: какие контуры проверены, какие риски приняты в работу, что признано неактуальным, какие аспектные субагенты запускались или почему был зафиксирован downgrade;
+- `review`: какие контуры проверены, какие риски приняты в работу, что признано
+  неактуальным, какие аспекты закрыты локально и какие promoted aspects были
+  делегированы;
 - `implementation plan`: какой граф задач получился, какие пакеты независимы, какие зависят друг от друга, как задачи покрывают цель и ограничения;
 - `operations`: как работа пойдёт через `route.git`, проверки, запрос на слияние (pull request), CI и окружения из `route.delivery`;
 - `scenarios`: какие сценарии предложены или согласованы, какие будущие доказательства и паспорта проверки нужны по `verification` и `evidence`.

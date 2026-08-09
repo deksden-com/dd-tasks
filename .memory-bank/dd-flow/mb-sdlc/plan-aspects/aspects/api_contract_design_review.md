@@ -2,14 +2,13 @@
 file: '.memory-bank/dd-flow/mb-sdlc/plan-aspects/aspects/api_contract_design_review.md'
 description: 'Aspect prompt for API/CLI/SDK contract design review.'
 purpose: 'Review request/response/error/auth/idempotency/versioning contracts and consumers.'
-version: '0.1.0'
-date: '2026-07-09'
+version: '0.1.1'
+date: '2026-08-09'
 status: 'ACTIVE'
 c4_level: 'documentation'
 parent: 'index.md'
 design_stage: program
-depends_on: [contract_propagation_design]
-informs: [architecture_design_quality]
+depends_on: []
 tags: [dd-flow, mb-sdlc, aspect, api, contract]
 ---
 

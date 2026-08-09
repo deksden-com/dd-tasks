@@ -2,14 +2,13 @@
 file: '.memory-bank/dd-flow/mb-sdlc/plan-aspects/aspects/observability_runtime_review.md'
 description: 'Aspect prompt for observability and runtime review.'
 purpose: 'Review diagnostic visibility for runtime behavior, external calls, queues and model/tool calls.'
-version: '0.1.0'
-date: '2026-07-09'
+version: '0.1.1'
+date: '2026-08-09'
 status: 'ACTIVE'
 c4_level: 'documentation'
 parent: 'index.md'
 design_stage: vertical_slice
-depends_on: [pipeline_design_review]
-informs: [contract_propagation_design]
+depends_on: []
 tags: [dd-flow, mb-sdlc, aspect, observability]
 ---
 

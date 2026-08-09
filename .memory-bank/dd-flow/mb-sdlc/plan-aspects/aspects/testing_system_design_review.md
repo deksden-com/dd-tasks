@@ -2,14 +2,13 @@
 file: '.memory-bank/dd-flow/mb-sdlc/plan-aspects/aspects/testing_system_design_review.md'
 description: 'Aspect prompt for testing system design review.'
 purpose: 'Review test levels, commands, datasets, seeds/fixtures and scenario/eval coverage.'
-version: '0.1.0'
-date: '2026-07-09'
+version: '0.1.1'
+date: '2026-08-09'
 status: 'ACTIVE'
 c4_level: 'documentation'
 parent: 'index.md'
 design_stage: vertical_slice
-depends_on: [coding_standards_design_review]
-informs: [contract_propagation_design]
+depends_on: []
 tags: [dd-flow, mb-sdlc, aspect, tests, scenarios]
 ---
 

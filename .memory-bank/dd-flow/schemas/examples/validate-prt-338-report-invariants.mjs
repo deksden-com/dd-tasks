@@ -10,13 +10,15 @@ const cli = (process.env.DD_FLOW_CLI || "dd-flow").trim().split(/\s+/);
 const temp = mkdtempSync(resolve(tmpdir(), "prt-338-report-schema-"));
 const fixtures = {
   specification: ".memory-bank/dd-flow/schemas/examples/specification-stage-report.v2.valid.json",
-  plan: ".memory-bank/dd-flow/schemas/examples/plan-stage-report.v3.valid.json",
-  eval: ".memory-bank/dd-flow/schemas/examples/eval-report-data.v2.valid.json"
+  plan: ".memory-bank/dd-flow/schemas/examples/plan-stage-report.v4.valid.json",
+  eval: ".memory-bank/dd-flow/schemas/examples/eval-report-data.v3.valid.json"
 };
 const legacy = [
   ["specification-stage-report", ".memory-bank/dd-flow/schemas/examples/specification-stage-report.valid.json"],
   ["plan-stage-report", ".memory-bank/dd-flow/schemas/examples/plan-stage-report.valid.json"],
-  ["eval-report-data", ".memory-bank/dd-flow/schemas/examples/eval-report-data.valid.json"]
+  ["eval-report-data", ".memory-bank/dd-flow/schemas/examples/eval-report-data.valid.json"],
+  ["plan-stage-report", ".memory-bank/dd-flow/schemas/examples/plan-stage-report.v3.valid.json"],
+  ["eval-report-data", ".memory-bank/dd-flow/schemas/examples/eval-report-data.v2.valid.json"]
 ];
 const schemaFor = { specification: "specification-stage-report", plan: "plan-stage-report", eval: "eval-report-data" };
 const clone = name => JSON.parse(readFileSync(resolve(root, fixtures[name]), "utf8"));
@@ -25,8 +27,8 @@ const cases = [
   ["specification impact/risk", "specification", x => { x.legacy_projection.risk = "medium"; }],
   ["specification floor/route", "specification", x => { x.legacy_projection.planning_route_hint = "compact_plan"; }],
   ["plan breadth/size", "plan", x => { x.legacy_projection.size = "small"; }],
-  ["plan impact/risk", "plan", x => { x.legacy_projection.risk = "medium"; }],
-  ["plan floor/route", "plan", x => { x.legacy_projection.planning_route_hint = "compact_plan"; }],
+  ["plan impact/risk", "plan", x => { x.legacy_projection.risk = "low"; }],
+  ["plan floor/route", "plan", x => { x.legacy_projection.planning_route_hint = "full_plan"; }],
   ["eval breadth/size", "eval", x => { x.legacy_projection.size = "large"; }],
   ["eval impact/risk", "eval", x => { x.legacy_projection.risk = "medium"; }],
   ["eval floor/route", "eval", x => { x.legacy_projection.planning_route_hint = "full_plan"; }],
@@ -35,15 +37,10 @@ const cases = [
   ["eval missing goal split", "eval", x => { delete x.eval_provenance.clarification_goal_id; }],
   ["eval empty goal id", "eval", x => { x.eval_provenance.evaluation_goal_id = ""; }],
   ...["plan", "eval"].flatMap(name => [
-    [`${name} unavailable pool claims slots`, name, x => { x.capacity_summary.pool_observation.status = "unavailable"; }],
-    [`${name} unavailable pool fabricates probes`, name, x => {
-      Object.assign(x.capacity_summary.pool_observation, {
-        status: "unavailable", free_slots: null, probe_attempts: 1, probe_accepted: 1, probe_refused: 0,
-        probe_cost: { status: "known", value: 1, unit: "tokens", source_coverage: "fabricated" }
-      });
-    }],
-    [`${name} observed pool omits slots`, name, x => { x.capacity_summary.pool_observation.status = "observed"; x.capacity_summary.pool_observation.free_slots = null; }],
-    [`${name} unavailable usage claims tokens`, name, x => { x.capacity_summary.usage.status = "unavailable"; x.capacity_summary.usage.tokens = 1; }]
+    [`${name} missing wall clock`, name, x => { delete x.execution_summary.wall_clock_ms; }],
+    [`${name} negative wall clock`, name, x => { x.execution_summary.wall_clock_ms = -1; }],
+    [`${name} carries legacy capacity projection`, name, x => { x.capacity_summary = {}; }],
+    [`${name} carries legacy routing projection`, name, x => { x.routing_summary = {}; }]
   ])
 ];
 
@@ -64,7 +61,7 @@ try {
     const result = validate(schemaFor[fixture], file);
     if (result.status === 0) throw new Error(`invalid case passed: ${label}`);
   }
-  console.log(`validated 6 valid fixtures and rejected ${cases.length} focused invalid cases`);
+  console.log(`validated current and legacy fixtures and rejected ${cases.length} focused invalid cases`);
 } finally {
   rmSync(temp, { recursive: true, force: true });
 }

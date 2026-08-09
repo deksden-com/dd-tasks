@@ -2,14 +2,13 @@
 file: '.memory-bank/dd-flow/mb-sdlc/plan-aspects/aspects/scenario_seed_eval_review.md'
 description: 'Aspect prompt for scenario, seed and eval review.'
 purpose: 'Review acceptance scenarios, fixtures, worlds, evals, manual verification and behavioral assessment evidence.'
-version: '0.1.0'
-date: '2026-07-09'
+version: '0.1.1'
+date: '2026-08-09'
 status: 'ACTIVE'
 c4_level: 'documentation'
 parent: 'index.md'
 design_stage: vertical_slice
-depends_on: [testing_system_design_review]
-informs: [contract_propagation_design]
+depends_on: []
 tags: [dd-flow, mb-sdlc, aspect, scenarios, seeds, evals]
 ---
 

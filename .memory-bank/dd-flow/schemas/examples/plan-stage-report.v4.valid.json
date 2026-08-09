@@ -1,0 +1,69 @@
+{
+  "schema_id": "dd-flow/plan-stage-report@4",
+  "generated_at": "2026-08-09T12:00:00Z",
+  "protocol": {
+    "id": "PRT-example",
+    "title": "Minimal plan runtime report",
+    "project": "dd-memorybank",
+    "branch": "main",
+    "stage": "plan"
+  },
+  "overall": {
+    "verdict": "ready_for_code",
+    "verdict_label": "Ready for code",
+    "score": 9,
+    "score_max": 10,
+    "next_action": "Run code flow.",
+    "summary": "The plan and its evidence are ready."
+  },
+  "route": [
+    {"label": "planning", "value": "compact_plan", "note": "A bounded extension of existing behavior."}
+  ],
+  "task_assessment": {
+    "scope_breadth": {"level": "cross_layer", "surfaces": ["plan", "report"], "reason": "The contract spans planning and reporting."},
+    "solution_novelty": {"level": "extend_existing", "surfaces": ["schema"], "reason": "The existing report is reduced."},
+    "solution_uncertainty": {"level": "known", "surfaces": ["schema"], "reason": "The replacement fields are explicit."},
+    "failure_impact": {"level": "medium", "surfaces": ["handoff"], "reason": "A bad report can mislead the next stage."},
+    "plan_floor": {"level": "compact_plan", "surfaces": ["plan"], "reason": "The bounded contract change needs an explicit handoff."}
+  },
+  "legacy_projection": {
+    "size": "medium",
+    "risk": "medium",
+    "planning_route_hint": "compact_plan",
+    "verification_mode": "automated",
+    "sources": {
+      "size": "task_assessment.scope_breadth",
+      "risk": "task_assessment.failure_impact",
+      "planning_route_hint": "task_assessment.plan_floor",
+      "verification_mode": "independent_policy"
+    }
+  },
+  "flow_flags": {
+    "flow_kind": "plan",
+    "snapshot_revision": 1,
+    "resolution_status": "valid",
+    "values": {},
+    "snapshot_checksum": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "execution_summary": {
+    "wall_clock_ms": 60000,
+    "available_subagent_slots": 2
+  },
+  "graph": {
+    "nodes": [
+      {"id": "plan", "label": "Plan", "x": 0, "y": 0, "status": "done", "note": "The plan is ready."}
+    ],
+    "edges": []
+  },
+  "aspects": [
+    {"id": "contracts", "label": "Contracts", "score": 5, "status": "reviewed", "summary": "The contract is versioned.", "note": "Legacy reports remain readable.", "findings": []}
+  ],
+  "plan_items": [
+    {"id": "P1", "title": "Publish the contract", "owner": "orchestrator", "status": "ready", "depends_on": [], "verification": "The fixture validates.", "note": "Keep the change additive.", "details": []}
+  ],
+  "handoff": {
+    "code_prompt": ".memory-bank/dd-flow/code.md",
+    "must_read": ["implementation-plan.md"],
+    "next_gate": "code readiness"
+  }
+}

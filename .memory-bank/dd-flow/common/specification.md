@@ -42,19 +42,24 @@
 - need for eval/experiment, если deterministic scenario недостаточен;
 - верхнеуровневые вопросы с постоянными идентификаторами;
 - зафиксированные ответы пользователя;
-- независимый five-axis `task_assessment`, одностороннюю compatibility projection
+- четыре независимые assessment axes, производный `plan_floor`, одностороннюю compatibility projection
   в `task_profile` и рекомендуемый route для `plan`;
 - выбранные источники semantic grounding: raw user intent, product/feature, system/C4, constraints and evidence level, либо краткое `not_applicable` reason для действительно локальной задачи.
 
 Specification не должна превращаться в technical design. Детали реализации, файлы и порядок code tasks принадлежат `plan`.
 
-До route выбора заполни ровно пять осей из `common/flow-flags.md`:
+До route выбора заполни ровно пять полей из `common/flow-flags.md`:
 `scope_breadth`, `solution_novelty`, `solution_uncertainty`, `failure_impact` и
-`plan_floor`. Каждая ось имеет `level`, `surfaces` и `reason`; пустой список
+`plan_floor`. Каждое поле имеет `level`, `surfaces` и `reason`; пустой список
 поверхностей требует явной non-applicability reason. Не выводи assessment из
 flags, legacy `task_profile`, выбранной полноты plan или количества созданных
 артефактов. Legacy `size`, `risk` и `planning_route_hint` проецируются только
 из breadth, impact и floor; `verification_mode` остаётся независимым.
+
+`plan_floor` выводится по разделу `Выбор plan_floor` из `common/flow-flags.md`.
+Просьба выполнить стадию `plan`, cross-layer breadth или сам факт изменения
+contract/data/UI не повышают floor до `full_plan`. Для `full_plan` reason обязан
+назвать конкретный разрешённый триггер.
 
 Выбирай минимально достаточное решение: сначала reuse существующих patterns,
 и только затем extension/new mechanism, если этого требует задача. Critical
@@ -304,7 +309,10 @@ Q-001, Q-002, ...
 - задача затрагивает публичный контракт, runtime, данные, безопасность, CLI, UI flow или проверки;
 - пользователь явно просит более глубокое сопоставление.
 
-Субагенты допустимы для поиска аналогий и контекстных gaps, но только read-only. Они не планируют реализацию и не принимают решения вместо оркестратора.
+Поиск аналогий и контекстных gaps по умолчанию выполняет оркестратор. Отдельные
+research units можно повысить до read-only delegation только по positive gate
+из `common/subagents.md`. Promoted scouts не планируют реализацию и не принимают
+решения вместо оркестратора.
 
 ## Stage artifacts
 
@@ -334,9 +342,31 @@ Q-001, Q-002, ...
 - если вводные командные или пустые, не создавай искусственный `user-input.md`;
 - если raw intake отсутствует по причине отсутствия содержательных вводных, запиши `raw_intake.status: not_applicable` и `knowledge_extraction.mode: skipped_no_substantive_input` в `stage-report.json`.
 
-Для нетривиальной задачи с содержательным raw intake запусти отдельную fresh-session read-only worker-сессию по `.memory-bank/dd-flow/workers/knowledge-extraction.md`. Caller создаёт self-contained task packet по `.memory-bank/dd-flow/common/worker-session.md` с `session_mode: fresh_empty_session_required`, `context_authority` из common contract, `common_prompt`, `role_prompt`, exact protocol/intake/specification inputs, `write: <run-home>/01-specify/knowledge-extraction/**`, запретом на active Memory Bank writes, exact `write_report_to` и schema check. Task packet и named files are authoritative; forked orchestrator context is advisory only. Для legacy run используй сохранённый путь из `run-index.json`.
+Для нетривиальной задачи с содержательным raw intake создай knowledge-extraction
+unit и примени алгоритм `common/subagents.md`:
 
-`candidates.json` должен валидироваться схемой `dd-flow/knowledge-candidates@1` до acceptance, например `dd-flow schema validate --schema knowledge-candidates --file <run-home>/01-specify/knowledge-extraction/candidates.json --project-root <project-root> --json`. Validation failure или missing required artifact отклоняет результат: не используй candidates в specification, зафиксируй failure и запусти normal recovery with the original prompt chain, packet, preserved artifacts, failure note and a distinct attempt report path. `specification.json` и `stage-report.json` должны ссылаться на accepted candidate artifacts и показывать:
+1. Назначь `orchestrator_local` и используй
+   `.memory-bank/dd-flow/workers/knowledge-extraction.md` как extraction
+   contract.
+2. Повышай unit только по positive trigger. Несколько независимых
+   содержательных source bundles могут стать отдельными units и получить
+   opportunistic promotion; требование independent provenance/verdict или
+   явный запрос пользователя создаёт required promotion.
+3. Для promoted unit создай fresh-session read-only task packet по
+   `.memory-bank/dd-flow/common/worker-session.md` с
+   `session_mode: fresh_empty_session_required`, `context_authority`, exact
+   protocol/intake/specification inputs,
+   `write: <run-home>/01-specify/knowledge-extraction/jobs/<job-id>/**`, запретом
+   на active Memory Bank writes, job-local `candidates.json`, exact
+   `write_report_to` и schema check. Каждый job получает отдельный каталог;
+   named files в packet authoritative, forked context advisory only.
+4. Оркестратор объединяет принятые local/delegated candidates, дедуплицирует
+   claim+source, назначает итоговые `KND-*` ids и пишет единственный канонический
+   `<run-home>/01-specify/knowledge-extraction/candidates.json`. Только этот файл
+   передаётся в `plan`/`merge`. Для legacy run используй сохранённый путь из
+   `run-index.json`.
+
+`candidates.json` должен валидироваться схемой `dd-flow/knowledge-candidates@1` до acceptance, например `dd-flow schema validate --schema knowledge-candidates --file <run-home>/01-specify/knowledge-extraction/candidates.json --project-root <project-root> --json`. Validation failure или missing required artifact отклоняет результат: не используй candidates в specification. Для local route исправь register до acceptance; для delegated route используй normal recovery with the original prompt chain, packet, preserved artifacts, failure note and a distinct attempt report path. `specification.json` и `stage-report.json` должны ссылаться на accepted candidate artifacts и показывать:
 
 - raw intake status;
 - extraction mode/status;
@@ -345,7 +375,13 @@ Q-001, Q-002, ...
 
 Knowledge candidates являются provisional. `specify` использует их для вопросов, acceptance и handoff, но не поднимает их в durable Memory Bank layers.
 
-Оркестратор принимает extraction result только после successful schema validation, report with formal status and confirmation that writes stayed within the packet boundary. При `blocked`, degraded result или rejected schema не делай hidden fallback и не создавай кандидаты вручную: record the reason and continue only through the documented recovery/degraded route.
+Оркестратор принимает extraction result только после successful schema
+validation и подтверждения provenance/write boundary. Для local route исправь
+invalid candidate register до acceptance или зафиксируй degraded result. Для
+delegated route требуй report with formal status; при `blocked`, rejected
+schema или missing artifact используй один documented recovery по
+`common/subagents.md`, затем blocker/degraded route. После выбора delegated
+route не подменяй отсутствующий worker report скрытым local результатом.
 
 ## Выходные статусы
 

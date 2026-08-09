@@ -2,8 +2,8 @@
 file: '.memory-bank/dd-flow/mb-sdlc/plan-aspects/aspects/index.md'
 description: 'Index of dedicated MB-SDLC plan/readiness aspect prompts.'
 purpose: 'Use to route focused aspect reviewers from aspect ids to concrete prompt files.'
-version: '0.3.0'
-date: '2026-07-27'
+version: '0.4.1'
+date: '2026-08-09'
 status: 'ACTIVE'
 c4_level: 'documentation'
 parent: '../index.md'
@@ -35,6 +35,12 @@ children:
   - scenario_seed_eval_review.md
 tags: [dd-flow, mb-sdlc, aspects, prompt-library]
 history:
+  - version: '0.4.1'
+    date: '2026-08-09'
+    changes: 'Defined hard predecessor outputs as accepted local aspect-map rows or delegated reports.'
+  - version: '0.4.0'
+    date: '2026-08-09'
+    changes: 'Restricted hard dependencies to predecessor reports explicitly consumed by the successor and removed unused informational catalog links.'
   - version: '0.3.0'
     date: '2026-07-27'
     changes: 'Added the final conditional execution-efficiency review leaf prompt.'
@@ -61,14 +67,20 @@ The task packet routes the fresh subagent. The aspect file owns aspect-specific 
 
 ## Dependency Metadata
 
-An aspect prompt may declare frontmatter fields:
+An aspect prompt may declare:
 
 ```yaml
 depends_on: [<aspect_id>]
-informs: [<aspect_id>]
 ```
 
-`depends_on` is a hard prerequisite only when both aspects are selected and
-applicable for the current plan. `informs` is non-blocking context. The
-catalog does not infer missing relationships; PRT-330 assigns meaningful
-design-chain dependencies to existing aspects.
+`depends_on` is exceptional. Add it only when the aspect prompt explicitly
+requires data from an accepted predecessor output, names that output in its
+Grounding section and uses the data in its verdict. The output may be an
+accepted local `aspect-map.json` row or a delegated report. Similar subject matter,
+shared source files, a useful review order or a report that *might* help are not
+dependencies. Those aspects independently read the same frozen draft.
+
+For every selected hard dependency, `aspect-graph.json` records the exact
+predecessor output path and the data consumed. If that cannot be named, omit
+the edge. The current catalog intentionally has only the two dependencies of
+`execution_efficiency_review`.

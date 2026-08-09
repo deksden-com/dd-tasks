@@ -1,18 +1,29 @@
 # Работа с субагентами
 
-Этот файл адресован оркестратору: он решает, когда запускать субагентов, как ставить им задачи и как принимать отчёты. Сами worker/scout/verifier/aspect-review subagents должны читать `.memory-bank/dd-flow/common/worker-session.md`, затем свой специализированный prompt и task packet.
+Этот файл адресован оркестратору: он выбирает local execution или повышает
+отдельные единицы работы до delegation. Сами worker/scout/verifier/aspect-review
+subagents читают `.memory-bank/dd-flow/common/worker-session.md`, затем свой
+специализированный prompt и task packet.
 
-Субагентов использовать разрешено, когда это нужно для качества, скорости или независимой проверки. Отдельного разрешения пользователя не требуется, если текущий flow, `flow_profile`, риск задачи или этот файл предполагают scouts/workers/verifiers. Пользовательское ограничение "не запускать субагентов" имеет приоритет и должно быть зафиксировано в отчёте.
+Базовый маршрут каждой единицы работы — `orchestrator_local`: оркестратор сам
+читает источники, выполняет анализ и оставляет source-backed evidence. Это
+нормальный маршрут, а не fallback. Для него не нужен отдельный decision
+artifact или объяснение отсутствия субагентов.
 
-Используй субагентов только там, где это реально помогает: сбор контекста, параллельное исследование независимых аспектов, проверка выполненной задачи, отдельная реализация с ясной областью владения. Не запускай субагента ради процесса.
+Delegation — положительное повышение конкретной единицы работы. Решение о
+повышении принимается по смыслу задачи до проверки runtime capacity.
+Группировка, число свободных slots, общий risk и `full_plan` сами по себе не
+являются причинами для повышения.
 
 ## Связь с flow profile
 
-Тактика задаётся в `flow_profile.execution`.
+По умолчанию `flow_profile.execution` использует `mode: solo` и
+`parallelism: none`. Другое значение является результатом прошедшего promotion
+gate, а не предположением по размеру или риску задачи.
 
 `execution.mode`:
 
-- `solo` - основной агент работает сам; субагентов не запускай без нового риска.
+- `solo` - базовый `orchestrator_local` route.
 - `scouts` - запускай только разведчиков для сбора контекста; они не меняют файлы и не планируют реализацию.
 - `workers` - можно поручать независимые пакеты реализации с ясными границами записи.
 - `verifiers` - используй независимых проверяющих для diff, evidence, сценариев, merge, качества `DEF-*` или соответствия цели.
@@ -20,91 +31,222 @@
 
 `execution.parallelism`:
 
-- `none` - субагенты запускаются последовательно или не запускаются.
+- `none` - базовое последовательное исполнение оркестратором.
 - `scout_parallel` - параллельно работают только разведчики контекста.
 - `worker_parallel` - нескольким worker-ам параллельно выдаются независимые task packets с непересекающимися границами записи.
 - `verifier_parallel` - нескольким verifier-ам параллельно выдаются разные области проверки.
 - `mixed_parallel` - параллельно работают разные роли, но оркестратор обязан явно развести владение задачами.
 
-Если профиль указывает `solo`, но во время работы появляется значимый риск, можно повысить `execution.mode`, объяснив причину. Если профиль указывает workers/verifiers/mixed, но работа стала тривиальной, понижение допустимо только с объяснением в отчёте.
+Повышай `execution.mode` только после semantic promotion, packing и положительной
+capacity, непосредственно перед render/launch первого batch по алгоритму ниже.
+Если сохранённый non-solo profile не содержит promotion evidence, текущая
+стадия остаётся `orchestrator_local` и исправляет projection без downgrade
+ceremony.
 
-## Route Selection and Bounded Packing
+## Канонический алгоритм маршрутизации
 
-Build coverage units and choose each unit's minimum sufficient local route
-before grouping or capacity packing:
+Алгоритм выполняется один раз перед deep work каждой стадии. На следующей
+стадии он начинается заново: route и capacity из `specify` не назначают route
+для `plan`.
 
-- `self_check` is an allowlisted low-risk confirmation of a known rule. It
-  produces source-backed orchestrator evidence and does not claim an
-  independent session.
-- `grouped_subagent` covers a compatible subset of two or three units in one
-  read-only session.
-- `focused_subagent` gives a unit its own session when depth, trust or
-  mutation isolation requires it.
+Термины:
 
-`focused_subagent` requires a unit-local `independence_reason`. Task-level
-`full_plan`, high risk or another unit's boundary never promotes all units.
-The flow-owned compatibility table supplies preferences and separation rules,
-not exact bundles; a group stays valid when a preferred member is absent.
+- `unit` — одна проверяемая единица исследования, ревью или реализации;
+- `group` — две или три совместимые promoted units в одном job;
+- `job` — один bounded task packet и одна worker session;
+- `wave` — слой jobs, готовых по hard dependencies;
+- `batch` — одновременно запускаемая часть одной wave, ограниченная capacity.
 
-The owning flow records `self_check_allowed`, `group_eligible` or
-`keep_separate` and reasons. A group is valid only when all members share an immutable or
-read-equivalent snapshot, have no write conflict, have no
-`requires_output_of` edge between them, use the same trust/report contract,
-and retain separate findings and verdicts. The initial group limit is three
-units. Grouping is rejected for mutation/write scope, critical or security
-boundaries, operational-access chains, different source owners/snapshots,
-required predecessor output, missing metadata or any explicit flow trigger.
+### Шаг 1. Зафиксировать мелкий вход
 
-Keep the terms separate:
+Прочитай только сведения, нужные для маршрутизации: цель, ограничения,
+authoritative sources, применимые правила и уже известные boundaries. На этом
+шаге не выполняй deep-анализ будущих delegated units.
 
-- group: compatible units packed into one job/session;
-- wave: a DAG layer created only by `requires_output_of`, which must name the
-  exact consumed predecessor output;
-- batch: a capacity-limited concurrent slice of one existing wave.
+### Шаг 2. Построить units
 
-`related_to` and `informed_by` are soft links and never create waves. Hidden
-session context never satisfies a hard dependency. Capacity/refusal changes
-batch size only; it never rebuilds groups, waves or coverage.
+Раздели работу на units с одним вопросом или результатом на unit. Для каждой
+зафиксируй scope, source scope и consumer результата. Не создавай unit только
+для того, чтобы загрузить свободного worker-а.
 
-At each packing point use a current runtime free-child-slot reading only when
-its semantics, session scope and freshness are reliable. A configured maximum
-is only a cap, not free capacity. Without reliable free slots, run exactly 15
-independent probe spawns with `allSettled`-equivalent per-attempt results; each
-accepted `llm_worker` has `role: capacity_probe`, is persisted immediately,
-holds its slot for 60 seconds, then is explicitly awaited/closed. Record all
-acceptances, refusals, cost, scope, freshness and closure. Probe sessions count
-in total time/usage, not reviewer or semantic coverage counts.
+### Шаг 3. Назначить базовый local route
 
-Observed free capacity `0` stays `0`. Wait for the runtime child-operation
-timeout, or 60 seconds if none exists, then reobserve once. If it remains zero,
-use self-check only for units that permit it; otherwise block visibly. Launch
-ready jobs in batches up to the fresh free-slot observation (and any configured
-cap), retaining excess jobs as pending in the same wave.
+Каждая unit начинает с `orchestrator_local`. В aspect coverage map это
+`coverage_mode: self_check`. Такой route даёт source-backed evidence, но не
+заявляет независимую сессию.
+
+### Шаг 4. Применить semantic promotion gate
+
+Повышай только конкретную unit, для которой выполняется хотя бы один positive
+trigger:
+
+- применимое правило требует independent verdict/session;
+- unit пересекает отдельную trust, security, data, runtime или operational
+  boundary, её report используется в stage acceptance и local evidence не
+  даёт эквивалентной независимости;
+- есть минимум две содержательные независимые units с разными bounded source
+  scopes; каждая требует отдельного чтения/анализа, а параллельный проход
+  устраняет хотя бы один последовательный research pass;
+- пользователь прямо запросил delegation.
+
+Запиши trigger и факты, которые его подтверждают. Классифицируй promotion:
+
+- `required` — независимая сессия является частью правила, acceptance или
+  явного запроса пользователя;
+- `opportunistic` — delegation нужна только для экономии wall time.
+
+Task-level risk, `full_plan`, широта задачи, количество аспектов, готовая
+compatibility group и свободные slots не повышают units автоматически.
+
+### Шаг 5. Проверить готовность promoted unit
+
+До создания job у promoted unit должны быть:
+
+- bounded scope;
+- точный output и его consumer;
+- acceptance criteria;
+- frozen или read-equivalent inputs;
+- безопасные write boundaries или явный `read_only`;
+- prompt/report contract.
+
+Готовая unit проходит к packing. Неготовая `opportunistic` unit остаётся
+`orchestrator_local`; неготовая `required` unit получает явный blocker. Runtime
+capacity на этом шаге не проверяется.
+
+### Шаг 6. Собрать groups и jobs
+
+Сначала promotion, затем grouping. Совместимые promoted units можно объединить
+по две или три в один read-only job. Flow-owned compatibility table подсказывает
+предпочтительные сочетания и separation rules, но не является exact allowlist.
+
+Group допустима, когда все units используют один immutable/read-equivalent
+snapshot, один trust/report contract, не имеют write conflict или
+`requires_output_of` между собой и сохраняют отдельные findings/verdicts.
+Отдельный focused job выбирается, когда правило требует dedicated session на
+unit, либо действует separation rule: mutation/write scope, critical/security
+boundary, operational-access chain, разные snapshots или hard dependency.
+Required units можно группировать, только если требование означает
+independence от оркестратора, а не отдельную сессию на unit. Grouping никогда
+не меняет promotion type и не повышает local unit.
+
+После packing повторно проверь только `opportunistic` promotions. Выгода
+сохраняется, когда delegated job может идти одновременно хотя бы с одним другим
+delegated job или содержательной local unit. Если grouping оставил единственный
+job и параллельной local работы нет, сначала разъедини group. Если двух
+execution lanes всё равно нет, верни opportunistic units в
+`orchestrator_local` до capacity probe.
+
+### Шаг 7. Построить waves
+
+Создай hard edge `requires_output_of` только когда successor packet называет
+конкретный accepted predecessor output и точные данные, которые использует.
+Output может быть принятой local-строкой в `aspect-map.json` или delegated
+report. Hard edge не повышает predecessor до delegation. Local predecessor
+закрывается оркестратором до готовности successor job; если successor требует
+именно independent report, это отдельный `required` trigger шага 4.
+
+Общая тема, общий draft, удобный порядок или потенциально полезный output не
+создают зависимость. `not_applicable` удовлетворяет edge только когда successor
+contract явно допускает отсутствие этих данных; иначе successor блокируется.
+Dependency graph содержит local и delegated units; runtime waves содержат
+только delegated jobs, чьи local/delegated predecessors уже приняты.
+Независимые ready jobs входят в одну wave.
+
+### Шаг 8. Определить текущую capacity
+
+Выполняй этот шаг, только если после packing есть delegated jobs. Сначала
+используй надёжное текущее значение free child slots из harness. Configured
+maximum не является текущим значением.
+
+Если такого значения нет, запусти один bounded concurrent probe: попытайся
+создать 15 пустых workers, каждый принятый worker держит slot 60 секунд и
+возвращает один короткий token. Дождись и закрой всех принятых workers.
+
+Единственный результат для flow — `available_subagent_slots`: число принятых
+workers. Width, refusals, ids, tokens и строки попыток остаются runtime noise и
+не копируются в flow artifacts. Probe workers не читают проект, не проходят
+priming, не рендерят packets и не пишут файлы.
+
+### Шаг 9. Запускать batches
+
+Внутри готовой wave сначала запускай `required` jobs, затем `opportunistic`.
+Один batch содержит не больше `available_subagent_slots` jobs; остальные ready
+jobs остаются в следующем batch той же wave. Пока jobs работают, оркестратор
+закрывает local units и готовит synthesis; он не дублирует deep work delegated
+units.
+
+При положительной capacity до render первого packet создай append-only
+`flow_flags` revision с фактическими `execution.mode` и
+`execution.parallelism`. Заморозь её revision/checksum во всех packets,
+`aspect-job-map.json` и stage report этой topology. Если delegated launch не
+был принят, job map не создаётся, а guarded revision через `run flags revise` с
+`--allow-downgrade --reason <why>` возвращает фактическую projection в
+`solo`/`none`, если это не пересекает mandatory floor. Opportunistic units
+выполняются локально, а required route завершает stage non-green с promotion
+blocker.
+
+Runtime refusal уменьшает размер последующих batches, но не меняет units,
+groups, jobs или waves. При нулевой capacity:
+
+- `opportunistic` jobs возвращаются в `orchestrator_local` и выполняются
+  оркестратором как обычный маршрут;
+- для `required` jobs подожди 60 секунд, один раз повторно определи capacity и
+  при повторном нуле зафиксируй `blocked`/`degraded` non-green result. Такой
+  result не разрешает переход к следующей стадии.
+
+### Шаг 10. Принять результат по каждой unit
+
+В grouped report принимай каждую unit отдельно. Принятые sibling units остаются
+принятыми. Для missing/invalid/failed unit допустим один focused recovery с
+исходным packet, failure note и отдельным report path. После второго отказа
+`required` unit становится non-green `blocked`/`degraded`; `opportunistic` unit
+явно возвращается в `orchestrator_local` с сохранённым failure trace.
+
+### Шаг 11. Синтезировать результат стадии
+
+Объедини local evidence и принятые reports, зафиксируй принятые и отклонённые
+выводы, обнови coverage и выполни stage acceptance. Повтори routing до
+следующей стадии только если новый существенный факт изменил boundaries до
+начала deep work; после запуска jobs не перепланируй topology ради заполнения
+slots.
 
 ### RUN-local aspect job map
 
 The sole execution receipt is
 `<run-home>/<stage-dir>/aspect-job-map.json` with
-`schema_id: dd-flow/aspect-job-map@1`. It is not a queue or scheduler. Its
-compact shape is:
+`schema_id: dd-flow/aspect-job-map@2`. It is not a queue, scheduler, coverage
+map or capacity report. It contains one row per accepted semantic launch:
 
 ```yaml
-schema_id: dd-flow/aspect-job-map@1
+schema_id: dd-flow/aspect-job-map@2
 run_id:
 stage:
 snapshot: {revision:, checksum:}
-capacity_observations: []
-units: [{unit_id:, route:, independence_reason:, group_id:, wave_id:, job_id:}]
-jobs: [{job_id:, state:, group_id:, wave_id:, batch_id:, session_id:, attempt:, packet_path:, report_path:}]
-attempts: [{coverage_unit_id:, original_job_id:, attempt:, state:, report_path:}]
+launches:
+  - attempt_id:
+    job_id:
+    unit_ids: []
+    retry_of: null
+    state: running | accepted | failed
+    session_id:
+    packet_path:
+    report_path: null
 ```
 
 The orchestrator is the only writer and updates it by atomic replace inside the
-RUN directory. Immediately after every accepted spawn, persist
-`job_id -> session_id` before launching anything else; if that write fails,
-stop launching. On resume reconcile by `job_id` against registered sessions:
-one unambiguous match repairs the map and is never relaunched, no match stays
-pending, and multiple matches block as an idempotency violation.
+RUN directory. `attempt_id` is unique; `job_id` is the semantic job from the
+aspect graph; `retry_of` is present only for the single allowed recovery.
+Immediately after every accepted spawn, persist the launch with its non-empty
+`session_id` before launching anything else; if that write fails, stop.
+Update its state/report when the session ends. Before a green stage verdict no
+row may remain `running`. On resume reconcile by `job_id` against registered
+sessions: one unambiguous match repairs the row and is never relaunched, no
+match remains pending in the aspect graph, and multiple matches block.
+
+Do not copy unit totals, groups, waves, batches, probe attempts, refusals or
+launch totals into this file or the stage report. They are derived views of the
+aspect map/graph and launch rows and previously drifted from their sources.
+If no semantic launch was accepted, do not create an empty job map.
 
 ## Job Status and Acceptance
 
@@ -113,13 +255,16 @@ route execution to coverage and gate behavior:
 
 | Situation | Coverage/job result | Next action |
 | --- | --- | --- |
-| Selected but slot unavailable | `selected` + transient `pending` | Keep the job queued in the current wave; do not drop coverage. |
+| Positive capacity, current batch is full | `selected` + transient `pending` | Keep the job for the next batch of the same wave. |
+| Zero capacity for an opportunistic job | Return the unit to `self_check` | Execute it locally; this is the normal route. |
+| Zero capacity for a required job after one re-observation | `blocked`/`degraded` | Stop with a visible reason and precise handoff. |
 | Worker launched | `selected` + transient `running` | Wait for the report; hard successors stay locked. |
 | Every unit report accepted | `completed` or `verified` | Accept the job and unlock only its hard successors. |
 | Group has mixed results | Accepted units stay accepted; affected units are `incomplete` | Keep the job non-green and recover only affected units. |
 | Missing, invalid, timeout or lost report | `blocked` or `incomplete` | Preserve the original attempt and launch at most one focused recovery. |
 | Recovery accepted | Affected unit becomes `completed`/`verified` with a new attempt path | Reconcile that unit and then unlock its hard successors. |
-| Repeated recovery failure or external slot block | `blocked`/`degraded` | Stop with a visible reason and precise DEF/handoff; never silently self-check. |
+| Repeated recovery failure for a required unit | `blocked`/`degraded`, stage non-green | Stop with a visible reason and precise DEF/handoff. |
+| Repeated recovery failure for an opportunistic unit | Return the unit to `self_check` and retain the failure trace | Execute it locally; do not claim a worker report. |
 
 A grouped job is green only when all of its unit reports are accepted. Valid
 unit sections are accepted independently. Recovery identity is
@@ -132,7 +277,7 @@ substitute for coverage, evidence or stage acceptance.
 
 - `worker-session.md` owns packet vocabulary, grouped wrapper/report shape and
   recovery attempt rules.
-- This file owns route choice, compatibility checks, capacity observation,
+- This file owns route choice, compatibility checks, the current slot count,
   bounded packing, the aspect-job-map shape, dependency gating and acceptance.
 - `memory-flow-subagents.md` owns semantic coverage units, coverage statuses
   and the selected/skipped/degraded contract.
@@ -143,7 +288,8 @@ substitute for coverage, evidence or stage acceptance.
 
 ## Граница роли оркестратора
 
-Если принято решение `run_subagents`, оркестратор не должен сам выполнять deep-анализ делегированных аспектов, пакетов реализации или reviewer-зон. Его роль в таком режиме:
+После promotion оркестратор не выполняет deep-анализ делегированных units. Его
+роль для них:
 
 - собрать минимальный intake и карту аспектов;
 - сформулировать task packets;
@@ -155,19 +301,22 @@ substitute for coverage, evidence or stage acceptance.
 
 Deep-анализ делает назначенный субагент. Оркестратор не пишет за него aspect report, не подменяет отсутствующий report общей сводкой и не закрывает delegated unit как выполненный по своему предварительному мнению. Это правило защищает независимость проверки и снижает риск contamination: если оркестратор заранее глубоко исследует delegated aspect, он может принять отчёт субагента через призму уже сформированной версии.
 
-Оркестратор может выполнять самостоятельный анализ только когда принято `no_subagents`, задача простая/локальная, нет hard trigger и выбранный flow допускает solo mode. Если в режиме `run_subagents` оркестратор уже успел глубоко исследовать делегированный аспект до запуска субагента, зафиксируй `contamination_risk` в `subagent-decision.md`, coverage artifact или фазовом отчёте и объясни, как независимость проверки была восстановлена: fresh subagent, ограничение входов, второй verifier или явный degraded status.
+Оркестратор самостоятельно закрывает все local units. Если он успел глубоко
+исследовать unit до её promotion, зафиксируй `contamination_risk` в
+`subagent-decision.md`, coverage artifact или фазовом отчёте и объясни, как
+независимость восстановлена.
 
-Выбор локального route никогда не должен быть молчаливым. Запиши в рабочую сводку:
+Рабочая сводка всегда содержит полный aspect/coverage map и local evidence.
+`subagent-decision.md` создаётся только при promotion и содержит:
 
-- исходное значение `execution.mode` и `execution.parallelism`;
-- полный aspect map с отдельными `applicability`, `coverage_mode` и
-  `independence_reason` для focused units;
-- binary decision: `run_subagents` или `no_subagents`;
-- aspect-local independence signals и критичные `unknown`;
-- почему субагенты не добавят качества или скорости именно в этом запуске, если решение `no_subagents`;
-- какие аспекты агент проверил сам;
-- какие аспекты сознательно не проверялись и становятся `DEF-*`, `coverage debt` или явным риском;
-- почему это не нарушает цель, ограничения и выбранный уровень evidence.
+- выбранный positive trigger и подтверждающие факты;
+- promoted units и их coverage modes;
+- output consumer, acceptance criteria, inputs и write boundaries;
+- task/report paths и остаточные риски.
+
+Default `orchestrator_local` не считается downgrade и не требует отдельного
+обоснования. Непроверенные применимые units по-прежнему становятся `DEF-*`,
+coverage debt или blocker; local route не разрешает молча пропускать coverage.
 
 Task-level high risk/full plan не создаёт blanket delegation gate. Если
 aspect-local independence требует worker, отсутствие доступной capacity даёт
@@ -246,9 +395,11 @@ handoff:
 
 Для MB-SDLC aspect reviewers packet направляет субагента к `.memory-bank/dd-flow/mb-sdlc/plan-aspects/aspect-worker.md` как consumed `role_prompt` и к одному dedicated `.memory-bank/dd-flow/mb-sdlc/plan-aspects/aspects/<aspect_id>.md` как leaf `aspect_prompt`. Такой packet является маршрутизатором, а не заменой aspect prompt; subagent report перечисляет prompt files and project sources read.
 
-Если aspect worker зависит от уже завершённого аспекта, `handoff.predecessor_reports`
-перечисляет только принятые пути отчётов и их verdict. Оркестратор не запускает
-dependent worker до приёмки этих фактов и не заменяет их скрытым контекстом.
+Если aspect worker зависит от уже завершённого аспекта, compatibility field
+`handoff.predecessor_reports` перечисляет только принятые output paths и их
+verdict. Для local predecessor это путь к `aspect-map.json` и конкретный
+`aspect_id`, для delegated — путь отчёта. Оркестратор не запускает dependent
+worker до приёмки этих фактов и не заменяет их скрытым контекстом.
 
 Выбор:
 

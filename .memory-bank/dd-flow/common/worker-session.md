@@ -2,8 +2,8 @@
 file: '.memory-bank/dd-flow/common/worker-session.md'
 description: 'Shared session primer for worker, verifier, scout and aspect-review subagents.'
 purpose: 'Read before specialized worker prompts so focused subagents use explicit task packets, light project priming and source-backed reports instead of hidden orchestrator context.'
-version: '0.4.0'
-date: '2026-07-25'
+version: '0.5.1'
+date: '2026-08-09'
 status: 'ACTIVE'
 c4_level: 'documentation'
 parent: '.memory-bank/dd-flow/README.md'
@@ -16,6 +16,9 @@ related_files:
   - .memory-bank/dd-flow/mb-sdlc/plan-aspects/aspect-worker.md
 tags: [dd-flow, subagents, workers, priming, task-packet]
 history:
+  - version: '0.5.1'
+    date: '2026-08-09'
+    changes: 'Allowed dependency handoff to consume an accepted local aspect-map output or delegated report without promoting the predecessor.'
   - version: '0.5.0'
     date: '2026-08-07'
     changes: 'Added route-aware grouped packet, per-unit report and focused recovery contract for PRT-336.'
@@ -66,7 +69,7 @@ handoff:
   predecessor_reports:
     - aspect_id:
       verdict: accepted | not_applicable
-      report_path:
+      report_path: <accepted delegated report or local aspect-map artifact>
   recovery_attempt_paths: []
 routing:
   route: self_check | grouped_subagent | focused_subagent
@@ -102,15 +105,15 @@ orchestrator evidence. A delegated packet uses `focused_subagent` for one
 unit or `grouped_subagent` for a compatible subset.
 
 `requires_output_of` names the exact accepted predecessor output needed to
-start the packet. `related_to`/`informed_by` name context only. `group_id`
-identifies units sharing one job, `wave_id` is semantic dependency depth, and
-`batch_id` is only the capacity slice. Capacity comes from the referenced
-RUN-local observation; zero is valid and unknown capacity is never replaced by
-one.
+start the packet. Related subject matter needs no edge. `group_id` identifies
+units sharing one job, `wave_id` is semantic dependency depth, and `batch_id`
+is only the capacity slice. Capacity comes from the current
+`available_subagent_slots`; zero is valid and unknown capacity is never
+replaced by one.
 
-For a probe, keep `session_kind: llm_worker` and set `role: capacity_probe`.
-Its bounded packet reads no project sources, performs no priming/project tools,
-holds the accepted slot for 60 seconds and returns its assigned unique token.
+For a probe, use an empty worker that reads no project sources, performs no
+priming/project tools, holds an accepted slot for 60 seconds and returns one
+short token. It does not receive a normal task packet or write flow artifacts.
 
 ## Grouped Packet Variant
 
@@ -123,7 +126,6 @@ group_manifest:
   group_id: <stable run-local id>
   route: grouped_subagent
   snapshot_anchor: <immutable/read-equivalent snapshot>
-  anchor_unit_id: <optional focused anchor>
   compatibility_source: .memory-bank/dd-flow/mb-sdlc/plan-aspects/index.md
   units:
     - unit_id: <coverage unit>
@@ -137,8 +139,9 @@ group_manifest:
 
 The grouped wrapper is valid only when the flow-owned compatibility and
 separation rules, snapshot, read-only scope, trust level and report contract
-have passed orchestrator checks. A focused anchor may carry two compatible
-secondary units without changing their routes. Missing metadata is not inferred.
+have passed orchestrator checks and every member independently passed the
+promotion gate. A focused unit stays separate and cannot pull local secondary
+units into delegation. Missing metadata is not inferred.
 
 ## Grouped Report and Recovery
 
@@ -207,10 +210,12 @@ The plan item supplies only task-specific `execution_context`: `prompt_profile`,
 The renderer writes `launch-prompt.md`, `prompt-stack.json` and `render-report.json` under the selected RUN stage. `prompt-stack.json` identifies the static inputs and hashes so a later reviewer can reconstruct the instruction stack. Project sources remain paths to read, not copied content. A `required_read` or `discovery_boundary` source inside the selected RUN home uses checked `run://<relative-path>`; write scope remains project-local. Unsafe `.env`/outside-root paths, missing required reads, profile mismatch and stale workspace facts must fail before worker launch.
 
 For a dependency-aware review, the generic manifest's optional `handoff`
-contains only accepted hard-predecessor report paths and their verdicts, the
-acceptance owner and reserved recovery attempt paths. Do not copy graph
-dependencies into the generic manifest or rely on the orchestrator session to
-remember them.
+contains only accepted hard-predecessor output paths and their verdicts, the
+acceptance owner and reserved recovery attempt paths. The compatibility key
+remains `predecessor_reports`; its `report_path` may point to a delegated report
+or to `aspect-map.json` containing the accepted local unit row. Do not copy
+graph dependencies into the generic manifest or rely on the orchestrator
+session to remember them.
 
 For `focused_subagent`, resolve exactly one leaf specialization. `role_prompt`
 can itself be the complete leaf, or it can be a consumed shared wrapper when

@@ -32,6 +32,21 @@
     "verification_plan": "Validate the report against the canonical schema."
   },
   "questions": [],
+  "raw_intake": {
+    "status": "captured",
+    "summary": "Substantive input was preserved before normalization."
+  },
+  "knowledge_extraction": {
+    "mode": "orchestrator_local",
+    "status": "done",
+    "summary": "The orchestrator produced and validated the candidate register."
+  },
+  "knowledge_candidates": {
+    "total": 0,
+    "by_target_layer": {},
+    "requires_user_confirmation": 0,
+    "blocked": 0
+  },
   "task_profile": {
     "size": "large",
     "risk": "high",

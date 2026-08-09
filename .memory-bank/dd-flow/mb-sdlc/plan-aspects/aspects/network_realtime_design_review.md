@@ -2,14 +2,13 @@
 file: '.memory-bank/dd-flow/mb-sdlc/plan-aspects/aspects/network_realtime_design_review.md'
 description: 'Aspect prompt for network/realtime design review.'
 purpose: 'Review streaming, WebSocket, SSE, realtime and long-running network session behavior.'
-version: '0.1.0'
-date: '2026-07-09'
+version: '0.1.1'
+date: '2026-08-09'
 status: 'ACTIVE'
 c4_level: 'documentation'
 parent: 'index.md'
 design_stage: program
-depends_on: [contract_propagation_design]
-informs: [architecture_design_quality]
+depends_on: []
 tags: [dd-flow, mb-sdlc, aspect, realtime, network]
 ---
 

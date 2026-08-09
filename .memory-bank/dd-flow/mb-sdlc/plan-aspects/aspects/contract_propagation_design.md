@@ -2,14 +2,13 @@
 file: '.memory-bank/dd-flow/mb-sdlc/plan-aspects/aspects/contract_propagation_design.md'
 description: 'Aspect prompt for cross-surface contract propagation.'
 purpose: 'Ensure public and cross-module contract changes propagate to code, docs, tests and consumers.'
-version: '0.1.0'
-date: '2026-07-09'
+version: '0.1.1'
+date: '2026-08-09'
 status: 'ACTIVE'
 c4_level: 'documentation'
 parent: 'index.md'
 design_stage: program
-depends_on: [architecture_design_quality]
-informs: []
+depends_on: []
 tags: [dd-flow, mb-sdlc, aspect, contract-propagation]
 ---
 

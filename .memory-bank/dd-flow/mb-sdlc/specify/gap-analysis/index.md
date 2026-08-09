@@ -96,6 +96,11 @@ why. Similar findings are deduplicated in the common ledger.
 
 ### 4. Consolidate and resolve
 
+The orchestrator owns baseline scanning, method applicability and the final
+ledger. Selected discovery/method research units may be delegated only through
+the execution adapter in `discovery.md`; every other unit stays local. Method
+selection does not itself trigger delegation.
+
 Every selected method writes conceptually into the same ledger; it does not
 produce a separate user-facing report. Use this shape:
 

@@ -2,14 +2,13 @@
 file: '.memory-bank/dd-flow/mb-sdlc/plan-aspects/aspects/pipeline_design_review.md'
 description: 'Aspect prompt for pipeline/staged workflow design review.'
 purpose: 'Review staged workflow contracts, handoff, ownership and failure/retry semantics.'
-version: '0.1.1'
-date: '2026-07-09'
+version: '0.1.2'
+date: '2026-08-09'
 status: 'ACTIVE'
 c4_level: 'documentation'
 parent: 'index.md'
 design_stage: program
-depends_on: [architecture_design_quality]
-informs: [contract_propagation_design]
+depends_on: []
 tags: [dd-flow, mb-sdlc, aspect, pipeline]
 history:
   - version: '0.1.1'

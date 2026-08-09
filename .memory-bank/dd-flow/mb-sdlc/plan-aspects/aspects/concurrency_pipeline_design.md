@@ -2,14 +2,13 @@
 file: '.memory-bank/dd-flow/mb-sdlc/plan-aspects/aspects/concurrency_pipeline_design.md'
 description: 'Aspect prompt for concurrency and parallel pipeline design.'
 purpose: 'Review parallelism, queues, locks, leases, map/reduce patterns and shared-state safety.'
-version: '0.1.1'
-date: '2026-07-09'
+version: '0.1.2'
+date: '2026-08-09'
 status: 'ACTIVE'
 c4_level: 'documentation'
 parent: 'index.md'
 design_stage: program
-depends_on: [pipeline_design_review]
-informs: [architecture_design_quality]
+depends_on: []
 tags: [dd-flow, mb-sdlc, aspect, concurrency]
 history:
   - version: '0.1.1'

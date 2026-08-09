@@ -1,6 +1,6 @@
 {
   "schema_id": "dd-flow/compatibility@1",
-  "memory_bank_version": "2.17.1",
+  "memory_bank_version": "2.18.0",
   "dd_flow_cli": {
     "package_name": "@deksden-com/dd-flow-cli",
     "min_version": "0.4.0",
@@ -43,8 +43,8 @@
   },
   "migrations": {
     "mode": "mb-upgrade-only",
-    "from_previous": "2.17.0",
-    "to_this": "2.17.1",
+    "from_previous": "2.17.1",
+    "to_this": "2.18.0",
     "adjacent_only": true,
     "normal_commands_may_migrate": false
   },

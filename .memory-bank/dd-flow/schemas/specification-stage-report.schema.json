@@ -110,7 +110,8 @@
       "properties": {
         "mode": {
           "type": "string",
-          "enum": ["subagent", "compact_no_subagent", "skipped_no_substantive_input", "degraded"]
+          "description": "Current writers use orchestrator_local or delegated_subagent. subagent and compact_no_subagent remain readable legacy values.",
+          "enum": ["orchestrator_local", "delegated_subagent", "subagent", "compact_no_subagent", "skipped_no_substantive_input", "degraded"]
         },
         "status": { "type": "string", "minLength": 1 },
         "summary": { "type": "string", "minLength": 1 },

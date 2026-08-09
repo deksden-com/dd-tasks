@@ -2,14 +2,13 @@
 file: '.memory-bank/dd-flow/mb-sdlc/plan-aspects/aspects/coding_standards_design_review.md'
 description: 'Aspect prompt for coding standards design and implementation review.'
 purpose: 'Verify that planned and actual changes follow project/MBB coding standards and boundary discipline.'
-version: '0.1.1'
-date: '2026-07-09'
+version: '0.1.2'
+date: '2026-08-09'
 status: 'ACTIVE'
 c4_level: 'documentation'
 parent: 'index.md'
 design_stage: program
-depends_on: [architecture_design_quality]
-informs: []
+depends_on: []
 tags: [dd-flow, mb-sdlc, aspect, coding-standards]
 history:
   - version: '0.1.1'

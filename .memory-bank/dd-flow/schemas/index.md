@@ -2,8 +2,8 @@
 file: '.memory-bank/dd-flow/schemas/index.md'
 description: 'Canonical JSON Schema contracts used by dd-flow prompts and dd-flow CLI.'
 purpose: 'Read before adding or validating machine-readable flow artifacts.'
-version: '1.11.0'
-date: '2026-07-10'
+version: '1.12.0'
+date: '2026-08-09'
 status: 'DRAFT'
 c4_level: 'documentation'
 parent: 'README.md'
@@ -39,6 +39,9 @@ children:
   - eval-report-data.schema.json
 tags: [dd-flow, schemas, json-schema, validation]
 history:
+  - version: '1.12.0'
+    date: '2026-08-09'
+    changes: 'Added minimal plan-stage-report@4 and eval-report-data@3 execution summaries; removed redundant routing/capacity projections from new writes while retaining legacy readers.'
   - version: '1.11.0'
     date: '2026-08-08'
     changes: 'Added flow-contract@3 catalog validation and versioned PRT-338 assessment/routing/eval report writers while retaining legacy report readers.'
@@ -126,7 +129,7 @@ Schemas live in the canon first. Project copies under `.memory-bank/dd-flow/sche
 | `flow-contract` | `flow-contract.schema.json` | `dd-flow/flow-contract@3` | Validates the complete canonical catalog structurally; the CLI then applies the same semantic normalizer used by runtime loading. |
 | `mb-upgrade-review-data` | `mb-upgrade-review-data.schema.json` | `dd-flow/mb-upgrade-review-data@1` | Validates `review-data.json` produced by `mb-upgrade` stage `05-review`. |
 | `mb-sdlc-review-report` | `mb-sdlc-review-report.schema.json` | `dd-flow/mb-sdlc-review-report@1` | Validates `stage-report.json` produced by project-level `mb-sdlc-review`. |
-| `plan-stage-report` | `plan-stage-report.schema.json` | `dd-flow/plan-stage-report@3` / readable legacy `@1`, `@2` | Validates plan stage data; @3 adds assessment, routing and capacity summaries to the @2 RUN-local flow-flag projection. |
+| `plan-stage-report` | `plan-stage-report.schema.json` | `dd-flow/plan-stage-report@4` / readable legacy `@1`, `@2`, `@3` | Validates plan stage data; @4 keeps assessment and flow flags but replaces duplicated routing/capacity projections with required `wall_clock_ms` and optional current subagent slots. |
 | `flow-run-index` | `flow-run-index.schema.json`, `flow-run-index-v3.schema.json` | `dd-flow/flow-run-index@3` / readable legacy `@1` and `@2` | Validates `<run-home>/run-index.json`; @3 adds revision/checksum, expanded flag projection and typed session coverage. |
 | `flow-run` | `flow-run.schema.json` | `dd-flow/flow-run@1` | Validates authoritative `run.json` continuation state and its revision/checksum link to the index. |
 | `code-stage-report` | `code-stage-report.schema.json` | `dd-flow/code-stage-report@2` / readable legacy `@1` | Validates `03-code/stage-report.json` or legacy `02-code/stage-report.json`; @2 carries the RUN-local flow-flag snapshot projection. |
@@ -151,7 +154,7 @@ Schemas live in the canon first. Project copies under `.memory-bank/dd-flow/sche
 | `protocol-dashboard-data` | `protocol-dashboard-data.schema.json` | `dd-flow/protocol-dashboard-data@1` | Validates `~/.dd-flow/projects/<PRJ-ID>/dashboard/protocols/<PRT-ID>.json`, the protocol-as-task page with lifecycle, queue item, claim and multi-run history. |
 | `knowledge-candidates` | `knowledge-candidates.schema.json` | `dd-flow/knowledge-candidates@1` | Validates specify-time knowledge candidate registers extracted from substantive raw user input. |
 | `knowledge-promotion-report` | `knowledge-promotion-report.schema.json` | `dd-flow/knowledge-promotion-report@1` | Validates merge-time reports that resolve candidates and code-derived knowledge into durable Memory Bank outcomes. |
-| `eval-report-data` | `eval-report-data.schema.json` | `dd-flow/eval-report-data@2` / readable legacy `@1` | Validates eval report data; @2 adds assessment, routing, capacity and clarification provenance. |
+| `eval-report-data` | `eval-report-data.schema.json` | `dd-flow/eval-report-data@3` / readable legacy `@1`, `@2` | Validates eval report data; @3 retains assessment and clarification provenance with the same minimal execution summary as plan reports. |
 
 ## Validation
 

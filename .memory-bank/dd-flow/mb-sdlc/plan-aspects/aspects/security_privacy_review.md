@@ -2,14 +2,13 @@
 file: '.memory-bank/dd-flow/mb-sdlc/plan-aspects/aspects/security_privacy_review.md'
 description: 'Aspect prompt for security and privacy review.'
 purpose: 'Review auth, tenant isolation, secrets, permissions, PII and unsafe operations.'
-version: '0.1.0'
-date: '2026-07-09'
+version: '0.1.1'
+date: '2026-08-09'
 status: 'ACTIVE'
 c4_level: 'documentation'
 parent: 'index.md'
 design_stage: vertical_slice
-depends_on: [architecture_design_quality]
-informs: [contract_propagation_design]
+depends_on: []
 tags: [dd-flow, mb-sdlc, aspect, security, privacy]
 ---
 

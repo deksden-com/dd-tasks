@@ -22,8 +22,8 @@
 
 ### Контекст профиля (не task assessment)
 
-Эти legacy/profile fields объясняют intent и impact, но не заменяют пять
-канонических осей `task_assessment` и не являются источником обратного вывода:
+Эти legacy/profile fields объясняют intent и impact, но не заменяют четыре
+канонические assessment axes и производный `plan_floor` и не являются источником обратного вывода:
 
 - `intent` - как понята пользовательская хотелка;
 - `impact` - какое влияние изменение оказывает на поведение, контракт, эксплуатацию и риск.
@@ -65,15 +65,36 @@ task_assessment:
   plan_floor: {level: no_plan | compact_plan | full_plan, surfaces: [], reason:}
 ```
 
-Все пять осей независимы и обязательны. У каждой есть `surfaces` и `reason`;
-пустой `surfaces` допустим только с явной причиной неприменимости. Assessment
-выводится из user/project facts и не читается обратно из выбранного route,
-flags, числа файлов, reviewers или созданных flow artifacts.
+Первые четыре оси — независимые факты задачи. `plan_floor` — обязательное
+производное решение из этих фактов и явных user/project rules, а не пятая
+независимая мера сложности. У каждого поля есть `surfaces` и `reason`; пустой
+`surfaces` допустим только с явной причиной неприменимости. Assessment не
+читается обратно из выбранного route, flags, числа файлов, reviewers или
+созданных flow artifacts.
 
 Сначала переиспользуй существующие project patterns. Новая dependency,
 service, layer, process, abstraction или generalized framework допустима
 только по требованию задачи. Critical rule повышает evidence/depth только на
 затронутой поверхности, а не сложность всей архитектуры.
+
+### Выбор `plan_floor`
+
+Выбирай минимальный достаточный floor:
+
+- `no_plan` — локальная обратимая правка с очевидным путём и без material trade-off или
+  межповерхностной последовательности;
+- `compact_plan` — default для реализации, включая additive и compatible cross-layer
+  изменения data/API/UI, если они reuse/extend существующий pattern, имеют
+  `known | bounded` uncertainty и `low | medium` failure impact;
+- `full_plan` — только при именованном триггере: high-impact contract/runtime/data/security
+  или operations change; destructive/irreversible migration, backfill или recovery; incompatible
+  public contract; новый механизм с несколькими material design decisions; неснятая
+  существенная solution uncertainty; или явное project/user rule о полной глубине.
+
+`cross_layer`/`system_wide` breadth, сам факт изменения contract/data/UI, число аспектов
+или просьба пройти стадию `plan` не являются `full_plan`-trigger. Просьба именно
+о `full plan` или о полной глубине является. `plan_floor.reason` обязан назвать конкретный
+триггер; если его нет, `full_plan` и RUN override до него недопустимы.
 
 ## Task Profile
 
@@ -105,6 +126,13 @@ floors. Если новый факт требует более строгого 
 append-only revision; предыдущий snapshot не переписывается. Явный downgrade
 ниже floor отклоняется.
 
+Если semantic launch не был принят, верни runtime projection в фактические
+`solo`/`none` обычной guarded revision через `run flags revise` с
+`--allow-downgrade` и непустым `--reason`. CLI фиксирует её как
+`source.kind: run_override`; отдельного `runtime_fact` source kind нет. Revision
+не может пересечь mandatory floor, не меняет остальные route values и сохраняет
+required promotion blocker в stage artifacts.
+
 `run.json` — authoritative continuation snapshot. `run-index.json` — compact
 навигационная проекция; они связаны `snapshot_revision` и
 `snapshot_checksum`. Stage report может показать выбранные значения, но не
@@ -116,7 +144,7 @@ append-only revision; предыдущий snapshot не переписывае�
 | --- | --- | --- |
 | локальная обратимая правка без изменения контракта/данных | `compact` | короткий маршрут, self-check, без HTML/knowledge ceremony |
 | обычная фича с ограниченным риском | `normal` | compact plan, grouped review, условные knowledge/bootstrap |
-| контракт, runtime, данные, безопасность, CI/release или высокий риск | `full` | полный plan/review/evidence и все применимые receipts |
+| именованный `full_plan`-trigger из правил выше | `full` | полный plan/review/evidence и все применимые receipts |
 
 Название preset — только удобный вход. Реальное решение определяется
 фактами, flow-owned defaults и floors, поэтому `compact` не может отключить
@@ -267,6 +295,15 @@ task_profile:
 
 Для каждого выбранного значения дай короткую причину. Причина важна: она показывает, почему мы включили или не включили дорогой контур.
 
+Для `execution` базовая projection всегда `mode: solo`, `parallelism: none`.
+Причина для неё — `default_orchestrator_local`; отдельный downgrade или
+объяснение отсутствия субагентов не требуется. Non-solo значение записывается
+append-only revision только после positive delegation gate, packing и
+положительной current capacity, до render/launch первого batch по
+`common/subagents.md`. Если ни один launch не принят, guarded revision через
+`run flags revise` с `--allow-downgrade --reason <why>` возвращает фактическую
+projection в `solo`/`none`; mandatory floor пересекать нельзя.
+
 ## Intent: понимание задачи
 
 `intent` фиксирует, что агент понял до выбора маршрута:
@@ -308,7 +345,9 @@ task_profile:
 - `ui_contract` - меняется экранный контракт: `screen_id`, секции, test ids, управление интерфейсом программно.
 - `external_integration` - меняется взаимодействие с внешним провайдером, моделью, платежами, рассылками, Telegram, Vercel и подобным контуром.
 
-Зачем нужно: контрактные изменения почти всегда требуют `route.planning: full_plan`, обновления `spec/system`, ADR или сценариев, а также более строгих проверок.
+Зачем нужно: контрактные изменения влияют на применимые documentation, scenario,
+verification и evidence gates. Они повышают planning до `full_plan` только при наличии
+именованного `full_plan`-trigger.
 
 ### `impact.operations`
 
@@ -624,6 +663,13 @@ execution:
 
 Управляет организацией ролей и параллельностью субагентов, а не Git/worktree-контуром. Worktree выбирается в `route.git`, а не в `execution`.
 
+Сначала используй `solo`/`none`. Promotion разрешён, когда конкретная unit
+проходит semantic gate и имеет готовый bounded packet contract: output
+consumer, acceptance criteria, frozen inputs и безопасные write boundaries.
+После promotion/grouping определи current capacity. Non-solo execution revision
+фиксирует фактически launchable topology перед первым packet; свободные slots
+не создают причину для promotion.
+
 ### `execution.mode`
 
 - `solo` - основной агент делает сам.
@@ -660,7 +706,7 @@ execution:
 
 Профиль можно повышать после grounding или во время работы, если появились новые факты:
 
-- `route.planning: compact_plan` -> `full_plan`, если найдено изменение контракта;
+- `route.planning: compact_plan` -> `full_plan`, если найден именованный `full_plan`-trigger;
 - `route.git: integration_branch_direct` -> `feature_worktree`, если политика запрещает прямую правку или риск выше ожидаемого;
 - `route.delivery: local` -> `beta`, если merge в интеграционную ветку автоматически запускает beta gate;
 - `documentation.impact: none` -> `update_required`, если найден долговечный факт Банка памяти;
@@ -687,7 +733,7 @@ execution:
 
 `protocol.md`/`common/specification.md`:
 
-- формирует независимый five-axis `task_assessment`, затем его одностороннюю compatibility projection в `task_profile`;
+- формирует четыре независимых assessment axes и производный `plan_floor`, затем их одностороннюю compatibility projection в `task_profile`;
 - запускает `research`, если значительная неопределённость мешает выбрать маршрут;
 - объясняет причины по каждому блоку;
 - задаёт блокирующие вопросы только там, где проект не снимает неопределённость.

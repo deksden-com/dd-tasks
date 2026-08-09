@@ -2,8 +2,8 @@
 file: '.memory-bank/dd-flow/mb-sdlc/plan-aspects/index.md'
 description: 'Canonical MB-SDLC plan/readiness aspect catalog.'
 purpose: 'Read during plan/review and code/readiness so agents can decide aspect applicability separately from coverage mode and leave a durable RUN aspect map.'
-version: '0.7.0'
-date: '2026-07-27'
+version: '0.7.1'
+date: '2026-08-09'
 status: 'ACTIVE'
 c4_level: 'documentation'
 parent: '.memory-bank/dd-flow/mb-sdlc/README.md'
@@ -17,6 +17,9 @@ related_files:
   - .memory-bank/dd-flow/schemas/code-stage-report.schema.json
 tags: [dd-flow, aspects, planning, readiness, coverage-map, subagents]
 history:
+  - version: '0.7.1'
+    date: '2026-08-09'
+    changes: 'Made hard dependencies route-neutral and restricted grouping to independently promoted units.'
   - version: '0.7.0'
     date: '2026-07-27'
     changes: 'Added the final conditional execution-efficiency review aspect for coverage-preserving plan topology improvements.'
@@ -107,24 +110,28 @@ member does not invalidate the rest. `must_separate_when` always wins.
 
 A valid group is read-only, uses one immutable or read-equivalent snapshot, has
 no `requires_output_of` edge or write conflict between members, and preserves
-one report section, verdict and evidence set per unit. One focused anchor may
-carry up to two compatible lower-depth secondary units without promoting their
-routes. Two independently critical boundaries stay separate by default.
+one report section, verdict and evidence set per unit. It contains only units
+that independently passed the promotion gate. A focused unit stays separate;
+it does not pull local secondary units into delegation. Two independently
+critical boundaries stay separate by default.
 
 ## Dependency-Aware Execution
 
-For a full plan with focused aspect workers, the orchestrator builds one graph
-from the selected applicable aspects. Each aspect prompt may expose
-`depends_on` (hard) and `informs` (optional) metadata. It validates the
+For a full plan with promoted aspect workers, the orchestrator builds one graph
+from the selected applicable aspects. An aspect prompt exposes `depends_on`
+only for predecessor outputs whose concrete data it reads and uses. A local
+accepted aspect-map row and a delegated report are both valid outputs; the edge
+does not promote its predecessor. It validates the
 selected subgraph before launch: every selected hard prerequisite must exist,
 and cycles block the plan. Unselected or justified `not_applicable`
 prerequisites do not silently disappear; the aspect map records why the edge
 is satisfied or not required.
 
 Launch only the current topological wave. A hard `requires_output_of` edge must
-name the exact consumed predecessor output; `related_to` and `informed_by` are
-soft links and never create a wave. A dependent aspect may start after each
-hard predecessor has an accepted report or justified `not_applicable` verdict.
+name the exact consumed predecessor data and artifact path. Common inputs or
+related subject matter create no edge. A dependent aspect may start after each
+hard predecessor has an accepted output. A justified `not_applicable` verdict
+satisfies the edge only when the successor contract permits missing data.
 Capacity may split one wave into several runtime batches but never changes the
 semantic graph or groups. The RUN-local packet names accepted predecessor paths.
 

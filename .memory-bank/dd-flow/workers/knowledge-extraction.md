@@ -21,8 +21,8 @@ role_prompt: .memory-bank/dd-flow/workers/knowledge-extraction.md
 read:
   - <exact protocol, intake, specification and focused evidence sources>
 write:
-  - <run-home>/01-specify/knowledge-extraction/**
-write_report_to: <run-home>/01-specify/knowledge-extraction/extraction-report.md
+  - <run-home>/01-specify/knowledge-extraction/jobs/<job-id>/**
+write_report_to: <run-home>/01-specify/knowledge-extraction/jobs/<job-id>/extraction-report.md
 constraints:
   - active Memory Bank is read_only
 checks:
@@ -58,7 +58,7 @@ Do not read broad source code unless the orchestrator explicitly includes a smal
 Write only inside the current run workspace:
 
 ```text
-<run-home>/01-specify/knowledge-extraction/
+<run-home>/01-specify/knowledge-extraction/jobs/<job-id>/
   candidates.json
   candidates.md
   conflicts.md
@@ -68,6 +68,9 @@ Write only inside the current run workspace:
 ```
 
 `candidates.json` must validate against `dd-flow/knowledge-candidates@1`.
+It is a job-local input to orchestrator synthesis, not the canonical register
+consumed by later stages. The orchestrator alone writes the merged canonical
+`<run-home>/01-specify/knowledge-extraction/candidates.json`.
 
 Run the named schema validation before reporting completion. If it fails, do not present the candidate register as usable: preserve the failed artifacts, report `blocked: knowledge_candidates_schema_invalid`, and make no active Memory Bank writes.
 

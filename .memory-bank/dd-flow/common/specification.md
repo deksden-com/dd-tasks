@@ -9,7 +9,6 @@
 Прочитай:
 
 - `.memory-bank/dd-flow/common/style.md`
-- `.memory-bank/dd-flow/common/trace.md`
 - `.memory-bank/dd-flow/common/runtime-cli.md`
 - `.memory-bank/dd-flow/common/protocol-bootstrap.md`
 - `.memory-bank/dd-flow/common/context-discovery.md`
@@ -364,7 +363,7 @@ unit и примени алгоритм `common/subagents.md`:
    claim+source, назначает итоговые `KND-*` ids и пишет единственный канонический
    `<run-home>/01-specify/knowledge-extraction/candidates.json`. Только этот файл
    передаётся в `plan`/`merge`. Для legacy run используй сохранённый путь из
-   `run-index.json`.
+   `run.json`.
 
 `candidates.json` должен валидироваться схемой `dd-flow/knowledge-candidates@1` до acceptance, например `dd-flow schema validate --schema knowledge-candidates --file <run-home>/01-specify/knowledge-extraction/candidates.json --project-root <project-root> --json`. Validation failure или missing required artifact отклоняет результат: не используй candidates в specification. Для local route исправь register до acceptance; для delegated route используй normal recovery with the original prompt chain, packet, preserved artifacts, failure note and a distinct attempt report path. `specification.json` и `stage-report.json` должны ссылаться на accepted candidate artifacts и показывать:
 

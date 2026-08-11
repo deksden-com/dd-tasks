@@ -1,0 +1,12 @@
+{
+  "schema_id": "dd-flow/timeline-event@1",
+  "timestamp": "2026-08-10T14:00:00Z",
+  "event": "stage_started",
+  "run_id": "RUN-001-demo",
+  "stage": "code",
+  "attempt_number": 1,
+  "session_id": "session-controller",
+  "job_id": null,
+  "status": "running",
+  "payload": {"source": "dd-flow-cli", "redaction": "safe-structured-only"}
+}

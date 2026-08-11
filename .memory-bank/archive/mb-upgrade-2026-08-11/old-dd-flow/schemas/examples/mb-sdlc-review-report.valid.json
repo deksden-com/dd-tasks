@@ -1,0 +1,96 @@
+{
+  "schema_version": "1.0.0",
+  "schema_id": "dd-flow/mb-sdlc-review-report@1",
+  "run": {
+    "run_id": "RUN-112-mb-sdlc-review-demo",
+    "project_id": "PRJ-004-dd-memorybank",
+    "project_root": "/repo",
+    "generated_at": "2026-06-30T12:00:00Z",
+    "report_dir": "~/.dd-flow/projects/PRJ-004-dd-memorybank/runs/RUN-112-mb-sdlc-review-demo/04-review",
+    "stage_report_path": "~/.dd-flow/projects/PRJ-004-dd-memorybank/runs/RUN-112-mb-sdlc-review-demo/04-review/stage-report.json",
+    "html_report_path": "~/.dd-flow/projects/PRJ-004-dd-memorybank/runs/RUN-112-mb-sdlc-review-demo/04-review/stage-report.html",
+    "final_report_path": "~/.dd-flow/projects/PRJ-004-dd-memorybank/runs/RUN-112-mb-sdlc-review-demo/04-review/final-report.md",
+    "target_language": "ru"
+  },
+  "review_focus": {
+    "mode": "specific_protocol",
+    "target": "PRT-049-mb-sdlc-project-review-flow",
+    "title": "Review focus on PRT-049",
+    "summary": "Project-level review with special attention to the PRT-049 delivery slice.",
+    "related_protocol_id": "PRT-049-mb-sdlc-project-review-flow",
+    "related_protocol_set": ".memory-bank/protocol/_set/PSET-001-mb-sdlc-review-feature-layer.md"
+  },
+  "source_map": {
+    "sources": [
+      { "kind": "protocol", "path": ".memory-bank/protocol/PRT-049-mb-sdlc-project-review-flow.md", "status": "available", "summary": "Focused protocol." },
+      { "kind": "protocol_set", "path": ".memory-bank/protocol/_set/PSET-001-mb-sdlc-review-feature-layer.md", "status": "available", "summary": "Related protocol set." }
+    ],
+    "missing_expected_sources": [],
+    "notes": ["Demo review data for schema validation."]
+  },
+  "aspect_coverage": [
+    { "aspect_id": "structure_navigation_review", "applicability": "applicable", "coverage_mode": "self_review", "status": "reviewed", "verdict": "pass", "reason": "Navigation files are in scope.", "task_packet_path": "02-aspect-review/tasks/structure-navigation.md", "report_path": "02-aspect-review/reports/structure-navigation.md", "findings": [] },
+    { "aspect_id": "feature_epic_layer_review", "applicability": "applicable", "coverage_mode": "self_review", "status": "reviewed", "verdict": "watch", "reason": "Feature layer is relevant.", "task_packet_path": "02-aspect-review/tasks/feature-epic.md", "report_path": "02-aspect-review/reports/feature-epic.md", "findings": ["FIND-SDLC-REVIEW-001"] },
+    { "aspect_id": "spec_conformance_review", "applicability": "applicable", "coverage_mode": "self_review", "status": "reviewed", "verdict": "pass", "reason": "Specs are relevant.", "task_packet_path": "02-aspect-review/tasks/spec.md", "report_path": "02-aspect-review/reports/spec.md", "findings": [] },
+    { "aspect_id": "architecture_harmonization_review", "applicability": "applicable", "coverage_mode": "focused_subagent", "status": "reviewed", "verdict": "watch", "reason": "Architecture coherence is relevant.", "task_packet_path": "02-aspect-review/tasks/architecture.md", "report_path": "02-aspect-review/reports/architecture.md", "findings": [] },
+    { "aspect_id": "adr_decision_review", "applicability": "applicable", "coverage_mode": "self_review", "status": "reviewed", "verdict": "pass", "reason": "ADR links are relevant.", "task_packet_path": "02-aspect-review/tasks/adr.md", "report_path": "02-aspect-review/reports/adr.md", "findings": [] },
+    { "aspect_id": "scenario_evidence_review", "applicability": "applicable", "coverage_mode": "self_review", "status": "reviewed", "verdict": "pass", "reason": "Scenario evidence is relevant.", "task_packet_path": "02-aspect-review/tasks/scenario.md", "report_path": "02-aspect-review/reports/scenario.md", "findings": [] },
+    { "aspect_id": "contract_traceability_review", "applicability": "applicable", "coverage_mode": "self_review", "status": "reviewed", "verdict": "pass", "reason": "Contracts are relevant.", "task_packet_path": "02-aspect-review/tasks/contracts.md", "report_path": "02-aspect-review/reports/contracts.md", "findings": [] },
+    { "aspect_id": "frontmatter_crosslink_review", "applicability": "applicable", "coverage_mode": "self_review", "status": "reviewed", "verdict": "watch", "reason": "Cross-links are relevant.", "task_packet_path": "02-aspect-review/tasks/frontmatter.md", "report_path": "02-aspect-review/reports/frontmatter.md", "findings": [] },
+    { "aspect_id": "engineering_standards_review", "applicability": "applicable", "coverage_mode": "self_review", "status": "reviewed", "verdict": "pass", "reason": "Coding standards are relevant.", "task_packet_path": "02-aspect-review/tasks/engineering.md", "report_path": "02-aspect-review/reports/engineering.md", "findings": [] },
+    { "aspect_id": "operations_policy_review", "applicability": "applicable", "coverage_mode": "self_review", "status": "reviewed", "verdict": "pass", "reason": "Operations policy is relevant.", "task_packet_path": "02-aspect-review/tasks/operations.md", "report_path": "02-aspect-review/reports/operations.md", "findings": [] },
+    { "aspect_id": "protocol_delivery_trace_review", "applicability": "applicable", "coverage_mode": "self_review", "status": "reviewed", "verdict": "pass", "reason": "Protocol trace is relevant.", "task_packet_path": "02-aspect-review/tasks/protocol-trace.md", "report_path": "02-aspect-review/reports/protocol-trace.md", "findings": [] },
+    { "aspect_id": "def_followup_review", "applicability": "applicable", "coverage_mode": "self_review", "status": "reviewed", "verdict": "pass", "reason": "DEF follow-up is relevant.", "task_packet_path": "02-aspect-review/tasks/def.md", "report_path": "02-aspect-review/reports/def.md", "findings": [] }
+  ],
+  "critic_pass": {
+    "candidate_count": 2,
+    "accepted_count": 1,
+    "rejected_count": 1,
+    "critics": [
+      { "id": "universal", "mode": "universal", "verdict": "accepted_with_downgrades", "summary": "One feature-layer finding survived; one noisy candidate was rejected." },
+      { "id": "architectural_harmonization", "mode": "architectural_harmonization", "verdict": "accepted", "summary": "No architecture blocker remains." }
+    ],
+    "decisions": [
+      { "candidate_id": "CAND-001", "finding_id": "FIND-SDLC-REVIEW-001", "disposition": "accepted", "rationale": "Evidence-backed feature-layer gap." },
+      { "candidate_id": "CAND-002", "disposition": "rejected", "rationale": "Preference without project impact." }
+    ]
+  },
+  "findings_register": [
+    {
+      "id": "FIND-SDLC-REVIEW-001",
+      "type": "frontmatter_crosslink_gap",
+      "severity": "minor",
+      "confidence": "high",
+      "title": "Feature link missing from focused protocol",
+      "problem": "Focused protocol has no related feature link.",
+      "impact": "Future review cannot trace value layer from the protocol alone.",
+      "recommended_action": "Create or link the related feature in a follow-up protocol.",
+      "disposition": "create_protocol",
+      "affected_objects": [
+        { "kind": "protocol", "path": ".memory-bank/protocol/PRT-049-mb-sdlc-project-review-flow.md", "status": "available", "summary": "Focused protocol." }
+      ],
+      "evidence": [
+        { "kind": "protocol", "path": ".memory-bank/protocol/PRT-049-mb-sdlc-project-review-flow.md", "status": "available", "summary": "related_features is empty." }
+      ]
+    }
+  ],
+  "conformance_summary": {
+    "overall_verdict": "accepted_with_findings",
+    "summary": "Review completed with one minor follow-up.",
+    "items": [
+      { "id": "project", "label": "Project state", "status": "watch", "summary": "One traceability gap remains." },
+      { "id": "review", "label": "Review evidence", "status": "pass", "summary": "Aspect map, critic pass and schema validation are present." }
+    ]
+  },
+  "review_fix_recommendation": {
+    "required": true,
+    "strategy": "single_protocol",
+    "next_action": "Run review-fix to discuss and create a follow-up protocol.",
+    "candidate_protocols": ["PRT-next-feature-link-cleanup"]
+  },
+  "deferrals": [],
+  "dashboard_links": {
+    "project_dashboard": { "label": "Project dashboard", "href": "~/.dd-flow/projects/PRJ-004-dd-memorybank/dashboard/project-dashboard.html", "status": "pending" },
+    "protocol_dashboard": { "label": "Protocol dashboard", "href": "~/.dd-flow/projects/PRJ-004-dd-memorybank/dashboard/protocols/PRT-049-mb-sdlc-project-review-flow.html", "status": "pending" }
+  }
+}

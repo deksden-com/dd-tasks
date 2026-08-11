@@ -1,0 +1,35 @@
+{
+  "schema_id": "dd-flow/archived-flow-manifest@1",
+  "archive_id": "mb-upgrade-2026-06-12-old-dd-flow",
+  "created_at": "2026-06-12T10:10:00Z",
+  "target_project_root": "/Users/example/target-project",
+  "source_flow_root": "/Users/example/target-project/.memory-bank/dd-flow",
+  "archive_root": "/Users/example/target-project/.memory-bank/archive/mb-upgrade-2026-06-12/old-dd-flow",
+  "items": [
+    {
+      "original_path": ".memory-bank/dd-flow/mb-upgrade.md",
+      "archive_path": ".memory-bank/archive/mb-upgrade-2026-06-12/old-dd-flow/mb-upgrade.md",
+      "classification": "canonical_only_obsolete",
+      "reason": "mb-upgrade is canonical-only and must run from DD_MEMORYBANK/canon_flow_root.",
+      "manual_review_required": false,
+      "replacement": {
+        "kind": "canonical_only_flow",
+        "hint": "Run $DD_MEMORYBANK/.memory-bank/dd-flow/mb-upgrade.md with target_project_root set to this repository, or use canon_flow_root/mb-upgrade.md from dd-flow canon resolve."
+      },
+      "source_commit": "abc1234"
+    },
+    {
+      "original_path": ".memory-bank/dd-flow/custom-local-review.md",
+      "archive_path": ".memory-bank/archive/mb-upgrade-2026-06-12/old-dd-flow/custom-local-review.md",
+      "classification": "project_customization",
+      "reason": "The file is not part of the curated project flow pack allowlist.",
+      "manual_review_required": true,
+      "replacement": {
+        "kind": "needs_decision",
+        "hint": "Review whether this customization should become a project guide, a DEF, or a canonical improvement proposal."
+      },
+      "source_hash": "sha256:example"
+    }
+  ],
+  "notes": "Example archive created by mb-upgrade canonical-layer/archive targets."
+}

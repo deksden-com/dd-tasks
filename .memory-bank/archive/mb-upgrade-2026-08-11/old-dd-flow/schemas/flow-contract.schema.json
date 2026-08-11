@@ -1,0 +1,126 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/flow-contract@3",
+  "title": "dd-flow canonical flow contract",
+  "description": "Structural contract for the complete flow-contract.json catalog. Dynamic cross-key relationships are validated by the shared CLI normalizer.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "version", "capabilities", "stages", "transitions", "readiness", "merge_queue", "defaults", "legacy_aliases", "flow_flags"],
+  "properties": {
+    "id": {"type":"string","pattern":"^dd-flow-canonical-[0-9]{4}-[0-9]{2}$"},
+    "version": {"const":3},
+    "capabilities": {"type":"array","uniqueItems":true,"items":{"type":"string","minLength":1}},
+    "stages": {"type":"object","minProperties":1,"additionalProperties":{"$ref":"#/definitions/stage"}},
+    "transitions": {"type":"object","minProperties":1,"additionalProperties":{"$ref":"#/definitions/stringArray"}},
+    "entrypoints": {"type":"object","additionalProperties":{"$ref":"#/definitions/entrypoint"}},
+    "readiness": {"$ref":"#/definitions/readiness"},
+    "merge_queue": {"$ref":"#/definitions/mergeQueue"},
+    "defaults": {"$ref":"#/definitions/defaults"},
+    "auto_policy": {"$ref":"#/definitions/autoPolicy"},
+    "legacy_aliases": {"$ref":"#/definitions/stringMap"},
+    "route_aliases": {"$ref":"#/definitions/stringMap"},
+    "flow_flags": {"$ref":"#/definitions/flowFlags"}
+  },
+  "definitions": {
+    "nonEmptyString": {"type":"string","minLength":1},
+    "stringArray": {"type":"array","uniqueItems":true,"items":{"$ref":"#/definitions/nonEmptyString"}},
+    "stringMap": {"type":"object","additionalProperties":{"$ref":"#/definitions/nonEmptyString"}},
+    "flagScalar": {"type":["string","number","boolean","null"]},
+    "flagMap": {"type":"object","additionalProperties":{"$ref":"#/definitions/flagScalar"}},
+    "stage": {
+      "type":"object","additionalProperties":false,"required":["terminal"],
+      "properties":{"terminal":{"type":"boolean"},"report_enabled":{"type":"boolean"}}
+    },
+    "entrypoint": {
+      "type":"object","additionalProperties":false,
+      "properties": {
+        "stage":{"$ref":"#/definitions/nonEmptyString"},
+        "logical_stages":{"$ref":"#/definitions/stringArray"},
+        "creates_protocol":{"type":"boolean"},
+        "purpose":{"$ref":"#/definitions/nonEmptyString"},
+        "mode":{"$ref":"#/definitions/nonEmptyString"}
+      },
+      "anyOf":[{"required":["stage"]},{"required":["logical_stages"]}]
+    },
+    "readiness": {
+      "type":"object","additionalProperties":false,"required":["command","allowed_from","target_stage"],
+      "properties":{"command":{"const":"ready-for-merge"},"allowed_from":{"$ref":"#/definitions/stringArray"},"target_stage":{"$ref":"#/definitions/nonEmptyString"}}
+    },
+    "mergeQueue": {
+      "type":"object","additionalProperties":false,"required":["complete"],
+      "properties":{"complete":{"type":"object","additionalProperties":false,"required":["target_stage","next_action"],"properties":{"target_stage":{"$ref":"#/definitions/nonEmptyString"},"next_action":{"$ref":"#/definitions/nonEmptyString"}}}}
+    },
+    "defaults": {
+      "type":"object","additionalProperties":false,"required":["registered_next_action"],
+      "properties": {
+        "registered_next_action":{"$ref":"#/definitions/nonEmptyString"},
+        "ordinary_protocol_flow_kind":{"$ref":"#/definitions/nonEmptyString"},
+        "normal_stage_layout":{"$ref":"#/definitions/stringArray"},
+        "legacy_coding_stage_layout":{"$ref":"#/definitions/stringArray"}
+      }
+    },
+    "autoPolicy": {
+      "type":"object","additionalProperties":false,
+      "properties": {
+        "ready_for_code_auto":{"$ref":"#/definitions/nonEmptyString"},
+        "ready_for_code_after_user_review":{"$ref":"#/definitions/nonEmptyString"},
+        "home_config_path":{"$ref":"#/definitions/nonEmptyString"},
+        "snapshot_authority":{"$ref":"#/definitions/nonEmptyString"},
+        "legacy_profile_projection":{"$ref":"#/definitions/nonEmptyString"}
+      }
+    },
+    "flowFlags": {
+      "type":"object","additionalProperties":false,
+      "required":["source_precedence","definitions","presets","flows","mandatory_floors"],
+      "properties": {
+        "source_precedence": {
+          "type":"array","minItems":1,"uniqueItems":true,
+          "items":{"enum":["flow_default","preset","task_profile","protocol_override","run_override","escalation","compatibility_alias"]}
+        },
+        "definitions": {"type":"object","minProperties":1,"additionalProperties":{"$ref":"#/definitions/flagDefinition"}},
+        "presets": {"type":"object","minProperties":1,"additionalProperties":{"$ref":"#/definitions/flagMap"}},
+        "flows": {"type":"object","minProperties":1,"additionalProperties":{"$ref":"#/definitions/flowFlagConsumer"}},
+        "mandatory_floors": {"type":"array","items":{"$ref":"#/definitions/mandatoryFloor"}},
+        "reduction_matrix": {"type":"object","additionalProperties":{"$ref":"#/definitions/reductionEntry"}},
+        "consumer_matrix": {"type":"object","additionalProperties":{"$ref":"#/definitions/stringArray"}}
+      }
+    },
+    "flagDefinition": {
+      "type":"object","additionalProperties":false,"required":["type","owner","description"],
+      "properties": {
+        "type":{"enum":["boolean","enum","number","string"]},
+        "values":{"type":"array","minItems":1,"uniqueItems":true,"items":{"$ref":"#/definitions/flagScalar"}},
+        "owner":{"$ref":"#/definitions/nonEmptyString"},
+        "description":{"$ref":"#/definitions/nonEmptyString"}
+      },
+      "allOf":[
+        {"if":{"properties":{"type":{"const":"enum"}},"required":["type"]},"then":{"required":["values"]}},
+        {"if":{"properties":{"type":{"enum":["boolean","number","string"]}},"required":["type"]},"then":{"not":{"required":["values"]}}}
+      ]
+    },
+    "flowFlagConsumer": {
+      "type":"object","additionalProperties":false,"required":["default_preset","supported","defaults"],
+      "properties": {
+        "default_preset":{"$ref":"#/definitions/nonEmptyString"},
+        "supported":{"type":"array","minItems":1,"uniqueItems":true,"items":{"$ref":"#/definitions/nonEmptyString"}},
+        "defaults":{"type":"object","additionalProperties":false,"required":["preset"],"properties":{"preset":{"$ref":"#/definitions/nonEmptyString"}}}
+      }
+    },
+    "mandatoryFloor": {
+      "type":"object","additionalProperties":false,"required":["when","values","reason"],
+      "properties": {
+        "when":{"type":"object","minProperties":1,"additionalProperties":{"$ref":"#/definitions/stringArray"}},
+        "values":{"$ref":"#/definitions/flagMap"},
+        "reason":{"$ref":"#/definitions/nonEmptyString"}
+      }
+    },
+    "reductionEntry": {
+      "type":"object","additionalProperties":false,"required":["skips","keeps","reduced_artifact_status"],
+      "properties": {
+        "skips":{"$ref":"#/definitions/stringArray"},
+        "keeps":{"$ref":"#/definitions/stringArray"},
+        "reduced_artifact_status":{"$ref":"#/definitions/nonEmptyString"}
+      }
+    }
+  }
+}

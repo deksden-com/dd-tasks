@@ -1,0 +1,345 @@
+{
+  "schema_version": "1.0.0",
+  "schema_id": "dd-flow/mb-upgrade-review-data@1",
+  "review": {
+    "run_id": "RUN-002-hr-agent-mb-upgrade",
+    "generated_at": "2026-06-04T12:00:00Z",
+    "target_project": "hr-agent",
+    "target_language": "ru",
+    "reviewed_upgrade_path": "~/.dd-flow/projects/PRJ-002-demo/runs/RUN-002-hr-agent-mb-upgrade",
+    "reviewed_branch": "upgrade/memory-bank-2026-06-03",
+    "reviewed_commit": "abc1234",
+    "integration_branch": "develop",
+    "source_integrated_review_path": "~/.dd-flow/projects/PRJ-002-demo/runs/RUN-002-hr-agent-mb-upgrade/05-review/03-synthesis/integrated-review.md",
+    "final_report_path": "~/.dd-flow/projects/PRJ-002-demo/runs/RUN-002-hr-agent-mb-upgrade/05-review/04-stage-report/final-report.md",
+    "aspect_coverage_path": "~/.dd-flow/projects/PRJ-002-demo/runs/RUN-002-hr-agent-mb-upgrade/05-review/02-aspect-review/aspect-coverage.md",
+    "dashboard_template": ".memory-bank/dd-flow/mb-upgrade/review/stage-report-template.html",
+    "active_def_index_path": "defs/index.md",
+    "active_def_index_note": "Созданные DEF связаны с активным индексом отложенных задач."
+  },
+  "overall": {
+    "verdict": "accepted_with_deferrals",
+    "verdict_label": "Принято с отложенными задачами",
+    "verdict_note": "Блокеров нет, но две значимые находки вынесены в DEF-MBU-REVIEW.",
+    "score_total": 38,
+    "score_max": 50,
+    "score_label": "38 / 50",
+    "blockers": 0,
+    "blocker_summary": "Блокирующих находок нет.",
+    "delivery_state": "Upgrade branch reviewed; project delivery requires normal merge policy.",
+    "next_action": "Разобрать созданные DEF-MBU-REVIEW перед следующим крупным апгрейдом Банка памяти."
+  },
+  "aspects": [
+    {
+      "id": "01-goal-and-delivery",
+      "order": 1,
+      "label": "Цель и доставка",
+      "reviewer": "Aspect reviewer 01",
+      "score": 4,
+      "verdict": "pass",
+      "report_path": "~/.dd-flow/projects/PRJ-002-demo/runs/RUN-002-hr-agent-mb-upgrade/05-review/02-aspect-review/reports/01-goal-and-delivery.md",
+      "short_summary": "Цель upgrade сохранена, следующий шаг для пользователя ясен.",
+      "primary_finding": "Доставка описана достаточно ясно.",
+      "finding_preview": "Без блокеров по цели.",
+      "detail_tooltip": "Проверяет, что upgrade не остался набором локальных артефактов без понятного next action.",
+      "def_badges": [],
+      "severity_counts": {"blocking": 0, "major": 0, "minor": 0, "informational": 0},
+      "evidence_summary": ["final-report.md указывает next action"],
+      "findings": []
+    },
+    {
+      "id": "02-knowledge-preservation",
+      "order": 2,
+      "label": "Сохранность знаний",
+      "reviewer": "Aspect reviewer 02",
+      "score": 4,
+      "verdict": "pass",
+      "report_path": "~/.dd-flow/projects/PRJ-002-demo/runs/RUN-002-hr-agent-mb-upgrade/05-review/02-aspect-review/reports/02-knowledge-preservation.md",
+      "short_summary": "Проектные знания перенесены без потери ключевых контекстов.",
+      "primary_finding": "Старые источники учтены.",
+      "finding_preview": "Потери знаний не обнаружены.",
+      "detail_tooltip": "Проверяет, что старые документы не исчезли без миграции, архива или явного решения.",
+      "def_badges": [],
+      "severity_counts": {"blocking": 0, "major": 0, "minor": 0, "informational": 0},
+      "evidence_summary": ["source-ownership.md", "canonical-state-map.md"],
+      "findings": []
+    },
+    {
+      "id": "03-canonical-structure",
+      "order": 3,
+      "label": "Каноническая структура",
+      "reviewer": "Aspect reviewer 03",
+      "score": 3,
+      "verdict": "weak_pass",
+      "report_path": "~/.dd-flow/projects/PRJ-002-demo/runs/RUN-002-hr-agent-mb-upgrade/05-review/02-aspect-review/reports/03-canonical-structure.md",
+      "short_summary": "Структура в целом корректна, но одна продуктовая тема лежит в системном слое.",
+      "primary_finding": "Раздел workspace library требует уточнения слоя.",
+      "finding_preview": "Есть DEF по product/system split.",
+      "detail_tooltip": "Находка показывает, что active docs могут быть формально мигрированы, но смысловой слой выбран неидеально.",
+      "def_badges": [{"label": "DEF создан", "kind": "created"}],
+      "severity_counts": {"blocking": 0, "major": 1, "minor": 0, "informational": 0},
+      "evidence_summary": ["spec/system/workspace-library-and-outbound-plan.md"],
+      "findings": ["FIND-MBU-REVIEW-001"]
+    },
+    {
+      "id": "04-target-coverage",
+      "order": 4,
+      "label": "Покрытие target-ов",
+      "reviewer": "Aspect reviewer 04",
+      "score": 4,
+      "verdict": "pass",
+      "report_path": "~/.dd-flow/projects/PRJ-002-demo/runs/RUN-002-hr-agent-mb-upgrade/05-review/02-aspect-review/reports/04-target-coverage.md",
+      "short_summary": "Выбранные target-ы имеют рабочие отчеты и evidence.",
+      "primary_finding": "Coverage достаточный.",
+      "finding_preview": "Target coverage подтвержден.",
+      "detail_tooltip": "Проверяет, что target-пакеты, reports и итоговая карта покрытия согласованы.",
+      "def_badges": [],
+      "severity_counts": {"blocking": 0, "major": 0, "minor": 0, "informational": 0},
+      "evidence_summary": ["target-selection-map.md", "target-coverage.md"],
+      "findings": []
+    },
+    {
+      "id": "05-path-traceability",
+      "order": 5,
+      "label": "Трассировка путей",
+      "reviewer": "Aspect reviewer 05",
+      "score": 3,
+      "verdict": "weak_pass",
+      "report_path": "~/.dd-flow/projects/PRJ-002-demo/runs/RUN-002-hr-agent-mb-upgrade/05-review/02-aspect-review/reports/05-path-traceability.md",
+      "short_summary": "Активная навигация в основном работает, но один stale path требует follow-up.",
+      "primary_finding": "Старый путь ADR/protocol оставлен как активная подсказка.",
+      "finding_preview": "Есть DEF по stale path guidance.",
+      "detail_tooltip": "Проверяет старые ссылки и инструкции, включая строки с символами <, кавычками и длинными путями.",
+      "def_badges": [{"label": "DEF обновлен", "kind": "updated"}],
+      "severity_counts": {"blocking": 0, "major": 1, "minor": 0, "informational": 0},
+      "evidence_summary": ["path-traceability-report.md"],
+      "findings": ["FIND-MBU-REVIEW-002"]
+    },
+    {
+      "id": "06-def-settlement",
+      "order": 6,
+      "label": "DEF settlement",
+      "reviewer": "Aspect reviewer 06",
+      "score": 4,
+      "verdict": "pass",
+      "report_path": "~/.dd-flow/projects/PRJ-002-demo/runs/RUN-002-hr-agent-mb-upgrade/05-review/02-aspect-review/reports/06-def-settlement.md",
+      "short_summary": "Существенные находки вынесены в активный слой DEF.",
+      "primary_finding": "DEF tracking discoverable.",
+      "finding_preview": "Активный DEF index найден.",
+      "detail_tooltip": "Проверяет, что значимые findings не остались только в runtime reports.",
+      "def_badges": [{"label": "2 DEF", "kind": "existing"}],
+      "severity_counts": {"blocking": 0, "major": 0, "minor": 0, "informational": 0},
+      "evidence_summary": ["defs/index.md"],
+      "findings": []
+    },
+    {
+      "id": "07-verification-quality",
+      "order": 7,
+      "label": "Качество проверок",
+      "reviewer": "Aspect reviewer 07",
+      "score": 4,
+      "verdict": "pass",
+      "report_path": "~/.dd-flow/projects/PRJ-002-demo/runs/RUN-002-hr-agent-mb-upgrade/05-review/02-aspect-review/reports/07-verification-quality.md",
+      "short_summary": "Проверки повторяемы и отделены от ревью качества.",
+      "primary_finding": "mb-lint и git checks зафиксированы.",
+      "finding_preview": "Проверки воспроизводимы.",
+      "detail_tooltip": "Проверяет, что green lint не подменяет аспектное качество.",
+      "def_badges": [],
+      "severity_counts": {"blocking": 0, "major": 0, "minor": 0, "informational": 0},
+      "evidence_summary": ["mb-lint output", "git diff --check"],
+      "findings": []
+    },
+    {
+      "id": "08-git-merge-delivery",
+      "order": 8,
+      "label": "Git и merge delivery",
+      "reviewer": "Aspect reviewer 08",
+      "score": 3,
+      "verdict": "weak_pass",
+      "report_path": "~/.dd-flow/projects/PRJ-002-demo/runs/RUN-002-hr-agent-mb-upgrade/05-review/02-aspect-review/reports/08-git-merge-delivery.md",
+      "short_summary": "Delivery понятен, но cleanup worktrees требует отдельной задачи.",
+      "primary_finding": "Лишние worktrees оставлены после upgrade.",
+      "finding_preview": "Есть DEF по cleanup lifecycle.",
+      "detail_tooltip": "Проверяет ветки, worktree cleanup и то, что branch-ready не назван merged.",
+      "def_badges": [{"label": "DEF уже есть", "kind": "existing"}],
+      "severity_counts": {"blocking": 0, "major": 1, "minor": 0, "informational": 0},
+      "evidence_summary": ["git worktree list"],
+      "findings": ["FIND-MBU-REVIEW-003"]
+    },
+    {
+      "id": "09-report-quality",
+      "order": 9,
+      "label": "Качество отчета",
+      "reviewer": "Aspect reviewer 09",
+      "score": 4,
+      "verdict": "pass",
+      "report_path": "~/.dd-flow/projects/PRJ-002-demo/runs/RUN-002-hr-agent-mb-upgrade/05-review/02-aspect-review/reports/09-report-quality.md",
+      "short_summary": "Итоговый отчет объясняет verdict и следующий шаг.",
+      "primary_finding": "Пользовательский слой достаточно ясен.",
+      "finding_preview": "Отчет пригоден для решения.",
+      "detail_tooltip": "Проверяет, что пользователь видит результат, а не только внутренние traces.",
+      "def_badges": [],
+      "severity_counts": {"blocking": 0, "major": 0, "minor": 0, "informational": 0},
+      "evidence_summary": ["final-report.md"],
+      "findings": []
+    },
+    {
+      "id": "10-agent-process-quality",
+      "order": 10,
+      "label": "Качество agent process",
+      "reviewer": "Aspect reviewer 10",
+      "score": 5,
+      "verdict": "strong_pass",
+      "report_path": "~/.dd-flow/projects/PRJ-002-demo/runs/RUN-002-hr-agent-mb-upgrade/05-review/02-aspect-review/reports/10-agent-process-quality.md",
+      "short_summary": "Review выполнен aspect subagents, без orchestration-only подмены.",
+      "primary_finding": "Полное аспектное покрытие подтверждено.",
+      "finding_preview": "10/10 reports на месте.",
+      "detail_tooltip": "Проверяет, что полноценное review не было заменено одиночным анализом.",
+      "def_badges": [],
+      "severity_counts": {"blocking": 0, "major": 0, "minor": 0, "informational": 0},
+      "evidence_summary": ["aspect-coverage.md"],
+      "findings": []
+    }
+  ],
+  "findings": [
+    {
+      "id": "FIND-MBU-REVIEW-001",
+      "display_order": 1,
+      "aspect_id": "03-canonical-structure",
+      "severity": "major",
+      "severity_label": "Значимая",
+      "title": "Product/system split для workspace library требует follow-up",
+      "problem": "Документ workspace library выглядит как продуктовая способность, но лежит в системном слое.",
+      "impact": "Будущие агенты могут искать пользовательское поведение не в том разделе.",
+      "next_action": "Перепроверить слой и перенести документ или разделить его на product/system части.",
+      "status_label": "Создан DEF",
+      "evidence": [{"kind": "file", "label": "Документ", "path": ".memory-bank/spec/system/workspace-library-and-outbound-plan.md", "summary": "Видимый продуктовый сценарий хранится в system shelf."}],
+      "tracking": {
+        "status": "created_def",
+        "label": "Создан DEF",
+        "badge_kind": "created",
+        "def_id": "DEF-MBU-REVIEW-CANONICAL-STRUCTURE-WORKSPACE-LIBRARY-SPLIT",
+        "def_path": "defs/DEF-MBU-REVIEW-CANONICAL-STRUCTURE-WORKSPACE-LIBRARY-SPLIT.md",
+        "reason": "Значимая finding должна быть discoverable вне .tasks."
+      }
+    },
+    {
+      "id": "FIND-MBU-REVIEW-002",
+      "display_order": 2,
+      "aspect_id": "05-path-traceability",
+      "severity": "major",
+      "severity_label": "Значимая",
+      "title": "Старая ADR/protocol подсказка осталась активной",
+      "problem": "В активном документе сохранилась инструкция со старым путем и строкой `protocol/<old>.md`.",
+      "impact": "Агент может продолжить писать protocol evidence в устаревшее место.",
+      "next_action": "Обновить guidance и проверить связанные ссылки.",
+      "status_label": "Обновлен DEF",
+      "evidence": [{"kind": "file", "label": "Старая подсказка", "path": ".memory-bank/guides/upgrade-notes.md", "summary": "Содержит символы <old>, кавычки \"protocol\" и длинный путь для escaping test."}],
+      "tracking": {
+        "status": "updated_def",
+        "label": "Обновлен DEF",
+        "badge_kind": "updated",
+        "def_id": "DEF-MBU-REVIEW-PATH-TRACEABILITY-STALE-ADR-PROTOCOL-GUIDANCE",
+        "def_path": "defs/DEF-MBU-REVIEW-PATH-TRACEABILITY-STALE-ADR-PROTOCOL-GUIDANCE.md",
+        "reason": "DEF уже покрывает близкий stale-path gate."
+      }
+    },
+    {
+      "id": "FIND-MBU-REVIEW-003",
+      "display_order": 3,
+      "aspect_id": "08-git-merge-delivery",
+      "severity": "major",
+      "severity_label": "Значимая",
+      "title": "Upgrade worktrees требуют cleanup",
+      "problem": "После review обнаружены оставшиеся служебные worktrees.",
+      "impact": "Будущие runs могут спутать старые checkout с активными.",
+      "next_action": "Закрыть cleanup по проектной git policy.",
+      "status_label": "Покрыто существующим DEF",
+      "evidence": [{"kind": "git", "label": "Git worktrees", "path": "", "summary": "git worktree list показывает старые upgrade checkout."}],
+      "tracking": {
+        "status": "existing_def",
+        "label": "Существующий DEF",
+        "badge_kind": "existing",
+        "def_id": "DEF-MBU-REVIEW-GIT-CLEANUP-WORKTREES",
+        "def_path": "defs/DEF-MBU-REVIEW-GIT-CLEANUP-WORKTREES.md",
+        "reason": "Активный DEF уже покрывает cleanup lifecycle."
+      }
+    }
+  ],
+  "evidence": [
+    {"kind": "schema", "label": "Schema validation", "path": "~/.dd-flow/projects/PRJ-002-demo/runs/RUN-002-hr-agent-mb-upgrade/04-stage-report/review-data.json", "summary": "review-data.json проходит canonical schema."},
+    {"kind": "dashboard", "label": "Stage report equality", "path": "~/.dd-flow/projects/PRJ-002-demo/runs/RUN-002-hr-agent-mb-upgrade/04-stage-report/stage-report.html", "summary": "Embedded JSON семантически равен standalone review-data.json."}
+  ],
+  "defs": {
+    "created": [
+      {
+        "id": "DEF-MBU-REVIEW-CANONICAL-STRUCTURE-WORKSPACE-LIBRARY-SPLIT",
+        "path": "defs/DEF-MBU-REVIEW-CANONICAL-STRUCTURE-WORKSPACE-LIBRARY-SPLIT.md",
+        "finding_ids": ["FIND-MBU-REVIEW-001"],
+        "summary": "Проверить product/system split для workspace library.",
+        "discoverability": "Linked from defs/index.md."
+      }
+    ],
+    "updated": [
+      {
+        "id": "DEF-MBU-REVIEW-PATH-TRACEABILITY-STALE-ADR-PROTOCOL-GUIDANCE",
+        "path": "defs/DEF-MBU-REVIEW-PATH-TRACEABILITY-STALE-ADR-PROTOCOL-GUIDANCE.md",
+        "finding_ids": ["FIND-MBU-REVIEW-002"],
+        "summary": "Обновить stale ADR/protocol guidance.",
+        "discoverability": "Linked from defs/index.md."
+      }
+    ],
+    "existing": [
+      {
+        "id": "DEF-MBU-REVIEW-GIT-CLEANUP-WORKTREES",
+        "path": "defs/DEF-MBU-REVIEW-GIT-CLEANUP-WORKTREES.md",
+        "finding_ids": ["FIND-MBU-REVIEW-003"],
+        "summary": "Очистить оставшиеся worktrees.",
+        "discoverability": "Already visible in active DEF preflight."
+      }
+    ]
+  },
+  "verification": [
+    {
+      "label": "Schema validate",
+      "status": "passed",
+      "summary": "dd-flow schema validate passed.",
+      "command": "dd-flow schema validate --schema mb-upgrade-review-data --file review-data.json --json",
+      "path": "~/.dd-flow/projects/PRJ-002-demo/runs/RUN-002-hr-agent-mb-upgrade/04-stage-report/review-data.json"
+    },
+    {
+      "label": "Memory Bank lint",
+      "status": "passed",
+      "summary": "mb-lint вернул 0 findings.",
+      "command": "mb-lint --root . --format json",
+      "path": ""
+    }
+  ],
+  "dashboard": {
+    "kicker": "Ревью апгрейда",
+    "title": "HR-agent Memory Bank upgrade принят с DEF-follow-up",
+    "lead": "Ревью покрывает 10 аспектов. Блокеров нет; значимые findings вынесены в активные DEF.",
+    "meta": [
+      {"label": "Проект", "value": "hr-agent"},
+      {"label": "Upgrade", "value": "2026-06-03"},
+      {"label": "Ветка", "value": "develop"},
+      {"label": "Review", "value": "2026-06-04"}
+    ],
+    "top_signals": [
+      {"kind": "good", "label": "Сильное", "text": "Покрыты все 10 аспектов и нет blocking findings."},
+      {"kind": "warn", "label": "Follow-up", "text": "Три major finding требуют DEF tracking."},
+      {"kind": "bad", "label": "Риск", "text": "Без DEF tracking эти findings остались бы только в .tasks."}
+    ],
+    "tooltips": {
+      "quality_profile": "Radar показывает 10 обязательных аспектов mb-upgrade 05-review.",
+      "aspect_review": "Открой строку аспекта, чтобы увидеть findings, impact, next action и evidence.",
+      "timeline": "Timeline показывает ключевые события доставки и проверки.",
+      "verification": "Verification фиксирует повторяемые команды и доказательства."
+    },
+    "timeline": [
+      {"label": "Review", "text": "10 aspect reports собраны через subagents."},
+      {"label": "Data", "text": "review-data.json создан как источник stage report."},
+      {"label": "DEF", "text": "Major findings связаны с DEF-MBU-REVIEW."}
+    ]
+  }
+}

@@ -77,7 +77,8 @@ verification:
 - snapshot auto policy, если она влияет на переходы.
 - snapshot relevant project-policy entries, если они повлияли на Git contour, check profile, delivery route or evidence gate.
 
-Если CLI недоступен, продолжай файлово и запиши `runtime_cli_degraded` в trace/summary.
+Если CLI недоступен, продолжай файлово и запиши `runtime_cli_degraded` в
+сгенерированный stage report или protocol summary; ручной trace не создавай.
 
 ## Следующий шаг
 

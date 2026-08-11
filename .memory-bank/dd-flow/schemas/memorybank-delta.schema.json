@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/memorybank-delta@1",
+  "title": "Post-write Memory Bank delta",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "scope", "changed_files", "changed_links", "preexisting_findings_ignored", "status"],
+  "properties": {
+    "schema_id": {"const": "dd-flow/memorybank-delta@1"},
+    "scope": {"const": "changed_files_and_links_only"},
+    "changed_files": {"type": "array", "items": {"type": "string"}},
+    "changed_links": {"type": "array", "items": {"type": "string"}},
+    "preexisting_findings_ignored": {"type": "boolean"},
+    "status": {"enum": ["passed", "failed", "degraded"]},
+    "findings": {"type": "array", "items": {"type": "object"}}
+  }
+}

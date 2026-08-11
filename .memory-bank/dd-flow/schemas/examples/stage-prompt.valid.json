@@ -1,0 +1,11 @@
+{
+  "schema_id": "dd-flow/stage-prompt@1",
+  "run_id": "RUN-308-spc-004-canonical-runtime-contract",
+  "stage": "code",
+  "generated_at": "2026-08-10T14:00:00Z",
+  "prompt_path": "03-code/stage-prompt.md",
+  "sections": ["stage_identity", "runtime_context", "intake", "applicable_instructions", "stage_cli", "file_boundaries", "completion_contract"],
+  "aliases": {"project": "@project", "workspace": "@workspace", "run": "@run", "stage": "@stage", "protocol": "@protocol", "intake": "@intake"},
+  "write_boundary": {"current": "@stage", "archive": "try-001", "archive_writable": false},
+  "source_fragments": [".memory-bank/dd-flow/common/runtime-contract.md", ".memory-bank/dd-flow/mb-sdlc/code/implement.md"]
+}

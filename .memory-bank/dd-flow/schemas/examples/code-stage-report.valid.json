@@ -2,7 +2,7 @@
   "schema_id": "dd-flow/code-stage-report@1",
   "run": {
     "run_id": "RUN-041-architecture-ai-review-gates",
-    "run_index": "~/.dd-flow/projects/PRJ-004-demo/runs/RUN-041-architecture-ai-review-gates/run-index.json"
+    "run_state": "~/.dd-flow/projects/PRJ-004-demo/runs/RUN-041-architecture-ai-review-gates/run.json"
   },
   "stage": {
     "name": "code",

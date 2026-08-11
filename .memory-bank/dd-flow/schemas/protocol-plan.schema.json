@@ -1,0 +1,230 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/protocol-plan@1",
+  "title": "Canonical semantic protocol plan",
+  "description": "The repository-owned semantic plan. Runtime progress, workers, timestamps and mechanical evidence do not belong here.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "schema_id", "plan_id", "protocol_id", "revision", "title", "summary", "specifications", "protocol_reference", "goal", "task_assessment", "route_decision", "policy_context", "sdlc_contours", "items", "verification", "code_handoff"],
+  "properties": {
+    "$schema": {"type": "string", "minLength": 1},
+    "schema_id": {"const": "dd-flow/protocol-plan@1"},
+    "plan_id": {"type": "string", "pattern": "^PLAN-[A-Za-z0-9][A-Za-z0-9._-]*$"},
+    "protocol_id": {"type": "string", "pattern": "^PRT-[A-Za-z0-9][A-Za-z0-9._-]*$"},
+    "revision": {"type": "integer", "minimum": 1},
+    "title": {"type": "string", "minLength": 1},
+    "summary": {"type": "string", "minLength": 1},
+    "specifications": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "version", "path", "sha256", "requirements"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^SPC-[0-9]{3}$"},
+          "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+          "path": {"type": "string", "pattern": "^\\.memory-bank/"},
+          "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+          "requirements": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^R-[0-9]+$"}}
+        }
+      }
+    },
+    "protocol_reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "pattern": "^\\.memory-bank/protocol/"},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    },
+    "goal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["outcome", "constraints", "non_goals"],
+      "properties": {
+        "outcome": {"type": "string", "minLength": 1},
+        "constraints": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "non_goals": {"type": "array", "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "task_assessment": {"$ref": "#/definitions/taskAssessment"},
+    "route_decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["initial_state", "selected_route", "selected_execution_mode", "reason", "capacity_probe", "packing"],
+      "properties": {
+        "initial_state": {"const": "orchestrator_local"},
+        "selected_route": {"enum": ["local_compact", "single_wave_grouped", "multi_wave_grouped", "external_handoff"]},
+        "selected_execution_mode": {"type": "string", "minLength": 1},
+        "reason": {"type": "string", "minLength": 1},
+        "capacity_probe": {"type": "string", "minLength": 1},
+        "packing": {"type": "string", "minLength": 1}
+      }
+    },
+    "policy_context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target_language", "source_authority", "current_truth_boundary", "validation", "lint"],
+      "properties": {
+        "target_language": {"type": "string", "minLength": 1},
+        "source_authority": {"type": "string", "minLength": 1},
+        "current_truth_boundary": {"type": "string", "minLength": 1},
+        "validation": {"type": "string", "minLength": 1},
+        "lint": {"type": "string", "minLength": 1}
+      }
+    },
+    "sdlc_contours": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["summary", "contours"],
+      "properties": {
+        "summary": {"type": "string", "minLength": 1},
+        "contours": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "applicability_status", "gate_status", "target_stage", "summary"],
+            "properties": {
+              "name": {"type": "string", "minLength": 1},
+              "applicability_status": {"enum": ["applicable", "external", "not_applicable"]},
+              "gate_status": {"enum": ["required", "deferred", "not_applicable"]},
+              "target_stage": {"enum": ["specify", "plan", "code", "readiness", "merge", "release"]},
+              "summary": {"type": "string", "minLength": 1}
+            }
+          }
+        }
+      }
+    },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/definitions/planItem"}
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scenario_seeds", "commands", "acceptance"],
+      "properties": {
+        "scenario_seeds": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "commands": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "acceptance": {"type": "string", "minLength": 1}
+      }
+    },
+    "code_handoff": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["must_read", "accepted_plan_ref", "companion_handoffs", "next_stage", "known_external_gate"],
+      "properties": {
+        "must_read": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "accepted_plan_ref": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "revision", "sha256"],
+          "properties": {
+            "path": {"type": "string", "pattern": "^\\.memory-bank/protocol/[^/]+/plan\\.json$"},
+            "revision": {"type": "integer", "minimum": 1},
+            "sha256": {"enum": ["computed_by_stage_finish"]}
+          }
+        },
+        "companion_handoffs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["protocol_id", "repository", "scope"],
+            "properties": {
+              "protocol_id": {"type": "string", "pattern": "^PRT-[A-Za-z0-9][A-Za-z0-9._-]*$"},
+              "repository": {"type": "string", "minLength": 1},
+              "scope": {"type": "string", "minLength": 1}
+            }
+          }
+        },
+        "next_stage": {"enum": ["code", "readiness", "merge", "release"]},
+        "known_external_gate": {"type": "string", "minLength": 1}
+      }
+    }
+  },
+  "definitions": {
+    "semanticSpine": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["user_outcome", "component_responsibility", "must_preserve", "non_goals", "acceptance_contribution"],
+      "properties": {
+        "user_outcome": {"type": "string", "minLength": 1},
+        "component_responsibility": {"type": "string", "minLength": 1},
+        "must_preserve": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "non_goals": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "acceptance_contribution": {"type": "string", "minLength": 1}
+      }
+    },
+    "executionContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["prompt_profile", "required_read", "discovery_boundary", "write_scope", "checks"],
+      "properties": {
+        "prompt_profile": {"enum": ["documentation_contract", "code_implementation", "verification"]},
+        "required_read": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "discovery_boundary": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "write_scope": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "checks": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "verificationContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["checks", "evidence"],
+      "properties": {
+        "checks": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "evidence": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "planItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "title", "summary", "depends_on", "owner", "target_stage", "required", "requirements", "semantic_spine", "execution_context", "verification_contract"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^P[0-9]+$"},
+        "kind": {"type": "string", "minLength": 1},
+        "title": {"type": "string", "minLength": 1},
+        "summary": {"type": "string", "minLength": 1},
+        "details": {"type": "string", "minLength": 1},
+        "depends_on": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^P[0-9]+$"}},
+        "owner": {"type": "string", "minLength": 1},
+        "target_stage": {"enum": ["specify", "plan", "code", "readiness", "merge", "release"]},
+        "required": {"type": "boolean"},
+        "requirements": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^SPC-[0-9]{3}@[0-9]+\\.[0-9]+\\.[0-9]+/R-[0-9]+$"}},
+        "semantic_spine": {"$ref": "#/definitions/semanticSpine"},
+        "execution_context": {"$ref": "#/definitions/executionContext"},
+        "verification_contract": {"$ref": "#/definitions/verificationContract"}
+      }
+    },
+    "taskAssessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope_breadth", "solution_novelty", "solution_uncertainty", "failure_impact", "plan_floor"],
+      "properties": {
+        "scope_breadth": {"$ref": "#/definitions/assessmentAxis"},
+        "solution_novelty": {"$ref": "#/definitions/assessmentAxis"},
+        "solution_uncertainty": {"$ref": "#/definitions/assessmentAxis"},
+        "failure_impact": {"$ref": "#/definitions/assessmentAxis"},
+        "plan_floor": {"$ref": "#/definitions/assessmentAxis"}
+      }
+    },
+    "assessmentAxis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level", "surfaces", "reason"],
+      "properties": {
+        "level": {"type": "string", "minLength": 1},
+        "surfaces": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "reason": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

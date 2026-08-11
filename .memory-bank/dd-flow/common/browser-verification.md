@@ -30,12 +30,12 @@ Never start a long-running dev server in the foreground from an agent tool call.
 When a local server is needed, run it as a managed background process:
 
 - choose an explicit host/port;
-- redirect logs to a file under `.tasks/` or the protocol trace directory;
+- redirect logs to a file under `.tasks/`;
 - write or record the PID;
 - wait for a health URL with bounded retries;
 - stop the process during cleanup, even when a later check fails.
 
-Record the dev-server command, PID/log path, URL, and cleanup result in the verification passport or trace. Do not call HTTP/source smoke or browser evidence complete until the server has a bounded startup check and a cleanup path.
+Record the dev-server command, PID/log path, URL, and cleanup result in the verification passport. Do not call HTTP/source smoke or browser evidence complete until the server has a bounded startup check and a cleanup path.
 
 ## Route choice
 
@@ -94,7 +94,7 @@ Raw browser artifacts are disposable until they are copied or summarized into du
 Before claiming readiness, merge completion, or experiment acceptance, promote any browser proof that must survive cleanup:
 
 - source: `.tasks/`, `.scenario-runs/`, tool temp folders, cmux text/snapshot files, screenshots, DOM dumps, console/network excerpts;
-- target: `protocol/<PRT-ID>/evidence/`, `protocol/<PRT-ID>/trace/`, or project-level `evidence/` when the proof is reused outside one protocol;
+- target: `protocol/<PRT-ID>/evidence/` or project-level `evidence/` when the proof is reused outside one protocol;
 - record in the verification passport which raw artifacts were promoted, which were summarized instead of copied, and which were intentionally discarded as transient.
 
 If a feature worktree will be removed, promotion must happen before `git worktree remove`. A passport that references a deleted `.tasks/...` file without a durable copy or curated summary is incomplete evidence.

@@ -1,1 +1,84 @@
-{"id":"dd-flow-canonical-2026-06","version":3,"capabilities":[],"stages":{"registered":{"terminal":false},"closed":{"terminal":true},"cancelled":{"terminal":true}},"transitions":{"registered":["closed"],"closed":[],"cancelled":[]},"readiness":{"command":"ready-for-merge","allowed_from":["registered"],"target_stage":"closed"},"merge_queue":{"complete":{"target_stage":"closed","next_action":"none"}},"defaults":{"registered_next_action":"start"},"legacy_aliases":{},"flow_flags":{"source_precedence":["flow_default","preset","task_profile","protocol_override","run_override"],"definitions":{"flag.enabled":{"type":"boolean","owner":"fixture","description":"Enable fixture behavior."}},"presets":{"normal":{"flag.enabled":true}},"flows":{"custom":{"default_preset":"normal","supported":["flag.enabled"],"defaults":{"preset":"normal"}}},"mandatory_floors":[]}}
+{
+  "schema_id": "dd-flow/flow-contract@5",
+  "id": "dd-flow-canonical-2026-08",
+  "contract_id": "dd-flow-canonical-2026-08",
+  "version": 5,
+  "status": "active",
+  "source": ".memory-bank/dd-flow/common/runtime-contract.md",
+  "specifications": [
+    {"id": "SPC-004", "version": "0.2.0", "sha256": "c151193f2cbffa7a27daaa08b9b5c0f5626cb6cad642601b05e9ad5a2155664f"},
+    {"id": "SPC-005", "version": "0.1.0", "sha256": "02622b24f3656c5707f4d50e22a70a85df22c18b1e9c80c725e24be997cf8dd1"}
+  ],
+  "stage_lifecycle": {
+    "actions": ["stage_start", "stage_finish"],
+    "start_command": "dd-flow stage start <RUN> --stage <stage> --json",
+    "finish_command": "dd-flow stage finish <RUN> --stage <stage> --status done --json",
+    "prompt_sections": [
+      "stage_identity",
+      "runtime_context",
+      "intake",
+      "applicable_instructions",
+      "stage_cli",
+      "file_boundaries",
+      "completion_contract"
+    ],
+    "current_write_alias": "@stage",
+    "archive_pattern": "try-NNN"
+  },
+  "run": {
+    "current_state": "run.json",
+    "history": "timeline.jsonl",
+    "sole_authority": true,
+    "legacy_state": "retired"
+  },
+  "artifacts": {
+    "finish_outputs": ["stage-report.json", "stage-report.md", "stage-report.html", "summary.md"],
+    "model_input": "semantic-only",
+    "mechanical_facts": "cli-owned"
+  },
+  "plan": {
+    "semantic_source": ".memory-bank/protocol/<PRT-ID>/plan.json",
+    "schema": ".memory-bank/dd-flow/schemas/protocol-plan.schema.json",
+    "progress_projection": "run.json.plan_progress",
+    "worker_projection": "run.json.workers",
+    "coverage_source": "<RUN-home>/02-plan/aspect-map.json",
+    "removed": ["runtime plan copy", "plan set", "aspect-job-map.json", "aspect-graph.json", "subagent-decision.md", "phase-summary.md", "manual PLAN report"]
+  },
+  "validation": {
+    "permission_scope": "known-targets-only",
+    "memory_bank_scope": "post-write-delta",
+    "alias_policy": "typed-contained-fail-closed"
+  },
+  "workspace": {
+    "manager": "official-worktrunk",
+    "command": "wt switch --create <branch> --base <base> --format json",
+    "project_hooks": [".worktreeinclude", ".config/wt.toml"],
+    "fallbacks": "forbidden"
+  },
+  "lint": {
+    "progress_channel": "stderr",
+    "result_channel": "stdout",
+    "default_concurrency": 32,
+    "findings_order": "deterministic"
+  },
+  "removed_contracts": [
+    "duplicate RUN locator state and schemas",
+    "manual trace lifecycle",
+    "report format selectors",
+    "observability detail selectors",
+    "current try-NNN writes",
+    "raw Git worktree fallback",
+    "model-authored mechanical telemetry"
+  ],
+  "presets": {
+    "compact": {"planning": "compact", "verification": "mandatory"},
+    "normal": {"planning": "normal", "verification": "mandatory"},
+    "full": {"planning": "full", "verification": "full"}
+  },
+  "policy": {
+    "source_of_truth": "canonical prompts and schemas",
+    "runtime_owner": "dd-flow-cli",
+    "lint_owner": "mb-lint",
+    "integrated_gate": "compatible releases plus clean specify-to-plan eval"
+  }
+}

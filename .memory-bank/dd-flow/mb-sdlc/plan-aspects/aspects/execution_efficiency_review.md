@@ -28,7 +28,7 @@ from `testing_system_design_review` or `verification_evidence_review`.
 Read the accepted outputs for both hard predecessors: an accepted local row in
 `aspect-map.json` or a delegated report. Then read the current
 protocol/specification, plan draft and `plan.json` when present, task or
-verification matrix, `aspect-map.json`, `aspect-graph.json`, project check
+verification matrix, `aspect-map.json`, derived dependency view, project check
 policy/command sources and any selected scenario, seed or eval artifacts whose
 evidence contributes to acceptance. These are explicit task-manifest reads,
 not remembered orchestrator context.

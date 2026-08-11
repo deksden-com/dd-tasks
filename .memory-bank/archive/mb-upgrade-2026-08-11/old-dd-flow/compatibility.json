@@ -1,0 +1,57 @@
+{
+  "schema_id": "dd-flow/compatibility@1",
+  "memory_bank_version": "2.18.0",
+  "dd_flow_cli": {
+    "package_name": "@deksden-com/dd-flow-cli",
+    "min_version": "0.4.0",
+    "recommended_version": "0.4.2",
+    "status_contract": "dd-flow/status-report@1",
+    "version_contract": "dd-flow/version-report@1",
+    "flow_contract": "dd-flow-canonical-2026-06"
+  },
+  "router": {
+    "package_name": "@deksden-com/dd-flow-cli",
+    "min_version": "0.4.0",
+    "recommended_version": "0.4.2",
+    "routing_model": "legacy_direct_cli",
+    "engine_store": "~/.dd-flow/engines",
+    "notes": "PRT-061 will introduce routed engine dispatch. Until then dd_flow_cli is the effective command executor."
+  },
+  "engine": {
+    "package_name": "@deksden-com/dd-flow-cli",
+    "version_range": ">=0.4.0 <0.5.0",
+    "recommended_version": "0.4.2",
+    "install_hint": "npm install -g @deksden-com/dd-flow-cli@0.4.2",
+    "old_engine_install_hint": "npx @deksden-com/dd-flow-cli@<version> engine install",
+    "first_engine_installable_version": "0.4.0",
+    "legacy_direct_cli_before": "0.4.0",
+    "manifest_contract": "dd-flow/engine-manifest@1",
+    "status": "planned_router_engine_split"
+  },
+  "contracts": {
+    "storage_contract_set": "dd-flow/storage-contract-set@2.9",
+    "project_summary_contract": "dd-flow/project-summary@1",
+    "project_dashboard_contract": "dd-flow/project-dashboard@1",
+    "global_dashboard_contract": "dd-flow/global-dashboard@1",
+    "status_contract": "dd-flow/status-report@1",
+    "version_contract": "dd-flow/version-report@1"
+  },
+  "global_dashboard": {
+    "supported_project_summary_contracts": ["dd-flow/project-summary@1"],
+    "unsupported_project_visibility": true,
+    "summary_version_groups": true
+  },
+  "migrations": {
+    "mode": "mb-upgrade-only",
+    "from_previous": "2.17.1",
+    "to_this": "2.18.0",
+    "adjacent_only": true,
+    "normal_commands_may_migrate": false
+  },
+  "mb_lint": {
+    "package_name": "@deksden-com/mb-lint",
+    "min_version": "0.3.0",
+    "recommended_version": "0.3.0",
+    "command_contract": "mb-lint rules and --format json deterministic findings"
+  }
+}

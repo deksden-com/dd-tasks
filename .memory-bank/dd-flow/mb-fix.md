@@ -7,7 +7,6 @@ Flow origin policy: `project_local`.
 Прочитай общие правила:
 
 - `.memory-bank/dd-flow/common/style.md`
-- `.memory-bank/dd-flow/common/trace.md`
 - `.memory-bank/dd-flow/common/runtime-cli.md`
 - `.memory-bank/dd-flow/common/flow-runs.md`
 - `.memory-bank/dd-flow/common/flow-origin.md`
@@ -66,13 +65,13 @@ partial failure запускает recovery только для affected DEF/wor
 
 В отчёте `mb-fix` показывай normalized `lifecycle` и resource/claim evidence отдельно от legacy aliases.
 
-Создай или найди `RUN-*` по `common/flow-runs.md`. Для текущего `mb-fix` используй `<run-home>`, resolved через `dd-flow run status --json` / `run-index.json`, и stage layout: `01-intake/`, `02-fix/`, `03-verification/`, `04-report/`. Input audit-run не является текущим run: фикс ссылается на него через `source_audit_run_id` и `source_audit_dir`.
+Создай или найди `RUN-*` по `common/flow-runs.md`. Для текущего `mb-fix` используй `<run-home>`, resolved через `dd-flow run status --json` / `run.json`, и stage layout: `01-intake/`, `02-fix/`, `03-verification/`, `04-report/`. Input audit-run не является текущим run: фикс ссылается на него через `source_audit_run_id` и `source_audit_dir`.
 
 Минимальный layout текущего fix-run:
 
 ```text
 <run-home>/
-├── run-index.json
+├── run.json
 ├── run-summary.md
 ├── 01-intake/
 │   ├── audit-input.md

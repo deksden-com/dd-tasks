@@ -1,6 +1,6 @@
 {
   "schema_id": "dd-flow/merge-stage-report@1",
-  "run": { "run_id": "RUN-071-pending-batch-commit", "run_index": "../run-index.json" },
+  "run": { "run_id": "RUN-071-pending-batch-commit", "run_state": "../run.json" },
   "stage": { "name": "merge", "dir": "04-merge", "status": "done" },
   "project": { "id": "PRJ-004-dd-memorybank", "title": "dd-memorybank" },
   "subject": { "id": "PRT-071", "title": "Pending batch commit regression" },

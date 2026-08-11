@@ -1,0 +1,56 @@
+{
+  "schema_id": "dd-flow/plan-stage-report@5",
+  "generated_at": "2026-08-10T19:00:00Z",
+  "protocol": {
+    "id": "PRT-341-spc-004-v2-spc-005-canonical-cutover",
+    "title": "Canonical cutover",
+    "project": "dd-memorybank",
+    "branch": "feature/prt-341-spc-004-v2-spc-005",
+    "stage": "plan"
+  },
+  "overall": {
+    "verdict": "ready_for_code",
+    "verdict_label": "Ready for CODE",
+    "score": 5,
+    "score_max": 5,
+    "next_action": "code",
+    "summary": "The accepted semantic plan is ready for implementation."
+  },
+  "route": [
+    {"label": "planning", "value": "full_plan", "note": "Breaking cross-repository contract."},
+    {"label": "execution", "value": "single_wave_grouped", "note": "Grouped read-only audit with serialized writes."}
+  ],
+  "plan_ref": {
+    "path": ".memory-bank/protocol/PRT-341-spc-004-v2-spc-005-canonical-cutover/plan.json",
+    "plan_id": "PLAN-PRT-341",
+    "revision": 1,
+    "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "item_count": 5
+  },
+  "aspect_map_ref": {
+    "path": "02-plan/aspect-map.json",
+    "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "coverage_count": 9
+  },
+  "execution_summary": {
+    "wall_clock_ms": 120000,
+    "available_subagent_slots": 0
+  },
+  "delta_lint": {
+    "status": "passed",
+    "selected_files": [".memory-bank/dd-flow/plan.md"],
+    "finding_count": 0
+  },
+  "transition": {
+    "status": "applied",
+    "next_stage": "code"
+  },
+  "handoff": {
+    "code_prompt": ".memory-bank/dd-flow/code.md",
+    "must_read": [
+      ".memory-bank/protocol/PRT-341-spc-004-v2-spc-005-canonical-cutover/plan.json",
+      ".memory-bank/dd-flow/schemas/protocol-plan.schema.json"
+    ],
+    "next_gate": "Implement the canonical Memory Bank scope and run readiness checks."
+  }
+}

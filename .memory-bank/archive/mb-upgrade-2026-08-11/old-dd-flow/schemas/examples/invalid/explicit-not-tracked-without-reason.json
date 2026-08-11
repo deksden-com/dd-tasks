@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0.0",
+  "schema_id": "dd-flow/mb-upgrade-review-data@1",
+  "findings": [
+    {
+      "id": "FIND-MBU-REVIEW-001",
+      "display_order": 1,
+      "aspect_id": "01-goal-and-delivery",
+      "severity": "major",
+      "severity_label": "Значимая",
+      "title": "Invalid explicit not tracked",
+      "problem": "Reason is required.",
+      "impact": "Finding would be hidden.",
+      "next_action": "Explain reason or create DEF.",
+      "status_label": "Not tracked",
+      "evidence": [{"kind": "note", "label": "Note", "path": "", "summary": "Invalid case."}],
+      "tracking": {
+        "status": "explicitly_not_tracked",
+        "label": "Not tracked",
+        "badge_kind": "not_tracked",
+        "def_id": "",
+        "def_path": "",
+        "reason": ""
+      }
+    }
+  ]
+}

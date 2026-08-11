@@ -3,7 +3,6 @@
 Прочитай общие правила:
 
 - `.memory-bank/dd-flow/common/style.md`
-- `.memory-bank/dd-flow/common/trace.md`
 - `.memory-bank/dd-flow/common/runtime-cli.md`
 - `.memory-bank/dd-flow/common/memorybank.md`
 - `.memory-bank/dd-flow/common/closure.md`
@@ -25,7 +24,8 @@
 
 Посмотри на протокол и связанные с ним файлы в Банке памяти ещё раз. Твоя задача - не просто найти недочёты, а проверить, правильно ли устроена сама логика будущей работы.
 
-Запиши start trace по `common/trace.md` в активный протокол. Если доступен `dd-flow` CLI, зарегистрируй planning session по `common/runtime-cli.md`: `flow_kind: planning`, `continuation_policy: go_router`, `current_stage: f0_reflection`, `next_action: review protocol logic`.
+Зарегистрируй planning session по `common/runtime-cli.md`, если доступен
+`dd-flow` CLI. Ручной trace не создавай.
 
 Если есть `flow_profile`, используй его как проверяемую гипотезу, а не как неизменную истину. На фазе 0 особенно важно проверить, не занижены ли `impact`, `route.planning`, `documentation`, `verification` или `evidence.level`.
 
@@ -58,7 +58,7 @@
 Итоговый доклад должен объяснить:
 
 - навигационный блок из `.memory-bank/dd-flow/common/style.md`;
-- где записаны `trace_start` и `trace_report`;
+- какие CLI/runtime artifacts доступны и почему ручной trace не создавался;
 - что было пересмотрено;
 - как уточнены цель, ограничения и не-цели;
 - что изменено;

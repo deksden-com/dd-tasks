@@ -27,7 +27,6 @@ stage_report: N/A - status-only; no merge job ran
 
 - `.memory-bank/project-policy.md` and any linked branch retention owner, если файл существует;
 - `.memory-bank/dd-flow/common/style.md`
-- `.memory-bank/dd-flow/common/trace.md`
 - `.memory-bank/dd-flow/common/runtime-cli.md`
 - `.memory-bank/dd-flow/common/flow-runs.md`
 - `.memory-bank/dd-flow/common/flow-origin.md`

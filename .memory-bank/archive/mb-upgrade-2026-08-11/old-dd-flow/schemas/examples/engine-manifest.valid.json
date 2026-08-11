@@ -1,0 +1,24 @@
+{
+  "schema_id": "dd-flow/engine-manifest@1",
+  "package_name": "@deksden-com/dd-flow-cli",
+  "package_version": "0.4.0",
+  "engine_id": "dd-flow-engine",
+  "engine_version": "0.4.0",
+  "installed_at": "2026-07-02T00:00:00.000Z",
+  "install_source": "bundled_package",
+  "package_root": "/Users/example/.dd-flow/engines/@deksden-com/dd-flow-cli/0.4.0",
+  "snapshot_root": "/Users/example/.dd-flow/engines/@deksden-com/dd-flow-cli/0.4.0",
+  "entrypoint": "bin/dd-flow-engine",
+  "supports_memorybank": [">=2.8.0 <2.9.0"],
+  "supports_contracts": {
+    "compatibility": ["dd-flow/compatibility@1"],
+    "project_summary": ["dd-flow/project-summary@1"],
+    "status": ["dd-flow/status-report@1"],
+    "version": ["dd-flow/version-report@1"]
+  },
+  "integrity": {
+    "source": "package_snapshot",
+    "checksum": null,
+    "mode": "file_list"
+  }
+}

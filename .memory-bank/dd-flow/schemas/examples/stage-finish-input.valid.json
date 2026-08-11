@@ -1,0 +1,12 @@
+{
+  "schema_id": "dd-flow/stage-finish-input@1",
+  "status": "done",
+  "result": "Canonical prompts and contracts updated.",
+  "acceptance": ["active prompts use the two-command lifecycle"],
+  "changed_files": [".memory-bank/dd-flow/common/runtime-contract.md"],
+  "checks": ["git diff --check", "schema validation"],
+  "evidence": ["evidence/requirement-matrix.md"],
+  "reviewer_findings": [],
+  "def_outcomes": ["companion runtime remains external"],
+  "next_action": "run readiness"
+}

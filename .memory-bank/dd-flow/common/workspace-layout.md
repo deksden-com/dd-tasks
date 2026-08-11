@@ -56,8 +56,7 @@ Canonical shape:
       runs/
         RUN-001-flowboard-safe-ui-smoke/
           run.json
-          run-index.json
-          run-summary.md
+          timeline.jsonl
           state/
           01-specify/
           02-plan/
@@ -97,6 +96,22 @@ Canonical shape:
 
 `workspace_path` is the concrete checkout where an agent edits files right now.
 
+## Worktrunk Ownership
+
+When a flow must create a feature or merge checkout, the semantic operation is
+delegated to the pinned official Worktrunk artifact:
+
+```bash
+wt switch --create <branch> --base <base> --format json
+```
+
+`dd-flow` verifies the executable identity/checksum and consumes Worktrunk's
+JSON result. Worktrunk chooses the physical path and invokes project hooks;
+`dd-flow` does not implement a second worktree manager, raw-Git fallback,
+random PATH lookup or unverified latest download. Project-owned copy/bootstrap
+rules live in `.worktreeinclude` and `.config/wt.toml` or the linked project
+runbook.
+
 For a feature-worktree flow:
 
 - `project_root` remains the stable target repository root;
@@ -106,7 +121,7 @@ For a feature-worktree flow:
 For a run:
 
 - `run_home` is `~/.dd-flow/projects/<PRJ-ID-slug>/runs/<RUN-ID-slug>/`;
-- `run_home` stores reports, payloads, task packets, raw evidence and stage artifacts;
+- `run_home` stores `run.json`, `timeline.jsonl`, generated reports, payloads, task packets, raw evidence and stage artifacts;
 - deleting or cleaning a feature worktree must not delete `run_home`.
 
 ## Target Repository

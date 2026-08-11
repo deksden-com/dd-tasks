@@ -13,7 +13,6 @@
 Прочитай общие правила:
 
 - `.memory-bank/dd-flow/common/style.md`
-- `.memory-bank/dd-flow/common/trace.md`
 - `.memory-bank/dd-flow/common/runtime-cli.md`
 - `.memory-bank/dd-flow/common/flow-runs.md`
 - `.memory-bank/dd-flow/common/memorybank.md`
@@ -46,7 +45,7 @@
 Выполненные доработки нужно интегрировать по правилам проекта и по актуальному `flow_profile`.
 
 Для продолжения coding RUN сначала прочитай effective flags из `run.json` и
-сверь revision/checksum с `run-index.json` по RUN snapshot consumer gate.
+сверь revision/checksum с `run.json` по RUN snapshot consumer gate.
 `merge.ceremony` и `merge.report_detail` выбирают только объём optional
 checklist/summary в уже claimed job или bundle. Они не создают второго
 worker-а и не ослабляют project-scoped claim, merge lane lock, Git fixation,
@@ -61,12 +60,12 @@ reports/knowledge фиксируй как `not_applicable`/`reduced_artifact`.
 - `worker_id`: worker, который claimed job;
 - `next_action`: текущий integration gate.
 
-Найди subject coding `RUN-*` через protocol summary, run-index, queue metadata or code-stage handoff. Claimed merge job должен прикрепляться к этому run, а не создавать независимый semantic run, если это продолжение той же coding цепочки. For branch bundle mode, выбери primary RUN по current/first protocol and list all included protocol ids in merge report; do not hide secondary protocol evidence. Long-lived `merge_worker` session может иметь собственную диагностическую session запись, но `03-merge` stage принадлежит subject coding run.
+Найди subject coding `RUN-*` через protocol summary, run, queue metadata or code-stage handoff. Claimed merge job должен прикрепляться к этому run, а не создавать независимый semantic run, если это продолжение той же coding цепочки. For branch bundle mode, выбери primary RUN по current/first protocol and list all included protocol ids in merge report; do not hide secondary protocol evidence. Long-lived `merge_worker` session может иметь собственную диагностическую session запись, но `03-merge` stage принадлежит subject coding run.
 
-В начале integration stage:
+В начале integration stage используй каноническую команду:
 
 ```bash
-dd-flow run attach-stage "<RUN-ID>" --project-root "<project-root>" --stage merge --dir 03-merge --status running --data-schema-id dd-flow/merge-stage-report@2 --json
+dd-flow stage start "<RUN-ID>" --stage merge --json
 ```
 
 Если проект использует `dd-flow` merge queue, `merge/integrate.md` нельзя запускать из обычной `planning` или `implementation` session. Перед любыми merge-действиями проверь, что job or bundle уже claimed в очереди, текущий `worker_id` совпадает с claimed owner for every included protocol, session зарегистрирована как `merge_job`, а `workspace_path` является merge workspace проекта. Если эти условия не выполнены, остановись с навигационным блоком и передай работу `merge.md`; не пытайся перерегистрировать текущую implementation session в merge role.
@@ -192,9 +191,12 @@ dd-flow merge-queue note "<protocol-id>" --project-root "<project-root>" --worke
 - `next_action`/`next_step: none`;
 - commit/push/cleanup status;
 - deleted/retained/skipped branch cleanup summary;
-- ссылка на post-cleanup trace/evidence.
+- ссылка на post-cleanup evidence.
 
-Создай короткий post-cleanup trace/evidence в `protocol/<PRT-ID>/trace/` или `evidence/`, где зафиксированы queue completion, push, worktree/branch cleanup, lock release и dashboard refresh. Это нужно, чтобы cleanup order был доказан файловым протоколом, а не только audit/runtime state.
+Создай короткое post-cleanup evidence в `protocol/<PRT-ID>/evidence/` или
+`evidence/`, где зафиксированы queue completion, push, worktree/branch cleanup,
+lock release и dashboard refresh. Это нужно, чтобы cleanup order был доказан
+файловым протоколом, а не только audit/runtime state.
 
 Перед удалением проверь:
 
@@ -249,7 +251,7 @@ Each row should include `status` and `evidence`. Evidence may be a command log, 
 
 Если сценарный раннер, проверяющий агент или ручная проверка оставили материалы в `.tasks/`, `.scenario-runs/` или другом runtime-каталоге, перед итоговым докладом создай паспорт проверки (verification passport) в `protocol/<PRT-ID>/evidence/` или `evidence/`.
 
-Если browser/UI evidence использует cmux, `agent-browser`, Playwright screenshots, DOM snapshots или текстовые dumps, до cleanup feature worktree сделай durable promotion: скопируй важные raw artifacts в `protocol/<PRT-ID>/evidence/`/`trace/` или внеси curated summary в паспорт проверки. Не оставляй verification passport, который ссылается только на `.tasks/...` внутри удаляемого worktree.
+Если browser/UI evidence использует cmux, `agent-browser`, Playwright screenshots, DOM snapshots или текстовые dumps, до cleanup feature worktree сделай durable promotion: скопируй важные raw artifacts в `protocol/<PRT-ID>/evidence/` или внеси curated summary в паспорт проверки. Не оставляй verification passport, который ссылается только на `.tasks/...` внутри удаляемого worktree.
 
 ## Knowledge Promotion Gate
 
@@ -320,7 +322,10 @@ Each row should include `status` and `evidence`. Evidence may be a command log, 
 
 Для legacy run layout используй существующие `03-merge/*` пути.
 
-`stage-report.json` должен соответствовать `.memory-bank/dd-flow/schemas/merge-stage-report.schema.json` (`schema_id: dd-flow/merge-stage-report@2`) и показывать текущий `flow_flags` snapshot projection; legacy `@1` остаётся читаемым:
+`stage-report.json` генерируется CLI по общему контракту
+`.memory-bank/dd-flow/schemas/stage-report.schema.json`; merge-specific semantic
+data остаётся внутри semantic payload. Legacy lifecycle reports не являются
+новым RUN output.
 
 - claimed job/protocol;
 - source branch/commit and target branch;
@@ -336,24 +341,25 @@ Each row should include `status` and `evidence`. Evidence may be a command log, 
 - changelog target matrix, changelog entry status, version recommendation and version bump status, если эти поля поддерживаются текущей схемой; иначе включи их в `report.md` и protocol summary.
 - related protocol set status, если claimed protocol has `protocol_set`: ready, blocked, running/claimed and done member protocols, using `dd-flow protocol ready --project-root "<project-root>" --json` when available.
 
-`stage-report.html` генерируй на основе `.memory-bank/dd-flow/mb-sdlc/merge/stage-report-template.html`: замени JSON внутри `<script id="merge-data" type="application/json">` на validated `stage-report.json`.
-
-Применяй общий контракт `.memory-bank/dd-flow/common/flow-runs.md` / `Stage Report Chain`: HTML-отчёт является инстансом установленного template, а не новой страницей. Сохраняй визуальную структуру, CSS/JS, DOM anchors и render functions template; меняй только embedded JSON и stage-visible text из data. Если template отсутствует, не читается, не содержит `script#merge-data`, generated HTML не похож на template, browser/DOM smoke падает или embedded JSON не равен standalone data, это `blocked`/`degraded_stage_report_template`; не называй merge stage report готовым.
+CLI render-ит `stage-report.html` по установленному merge template и безопасно
+встраивает validated JSON. Агент не редактирует HTML и не выбирает отдельный
+report path. Если template недоступен, это `blocked`/`degraded_stage_report_template`;
+не называй stage report готовым.
 
 Проверки:
 
-- `dd-flow schema validate --schema merge-stage-report --file <stage-report.json> --project-root <project-root> --json`;
+- `dd-flow schema validate --schema stage-report --file <stage-report.json> --project-root <project-root> --json`;
 - embedded JSON equals standalone `stage-report.json`;
-- HTML создан из `.memory-bank/dd-flow/mb-sdlc/merge/stage-report-template.html`, содержит `script#merge-data` и обязательные template anchors/render functions;
+- HTML создан из `.memory-bank/dd-flow/mb-sdlc/merge/stage-report-template.html` и содержит обязательные template anchors;
 - stage report visible text/browser smoke or explicit degraded reason;
-- breadcrumbs link to specification, plan and code stage reports if they exist; legacy breadcrumbs may still link to `01-plan/stage-report.html` and `02-code/stage-report.html`.
+- breadcrumbs link to available generated stage reports.
 
 Перед integration и перед `merge-queue complete` проверь `dd-flow protocol status "<protocol-id>" --project-root "<project-root>" --json`. Если diagnostics содержит `protocol_run_stage_mismatch` severity `error`, не продолжай merge: сначала выполни безопасный repair через `dd-flow protocol sync-from-run "<protocol-id>" --project-root "<project-root>" --run "<RUN-ID>" --target auto --json` или останови job как failed/requeued с понятной причиной. Merge stage не должен скрывать registered-but-merged или stale RUN/protocol state.
 
 В конце merge stage:
 
 ```bash
-dd-flow run complete-stage "<RUN-ID>" --project-root "<project-root>" --stage merge --status done --data 04-merge/stage-report.json --stage-report 04-merge/stage-report.html --report 04-merge/report.md --json
+dd-flow stage finish "<RUN-ID>" --stage merge --status done --json
 dd-flow run complete "<RUN-ID>" --project-root "<project-root>" --status done --verdict accepted --next-action none --json
 ```
 

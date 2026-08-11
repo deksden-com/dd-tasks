@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/engine-manifest@1",
+  "title": "dd-flow engine manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_id",
+    "package_name",
+    "package_version",
+    "engine_id",
+    "engine_version",
+    "installed_at",
+    "install_source",
+    "package_root",
+    "snapshot_root",
+    "entrypoint",
+    "supports_memorybank",
+    "supports_contracts",
+    "integrity"
+  ],
+  "properties": {
+    "schema_id": { "const": "dd-flow/engine-manifest@1" },
+    "package_name": { "type": "string", "minLength": 1 },
+    "package_version": { "type": "string", "minLength": 1 },
+    "engine_id": { "const": "dd-flow-engine" },
+    "engine_version": { "type": "string", "minLength": 1 },
+    "installed_at": { "type": "string", "format": "date-time" },
+    "install_source": {
+      "type": "string",
+      "enum": ["bundled_package", "npx_package", "local_development"]
+    },
+    "package_root": { "type": "string", "minLength": 1 },
+    "snapshot_root": { "type": "string", "minLength": 1 },
+    "entrypoint": { "type": "string", "minLength": 1 },
+    "supports_memorybank": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "supports_contracts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "string", "minLength": 1 }
+      }
+    },
+    "integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "checksum", "mode"],
+      "properties": {
+        "source": { "const": "package_snapshot" },
+        "checksum": { "type": ["string", "null"] },
+        "mode": {
+          "type": "string",
+          "enum": ["file_list", "full_content", "package_manifest", "degraded_local_development"]
+        }
+      }
+    }
+  }
+}

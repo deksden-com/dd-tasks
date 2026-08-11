@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/protocol-summary@1",
+  "title": "Generated protocol summary",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "protocol_id", "run_id", "status", "goal", "scope", "decisions", "acceptance", "gates", "blockers", "links", "next_action"],
+  "properties": {
+    "schema_id": {"const": "dd-flow/protocol-summary@1"},
+    "protocol_id": {"type": "string", "minLength": 1},
+    "run_id": {"type": "string", "minLength": 1},
+    "status": {"type": "string", "minLength": 1},
+    "goal": {"type": "string", "minLength": 1},
+    "scope": {"type": "object", "required": ["in_scope", "out_of_scope"], "properties": {"in_scope": {"type": "array"}, "out_of_scope": {"type": "array"}}, "additionalProperties": true},
+    "decisions": {"type": "array", "items": {"type": "string"}},
+    "acceptance": {"type": "array", "items": {"type": "string"}},
+    "gates": {"type": "array", "items": {"type": "string"}},
+    "blockers": {"type": "array", "items": {"type": "string"}},
+    "links": {"type": "array", "items": {"type": "string"}},
+    "next_action": {"type": "string", "minLength": 1}
+  }
+}

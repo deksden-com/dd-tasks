@@ -2,7 +2,7 @@
   "schema_id": "dd-flow/specification-stage-report@1",
   "run": {
     "run_id": "RUN-001-demo",
-    "run_index": "~/.dd-flow/projects/PRJ-001-demo/runs/RUN-001-demo/run-index.json"
+    "run_state": "~/.dd-flow/projects/PRJ-001-demo/runs/RUN-001-demo/run.json"
   },
   "stage": {
     "name": "specify",
@@ -25,7 +25,7 @@
   "breadcrumbs": [
     {
       "label": "Run",
-      "href": "../run-index.json",
+      "href": "../run.json",
       "status": "active"
     },
     {

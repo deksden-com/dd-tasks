@@ -80,7 +80,8 @@ accepted local `aspect-map.json` row or a delegated report. Similar subject matt
 shared source files, a useful review order or a report that *might* help are not
 dependencies. Those aspects independently read the same frozen draft.
 
-For every selected hard dependency, `aspect-graph.json` records the exact
+For every selected hard dependency, the aspect-map row records the exact
 predecessor output path and the data consumed. If that cannot be named, omit
-the edge. The current catalog intentionally has only the two dependencies of
-`execution_efficiency_review`.
+the edge. Topological waves are derived from the plan, aspect map and runtime
+workers; no second authored graph is created. The current catalog intentionally
+has only the two dependencies of `execution_efficiency_review`.

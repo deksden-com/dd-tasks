@@ -1,0 +1,7 @@
+{
+  "schema_id": "dd-flow/session-usage@1",
+  "session_coverage": {"status": "unavailable", "expected": [], "observed": [], "missing_sessions": [], "reason": "hooks did not expose binding"},
+  "usage_coverage": {"status": "unavailable", "expected": [], "observed": [], "missing_sessions": [], "reason": "provider usage source unavailable"},
+  "sessions": [],
+  "usage": {"input_tokens": null, "cache_read_input_tokens": null, "cache_write_input_tokens": null, "output_tokens": null, "reasoning_output_tokens": null}
+}

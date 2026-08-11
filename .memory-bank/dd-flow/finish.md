@@ -15,7 +15,6 @@ consolidation -> hardening -> readiness -> ready_for_merge
 Прочитай:
 
 - `.memory-bank/dd-flow/common/style.md`
-- `.memory-bank/dd-flow/common/trace.md`
 - `.memory-bank/dd-flow/common/runtime-cli.md`
 - `.memory-bank/dd-flow/common/flow-runs.md`
 - `.memory-bank/dd-flow/common/memorybank.md`

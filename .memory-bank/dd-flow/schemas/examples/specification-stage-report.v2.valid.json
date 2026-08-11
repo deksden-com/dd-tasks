@@ -2,7 +2,7 @@
   "schema_id": "dd-flow/specification-stage-report@2",
   "run": {
     "run_id": "RUN-338-specification-example",
-    "run_index": ".memory-bank/runs/RUN-338-specification-example/run-index.json"
+    "run_state": ".memory-bank/runs/RUN-338-specification-example/run.json"
   },
   "stage": {
     "name": "specify",

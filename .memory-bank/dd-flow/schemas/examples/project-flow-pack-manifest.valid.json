@@ -43,7 +43,7 @@
     "merge/job.md",
     "merge/integrate.md",
     "merge/stage-report-template.html",
-    "schemas/flow-run-index.schema.json",
+    "schemas/flow-run.schema.json",
     "schemas/knowledge-candidates.schema.json",
     "schemas/knowledge-promotion-report.schema.json"
   ],

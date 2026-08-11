@@ -7,7 +7,6 @@ Flow origin policy: `project_local`.
 Прочитай общие правила:
 
 - `.memory-bank/dd-flow/common/style.md`
-- `.memory-bank/dd-flow/common/trace.md`
 - `.memory-bank/dd-flow/common/runtime-cli.md`
 - `.memory-bank/dd-flow/common/flow-runs.md`
 - `.memory-bank/dd-flow/common/flow-origin.md`
@@ -89,7 +88,7 @@ Flow origin policy: `project_local`.
 
 Если доступен `dd-flow` CLI, зарегистрируй memory flow session по `common/runtime-cli.md`: `flow_kind: memory_flow`, `continuation_policy: memory_flow`, `current_stage: mb_audit`, `next_action`: выбранный audit mode или следующий aspect.
 
-Создай или найди `RUN-*` по `common/flow-runs.md`. Для `mb-audit` используй stage layout: `01-preflight-read/`, `02-audit/`, `03-report/`. Аудит read-only по активным документам, но его отчёты/DEF должны быть discoverable через `run-index.json` и итоговый summary.
+Создай или найди `RUN-*` по `common/flow-runs.md`. Для `mb-audit` используй stage layout: `01-preflight-read/`, `02-audit/`, `03-report/`. Аудит read-only по активным документам, но его отчёты/DEF должны быть discoverable через `run.json` и итоговый summary.
 
 В `<run-home>/01-preflight-read/workspace-bootstrap-receipt.md` запиши `bootstrap_not_required` с причиной `read_only_audit`, если выбранные аспекты используют только read-only/file/runtime inspection. Если позже выбранный аспект требует project-owned tooling, exemption заканчивается: до команды produce/revalidate receipt по `common/workspace-bootstrap.md` для фактического checkout и отрази status в итоговом summary. Не устанавливай project dependencies только для обычного аудита.
 
@@ -201,11 +200,11 @@ affected aspect with a new attempt/report path.
 
 ## Рабочая папка
 
-После выбора используй `<run-home>`, resolved через `dd-flow run status --json` / `run-index.json`, и создай stage workspace:
+После выбора используй `<run-home>`, resolved через `dd-flow run status --json` / `run.json`, и создай stage workspace:
 
 ```text
 <run-home>/
-├── run-index.json
+├── run.json
 ├── run-summary.md
 ├── 01-preflight-read/
 │   └── preflight.md

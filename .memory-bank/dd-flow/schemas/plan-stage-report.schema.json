@@ -1,121 +1,14 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "dd-flow/plan-stage-report@4",
-  "title": "dd-flow plan stage report data",
+  "$id": "dd-flow/plan-stage-report@5",
+  "title": "Generated PLAN receipt projection",
+  "description": "A deterministic lifecycle receipt. It references the canonical plan and aspect map but never copies their semantic items.",
   "type": "object",
   "additionalProperties": false,
-  "allOf": [
-    {
-      "if": {
-        "properties": { "schema_id": { "const": "dd-flow/plan-stage-report@2" } },
-        "required": ["schema_id"]
-      },
-      "then": { "required": ["flow_flags"] }
-    },
-    {
-      "if": {
-        "properties": { "schema_id": { "enum": ["dd-flow/plan-stage-report@3", "dd-flow/plan-stage-report@4"] } },
-        "required": ["schema_id"]
-      },
-      "then": {
-        "required": ["flow_flags", "task_assessment", "legacy_projection"],
-        "allOf": [
-          {
-            "oneOf": [
-              { "properties": { "task_assessment": { "properties": { "scope_breadth": { "properties": { "level": { "const": "narrow" } } } } }, "legacy_projection": { "properties": { "size": { "const": "small" } } } } },
-              { "properties": { "task_assessment": { "properties": { "scope_breadth": { "properties": { "level": { "const": "cross_layer" } } } } }, "legacy_projection": { "properties": { "size": { "const": "medium" } } } } },
-              { "properties": { "task_assessment": { "properties": { "scope_breadth": { "properties": { "level": { "const": "system_wide" } } } } }, "legacy_projection": { "properties": { "size": { "const": "large" } } } } }
-            ]
-          },
-          {
-            "oneOf": [
-              { "properties": { "task_assessment": { "properties": { "failure_impact": { "properties": { "level": { "const": "low" } } } } }, "legacy_projection": { "properties": { "risk": { "const": "low" } } } } },
-              { "properties": { "task_assessment": { "properties": { "failure_impact": { "properties": { "level": { "const": "medium" } } } } }, "legacy_projection": { "properties": { "risk": { "const": "medium" } } } } },
-              { "properties": { "task_assessment": { "properties": { "failure_impact": { "properties": { "level": { "const": "high" } } } } }, "legacy_projection": { "properties": { "risk": { "const": "high" } } } } }
-            ]
-          },
-          {
-            "oneOf": [
-              { "properties": { "task_assessment": { "properties": { "plan_floor": { "properties": { "level": { "const": "no_plan" } } } } }, "legacy_projection": { "properties": { "planning_route_hint": { "const": "no_plan" } } } } },
-              { "properties": { "task_assessment": { "properties": { "plan_floor": { "properties": { "level": { "const": "compact_plan" } } } } }, "legacy_projection": { "properties": { "planning_route_hint": { "const": "compact_plan" } } } } },
-              { "properties": { "task_assessment": { "properties": { "plan_floor": { "properties": { "level": { "const": "full_plan" } } } } }, "legacy_projection": { "properties": { "planning_route_hint": { "const": "full_plan" } } } } }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "if": {
-        "properties": { "schema_id": { "const": "dd-flow/plan-stage-report@3" } },
-        "required": ["schema_id"]
-      },
-      "then": {
-        "required": ["routing_summary", "capacity_summary"],
-        "properties": {
-          "capacity_summary": {
-            "properties": {
-              "pool_observation": {
-                "allOf": [
-                  {
-                    "if": { "properties": { "status": { "const": "unavailable" } }, "required": ["status"] },
-                    "then": {
-                      "properties": {
-                        "free_slots": { "const": null },
-                        "probe_attempts": { "const": 0 },
-                        "probe_accepted": { "const": 0 },
-                        "probe_refused": { "const": 0 },
-                        "probe_cost": { "properties": { "status": { "const": "unavailable" }, "value": { "const": null } } }
-                      }
-                    }
-                  },
-                  {
-                    "if": { "properties": { "status": { "enum": ["observed", "probed"] } }, "required": ["status"] },
-                    "then": { "properties": { "free_slots": { "type": "integer" } } }
-                  }
-                ]
-              },
-              "usage": {
-                "if": { "properties": { "status": { "const": "unavailable" } }, "required": ["status"] },
-                "then": { "properties": { "tokens": { "const": null } } }
-              }
-            }
-          }
-        }
-      }
-    },
-    {
-      "if": {
-        "properties": { "schema_id": { "const": "dd-flow/plan-stage-report@4" } },
-        "required": ["schema_id"]
-      },
-      "then": {
-        "required": ["execution_summary"],
-        "properties": {
-          "routing_summary": false,
-          "capacity_summary": false
-        }
-      }
-    }
-  ],
-  "required": [
-    "schema_id",
-    "generated_at",
-    "protocol",
-    "overall",
-    "route",
-    "graph",
-    "aspects",
-    "plan_items",
-    "handoff"
-  ],
+  "required": ["schema_id", "generated_at", "protocol", "overall", "route", "plan_ref", "aspect_map_ref", "execution_summary", "delta_lint", "transition", "handoff"],
   "properties": {
-    "schema_id": {
-      "enum": ["dd-flow/plan-stage-report@1", "dd-flow/plan-stage-report@2", "dd-flow/plan-stage-report@3", "dd-flow/plan-stage-report@4"]
-    },
-    "generated_at": {
-      "type": "string",
-      "format": "date-time"
-    },
+    "schema_id": {"const": "dd-flow/plan-stage-report@5"},
+    "generated_at": {"type": "string", "format": "date-time"},
     "protocol": {
       "type": "object",
       "additionalProperties": false,
@@ -125,7 +18,7 @@
         "title": {"type": "string", "minLength": 1},
         "project": {"type": "string", "minLength": 1},
         "branch": {"type": "string", "minLength": 1},
-        "stage": {"type": "string", "minLength": 1}
+        "stage": {"const": "plan"}
       }
     },
     "overall": {
@@ -133,10 +26,7 @@
       "additionalProperties": false,
       "required": ["verdict", "verdict_label", "score", "score_max", "next_action", "summary"],
       "properties": {
-        "verdict": {
-          "type": "string",
-          "enum": ["plan_ready", "ready_for_code", "needs_user_decision", "plan_blocked", "degraded"]
-        },
+        "verdict": {"enum": ["plan_ready", "ready_for_code", "needs_user_decision", "plan_blocked", "degraded"]},
         "verdict_label": {"type": "string", "minLength": 1},
         "score": {"type": "number", "minimum": 0},
         "score_max": {"type": "number", "exclusiveMinimum": 0},
@@ -158,213 +48,54 @@
         }
       }
     },
-    "task_profile": {
-      "type": "object",
-      "additionalProperties": true,
-      "properties": {
-        "size": {"type": "string"},
-        "risk": {"type": "string"},
-        "planning_route_hint": {"type": "string"},
-        "execution_mode_hint": {"type": "string"},
-        "verification_mode": {"type": "string"}
-      }
-    },
-    "task_assessment": { "$ref": "#/definitions/taskAssessment" },
-    "legacy_projection": { "$ref": "#/definitions/legacyProjection" },
-    "routing_summary": { "$ref": "#/definitions/routingSummary" },
-    "capacity_summary": { "$ref": "#/definitions/capacitySummary" },
-    "execution_summary": { "$ref": "#/definitions/executionSummary" },
-    "route_decision": {
-      "type": "object",
-      "additionalProperties": true,
-      "properties": {
-        "selected_planning_route": {"type": "string"},
-        "selected_execution_mode": {"type": "string"},
-        "selected_git_route": {"type": "string"},
-        "selected_verification_depth": {"type": "string"},
-        "selected_evidence_level": {"type": "string"},
-        "reason": {"type": "string"}
-      }
-    },
-    "flow_flags": { "$ref": "#/definitions/flowFlags" },
-    "graph": {
+    "plan_ref": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["nodes", "edges"],
+      "required": ["path", "plan_id", "revision", "sha256", "item_count"],
       "properties": {
-        "nodes": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": ["id", "label", "x", "y", "status", "note"],
-            "properties": {
-              "id": {"type": "string", "minLength": 1},
-              "label": {"type": "string", "minLength": 1},
-              "x": {"type": "number"},
-              "y": {"type": "number"},
-              "status": {"type": "string", "enum": ["done", "ready", "watch", "next", "blocked", "skipped"]},
-              "note": {"type": "string", "minLength": 1}
-            }
-          }
-        },
-        "edges": {
-          "type": "array",
-          "items": {
-            "type": "array",
-            "items": [
-              {"type": "string", "minLength": 1},
-              {"type": "string", "minLength": 1}
-            ],
-            "additionalItems": false,
-            "minItems": 2,
-            "maxItems": 2
-          }
-        }
+        "path": {"type": "string", "pattern": "^\\.memory-bank/protocol/[^/]+/plan\\.json$"},
+        "plan_id": {"type": "string", "minLength": 1},
+        "revision": {"type": "integer", "minimum": 1},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "item_count": {"type": "integer", "minimum": 1}
       }
     },
-    "aspects": {
-      "type": "array",
-      "minItems": 1,
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["id", "label", "score", "status", "summary", "note", "findings"],
-        "properties": {
-          "id": {"type": "string", "minLength": 1},
-          "label": {"type": "string", "minLength": 1},
-          "radar_label": {"type": "string"},
-          "relevance": {"type": "string", "enum": ["not_applicable", "light", "deep", "unknown"]},
-          "coverage_mode": {"type": "string", "enum": ["orchestrator", "subagent", "grouped_subagent", "degraded"]},
-          "subagent_id": {"type": "string"},
-          "group_id": {"type": "string"},
-          "report_path": {"type": "string"},
-          "not_applicable_reason": {"type": "string"},
-          "score": {"type": "number", "minimum": 0, "maximum": 5},
-          "status": {"type": "string", "enum": ["reviewed", "watch", "blocked", "not_applicable", "degraded"]},
-          "summary": {"type": "string", "minLength": 1},
-          "note": {"type": "string", "minLength": 1},
-          "findings": {
-            "type": "array",
-            "items": {"type": "string", "minLength": 1}
-          }
-        }
-      }
-    },
-    "review_gates": {
-      "type": "array",
-      "items": { "$ref": "#/definitions/reviewGate" }
-    },
-    "design_aspect_traceability": {
+    "aspect_map_ref": {
       "type": "object",
-      "additionalProperties": true,
+      "additionalProperties": false,
+      "required": ["path", "sha256", "coverage_count"],
       "properties": {
-        "source": {"type": "string"},
-        "verdict": {"type": "string"},
-        "summary": {"type": "string"},
-        "design_aspects": {
-          "type": "array",
-          "items": {"type": "string"}
-        },
-        "requirements": {
-          "type": "array",
-          "items": {"type": "string"}
-        },
-        "verification_seeds": {
-          "type": "array",
-          "items": {"type": "string"}
-        },
-        "gaps": {
-          "type": "array",
-          "items": {"type": "string"}
-        }
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "coverage_count": {"type": "integer", "minimum": 0}
       }
     },
-    "testing_system": {
+    "execution_summary": {
       "type": "object",
-      "additionalProperties": true,
+      "additionalProperties": false,
+      "required": ["wall_clock_ms"],
       "properties": {
-        "applicability": {"type": "string"},
-        "applicability_reason": {"type": "string"},
-        "stages": {"type": "array"},
-        "test_levels": {"type": "object"},
-        "datasets": {"type": "array"},
-        "scenario_links": {"type": "array"},
-        "design_decision_coverage": {"type": "array"},
-        "gaps": {"type": "array"}
+        "wall_clock_ms": {"type": "integer", "minimum": 0},
+        "available_subagent_slots": {"type": "integer", "minimum": 0}
       }
     },
-    "aspect_map": { "$ref": "#/definitions/aspectMap" },
-    "sdlc_contours": {
+    "delta_lint": {
       "type": "object",
-      "additionalProperties": true,
+      "additionalProperties": false,
+      "required": ["status", "selected_files", "finding_count"],
       "properties": {
-        "summary": {"type": "string"},
-        "contours": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "additionalProperties": true,
-            "required": ["name", "applicability_status", "gate_status", "summary"],
-            "properties": {
-              "name": {"type": "string", "minLength": 1},
-              "applicability_status": {"type": "string", "minLength": 1},
-              "verification_state": {"type": "string"},
-              "closure_state": {"type": "string"},
-              "gate_status": {"type": "string", "minLength": 1},
-              "target_stage": {"type": "string"},
-              "delivery_target": {"type": "string"},
-              "summary": {"type": "string", "minLength": 1},
-              "reason": {"type": "string"},
-              "evidence": {"type": "string"},
-              "next_action": {"type": "string"}
-            }
-          }
-        },
-        "policy_migration": {"type": "string"},
-        "next_delivery_action": {"type": "string"}
+        "status": {"enum": ["passed", "failed", "not_applicable_no_changed_docs", "unavailable"]},
+        "selected_files": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "finding_count": {"type": "integer", "minimum": 0}
       }
     },
-    "policy_context": { "$ref": "#/definitions/policyContext" },
-    "links": {
+    "transition": {
       "type": "object",
-      "additionalProperties": { "$ref": "#/definitions/link" },
+      "additionalProperties": false,
+      "required": ["status", "next_stage"],
       "properties": {
-        "global_dashboard": { "$ref": "#/definitions/link" },
-        "project_dashboard": { "$ref": "#/definitions/link" },
-        "protocol_page": { "$ref": "#/definitions/link" },
-        "run_index": { "$ref": "#/definitions/link" },
-        "run_summary": { "$ref": "#/definitions/link" },
-        "protocol_source": { "$ref": "#/definitions/link" },
-        "protocol_summary": { "$ref": "#/definitions/link" },
-        "previous_stage_report": { "$ref": "#/definitions/link" },
-        "next_stage_report": { "$ref": "#/definitions/link" }
-      }
-    },
-    "plan_items": {
-      "type": "array",
-      "minItems": 1,
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["id", "title", "owner", "status", "depends_on", "verification", "note", "details"],
-        "properties": {
-          "id": {"type": "string", "minLength": 1},
-          "title": {"type": "string", "minLength": 1},
-          "owner": {"type": "string", "minLength": 1},
-          "status": {"type": "string", "enum": ["ready", "watch", "blocked", "done", "skipped"]},
-          "depends_on": {
-            "type": "array",
-            "items": {"type": "string", "minLength": 1}
-          },
-          "verification": {"type": "string", "minLength": 1},
-          "note": {"type": "string", "minLength": 1},
-          "details": {
-            "type": "array",
-            "items": {"type": "string", "minLength": 1}
-          }
-        }
+        "status": {"enum": ["applied", "blocked", "not_applicable"]},
+        "next_stage": {"type": "string", "minLength": 1}
       }
     },
     "handoff": {
@@ -373,310 +104,8 @@
       "required": ["code_prompt", "must_read", "next_gate"],
       "properties": {
         "code_prompt": {"type": "string", "minLength": 1},
-        "must_read": {
-          "type": "array",
-          "items": {"type": "string", "minLength": 1}
-        },
+        "must_read": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
         "next_gate": {"type": "string", "minLength": 1}
-      }
-    }
-  },
-  "definitions": {
-    "taskAssessment": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["scope_breadth", "solution_novelty", "solution_uncertainty", "failure_impact", "plan_floor"],
-      "properties": {
-        "scope_breadth": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["level", "surfaces", "reason"],
-          "properties": {
-            "level": { "enum": ["narrow", "cross_layer", "system_wide"] },
-            "surfaces": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
-            "reason": { "type": "string", "minLength": 1 }
-          }
-        },
-        "solution_novelty": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["level", "surfaces", "reason"],
-          "properties": {
-            "level": { "enum": ["reuse_existing", "extend_existing", "new_mechanism"] },
-            "surfaces": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
-            "reason": { "type": "string", "minLength": 1 }
-          }
-        },
-        "solution_uncertainty": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["level", "surfaces", "reason"],
-          "properties": {
-            "level": { "enum": ["known", "bounded", "research_required"] },
-            "surfaces": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
-            "reason": { "type": "string", "minLength": 1 }
-          }
-        },
-        "failure_impact": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["level", "surfaces", "reason"],
-          "properties": {
-            "level": { "enum": ["low", "medium", "high"] },
-            "surfaces": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
-            "reason": { "type": "string", "minLength": 1 }
-          }
-        },
-        "plan_floor": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["level", "surfaces", "reason"],
-          "properties": {
-            "level": { "enum": ["no_plan", "compact_plan", "full_plan"] },
-            "surfaces": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
-            "reason": { "type": "string", "minLength": 1 }
-          }
-        }
-      }
-    },
-    "legacyProjection": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["size", "risk", "planning_route_hint", "verification_mode", "sources"],
-      "properties": {
-        "size": { "enum": ["small", "medium", "large"] },
-        "risk": { "enum": ["low", "medium", "high"] },
-        "planning_route_hint": { "enum": ["no_plan", "compact_plan", "full_plan"] },
-        "verification_mode": { "type": "string", "minLength": 1 },
-        "sources": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["size", "risk", "planning_route_hint", "verification_mode"],
-          "properties": {
-            "size": { "const": "task_assessment.scope_breadth" },
-            "risk": { "const": "task_assessment.failure_impact" },
-            "planning_route_hint": { "const": "task_assessment.plan_floor" },
-            "verification_mode": { "const": "independent_policy" }
-          }
-        }
-      }
-    },
-    "executionSummary": {
-      "type": "object",
-      "description": "Minimal runtime facts. wall_clock_ms is generated_at minus the first stage_attached timestamp for this logical stage and includes retries, waits and probes.",
-      "additionalProperties": false,
-      "required": ["wall_clock_ms"],
-      "properties": {
-        "wall_clock_ms": { "type": "integer", "minimum": 0 },
-        "available_subagent_slots": { "type": "integer", "minimum": 0 }
-      }
-    },
-    "routingSummary": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["coverage_units", "groups", "jobs", "waves", "batches"],
-      "properties": {
-        "coverage_units": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["applicable", "self_check", "grouped", "focused"],
-          "properties": {
-            "applicable": { "type": "integer", "minimum": 0 },
-            "self_check": { "type": "integer", "minimum": 0 },
-            "grouped": { "type": "integer", "minimum": 0 },
-            "focused": { "type": "integer", "minimum": 0 }
-          }
-        },
-        "groups": { "type": "integer", "minimum": 0 },
-        "jobs": { "type": "integer", "minimum": 0 },
-        "waves": { "type": "integer", "minimum": 0 },
-        "batches": { "type": "integer", "minimum": 0 }
-      }
-    },
-    "capacitySummary": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["pool_observation", "launch", "recovery", "timing", "usage"],
-      "properties": {
-        "pool_observation": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["status", "source", "free_slots", "probe_attempts", "probe_accepted", "probe_refused", "probe_cost"],
-          "properties": {
-            "status": { "enum": ["observed", "probed", "unavailable"] },
-            "source": { "type": "string", "minLength": 1 },
-            "free_slots": { "type": ["integer", "null"], "minimum": 0 },
-            "probe_attempts": { "type": "integer", "minimum": 0 },
-            "probe_accepted": { "type": "integer", "minimum": 0 },
-            "probe_refused": { "type": "integer", "minimum": 0 },
-            "probe_cost": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": ["status", "value", "unit", "source_coverage"],
-              "properties": {
-                "status": { "enum": ["known", "partial", "unknown", "unavailable"] },
-                "value": { "type": ["number", "null"], "minimum": 0 },
-                "unit": { "type": "string", "minLength": 1 },
-                "source_coverage": { "type": "string", "minLength": 1 }
-              }
-            }
-          }
-        },
-        "launch": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["accepted", "refused", "prevented_duplicates"],
-          "properties": {
-            "accepted": { "type": "integer", "minimum": 0 },
-            "refused": { "type": "integer", "minimum": 0 },
-            "prevented_duplicates": { "type": "integer", "minimum": 0 }
-          }
-        },
-        "recovery": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["attempted", "exhausted"],
-          "properties": {
-            "attempted": { "type": "integer", "minimum": 0 },
-            "exhausted": { "type": "integer", "minimum": 0 }
-          }
-        },
-        "timing": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["status", "wall_clock_ms", "source"],
-          "properties": {
-            "status": { "enum": ["known", "partial", "unknown", "unavailable"] },
-            "wall_clock_ms": { "type": ["integer", "null"], "minimum": 0 },
-            "source": { "type": "string", "minLength": 1 }
-          }
-        },
-        "usage": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["status", "tokens", "source_coverage", "counting_basis", "reviewer_sessions", "probe_sessions"],
-          "properties": {
-            "status": { "enum": ["known", "partial", "unknown", "unavailable"] },
-            "tokens": { "type": ["integer", "null"], "minimum": 0 },
-            "source_coverage": { "type": "string", "minLength": 1 },
-            "counting_basis": { "const": "unique_session" },
-            "reviewer_sessions": { "type": "integer", "minimum": 0 },
-            "probe_sessions": { "type": "integer", "minimum": 0 },
-            "reason": { "type": "string", "minLength": 1 }
-          }
-        }
-      }
-    },
-    "link": {
-      "type": "object",
-      "additionalProperties": true,
-      "required": ["href", "label", "path_kind", "status"],
-      "properties": {
-        "href": { "type": "string" },
-        "label": { "type": "string", "minLength": 1 },
-        "path_kind": { "type": "string", "enum": ["relative", "absolute"] },
-        "status": { "type": "string", "enum": ["available", "pending", "missing", "not_applicable"] },
-        "degraded_reason": { "type": "string" },
-        "source": { "type": "string" }
-      }
-    },
-    "reviewGate": {
-      "type": "object",
-      "additionalProperties": true,
-      "required": ["id", "label", "stage", "applicability", "verdict", "summary"],
-      "properties": {
-        "id": { "type": "string", "minLength": 1 },
-        "label": { "type": "string", "minLength": 1 },
-        "stage": { "type": "string", "minLength": 1 },
-        "applicability": { "type": "string", "minLength": 1 },
-        "verdict": { "type": "string", "minLength": 1 },
-        "summary": { "type": "string", "minLength": 1 },
-        "evidence": {
-          "type": "array",
-          "items": { "type": "string", "minLength": 1 }
-        }
-      }
-    },
-    "aspectMap": {
-      "type": "object",
-      "additionalProperties": true,
-      "required": ["path", "schema_id", "status"],
-      "properties": {
-        "path": { "type": "string", "minLength": 1 },
-        "schema_id": { "type": "string", "minLength": 1 },
-        "status": { "type": "string", "minLength": 1 },
-        "summary": { "type": "string" },
-        "counts": {
-          "type": "object",
-          "additionalProperties": true,
-          "properties": {
-            "applicable": { "type": "integer", "minimum": 0 },
-            "not_applicable": { "type": "integer", "minimum": 0 },
-            "unknown": { "type": "integer", "minimum": 0 }
-          }
-        }
-      }
-    },
-    "policyContext": {
-      "type": "object",
-      "additionalProperties": true,
-      "required": ["sources", "git", "checks", "delivery", "gaps"],
-      "properties": {
-        "sources": { "type": "object", "additionalProperties": true },
-        "git": {
-          "type": "object",
-          "additionalProperties": true,
-          "properties": {
-            "workspace_route": { "type": "string" },
-            "delivery_strategy": {
-              "type": "string",
-              "enum": ["direct_commit", "direct_commit_push", "feature_merge", "pull_request", "merge_queue", "squash_merge", "rebase_ff", "release_branch", "external_handoff", "local_only", "no_git"]
-            },
-            "fixation_required": { "type": "boolean" },
-            "result_evidence_required": { "type": "array", "items": { "type": "string" } }
-          }
-        },
-        "checks": { "type": "object", "additionalProperties": true },
-        "delivery": { "type": "object", "additionalProperties": true },
-        "gaps": { "type": "object", "additionalProperties": true }
-      }
-    },
-    "flowFlags": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["flow_kind", "snapshot_revision", "resolution_status", "values", "snapshot_checksum"],
-      "properties": {
-        "contract": { "type": "object", "additionalProperties": true },
-        "flow_kind": { "type": "string", "minLength": 1 },
-        "preset": { "type": "object", "additionalProperties": true },
-        "snapshot_revision": { "type": "integer", "minimum": 1 },
-        "resolution_status": { "type": "string", "enum": ["valid", "legacy_incomplete", "reconciliation_required"] },
-        "values": { "type": "object", "additionalProperties": { "$ref": "#/definitions/flagValue" } },
-        "snapshot_checksum": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
-        "floors_applied": { "type": "array", "items": { "type": "string" } },
-        "resolved_at": { "type": "string", "format": "date-time" }
-      }
-    },
-    "flagValue": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["value", "value_type", "owner", "source", "rationale", "resolved_at"],
-      "properties": {
-        "value": {},
-        "value_type": { "type": "string", "minLength": 1 },
-        "owner": { "type": "string", "minLength": 1 },
-        "source": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["kind", "ref"],
-          "properties": {
-            "kind": { "type": "string", "minLength": 1 },
-            "ref": { "type": "string", "minLength": 1 },
-            "revision": { "type": ["integer", "null"] }
-          }
-        },
-        "rationale": { "type": "string", "minLength": 1 },
-        "resolved_at": { "type": "string", "format": "date-time" }
       }
     }
   }

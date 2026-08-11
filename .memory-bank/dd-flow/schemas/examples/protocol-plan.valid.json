@@ -1,0 +1,98 @@
+{
+  "$schema": "../../protocol-plan.schema.json",
+  "schema_id": "dd-flow/protocol-plan@1",
+  "plan_id": "PLAN-EXAMPLE",
+  "protocol_id": "PRT-EXAMPLE",
+  "revision": 1,
+  "title": "Example canonical plan",
+  "summary": "A minimal semantic plan with no runtime progress or mechanical facts.",
+  "specifications": [
+    {
+      "id": "SPC-005",
+      "version": "0.1.0",
+      "path": ".memory-bank/spec/engineering/SPC-005-single-source-plan-and-fast-plan-stage.md",
+      "sha256": "02622b24f3656c5707f4d50e22a70a85df22c18b1e9c80c725e24be997cf8dd1",
+      "requirements": ["R-01"]
+    }
+  ],
+  "protocol_reference": {
+    "path": ".memory-bank/protocol/PRT-EXAMPLE.md",
+    "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "goal": {
+    "outcome": "The example demonstrates one lossless semantic work item.",
+    "constraints": ["Keep mutable progress in runtime state."],
+    "non_goals": ["Runtime implementation."]
+  },
+  "task_assessment": {
+    "scope_breadth": {"level": "narrow", "surfaces": ["schema"], "reason": "One contract example."},
+    "solution_novelty": {"level": "reuse_existing", "surfaces": ["schema"], "reason": "Uses the canonical schema pattern."},
+    "solution_uncertainty": {"level": "known", "surfaces": ["schema"], "reason": "The accepted specification fixes the shape."},
+    "failure_impact": {"level": "low", "surfaces": ["handoff"], "reason": "Example-only impact."},
+    "plan_floor": {"level": "compact_plan", "surfaces": ["plan"], "reason": "One bounded item."}
+  },
+  "route_decision": {
+    "initial_state": "orchestrator_local",
+    "selected_route": "local_compact",
+    "selected_execution_mode": "bounded_local",
+    "reason": "One semantic unit does not benefit from delegation.",
+    "capacity_probe": "not_run_for_tiny_work",
+    "packing": "one local item"
+  },
+  "policy_context": {
+    "target_language": "en",
+    "source_authority": "pinned specification",
+    "current_truth_boundary": "The example is not implementation evidence.",
+    "validation": "All structural and semantic errors are returned together.",
+    "lint": "Targeted lint is conditional on changed Memory Bank files."
+  },
+  "sdlc_contours": {
+    "summary": "A compact documentation contract.",
+    "contours": [
+      {"name": "canonical_contract", "applicability_status": "applicable", "gate_status": "required", "target_stage": "code", "summary": "Validate the canonical example."}
+    ]
+  },
+  "items": [
+    {
+      "id": "P1",
+      "kind": "documentation_contract",
+      "title": "Validate the example",
+      "summary": "Validate the canonical example against the shared schema.",
+      "depends_on": [],
+      "owner": "schema-owner",
+      "target_stage": "code",
+      "required": true,
+      "requirements": ["SPC-005@0.1.0/R-01"],
+      "semantic_spine": {
+        "user_outcome": "Consumers can validate one canonical plan.",
+        "component_responsibility": "The schema owns structural validation.",
+        "must_preserve": ["semantic fields"],
+        "non_goals": ["runtime progress"],
+        "acceptance_contribution": "The example validates."
+      },
+      "execution_context": {
+        "prompt_profile": "verification",
+        "required_read": [".memory-bank/dd-flow/schemas/protocol-plan.schema.json"],
+        "discovery_boundary": [".memory-bank/dd-flow/schemas"],
+        "write_scope": [".memory-bank/dd-flow/schemas/examples/protocol-plan.valid.json"],
+        "checks": ["schema validation"]
+      },
+      "verification_contract": {
+        "checks": ["valid example passes"],
+        "evidence": ["validator output"]
+      }
+    }
+  ],
+  "verification": {
+    "scenario_seeds": ["valid example"],
+    "commands": ["schema validator"],
+    "acceptance": "The example passes without runtime-only fields."
+  },
+  "code_handoff": {
+    "must_read": [".memory-bank/dd-flow/schemas/protocol-plan.schema.json"],
+    "accepted_plan_ref": {"path": ".memory-bank/protocol/PRT-EXAMPLE/plan.json", "revision": 1, "sha256": "computed_by_stage_finish"},
+    "companion_handoffs": [],
+    "next_stage": "code",
+    "known_external_gate": "None for this example."
+  }
+}

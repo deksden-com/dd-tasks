@@ -56,11 +56,10 @@
 - blockers:
 - active_def:
 - user_decision_required:
-- trace_start:
-- trace_report:
+- timeline:
 - run_id:
 - run_dir:
-- run_index:
+- run_state:
 - stage_dir:
 - stage_data:
 - stage_report:

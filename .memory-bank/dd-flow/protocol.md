@@ -13,7 +13,6 @@ Flow origin policy: `project_local`.
 Прочитай:
 
 - `.memory-bank/dd-flow/common/style.md`
-- `.memory-bank/dd-flow/common/trace.md`
 - `.memory-bank/dd-flow/common/runtime-cli.md`
 - `.memory-bank/dd-flow/common/protocol-bootstrap.md`
 - `.memory-bank/dd-flow/common/context-discovery.md`
@@ -47,7 +46,7 @@ Flow origin policy: `project_local`.
 
 ## Scope Sizing
 
-Протокол является исполнительным SDLC-документом. Он должен описывать доставляемую работу, которую можно спланировать, реализовать, проверить и довести до merge в одном trace.
+Протокол является исполнительным SDLC-документом. Он должен описывать доставляемую работу, которую можно спланировать, реализовать, проверить и довести до merge в одном lifecycle.
 
 Перед созданием большого `PRT-*` выбери один из verdict-ов:
 

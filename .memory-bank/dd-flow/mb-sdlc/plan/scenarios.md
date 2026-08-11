@@ -3,7 +3,6 @@
 Прочитай общие правила:
 
 - `.memory-bank/dd-flow/common/style.md`
-- `.memory-bank/dd-flow/common/trace.md`
 - `.memory-bank/dd-flow/common/runtime-cli.md`
 - `.memory-bank/dd-flow/common/memorybank.md`
 - `.memory-bank/dd-flow/common/sdlc-contours.md`
@@ -31,7 +30,7 @@
 
 Твоя задача - проверить будущую реализацию через сценарии: сначала мысленно, затем как исполнимый контракт приемки.
 
-Запиши start trace по `common/trace.md` в активный протокол. Если доступен `dd-flow` CLI, зарегистрируй planning session по `common/runtime-cli.md`: `flow_kind: planning`, `continuation_policy: go_router`, `current_stage: f4_scenario`, `next_action: scenario/evidence plan`.
+Зарегистрируй planning session по `common/runtime-cli.md`, если доступен `dd-flow` CLI. Ручной trace не создавай.
 
 Сценарии должны быть связаны с операционной целью и ограничениями. Хороший сценарий доказывает не "путь вообще", а конкретную часть результата, которую протокол обещал получить.
 
@@ -139,4 +138,4 @@ Seed/profile/environment safety является частью gate. Не пла�
 - какие доказательства (evidence) должны быть собраны после реализации;
 - какие материалы из `.tasks` превращены в сценарные контракты, паспорта проверки, записи матрицы или рабочие заметки;
 - какие `DEF-*` остаются, если часть приемки невозможна сейчас.
-- где записаны `trace_start` и `trace_report`, и какие scenario/evidence пункты отражены в CLI plan graph.
+- какие generated stage/runtime artifacts и scenario/evidence пункты отражены в CLI plan graph.

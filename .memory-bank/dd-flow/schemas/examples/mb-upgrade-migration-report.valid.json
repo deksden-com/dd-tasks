@@ -48,7 +48,7 @@
   "primary_data": [
     "project registry records",
     "protocol runtime",
-    "run indexes"
+    "legacy locator records"
   ],
   "derived_artifacts": [
     "project dashboard artifacts",

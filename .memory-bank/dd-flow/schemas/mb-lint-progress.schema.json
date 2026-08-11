@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/mb-lint-progress@1",
+  "title": "mb-lint progress boundary",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "mode", "progress_channel", "result_channel", "concurrency", "events", "findings_order"],
+  "properties": {
+    "schema_id": {"const": "dd-flow/mb-lint-progress@1"},
+    "mode": {"enum": ["text", "json"]},
+    "progress_channel": {"const": "stderr"},
+    "result_channel": {"const": "stdout"},
+    "concurrency": {"type": "integer", "minimum": 1, "maximum": 32},
+    "events": {"type": "array", "items": {"type": "object", "required": ["kind", "phase", "elapsed_ms"], "properties": {"kind": {"enum": ["progress", "heartbeat", "finish"]}, "phase": {"type": "string"}, "elapsed_ms": {"type": "integer", "minimum": 0}, "message": {"type": "string"}}, "additionalProperties": false}},
+    "findings_order": {"const": "deterministic"}
+  }
+}

@@ -1,6 +1,6 @@
 {
   "schema_id": "dd-flow/merge-stage-report@1",
-  "run": { "run_id": "RUN-014-merge-worker-entrypoints", "run_index": "../run-index.json" },
+  "run": { "run_id": "RUN-014-merge-worker-entrypoints", "run_state": "../run.json" },
   "stage": { "name": "merge", "dir": "03-merge", "status": "done" },
   "project": { "id": "PRJ-004-dd-memorybank", "title": "dd-memorybank" },
   "subject": { "id": "PRT-2026-06-14-merge-worker-entrypoints", "title": "Merge worker entrypoints" },

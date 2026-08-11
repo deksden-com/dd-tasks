@@ -2,7 +2,7 @@
   "schema_id": "dd-flow/deploy-stage-report@1",
   "run": {
     "run_id": "RUN-161-deploy-preview",
-    "run_index": "../run-index.json"
+    "run_state": "../run.json"
   },
   "stage": {
     "name": "deploy",

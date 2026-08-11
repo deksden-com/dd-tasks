@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Deploy Report</title>
+  <style>
+    :root { color-scheme: light dark; --bg: #eef2f1; --panel: #fbfdfc; --ink: #161a19; --muted: #5e6764; --line: #cbd6d2; --accent: #245f86; }
+    [data-theme="dark"] { --bg: #111619; --panel: #1c2428; --ink: #edf3f1; --muted: #b4bebc; --line: #344449; --accent: #8ec2dc; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 16px; background: var(--bg); color: var(--ink); font: 15px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: 0; }
+    .page { width: min(1180px, 100%); margin: 0 auto; display: grid; gap: 12px; }
+    .hero, .grid > section, .wide { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 16px; }
+    .hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: start; }
+    h1, h2 { margin: 0; line-height: 1.1; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 17px; margin-bottom: 10px; }
+    .muted { color: var(--muted); }
+    .pill { display: inline-flex; align-items: center; min-height: 30px; border: 1px solid var(--line); border-radius: 7px; padding: 5px 8px; margin: 0 6px 6px 0; color: var(--muted); }
+    .pill b { color: var(--ink); margin-left: 5px; }
+    .verdict { color: var(--accent); font-weight: 800; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    ul { padding-left: 20px; margin: 0; }
+    li { margin: 5px 0; overflow-wrap: anywhere; }
+    @media (max-width: 760px) { .hero, .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div>
+        <p class="muted" id="project"></p>
+        <h1 id="title">Deploy Report</h1>
+        <p id="summary" class="muted"></p>
+      </div>
+      <div>
+        <div class="pill">verdict <b id="verdict"></b></div>
+        <div class="pill">next <b id="next"></b></div>
+      </div>
+    </section>
+    <section class="wide">
+      <h2>Target</h2>
+      <div id="target"></div>
+    </section>
+    <section class="wide"><h2>Operational Access</h2><ul id="operationalAccess"></ul></section>
+    <div class="grid">
+      <section><h2>Source Artifact</h2><ul id="artifact"></ul></section>
+      <section><h2>Execution</h2><ul id="execution"></ul></section>
+      <section><h2>Post Deploy</h2><ul id="post"></ul></section>
+      <section><h2>Rollback</h2><ul id="rollback"></ul></section>
+    </div>
+  </main>
+  <script id="deploy-data" type="application/json">
+{}
+  </script>
+  <script>
+    const data = JSON.parse(document.getElementById('deploy-data').textContent);
+    const text = (id, value) => { document.getElementById(id).textContent = value || 'n/a'; };
+    const item = (value) => `<li>${value}</li>`;
+    const evidenceList = (rows = []) => rows.map((row) => item(`${row.label}: ${row.path}`)).join('') || item('none');
+    text('project', `${data.project?.title || ''} / ${data.subject?.id || ''}`);
+    text('title', data.subject?.title || 'Deploy Report');
+    text('summary', data.overall?.summary);
+    text('verdict', data.overall?.verdict);
+    text('next', data.overall?.next_action);
+    document.getElementById('target').innerHTML = [
+      `<span class="pill">stage <b>${data.target?.runtime_stage || 'n/a'}</b></span>`,
+      `<span class="pill">provider <b>${data.target?.deploy_provider || 'n/a'}</b></span>`,
+      `<span class="pill">target <b>${data.target?.deploy_target || 'n/a'}</b></span>`
+    ].join('');
+    document.getElementById('artifact').innerHTML = evidenceList([data.source_artifact].filter(Boolean));
+    document.getElementById('operationalAccess').innerHTML = [
+      item(`outcome: ${data.operational_access?.outcome || 'not recorded'}`),
+      item(`identity / authority / target / approval: ${['identity', 'authority', 'target', 'approval'].map((key) => data.operational_access?.verdicts?.[key] || 'n/a').join(' / ')}`),
+      item(`next: ${data.operational_access?.next_action || 'n/a'}`)
+    ].join('');
+    document.getElementById('execution').innerHTML = [
+      item(`mode: ${data.execution?.mode || 'n/a'}`),
+      item(`deployment: ${data.execution?.deployment_id || 'n/a'}`),
+      ...((data.execution?.evidence || []).map((row) => item(`${row.label}: ${row.path}`)))
+    ].join('');
+    document.getElementById('post').innerHTML = [item(`verdict: ${data.post_deploy?.verdict || 'n/a'}`), evidenceList(data.post_deploy?.evidence)].join('');
+    document.getElementById('rollback').innerHTML = [item(`posture: ${data.rollback?.posture || 'n/a'}`), item(data.rollback?.summary || 'n/a')].join('');
+  </script>
+</body>
+</html>

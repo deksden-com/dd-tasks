@@ -3,7 +3,6 @@
 Прочитай общие правила:
 
 - `.memory-bank/dd-flow/common/style.md`
-- `.memory-bank/dd-flow/common/trace.md`
 - `.memory-bank/dd-flow/common/runtime-cli.md`
 - `.memory-bank/dd-flow/common/memorybank.md`
 - `.memory-bank/dd-flow/common/memorybank-git.md`
@@ -27,7 +26,10 @@ Raw JSON output, rule ids, code identifiers и HTML/CSS/JS шаблоны мог
 
 Твоя задача - запустить или спланировать детерминированную проверку Банка памяти через `mb-lint`.
 
-Запиши compact start trace по `common/trace.md`. Если lint запускается внутри активного протокола и доступен `dd-flow` CLI, зарегистрируй `flow_kind: memory_flow`, `continuation_policy: memory_flow`, `current_stage: mb_lint`, `next_action: run deterministic memory bank lint`. Если lint является отдельным read-only исследованием без протокола, можно использовать `research_no_protocol` или только файловый trace в `.tasks/dd-flow-trace/`.
+Если lint запускается внутри активного протокола и доступен `dd-flow` CLI,
+зарегистрируй `flow_kind: memory_flow`, `continuation_policy: memory_flow`,
+`current_stage: mb_lint`, `next_action: run deterministic memory bank lint`.
+Если CLI недоступен, укажи `runtime_cli_degraded`; ручной trace не создавай.
 
 `mb-lint` не является аудитом. Он не решает, хороша ли архитектура и верна ли продуктовая логика. Он проверяет только то, что можно проверить формально: структура, ссылки, frontmatter, идентификаторы, достижимость, открытые `DEF-*`, кодовые ссылки из JSDoc/TSDoc/docstrings.
 
@@ -36,7 +38,7 @@ Raw JSON output, rule ids, code identifiers и HTML/CSS/JS шаблоны мог
 Если пакет доступен, используй:
 
 ```bash
-npx @deksden-com/mb-lint@latest --root . --format json
+npx @deksden-com/mb-lint --root . --format json
 ```
 
 Если проект использует локальную версию, команду из проектной документации или `package.json`, предпочти локальную команду.
@@ -48,6 +50,13 @@ node ../mb-lint/dist/cli.js --root . --format json
 ```
 
 Не используй старое имя пакета `@deksden.com/mb-lint`: опубликованный npm-пакет называется `@deksden-com/mb-lint`.
+
+`mb-lint` всегда пишет throttled progress и heartbeat в `stderr`; `stdout`
+содержит только итоговый выбранный результат, включая parseable JSON в
+`--format json` mode. Scanner ownership belongs to PRT-002: bounded async I/O
+uses the internal default concurrency `32`, Git subprocesses are batched and
+findings are deterministically sorted. This prompt defines the boundary; it
+does not implement or benchmark the scanner.
 
 Если `mb-lint` ещё не установлен и пакет недоступен, не считай это провалом проекта. Доложи, что инструмент пока отсутствует, и предложи зафиксировать проверку как будущий шаг. В протоколах вроде `mb-upgrade` недоступность `mb-lint` должна оформляться как `DEF-*` с понятным следующим gate, а не как успешная проверка.
 
@@ -101,7 +110,7 @@ lint-candidate:
 Доложи:
 
 - навигационный блок из `.memory-bank/dd-flow/common/style.md`: `prompt: mb-lint.md`, протокол или `protocol: not_created`, текущая стадия, следующий шаг, блокеры и активные `DEF-*`;
-- где записаны `trace_start` и `trace_report`;
+- какие CLI/runtime artifacts доступны и почему ручной trace не создавался;
 - какая команда запускалась;
 - на какой ветке и commit;
 - какие классы ошибок найдены;

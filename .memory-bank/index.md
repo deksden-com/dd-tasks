@@ -2,8 +2,8 @@
 file: '.memory-bank/index.md'
 description: 'Рабочий вход в Банк памяти проекта dd-tasks.'
 purpose: 'Фиксирует подтверждённое состояние проекта на текущем Git-снимке.'
-version: '1.3.0'
-date: '2026-08-10'
+version: '1.4.0'
+date: '2026-08-11'
 status: 'ACTIVE'
 c4_level: 'project'
 parent: null
@@ -15,10 +15,13 @@ children:
   - .memory-bank/scenarios/index.md
   - .memory-bank/protocol/index.md
   - .memory-bank/defs/index.md
-memory_bank_version: '2.18.0'
+memory_bank_version: '3.0.0'
 initialization_status: 'initialized_published'
 tags: [dd-tasks, memory-bank]
 history:
+  - version: '1.4.0'
+    date: '2026-08-11'
+    changes: 'Canonical Memory Bank 3.0.0 синхронизирован; breaking runtime/stage lifecycle и single-source PLAN contracts, path-migration archive и curated flow-pack обновлены, RUN-302 архивирован; runtime/home migration остаётся отдельным gated follow-up.'
   - version: '1.3.0'
     date: '2026-08-10'
     changes: 'Canonical Memory Bank 2.18.0 синхронизирован; local-first specify/plan routing и compact execution/report contracts обновлены, project-owned knowledge сохранено.'
@@ -65,8 +68,8 @@ history:
 
 # Банк памяти dd-tasks
 
-Канонический релиз Банка памяти: `2.18.0`. Curated project flow pack
-происходит из canonical commit `af116584a66eab21a33a704a288a6ccb214c9885`;
+Канонический релиз Банка памяти: `3.0.0`. Curated project flow pack
+происходит из canonical commit `1e8c39078ed7a34adde93315a9cdcf2bbfc15374`;
 canonical-only entrypoints запускаются только из canonical checkout.
 
 dd-tasks — небольшой командный трекер задач. После нулевого checkpoint и

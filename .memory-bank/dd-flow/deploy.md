@@ -84,4 +84,10 @@ Write deploy evidence:
 
 If deploy reached provider but checks failed, report `partial_failure` or `failed`; do not call it deployed.
 
-When `dd-flow/deploy-stage-report@1` is available, write and validate `stage-report.json`, generate `stage-report.html` from `.memory-bank/dd-flow/stage-reports/deploy-stage-report-template.html`, and keep `report.md` as the concise human narrative. A completed deploy report must include runtime stage, deploy provider, concrete target, source artifact, authorized `operational_access`, execution evidence and post-deploy verification evidence.
+Write the deployment semantics to `@stage/stage-input.json`.
+`dd-flow stage finish` validates that input and generates the generic
+`stage-report.json`, `stage-report.md`, `stage-report.html` and protocol
+summary. Deployment-specific fields remain semantic data; the CLI owns paths,
+timestamps, Git facts and rendering. A completed deploy input must include
+runtime stage, deploy provider, concrete target, source artifact, authorized
+`operational_access`, execution evidence and post-deploy verification evidence.

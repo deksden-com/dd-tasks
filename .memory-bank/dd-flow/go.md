@@ -13,7 +13,6 @@
 Всегда прочитай:
 
 - `.memory-bank/dd-flow/common/style.md`
-- `.memory-bank/dd-flow/common/trace.md`
 - `.memory-bank/dd-flow/common/runtime-cli.md`
 - `.memory-bank/dd-flow/common/entity-ids.md`
 - `.memory-bank/dd-flow/common/workspace-layout.md`
@@ -66,9 +65,9 @@
 Если `protocol.md` создал или выбрал feature-worktree, а текущая Codex session всё ещё запущена из интеграционного checkout, `/go` обязан до остановки выполнить handoff в feature-worktree. Handoff состоит из двух частей:
 
 1. Механически зарегистрировать runtime-протокол через `dd-flow protocol register "<protocol-id>" --project-root "<stable-project-root>" --workspace-path "<feature-worktree>" --json`.
-2. Создать минимальный файловый workspace протокола в feature-worktree: `.memory-bank/protocol/<protocol-id>/summary.md` и, если нужны trace-файлы, `.memory-bank/protocol/<protocol-id>/trace/`.
+2. Создать минимальный файловый workspace протокола в feature-worktree: `.memory-bank/protocol/<protocol-id>/summary.md`.
 
-Runtime state в `~/.dd-flow` не заменяет файловый MemoryBank-протокол. `summary.md` должен существовать до остановки stable-root session и содержать минимум: исходный запрос, понимание задачи, `task_profile`/route draft, stable project root, feature branch/worktree, base commit, bootstrap status, ссылки на `.tasks` trace/grounding из stable root, текущую стадию `specify` или `interactive`, следующий шаг, блокеры и дату обновления. Для experiment flow следующий шаг должен быть командой `dd-flow-exp start <EXP-ALIAS> --phase code`; для обычного проекта - конкретной командой запуска Codex из `worktree_path`. Если в feature-worktree уже есть `.memory-bank/protocol/index.md`, добавь туда ссылку на новый протокол; если индекса нет, создай компактный индекс.
+Runtime state в `~/.dd-flow` не заменяет файловый MemoryBank-протокол. `summary.md` должен существовать до остановки stable-root session и содержать минимум: исходный запрос, понимание задачи, `task_profile`/route draft, stable project root, feature branch/worktree, base commit, bootstrap status, ссылки на durable grounding, текущую стадию `specify` или `interactive`, следующий шаг, блокеры и дату обновления. Для experiment flow следующий шаг должен быть командой `dd-flow-exp start <EXP-ALIAS> --phase code`; для обычного проекта - конкретной командой запуска Codex из `worktree_path`. Если в feature-worktree уже есть `.memory-bank/protocol/index.md`, добавь туда ссылку на новый протокол; если индекса нет, создай компактный индекс.
 
 Эти файловые записи допустимы из stable-root session, потому что они являются handoff-документами в целевом worktree, а не реализацией продукта. После записи обязательно проверь `test -s "<feature-worktree>/.memory-bank/protocol/<protocol-id>/summary.md"`, затем переведи runtime protocol из `registered` в `specify` или `interactive` через `dd-flow protocol transition "<protocol-id>" --to <stage> --payload-file <payload> --json`. Payload должен содержать `next_action`, route, workspace с `worktree_path`, `feature_branch`, `integration_branch`, `base_commit`, `protocol_location`, а также `blockers: []` и `active_def: []`. Legacy alias `dd-flow transition ... --json-file <payload>` допустим только для старых CLI/scripts; новые prompt-ы используют `protocol transition`.
 
@@ -125,10 +124,10 @@ protocol: исследование - без протокола
 - текущая сессия и последнее намерение пользователя;
 - активный `protocol/<PRT-ID>/summary.md`;
 - `protocol/index.md`;
-- `<run-home>/01-specify/stage-report.json`, resolved через `dd-flow run status --json` / `run-index.json`;
+- `<run-home>/01-specify/stage-report.json`, resolved через `dd-flow run status --json` / `run.json`;
 - `.tasks/prime-.../flow-profile.md` как legacy fallback;
-- `.tasks/plan-.../phase-summary.md`;
-- последние отчёты `plan`, `implementation`, `readiness`, `integration`;
+- `.memory-bank/protocol/<PRT-ID>/plan.json`;
+- generated stage reports and protocol summary from the current RUN;
 - открытые `DEF-*`;
 - `task_profile`/`flow_profile`;
 - Git-состояние, если следующий шаг может менять файлы или ветки.
@@ -139,7 +138,8 @@ protocol: исследование - без протокола
 
 - проверяет `dd-flow project status`;
 - после выбора протокола регистрирует planning session через `dd-flow session register`;
-- при наличии plan graph читает или обновляет CLI plan status;
+- при наличии canonical plan читает semantic plan и обновляет только runtime
+  progress/status projections;
 - после state-changing действий ожидает, что CLI обновит dashboard автоматически, если это включено конфигом.
 
 Если CLI недоступен, `/go` продолжает файловый pipeline через Memory Bank и protocol summary. Недоступность CLI не должна превращаться в блокер для read-only исследования или микроправки, если проект не сделал CLI обязательным gate.

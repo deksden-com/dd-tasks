@@ -1,125 +1,181 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "dd-flow/flow-contract@3",
-  "title": "dd-flow canonical flow contract",
-  "description": "Structural contract for the complete flow-contract.json catalog. Dynamic cross-key relationships are validated by the shared CLI normalizer.",
+  "$id": "dd-flow/flow-contract@5",
+  "title": "dd-flow canonical runtime contract",
+  "description": "Structural contract for the SPC-004 v0.2 and SPC-005 runtime/PLAN cutover. Dynamic command and cross-repository checks belong to companion projects.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["id", "version", "capabilities", "stages", "transitions", "readiness", "merge_queue", "defaults", "legacy_aliases", "flow_flags"],
+  "required": [
+    "schema_id",
+    "id",
+    "contract_id",
+    "version",
+    "status",
+    "source",
+    "specifications",
+    "stage_lifecycle",
+    "run",
+    "artifacts",
+    "plan",
+    "validation",
+    "workspace",
+    "lint",
+    "removed_contracts",
+    "presets",
+    "policy"
+  ],
   "properties": {
-    "id": {"type":"string","pattern":"^dd-flow-canonical-[0-9]{4}-[0-9]{2}$"},
-    "version": {"const":3},
-    "capabilities": {"type":"array","uniqueItems":true,"items":{"type":"string","minLength":1}},
-    "stages": {"type":"object","minProperties":1,"additionalProperties":{"$ref":"#/definitions/stage"}},
-    "transitions": {"type":"object","minProperties":1,"additionalProperties":{"$ref":"#/definitions/stringArray"}},
-    "entrypoints": {"type":"object","additionalProperties":{"$ref":"#/definitions/entrypoint"}},
-    "readiness": {"$ref":"#/definitions/readiness"},
-    "merge_queue": {"$ref":"#/definitions/mergeQueue"},
-    "defaults": {"$ref":"#/definitions/defaults"},
-    "auto_policy": {"$ref":"#/definitions/autoPolicy"},
-    "legacy_aliases": {"$ref":"#/definitions/stringMap"},
-    "route_aliases": {"$ref":"#/definitions/stringMap"},
-    "flow_flags": {"$ref":"#/definitions/flowFlags"}
+    "schema_id": {"const": "dd-flow/flow-contract@5"},
+    "id": {"const": "dd-flow-canonical-2026-08"},
+    "contract_id": {"type": "string", "pattern": "^dd-flow-canonical-[0-9]{4}-[0-9]{2}$"},
+    "version": {"const": 5},
+    "status": {"const": "active"},
+    "source": {"const": ".memory-bank/dd-flow/common/runtime-contract.md"},
+    "specifications": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "version", "sha256"],
+        "properties": {
+          "id": {"enum": ["SPC-004", "SPC-005"]},
+          "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+          "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+        }
+      }
+    },
+    "stage_lifecycle": {"$ref": "#/definitions/stageLifecycle"},
+    "run": {"$ref": "#/definitions/runContract"},
+    "artifacts": {"$ref": "#/definitions/artifactContract"},
+    "plan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["semantic_source", "schema", "progress_projection", "worker_projection", "coverage_source", "removed"],
+      "properties": {
+        "semantic_source": {"const": ".memory-bank/protocol/<PRT-ID>/plan.json"},
+        "schema": {"const": ".memory-bank/dd-flow/schemas/protocol-plan.schema.json"},
+        "progress_projection": {"const": "run.json.plan_progress"},
+        "worker_projection": {"const": "run.json.workers"},
+        "coverage_source": {"const": "<RUN-home>/02-plan/aspect-map.json"},
+        "removed": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "validation": {"$ref": "#/definitions/validationContract"},
+    "workspace": {"$ref": "#/definitions/workspaceContract"},
+    "lint": {"$ref": "#/definitions/lintContract"},
+    "removed_contracts": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "presets": {"$ref": "#/definitions/presets"},
+    "policy": {"$ref": "#/definitions/policy"}
   },
   "definitions": {
-    "nonEmptyString": {"type":"string","minLength":1},
-    "stringArray": {"type":"array","uniqueItems":true,"items":{"$ref":"#/definitions/nonEmptyString"}},
-    "stringMap": {"type":"object","additionalProperties":{"$ref":"#/definitions/nonEmptyString"}},
-    "flagScalar": {"type":["string","number","boolean","null"]},
-    "flagMap": {"type":"object","additionalProperties":{"$ref":"#/definitions/flagScalar"}},
-    "stage": {
-      "type":"object","additionalProperties":false,"required":["terminal"],
-      "properties":{"terminal":{"type":"boolean"},"report_enabled":{"type":"boolean"}}
-    },
-    "entrypoint": {
-      "type":"object","additionalProperties":false,
+    "nonEmptyString": {"type": "string", "minLength": 1},
+    "stageLifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["actions", "start_command", "finish_command", "prompt_sections", "current_write_alias", "archive_pattern"],
       "properties": {
-        "stage":{"$ref":"#/definitions/nonEmptyString"},
-        "logical_stages":{"$ref":"#/definitions/stringArray"},
-        "creates_protocol":{"type":"boolean"},
-        "purpose":{"$ref":"#/definitions/nonEmptyString"},
-        "mode":{"$ref":"#/definitions/nonEmptyString"}
-      },
-      "anyOf":[{"required":["stage"]},{"required":["logical_stages"]}]
-    },
-    "readiness": {
-      "type":"object","additionalProperties":false,"required":["command","allowed_from","target_stage"],
-      "properties":{"command":{"const":"ready-for-merge"},"allowed_from":{"$ref":"#/definitions/stringArray"},"target_stage":{"$ref":"#/definitions/nonEmptyString"}}
-    },
-    "mergeQueue": {
-      "type":"object","additionalProperties":false,"required":["complete"],
-      "properties":{"complete":{"type":"object","additionalProperties":false,"required":["target_stage","next_action"],"properties":{"target_stage":{"$ref":"#/definitions/nonEmptyString"},"next_action":{"$ref":"#/definitions/nonEmptyString"}}}}
-    },
-    "defaults": {
-      "type":"object","additionalProperties":false,"required":["registered_next_action"],
-      "properties": {
-        "registered_next_action":{"$ref":"#/definitions/nonEmptyString"},
-        "ordinary_protocol_flow_kind":{"$ref":"#/definitions/nonEmptyString"},
-        "normal_stage_layout":{"$ref":"#/definitions/stringArray"},
-        "legacy_coding_stage_layout":{"$ref":"#/definitions/stringArray"}
-      }
-    },
-    "autoPolicy": {
-      "type":"object","additionalProperties":false,
-      "properties": {
-        "ready_for_code_auto":{"$ref":"#/definitions/nonEmptyString"},
-        "ready_for_code_after_user_review":{"$ref":"#/definitions/nonEmptyString"},
-        "home_config_path":{"$ref":"#/definitions/nonEmptyString"},
-        "snapshot_authority":{"$ref":"#/definitions/nonEmptyString"},
-        "legacy_profile_projection":{"$ref":"#/definitions/nonEmptyString"}
-      }
-    },
-    "flowFlags": {
-      "type":"object","additionalProperties":false,
-      "required":["source_precedence","definitions","presets","flows","mandatory_floors"],
-      "properties": {
-        "source_precedence": {
-          "type":"array","minItems":1,"uniqueItems":true,
-          "items":{"enum":["flow_default","preset","task_profile","protocol_override","run_override","escalation","compatibility_alias"]}
+        "actions": {
+          "const": ["stage_start", "stage_finish"]
         },
-        "definitions": {"type":"object","minProperties":1,"additionalProperties":{"$ref":"#/definitions/flagDefinition"}},
-        "presets": {"type":"object","minProperties":1,"additionalProperties":{"$ref":"#/definitions/flagMap"}},
-        "flows": {"type":"object","minProperties":1,"additionalProperties":{"$ref":"#/definitions/flowFlagConsumer"}},
-        "mandatory_floors": {"type":"array","items":{"$ref":"#/definitions/mandatoryFloor"}},
-        "reduction_matrix": {"type":"object","additionalProperties":{"$ref":"#/definitions/reductionEntry"}},
-        "consumer_matrix": {"type":"object","additionalProperties":{"$ref":"#/definitions/stringArray"}}
+        "start_command": {"const": "dd-flow stage start <RUN> --stage <stage> --json"},
+        "finish_command": {"const": "dd-flow stage finish <RUN> --stage <stage> --status done --json"},
+        "prompt_sections": {
+          "const": [
+            "stage_identity",
+            "runtime_context",
+            "intake",
+            "applicable_instructions",
+            "stage_cli",
+            "file_boundaries",
+            "completion_contract"
+          ]
+        },
+        "current_write_alias": {"const": "@stage"},
+        "archive_pattern": {"const": "try-NNN"}
       }
     },
-    "flagDefinition": {
-      "type":"object","additionalProperties":false,"required":["type","owner","description"],
+    "runContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["current_state", "history", "sole_authority", "legacy_state"],
       "properties": {
-        "type":{"enum":["boolean","enum","number","string"]},
-        "values":{"type":"array","minItems":1,"uniqueItems":true,"items":{"$ref":"#/definitions/flagScalar"}},
-        "owner":{"$ref":"#/definitions/nonEmptyString"},
-        "description":{"$ref":"#/definitions/nonEmptyString"}
-      },
-      "allOf":[
-        {"if":{"properties":{"type":{"const":"enum"}},"required":["type"]},"then":{"required":["values"]}},
-        {"if":{"properties":{"type":{"enum":["boolean","number","string"]}},"required":["type"]},"then":{"not":{"required":["values"]}}}
-      ]
-    },
-    "flowFlagConsumer": {
-      "type":"object","additionalProperties":false,"required":["default_preset","supported","defaults"],
-      "properties": {
-        "default_preset":{"$ref":"#/definitions/nonEmptyString"},
-        "supported":{"type":"array","minItems":1,"uniqueItems":true,"items":{"$ref":"#/definitions/nonEmptyString"}},
-        "defaults":{"type":"object","additionalProperties":false,"required":["preset"],"properties":{"preset":{"$ref":"#/definitions/nonEmptyString"}}}
+        "current_state": {"const": "run.json"},
+        "history": {"const": "timeline.jsonl"},
+        "sole_authority": {"const": true},
+        "legacy_state": {"const": "retired"}
       }
     },
-    "mandatoryFloor": {
-      "type":"object","additionalProperties":false,"required":["when","values","reason"],
+    "artifactContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["finish_outputs", "model_input", "mechanical_facts"],
       "properties": {
-        "when":{"type":"object","minProperties":1,"additionalProperties":{"$ref":"#/definitions/stringArray"}},
-        "values":{"$ref":"#/definitions/flagMap"},
-        "reason":{"$ref":"#/definitions/nonEmptyString"}
+        "finish_outputs": {"const": ["stage-report.json", "stage-report.md", "stage-report.html", "summary.md"]},
+        "model_input": {"const": "semantic-only"},
+        "mechanical_facts": {"const": "cli-owned"}
       }
     },
-    "reductionEntry": {
-      "type":"object","additionalProperties":false,"required":["skips","keeps","reduced_artifact_status"],
+    "validationContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["permission_scope", "memory_bank_scope", "alias_policy"],
       "properties": {
-        "skips":{"$ref":"#/definitions/stringArray"},
-        "keeps":{"$ref":"#/definitions/stringArray"},
-        "reduced_artifact_status":{"$ref":"#/definitions/nonEmptyString"}
+        "permission_scope": {"const": "known-targets-only"},
+        "memory_bank_scope": {"const": "post-write-delta"},
+        "alias_policy": {"const": "typed-contained-fail-closed"}
+      }
+    },
+    "workspaceContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["manager", "command", "project_hooks", "fallbacks"],
+      "properties": {
+        "manager": {"const": "official-worktrunk"},
+        "command": {"const": "wt switch --create <branch> --base <base> --format json"},
+        "project_hooks": {"const": [".worktreeinclude", ".config/wt.toml"]},
+        "fallbacks": {"const": "forbidden"}
+      }
+    },
+    "lintContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["progress_channel", "result_channel", "default_concurrency", "findings_order"],
+      "properties": {
+        "progress_channel": {"const": "stderr"},
+        "result_channel": {"const": "stdout"},
+        "default_concurrency": {"const": 32},
+        "findings_order": {"const": "deterministic"}
+      }
+    },
+    "presets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["compact", "normal", "full"],
+      "properties": {
+        "compact": {"$ref": "#/definitions/preset"},
+        "normal": {"$ref": "#/definitions/preset"},
+        "full": {"$ref": "#/definitions/preset"}
+      }
+    },
+    "preset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["planning", "verification"],
+      "properties": {
+        "planning": {"enum": ["compact", "normal", "full"]},
+        "verification": {"enum": ["mandatory", "full"]}
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_of_truth", "runtime_owner", "lint_owner", "integrated_gate"],
+      "properties": {
+        "source_of_truth": {"const": "canonical prompts and schemas"},
+        "runtime_owner": {"const": "dd-flow-cli"},
+        "lint_owner": {"const": "mb-lint"},
+        "integrated_gate": {"const": "compatible releases plus clean specify-to-plan eval"}
       }
     }
   }

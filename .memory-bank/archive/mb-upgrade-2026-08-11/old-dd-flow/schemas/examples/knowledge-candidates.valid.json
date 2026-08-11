@@ -1,0 +1,57 @@
+{
+  "schema_id": "dd-flow/knowledge-candidates@1",
+  "protocol_id": "PRT-034",
+  "run_id": "RUN-040-knowledge-intake-promotion",
+  "stage": "specify",
+  "raw_intake": {
+    "status": "captured",
+    "path": ".memory-bank/protocol/PRT-034-knowledge-intake-promotion/intake/user-input.md"
+  },
+  "source_inputs": [
+    {
+      "id": "INPUT-001",
+      "path": ".memory-bank/protocol/PRT-034-knowledge-intake-promotion/intake/user-input.md",
+      "kind": "chat",
+      "substantive": true,
+      "redacted": false,
+      "summary": "User described the desired raw intake and promotion contour."
+    }
+  ],
+  "candidates": [
+    {
+      "id": "KND-001",
+      "source": {
+        "input_id": "INPUT-001",
+        "file": ".memory-bank/protocol/PRT-034-knowledge-intake-promotion/intake/user-input.md",
+        "quote": "будем записывать все вводные от пользователя",
+        "quote_redacted": false
+      },
+      "claim": "Substantive user input should be preserved literally before specification normalizes it.",
+      "kind": "workflow_policy",
+      "target_layer": "dd-flow",
+      "durability": "candidate",
+      "confidence": "high",
+      "needs_user_confirmation": false,
+      "risk": "medium",
+      "existing_memory_bank_refs": [],
+      "conflicts": [],
+      "merge_verification": {
+        "how_to_check": "Verify protocol/specify prompts mention conditional raw intake and no artificial file for command-only input.",
+        "required_evidence": ["updated protocol.md", "updated common/specification.md", "stage report"]
+      },
+      "promotion_hint": {
+        "target_files": [".memory-bank/dd-flow/protocol.md", ".memory-bank/dd-flow/common/specification.md"],
+        "write_kind": "amend_existing_sections",
+        "index_updates": []
+      }
+    }
+  ],
+  "conflicts": [],
+  "questions": [],
+  "generated_by": {
+    "role": "knowledge-extraction",
+    "prompt": ".memory-bank/dd-flow/workers/knowledge-extraction.md",
+    "subagent_id": "example"
+  },
+  "created_at": "2026-06-18T14:40:00Z"
+}

@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MB-SDLC Review Report</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #eef0ea;
+      --paper: #fbfaf4;
+      --paper-2: #f1f4ee;
+      --ink: #171b17;
+      --muted: #626a63;
+      --line: #c7d0c4;
+      --green: #176b5c;
+      --blue: #2d5d83;
+      --amber: #b56a24;
+      --red: #ad3f35;
+      --shadow: 0 18px 42px rgba(32, 42, 31, .10);
+    }
+    [data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #11161a;
+      --paper: #192026;
+      --paper-2: #202932;
+      --ink: #f2eadc;
+      --muted: #b5bbb8;
+      --line: #33404a;
+      --green: #79c8ae;
+      --blue: #8ebbd3;
+      --amber: #dfae62;
+      --red: #e18078;
+      --shadow: 0 18px 42px rgba(0, 0, 0, .28);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 14px;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Avenir Next", "Gill Sans", Verdana, sans-serif;
+      letter-spacing: 0;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background:
+        repeating-linear-gradient(90deg, color-mix(in srgb, var(--green) 5%, transparent) 0 1px, transparent 1px 38px),
+        repeating-linear-gradient(0deg, color-mix(in srgb, var(--green) 4%, transparent) 0 1px, transparent 1px 38px);
+      opacity: .5;
+    }
+    .page { width: min(1480px, 100%); margin: 0 auto; }
+    .topbar { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+    .breadcrumb { color: var(--muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .themeSwitch { display: inline-grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 5px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); }
+    button { font: inherit; border: 0; border-radius: 6px; padding: 7px 10px; background: transparent; color: var(--muted); cursor: pointer; }
+    button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+    .hero { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 12px; margin-bottom: 12px; }
+    .card { background: color-mix(in srgb, var(--paper) 94%, transparent); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); min-width: 0; }
+    .headline { padding: 14px; min-height: 132px; display: flex; flex-direction: column; justify-content: space-between; }
+    .kicker { color: var(--green); font-size: 13px; font-weight: 900; }
+    h1 { margin: 3px 0 7px; font-family: "Iowan Old Style", Georgia, serif; font-size: clamp(28px, 2.6vw, 36px); line-height: 1.02; letter-spacing: 0; }
+    h2 { margin: 0; font-size: 15px; }
+    .lead { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.42; }
+    .meta, .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .pill, .badge { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 7px; padding: 6px 9px; background: var(--paper-2); font-size: 13px; color: var(--muted); min-height: 31px; }
+    .badge.blocking, .badge.failed, .badge.blocked { color: var(--red); }
+    .badge.major, .badge.watch { color: var(--amber); }
+    .badge.accepted, .badge.pass { color: var(--green); }
+    .verdict { padding: 16px; background: linear-gradient(180deg, var(--ink), color-mix(in srgb, var(--ink) 92%, var(--green))); color: var(--paper); display: grid; gap: 10px; }
+    .verdictLabel { color: color-mix(in srgb, var(--paper) 70%, transparent); font-size: 12px; text-transform: uppercase; font-weight: 900; }
+    .verdictText { font-size: 24px; line-height: 1.06; font-weight: 950; overflow-wrap: anywhere; }
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 12px; }
+    .panel { padding: 14px; margin-bottom: 12px; }
+    .span4 { grid-column: span 4; }
+    .span8 { grid-column: span 8; }
+    .list { display: grid; gap: 8px; margin-top: 10px; }
+    .row { display: grid; grid-template-columns: minmax(0, 1fr) max-content; gap: 10px; align-items: start; padding: 9px; border: 1px solid var(--line); border-radius: 7px; background: color-mix(in srgb, var(--paper-2) 70%, transparent); }
+    .row strong, .row a { overflow-wrap: anywhere; }
+    .sub { color: var(--muted); font-size: 13px; line-height: 1.35; }
+    .finding { grid-template-columns: minmax(0, 1fr); }
+    a { color: var(--blue); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+    @media (max-width: 860px) { .hero, .grid { grid-template-columns: 1fr; } .span4, .span8 { grid-column: auto; } }
+  </style>
+</head>
+<body data-dd-flow-template="mb-sdlc-review-stage-report">
+  <script id="review-data" type="application/json">__REVIEW_DATA__</script>
+  <main class="page" id="review-root" data-screen-id="SCR-DD-FLOW-MB-SDLC-REVIEW" data-testid="review-root">
+    <div class="topbar">
+      <div class="breadcrumb" id="breadcrumb"></div>
+      <div class="themeSwitch" aria-label="Theme">
+        <button type="button" data-theme-button="system" aria-pressed="true">System</button>
+        <button type="button" data-theme-button="light" aria-pressed="false">Light</button>
+        <button type="button" data-theme-button="dark" aria-pressed="false">Dark</button>
+      </div>
+    </div>
+    <section class="hero">
+      <article class="card headline">
+        <div>
+          <div class="kicker">MB-SDLC REVIEW</div>
+          <h1 id="title"></h1>
+          <p class="lead" id="lead"></p>
+        </div>
+        <div class="meta" id="meta"></div>
+      </article>
+      <aside class="card verdict">
+        <div class="verdictLabel">Verdict</div>
+        <div class="verdictText" id="verdictText"></div>
+        <div id="verdictNote"></div>
+      </aside>
+    </section>
+    <section class="grid">
+      <article class="card panel span4">
+        <h2>Conformance</h2>
+        <div class="list" id="conformance"></div>
+      </article>
+      <article class="card panel span8">
+        <h2>Aspect Coverage</h2>
+        <div class="list" id="aspects"></div>
+      </article>
+    </section>
+    <section class="card panel">
+      <h2>Findings</h2>
+      <div class="list" id="findings"></div>
+    </section>
+    <section class="grid">
+      <article class="card panel span8">
+        <h2>Critic Pass</h2>
+        <div class="list" id="critics"></div>
+      </article>
+      <article class="card panel span4">
+        <h2>Next Action</h2>
+        <div class="list" id="nextAction"></div>
+      </article>
+    </section>
+  </main>
+  <script>
+    const data = JSON.parse(document.getElementById("review-data").textContent);
+    const storageKey = "dd-flow.review.theme";
+    function text(id, value){ document.getElementById(id).textContent = value == null ? "" : String(value); }
+    function el(tag, className, value){ const node = document.createElement(tag); if(className) node.className = className; if(value != null) node.textContent = String(value); return node; }
+    function badge(value){ return el("span", "badge " + String(value || "unknown"), value || "unknown"); }
+    function linkNode(label, href){ const a = document.createElement("a"); a.textContent = label || href || "link"; a.href = /^javascript:/i.test(String(href || "")) ? "" : String(href || ""); a.title = String(href || label || ""); return a; }
+    function addRow(box, title, detail, status){ const row = el("div", "row"); const left = el("div", ""); left.append(el("strong", "", title), el("div", "sub", detail)); row.append(left, badge(status)); box.append(row); }
+    function setTheme(value){ if(value === "system") document.documentElement.removeAttribute("data-theme"); else document.documentElement.dataset.theme = value; localStorage.setItem(storageKey, value); document.querySelectorAll("[data-theme-button]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.themeButton === value))); }
+    document.querySelectorAll("[data-theme-button]").forEach(b => b.addEventListener("click", () => setTheme(b.dataset.themeButton)));
+    text("breadcrumb", ["dd-flow", "mb-sdlc-review", data.run?.run_id, data.review_focus?.mode, data.review_focus?.target].filter(Boolean).join(" / "));
+    text("title", data.review_focus?.title || "Project Review");
+    text("lead", data.review_focus?.summary || "Project conformance review against durable Memory Bank knowledge and evidence.");
+    text("verdictText", data.conformance_summary?.overall_verdict || "unknown");
+    text("verdictNote", data.conformance_summary?.summary || "");
+    const meta = document.getElementById("meta");
+    [["schema", data.schema_id], ["generated", data.run?.generated_at], ["focus", data.review_focus?.mode], ["project", data.run?.project_id]].forEach(([k,v]) => { const p = el("span","pill"); p.append(el("b","",k), document.createTextNode(" " + String(v || ""))); meta.append(p); });
+    const conformance = document.getElementById("conformance");
+    (data.conformance_summary?.items || []).forEach(item => addRow(conformance, item.label || item.id, item.summary || "", item.status || "unknown"));
+    const aspects = document.getElementById("aspects");
+    (data.aspect_coverage || []).forEach(item => addRow(aspects, item.aspect_id, [item.applicability, item.coverage_mode, item.verdict].filter(Boolean).join(" / "), item.status || item.verdict || "unknown"));
+    const findings = document.getElementById("findings");
+    if(!(data.findings_register || []).length) findings.append(el("div","sub","No accepted findings."));
+    (data.findings_register || []).forEach(f => { const row = el("div","row finding"); row.append(el("strong","", f.id + " - " + f.title), el("div","sub", [f.type, f.severity, f.confidence].filter(Boolean).join(" / ")), el("div","", f.problem || ""), el("div","sub", f.recommended_action || "")); findings.append(row); });
+    const critics = document.getElementById("critics");
+    (data.critic_pass?.critics || []).forEach(c => addRow(critics, c.id || "critic", c.summary || "", c.verdict || "reviewed"));
+    const next = document.getElementById("nextAction");
+    const rec = data.review_fix_recommendation || {};
+    addRow(next, rec.required ? "Review-fix required" : "No review-fix required", rec.next_action || "No follow-up protocol required.", rec.required ? "actionable" : "accepted");
+    Object.entries(data.dashboard_links || {}).forEach(([key, value]) => { const row = el("div","row"); row.append(linkNode(value.label || key, value.href), badge(value.status || "unknown")); next.append(row); });
+    setTheme(["system","light","dark"].includes(localStorage.getItem(storageKey)) ? localStorage.getItem(storageKey) : "system");
+  </script>
+</body>
+</html>

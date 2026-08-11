@@ -21,7 +21,7 @@
 INPUT-* -> KND-* -> specification constraint -> plan item -> code/readiness evidence -> merge promotion status
 ```
 
-Для задач без содержательного raw intake явно достаточно `raw_intake: not_applicable`; не создавай пустой trace ради формы.
+Для задач без содержательного raw intake явно достаточно `raw_intake: not_applicable`; не создавай пустую lifecycle-запись ради формы.
 
 План готов только тогда, когда видно, как задачи ведут к операционной цели с учётом этих ограничений.
 

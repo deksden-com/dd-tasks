@@ -1,0 +1,107 @@
+{
+  "schema_id": "dd-flow/publish-stage-report@1",
+  "run": {
+    "run_id": "RUN-162-publish-cli",
+    "run_index": "../run-index.json"
+  },
+  "stage": {
+    "name": "publish",
+    "dir": "05-report",
+    "status": "done"
+  },
+  "project": {
+    "id": "PRJ-004-dd-memorybank",
+    "title": "dd-memorybank"
+  },
+  "subject": {
+    "id": "PRT-210-cli-publish",
+    "title": "CLI package publish"
+  },
+  "overall": {
+    "verdict": "completed",
+    "summary": "Package version was released and published to npm with registry readback.",
+    "next_action": "Update compatibility matrix if needed."
+  },
+  "operational_access": {
+    "schema_id": "dd-flow/operational-access-preflight@1",
+    "applicability": "required",
+    "outcome": "authorized",
+    "verdicts": { "identity": "verified", "authority": "verified", "target": "verified", "approval": "verified" },
+    "next_action": "Consume this fresh preflight immediately before registry publish."
+  },
+  "release": {
+    "version": "0.5.0",
+    "release_set": "PRT-210",
+    "evidence": [
+      {
+        "label": "version bump",
+        "path": "package.json"
+      }
+    ]
+  },
+  "publish_target": {
+    "target_kind": "package_registry",
+    "target": "npm:@deksden-com/dd-flow-cli",
+    "channel": "latest"
+  },
+  "artifact": {
+    "label": "npm package tarball",
+    "path": "evidence/npm-pack.json",
+    "kind": "package"
+  },
+  "dry_run": {
+    "name": "npm pack",
+    "status": "passed",
+    "evidence": "evidence/npm-pack.json"
+  },
+  "execution": {
+    "mode": "registry-cli",
+    "publish_id": "npm:@deksden-com/dd-flow-cli@0.5.0",
+    "evidence": [
+      {
+        "label": "npm publish log",
+        "path": "logs/npm-publish.log"
+      }
+    ]
+  },
+  "readback": {
+    "status": "passed",
+    "evidence": [
+      {
+        "label": "npm view readback",
+        "path": "evidence/npm-view.json"
+      }
+    ]
+  },
+  "consumer_smoke": {
+    "name": "npx version smoke",
+    "status": "passed",
+    "evidence": "evidence/npx-version.txt"
+  },
+  "fallback": {
+    "posture": "deprecate-or-patch-forward",
+    "summary": "Published npm versions are immutable; recovery uses deprecate or a follow-up patch."
+  },
+  "gates": [
+    {
+      "id": "registry_readback",
+      "status": "pass",
+      "summary": "Registry metadata matches selected version.",
+      "evidence": "evidence/npm-view.json"
+    }
+  ],
+  "checks": [
+    {
+      "name": "npm view",
+      "status": "passed",
+      "evidence": "evidence/npm-view.json"
+    }
+  ],
+  "evidence": [
+    {
+      "label": "publish report",
+      "path": "report.md"
+    }
+  ],
+  "defs": []
+}

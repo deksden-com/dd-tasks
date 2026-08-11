@@ -272,10 +272,10 @@
     "run": {
       "type": "object",
       "additionalProperties": true,
-      "required": ["run_id", "run_index"],
+      "required": ["run_id", "run_state"],
       "properties": {
         "run_id": { "type": "string", "minLength": 1 },
-        "run_index": { "type": "string", "minLength": 1 }
+        "run_state": { "type": "string", "minLength": 1 }
       }
     },
     "stage": {

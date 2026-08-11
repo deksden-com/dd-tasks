@@ -1,0 +1,14 @@
+{
+  "schema_id": "dd-flow/protocol-summary@1",
+  "protocol_id": "PRT-340-spc-004-canonical-runtime-contract",
+  "run_id": "RUN-308-spc-004-canonical-runtime-contract",
+  "status": "ready_for_merge",
+  "goal": "Adopt the canonical SPC-004 runtime contract.",
+  "scope": {"in_scope": ["prompts", "schemas", "fixtures"], "out_of_scope": ["CLI runtime", "mb-lint implementation"]},
+  "decisions": ["run.json is sole current state", "stage reports are generated"],
+  "acceptance": ["R-01..R-20 ownership is explicit"],
+  "gates": ["git diff --check", "schema validation", "mb-lint"],
+  "blockers": ["companion releases are external"],
+  "links": [".memory-bank/spec/engineering/SPC-004-flow-runtime-observability-workspaces-and-lint-throughput.md"],
+  "next_action": "merge canonical feature branch"
+}

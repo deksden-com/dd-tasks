@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/stage-report@1",
+  "title": "Generated stage report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "run_id", "stage", "generated_at", "verdict", "semantic", "mechanical", "artifacts", "validation"],
+  "properties": {
+    "schema_id": {"const": "dd-flow/stage-report@1"},
+    "run_id": {"type": "string", "minLength": 1},
+    "stage": {"type": "string", "minLength": 1},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "verdict": {"enum": ["done", "blocked", "failed", "degraded"]},
+    "semantic": {"type": "object", "required": ["result", "acceptance", "changed_files", "checks", "evidence", "next_action"], "additionalProperties": true, "properties": {"result": {"type": "string"}, "acceptance": {"type": "array"}, "changed_files": {"type": "array"}, "checks": {"type": "array"}, "evidence": {"type": "array"}, "next_action": {"type": "string"}}},
+    "mechanical": {"type": "object", "required": ["started_at", "finished_at", "wall_clock_ms", "git", "session_coverage", "usage_coverage"], "additionalProperties": true, "properties": {"started_at": {"type": "string", "format": "date-time"}, "finished_at": {"type": "string", "format": "date-time"}, "wall_clock_ms": {"type": "integer", "minimum": 0}, "git": {"type": "object"}, "session_coverage": {"type": "object"}, "usage_coverage": {"type": "object"}}},
+    "artifacts": {"type": "object", "required": ["json", "markdown", "html", "summary"], "additionalProperties": false, "properties": {"json": {"type": "string"}, "markdown": {"type": "string"}, "html": {"type": "string"}, "summary": {"type": "string"}}},
+    "validation": {"type": "object", "required": ["permission_scope", "memory_bank_scope", "status"], "additionalProperties": true, "properties": {"permission_scope": {"const": "known_targets_only"}, "memory_bank_scope": {"const": "changed_files_and_links_only"}, "status": {"type": "string"}}},
+    "breadcrumbs": {"type": "array", "items": {"type": "object"}}
+  }
+}

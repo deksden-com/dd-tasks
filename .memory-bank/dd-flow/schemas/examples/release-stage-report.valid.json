@@ -2,7 +2,7 @@
   "schema_id": "dd-flow/release-stage-report@1",
   "run": {
     "run_id": "RUN-160-release-canon-2110",
-    "run_index": "../run-index.json"
+    "run_state": "../run.json"
   },
   "stage": {
     "name": "release",

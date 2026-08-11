@@ -23,7 +23,6 @@ Flow origin policy: `project_local`.
 Прочитай:
 
 - `.memory-bank/dd-flow/common/style.md`
-- `.memory-bank/dd-flow/common/trace.md`
 - `.memory-bank/dd-flow/common/runtime-cli.md`
 - `.memory-bank/dd-flow/common/lifecycle-guards.md`
 - `.memory-bank/dd-flow/common/flow-runs.md`

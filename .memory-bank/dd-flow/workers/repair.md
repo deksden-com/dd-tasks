@@ -9,7 +9,6 @@ Repair worker не является обычным retry "попробуй ещ�
 Прочитай:
 
 - `.memory-bank/dd-flow/common/style.md`
-- `.memory-bank/dd-flow/common/trace.md`, если task packet требует trace;
 - `.memory-bank/dd-flow/common/worker-session.md`, если repair выполняется как worker task;
 - `.memory-bank/mbb/ai-runtime-prompt-architecture.md`
 - `.memory-bank/mbb/code-contracts-guide.md`, если output является контрактом;

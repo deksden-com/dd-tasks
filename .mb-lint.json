@@ -1,1 +1,33 @@
-{"git":{"respectIgnore":true},"ignorePaths":["README.md",".memory-bank/dd-flow/**",".memory-bank/mbb/templates/**",".memory-bank/archive/**",".tasks/**",".scenario-runs/**","node_modules/**","dist/**","build/**","coverage/**",".next/**",".turbo/**"],"ignoreFindings":[{"ruleId":"links/markdown-target-exists","file":".memory-bank/mbb/templates/**","reason":"Canonical MBB templates contain placeholder markdown links."},{"ruleId":"links/frontmatter-target-exists","file":".memory-bank/mbb/templates/**","reason":"Canonical MBB templates contain placeholder frontmatter links."},{"ruleId":"def/required-fields","file":".memory-bank/mbb/named-deferrals-guide.md","target":"DEF-UI-PROTECTED-BROWSER-PROOF","reason":"Canonical guide contains an illustrative DEF example, not an active project deferral."}]}
+{
+  "ignorePaths": [
+    ".memory-bank/dd-flow/**",
+    ".memory-bank/archive/**",
+    ".memory-bank/mbb/templates/**",
+    ".tasks/**",
+    ".scenario-runs/**",
+    "node_modules/**",
+    "dist/**",
+    "build/**",
+    "coverage/**",
+    ".next/**",
+    ".turbo/**"
+  ],
+  "ignoreFindings": [
+    {
+      "ruleId": "links/markdown-target-exists",
+      "file": ".memory-bank/mbb/templates/**",
+      "reason": "Canonical MBB templates contain placeholder markdown links."
+    },
+    {
+      "ruleId": "links/frontmatter-target-exists",
+      "file": ".memory-bank/mbb/templates/**",
+      "reason": "Canonical MBB templates contain placeholder frontmatter links."
+    },
+    {
+      "ruleId": "def/required-fields",
+      "file": ".memory-bank/mbb/named-deferrals-guide.md",
+      "target": "DEF-UI-PROTECTED-BROWSER-PROOF",
+      "reason": "Canonical guide contains an illustrative DEF example, not an active project deferral."
+    }
+  ]
+}

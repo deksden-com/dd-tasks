@@ -37,7 +37,7 @@ Read:
 Validate the review report if possible:
 
 ```bash
-dd-flow schema validate --schema mb-sdlc-review-report --file "<review-run>/04-review/stage-report.json" --project-root "<project-root>" --json
+dd-flow schema validate --schema stage-report --file "<review-run>/04-review/stage-report.json" --project-root "<project-root>" --json
 ```
 
 If the report is missing or invalid, stop with a precise blocker. Do not invent repair scope from memory.

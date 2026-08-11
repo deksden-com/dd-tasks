@@ -19,7 +19,6 @@ Status-only путь не создаёт merge stage report (`04-merge/stage-rep
 Всегда прочитай:
 
 - `.memory-bank/dd-flow/common/style.md`
-- `.memory-bank/dd-flow/common/trace.md`
 - `.memory-bank/dd-flow/common/runtime-cli.md`
 - `.memory-bank/dd-flow/common/flow-runs.md`
 - `.memory-bank/dd-flow/common/flow-origin.md`

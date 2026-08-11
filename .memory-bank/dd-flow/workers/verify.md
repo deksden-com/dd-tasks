@@ -21,7 +21,6 @@
 Прочитай:
 
 - `.memory-bank/dd-flow/common/style.md`
-- `.memory-bank/dd-flow/common/trace.md`, если task packet требует файловый след worker-а
 - `.memory-bank/dd-flow/common/runtime-cli.md`, если task packet требует сверять CLI state или dashboard
 - `.memory-bank/dd-flow/common/memorybank.md`
 - `.memory-bank/dd-flow/common/sdlc-contours.md`

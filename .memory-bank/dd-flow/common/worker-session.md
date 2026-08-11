@@ -117,7 +117,8 @@ short token. It does not receive a normal task packet or write flow artifacts.
 
 ## Grouped Packet Variant
 
-The focused one-leaf packet remains the default. A grouped packet uses one
+The focused one-leaf packet is selected only when an independent boundary or
+hard separation requires it. A grouped packet uses one
 explicit `grouped_review` wrapper and one checked leaf entry per covered unit;
 it does not paste unrelated leaf prompts into one field:
 

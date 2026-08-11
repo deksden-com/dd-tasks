@@ -2,8 +2,8 @@
 file: '.memory-bank/defs/DEF-MBU-RUNTIME-ACTIVE-STATE.md'
 description: 'Отложение по gated runtime/home migration и отсутствующему backup evidence.'
 purpose: 'Отделяет безопасный файловый upgrade от миграции runtime/home primary data.'
-version: '0.2.0'
-date: '2026-08-07'
+version: '0.3.0'
+date: '2026-08-11'
 status: 'ACTIVE'
 c4_level: 'operations'
 parent: '.memory-bank/defs/index.md'
@@ -13,7 +13,7 @@ def_type: 'operations_blocker'
 severity: 'high'
 owner: 'dd-flow runtime/operations owner'
 next_gate: 'plan'
-next_gate_detail: 'runtime/home migration follow-up after backup and inactive-state gates'
+next_gate_detail: 'supported runtime reconciliation after backup and inactive-state gates'
 blocks:
   - 'Любую runtime/home primary-data migration между контрактами.'
   - 'Migration verification, зависящую от backup и неактивного runtime state.'
@@ -37,14 +37,14 @@ tags: [deferral, mb-upgrade, runtime, backup, operations]
 
 ## Summary
 
-Runtime/home migration не выполнялась. `RUN-303/03-upgrade/migration-report.json`
-содержит `migration.status: blocked`, поскольку backup evidence отсутствует,
-`RUN-302` остаётся активным, а исторический `RUN-003` остаётся blocked. Это
-отдельный operations contour; runtime JSON/SQLite вручную не менялись.
-
-`RUN-303` завершён со статусом `done` и verdict `accepted_with_deferrals` после
-интеграции статического Memory Bank upgrade в `main`; это не означает применения
-runtime/home migration.
+Runtime/home migration не выполнялась. `RUN-309` имеет реальный backup receipt
+`/Users/deksden/.dd-flow/backups/RUN-309-mb-upgrade-3-0-0-20260811/`.
+`RUN-302` физически архивирован в
+`/Users/deksden/.dd-flow/projects/PRJ-018-dd-tasks/runs-archive/2026-08-11/RUN-302-linear-workflow-ui-discarded/`;
+его старый `dd-flow/flow-run-index@2` не может быть закрыт CLI 0.5.0 через
+authority-check и не должен редактироваться вручную в SQLite. `RUN-003`
+остаётся historical blocked record. Статический Memory Bank 3.0.0 upgrade не
+выдаёт это состояние за применённую runtime/home migration.
 
 ## Current Status
 
@@ -52,43 +52,43 @@ runtime/home migration.
 - Type: `operations_blocker`
 - Severity: `high`
 - Owner: dd-flow runtime/operations owner
-- Opened: 2026-08-04; updated: 2026-08-07
+- Opened: 2026-08-04; updated: 2026-08-11
 - Review condition: backup/rollback evidence, compatible inactive-state plan и
   post-migration verification доступны через supported CLI.
 
 ## Origin and evidence
 
-- Flow/run: `mb-upgrade / RUN-303-mb-upgrade-2-16-0-dd-tasks / 03-upgrade`
-- Evidence: `RUN-303/01-preflight/report.md`,
-  `RUN-303/03-upgrade/migration-report.json`,
-  `03-upgrade/defs/DEF-MBU-RUNTIME-ACTIVE-STATE.md`
-- Read-only facts: `backup.status: planned`; active state includes
-  `RUN-302-linear-workflow-ui` and blocked
-  `RUN-003-prt-001-checkpoint-01-foundation-code`.
-- Target static upgrade: Memory Bank `2.15.0 → 2.16.0` completed; runtime
+- Flow/run: `mb-upgrade / RUN-309-mb-upgrade-3-0-0-dd-tasks / 03-upgrade`
+- Evidence: `RUN-309/03-preflight/impact-assessment.json`, backup receipt,
+  `RUN-309/03-upgrade/migration-report.json` и текущий CLI readback.
+- Read-only facts: backup present; archived `RUN-302` retains a stale active
+  control-plane row because its legacy authority is unavailable; blocked
+  `RUN-003-prt-001-checkpoint-01-foundation-code` remains untouched.
+- Target static upgrade: Memory Bank `2.18.0 → 3.0.0` completed; runtime
   primary-data migration remains unapplied.
 
 ## Context for follow-up
 
-Сначала получить backup/rollback receipt и разрешить active/blocked runtime
-state; затем штатными командами заново выполнить migration plan, migration
-verify, status и dashboard checks. Ни один отчёт текущего run не доказывает
-применение runtime migration.
+Backup/rollback receipt уже получен. Следующий gate — поддержанный runtime
+reconciliation path для legacy authority и inactive-state; затем штатными
+командами выполнить migration plan, migration verify, status и dashboard
+checks. Ни один отчёт текущего run не доказывает применение runtime migration.
 
 ## User blocker and fixability
 
-- Required user decision: `false` for current documentation-only upgrade.
-- Can attempt now: `false`; backup и runtime state нельзя фабриковать или обходить.
+- Required user decision: `false` for current static upgrade.
+- Can attempt now: `false`; backup есть, но runtime state нельзя фабриковать,
+  обходить или редактировать вручную.
 - Expected effort: `large`.
 - Follow-up protocol: `true` if runtime migration later becomes required.
 
 ## Blocking Scope
 
-- Does not block: target file upgrade, manifest, path sweep, local lint and review.
+- Does not block: target file upgrade, manifest, path traceability, local lint and review.
 - Blocks: runtime/home primary-data migration and any claim that it was applied.
-- Next gate: runtime migration plan after backup/inactive-state gates.
-- Close condition: supported plan unblocked, backup/rollback evidence recorded,
-  migration verify passes, and post-upgrade status/dashboard checks pass.
+- Next gate: supported runtime reconciliation after backup/inactive-state gates.
+- Close condition: legacy active records are reconciled by supported CLI, plan is
+  unblocked, migration verify passes, and post-upgrade status/dashboard checks pass.
 
 ## Future-flow rule
 

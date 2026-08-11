@@ -83,7 +83,7 @@
 
 ## Knowledge Candidates
 
-`knowledge candidates` из `<run-home>/01-specify/knowledge-extraction/candidates.json` являются provisional. Для legacy run путь может быть `.tasks/dd-flow-runs/<RUN-ID>/01-specify/knowledge-extraction/candidates.json`, если так записано в `run-index.json`. Они сохраняют пользовательские вводные, source quotes, target layer hints и merge verification hints, но не являются долговечной истиной Банка памяти.
+`knowledge candidates` из `<run-home>/01-specify/knowledge-extraction/candidates.json` являются provisional. Они сохраняют пользовательские вводные, source quotes, target layer hints и merge verification hints, но не являются долговечной истиной Банка памяти.
 
 Durable truth появляется только после merge-time promotion:
 

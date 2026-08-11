@@ -3,7 +3,6 @@
 Прочитай общие правила:
 
 - `.memory-bank/dd-flow/common/style.md`
-- `.memory-bank/dd-flow/common/trace.md`
 - `.memory-bank/dd-flow/common/runtime-cli.md`
 - `.memory-bank/dd-flow/common/memorybank.md`
 - `.memory-bank/dd-flow/common/sdlc-contours.md`
@@ -29,7 +28,7 @@
 
 Твоя задача - проверить и прописать, как протокол проходит путь от рабочей ветки до приемки на нужном контуре.
 
-Запиши start trace по `common/trace.md` в активный протокол. Если доступен `dd-flow` CLI, зарегистрируй planning session по `common/runtime-cli.md`: `flow_kind: planning`, `continuation_policy: go_router`, `current_stage: f3_ops`, `next_action: git/delivery plan`.
+Зарегистрируй planning session по `common/runtime-cli.md`, если доступен `dd-flow` CLI. Ручной trace не создавай.
 
 Эксплуатационный план должен показывать, на каком вороте (gate) операционная цель считается доказанной: локально, на ветке фичи (feature branch), после слияния (merge), на бета-стенде (beta) или только перед продуктовым окружением (production).
 
@@ -137,4 +136,4 @@ If the task creates or materially changes a release, deploy, publish, migration,
 
 Итоговый доклад должен начинаться с навигационного блока из `.memory-bank/dd-flow/common/style.md` и объяснять не только набор команд, но и логику контуров: что доказывает ветка, что доказывает непрерывная интеграция (CI), что доказывает бета-стенд (beta), какие ворота остаются дальше.
 
-В докладе укажи `trace_start`, `trace_report` и состояние runtime CLI, если он используется.
+В докладе укажи generated stage/runtime artifacts и состояние runtime CLI, если он используется.

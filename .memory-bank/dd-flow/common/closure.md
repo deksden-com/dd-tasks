@@ -174,7 +174,7 @@ lint-candidate:
 Project Memory Bank хранит только curated долговечную истину. Перед закрытием реши и запиши:
 
 - какие artifacts promoted to `.memory-bank/**`;
-- какие artifacts retained in `<run-home>` as local execution trace;
+- какие runtime artifacts retained in `<run-home>` as local execution evidence;
 - какие artifacts summarized instead of copied;
 - какие artifacts intentionally discarded;
 - какие artifacts deferred as `DEF-*` or blocked;

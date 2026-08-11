@@ -2,13 +2,16 @@
 file: '.memory-bank/structure.md'
 description: 'Карта разделов и текущей плотности знаний.'
 purpose: 'Объясняет, где живёт подтверждённая проектная истина.'
-version: '0.8.0'
-date: '2026-08-10'
+version: '0.9.0'
+date: '2026-08-11'
 status: 'ACTIVE'
 c4_level: 'project'
 parent: '.memory-bank/index.md'
 tags: [dd-tasks, structure]
 history:
+  - version: '0.9.0'
+    date: '2026-08-11'
+    changes: 'Отражены canonical MBB и curated flow-pack 3.0.0, breaking runtime/stage lifecycle и single-source PLAN contracts; прежние слои сохранены в upgrade archive.'
   - version: '0.8.0'
     date: '2026-08-10'
     changes: 'Отражены canonical MBB 2.18.0, flow-pack provenance и local-first specify/plan routing; project-owned shelves сохранены.'
@@ -50,6 +53,7 @@ adr, evidence, ui, guides, skills и archive существуют как кан�
 foundation создан один canonical scenario; raw run artifacts не подменяют
 Memory Bank truth.
 
-mbb — копия MBB 2.18.0. dd-flow — curated project-local pack из canonical
-commit `af116584a66eab21a33a704a288a6ccb214c9885`; canonical-only mb-init,
-mb-upgrade и mb-distill не установлены.
+mbb — копия MBB 3.0.0. dd-flow — curated project-local pack из canonical
+commit `1e8c39078ed7a34adde93315a9cdcf2bbfc15374`; canonical-only mb-init,
+mb-upgrade и mb-distill не установлены. Предыдущие `mbb` и `dd-flow` сохранены
+в `.memory-bank/archive/mb-upgrade-2026-08-11/`.

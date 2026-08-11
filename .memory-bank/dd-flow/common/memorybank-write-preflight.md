@@ -32,6 +32,12 @@ dd-flow memory permissions preflight --root . --memory-bank .memory-bank --tasks
 
 Не используй `mb-lint` вместо этого preflight. `mb-lint` проверяет структуру и ссылки, а write preflight проверяет возможность безопасно читать/писать файлы прямо сейчас.
 
+Preflight не выполняет широкое рекурсивное сканирование Memory Bank как
+условие старта. Проверяй только известные stage/runtime targets и exact
+read/stat или create/write/rename/delete probes, которые нужны текущей
+операции. Полная проверка `mb-lint` выполняется после записи по changed-file
+delta или как отдельный финальный gate.
+
 ## Flow и mode
 
 `flow`:
@@ -98,7 +104,7 @@ JSON mode должен быть машинно-чистым: валидный JS
 - на POSIX собери `ls -ld`/`stat` для failing paths;
 - на Windows собери read-only attribute/ACL сведения через PowerShell, если доступно.
 
-Fallback не должен создавать persistent `.tasks`, если diagnosis ещё не доказал, что `.tasks` writable. Если durable trace невозможен из-за прав, дай final-response-only report и попроси пользователя исправить права.
+Fallback не должен создавать persistent `.tasks`, если diagnosis ещё не доказал, что `.tasks` writable. Если durable evidence невозможен из-за прав, дай final-response-only report и попроси пользователя исправить права.
 
 ## Отчёт в итоговых артефактах
 

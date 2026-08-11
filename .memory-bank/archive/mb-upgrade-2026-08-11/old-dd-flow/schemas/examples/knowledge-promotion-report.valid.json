@@ -1,0 +1,41 @@
+{
+  "schema_id": "dd-flow/knowledge-promotion-report@1",
+  "protocol_id": "PRT-034",
+  "run_id": "RUN-040-knowledge-intake-promotion",
+  "stage": "merge",
+  "source_candidates_path": "~/.dd-flow/projects/PRJ-004-demo/runs/RUN-040-knowledge-intake-promotion/01-specify/knowledge-extraction/candidates.json",
+  "candidate_results": [
+    {
+      "candidate_id": "KND-001",
+      "status": "promoted",
+      "summary": "Raw intake policy was written into protocol/specify prompts.",
+      "evidence": ["git diff", "schema validation"],
+      "target_files": [".memory-bank/dd-flow/protocol.md", ".memory-bank/dd-flow/common/specification.md"]
+    }
+  ],
+  "code_derived_knowledge": [
+    {
+      "id": "CDK-001",
+      "claim": "Merge reports need a knowledge promotion summary.",
+      "source": ".memory-bank/dd-flow/merge/stage-report-template.html",
+      "status": "already_documented"
+    }
+  ],
+  "durable_writes": [
+    {
+      "path": ".memory-bank/dd-flow/common/closure.md",
+      "kind": "amend_existing_section",
+      "summary": "Added candidate lifecycle resolution to closure rules.",
+      "candidate_ids": ["KND-001"]
+    }
+  ],
+  "deferred_defs": [],
+  "blocked_promotions": [],
+  "verification_summary": "All candidate knowledge was resolved before merge closure.",
+  "generated_by": {
+    "role": "knowledge-promotion",
+    "prompt": ".memory-bank/dd-flow/workers/knowledge-promotion.md",
+    "subagent_id": "example"
+  },
+  "created_at": "2026-06-18T14:45:00Z"
+}

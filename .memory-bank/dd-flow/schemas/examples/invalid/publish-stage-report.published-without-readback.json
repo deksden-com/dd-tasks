@@ -1,6 +1,6 @@
 {
   "schema_id": "dd-flow/publish-stage-report@1",
-  "run": { "run_id": "RUN-162-publish-cli", "run_index": "../run-index.json" },
+  "run": { "run_id": "RUN-162-publish-cli", "run_state": "../run.json" },
   "stage": { "name": "publish", "dir": "05-report", "status": "done" },
   "project": { "id": "PRJ-004-dd-memorybank", "title": "dd-memorybank" },
   "subject": { "id": "PRT-210-cli-publish", "title": "CLI package publish" },

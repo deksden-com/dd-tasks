@@ -1,0 +1,354 @@
+{
+  "id": "dd-flow-canonical-2026-06",
+  "version": 3,
+  "capabilities": [
+    "flow_flags.v1",
+    "flow_run_snapshot.v1",
+    "flow_run_index.v3",
+    "session_coverage_units.v1",
+    "privacy_safe_observability.v1"
+  ],
+  "stages": {
+    "registered": { "terminal": false },
+    "priming": { "terminal": false, "report_enabled": false },
+    "specify": { "terminal": false, "report_enabled": true },
+    "plan": { "terminal": false, "report_enabled": true },
+    "interactive": { "terminal": false, "report_enabled": false },
+    "consolidation": { "terminal": false, "report_enabled": false },
+    "hardening": { "terminal": false, "report_enabled": false },
+    "implementation": { "terminal": false, "report_enabled": true },
+    "readiness": { "terminal": false, "report_enabled": true },
+    "ready_for_merge": { "terminal": false },
+    "queued_for_merge": { "terminal": false },
+    "integration": { "terminal": false, "report_enabled": true },
+    "cancelled": { "terminal": true },
+    "closed": { "terminal": true },
+    "blocked": { "terminal": false },
+    "waiting_for_user": { "terminal": false }
+  },
+  "transitions": {
+    "registered": ["priming", "specify", "interactive", "blocked", "waiting_for_user"],
+    "priming": ["specify", "interactive", "closed", "blocked", "waiting_for_user"],
+    "specify": ["plan", "implementation", "blocked", "waiting_for_user"],
+    "plan": ["implementation", "blocked", "waiting_for_user"],
+    "interactive": ["consolidation", "blocked", "waiting_for_user"],
+    "consolidation": ["hardening", "blocked", "waiting_for_user"],
+    "hardening": ["readiness", "blocked", "waiting_for_user"],
+    "implementation": ["readiness", "blocked", "waiting_for_user"],
+    "readiness": ["ready_for_merge", "closed", "blocked", "waiting_for_user"],
+    "ready_for_merge": ["queued_for_merge", "integration", "closed", "blocked", "waiting_for_user"],
+    "queued_for_merge": ["integration", "blocked", "waiting_for_user"],
+    "integration": ["closed", "blocked", "waiting_for_user"],
+    "cancelled": [],
+    "closed": [],
+    "blocked": ["specify", "plan", "interactive", "consolidation", "hardening", "implementation", "readiness", "ready_for_merge", "closed"],
+    "waiting_for_user": ["specify", "plan", "interactive", "consolidation", "hardening", "implementation", "readiness", "ready_for_merge", "blocked", "closed"]
+  },
+  "entrypoints": {
+    "prime.md": {
+      "stage": "priming",
+      "creates_protocol": false,
+      "purpose": "session priming only"
+    },
+    "protocol.md": {
+      "stage": "specify",
+      "creates_protocol": true,
+      "mode": "normal"
+    },
+    "interactive.md": {
+      "stage": "interactive",
+      "creates_protocol": true,
+      "mode": "interactive"
+    },
+    "finish.md": {
+      "logical_stages": ["consolidation", "hardening", "readiness"],
+      "creates_protocol": false,
+      "mode": "interactive_finish"
+    }
+  },
+  "readiness": {
+    "command": "ready-for-merge",
+    "allowed_from": ["readiness", "ready_for_merge"],
+    "target_stage": "ready_for_merge"
+  },
+  "merge_queue": {
+    "complete": {
+      "target_stage": "closed",
+      "next_action": "none"
+    }
+  },
+  "defaults": {
+    "registered_next_action": "prime_or_protocol",
+    "ordinary_protocol_flow_kind": "mb_sdlc",
+    "normal_stage_layout": ["01-specify", "02-plan", "03-code", "04-merge"],
+    "legacy_coding_stage_layout": ["01-plan", "02-code", "03-merge"]
+  },
+  "auto_policy": {
+    "ready_for_code_auto": "exit_status_after_plan",
+    "ready_for_code_after_user_review": "exit_status_after_plan",
+    "home_config_path": "~/.dd-flow/projects/<PRJ-ID-slug>/config.json",
+    "snapshot_authority": "run_json",
+    "legacy_profile_projection": "loss_aware_read_only"
+  },
+  "legacy_aliases": {
+    "f": "priming",
+    "prime_intake": "specify",
+    "g0": "specify",
+    "m1": "readiness",
+    "m2": "integration",
+    "implementation": "implementation"
+  },
+  "route_aliases": {
+    "none": "no_plan",
+    "short": "compact_plan",
+    "full_plan": "full_plan"
+  },
+  "flow_flags": {
+    "source_precedence": ["flow_default", "preset", "task_profile", "protocol_override", "run_override"],
+    "definitions": {
+      "planning.mode": {
+        "type": "enum",
+        "values": ["no_plan", "compact_plan", "full_plan"],
+        "owner": "mb_sdlc",
+        "description": "Select proportional planning depth."
+      },
+      "plan.review.mode": {
+        "type": "enum",
+        "values": ["self", "grouped", "focused", "mixed"],
+        "owner": "mb_sdlc",
+        "description": "Select review independence and grouping depth."
+      },
+      "subagents.route": {
+        "type": "enum",
+        "values": ["self_check", "grouped_subagent", "focused_subagent", "mixed"],
+        "owner": "subagent_routing",
+        "description": "Select semantic coverage execution route."
+      },
+      "subagents.grouping": {
+        "type": "enum",
+        "values": ["off", "allowlisted"],
+        "owner": "subagent_routing",
+        "description": "Allow only flow-owned compatible read-only groups."
+      },
+      "subagents.pool_fallback": {
+        "type": "enum",
+        "values": ["one", "runtime"],
+        "owner": "subagent_routing",
+        "description": "Observe runtime capacity; legacy explicit one remains readable only as a cap and is never inferred from unknown or zero capacity."
+      },
+      "report.markdown": {
+        "type": "boolean",
+        "owner": "flow_reports",
+        "description": "Emit a human-readable Markdown stage report when permitted."
+      },
+      "report.html": {
+        "type": "boolean",
+        "owner": "flow_reports",
+        "description": "Emit the canonical template-backed HTML/DOM report when permitted."
+      },
+      "observability.detail": {
+        "type": "enum",
+        "values": ["compact", "normal", "full"],
+        "owner": "flow_runtime",
+        "description": "Select bounded lifecycle checkpoint density."
+      },
+      "knowledge.extract": {
+        "type": "enum",
+        "values": ["skip", "conditional", "required"],
+        "owner": "knowledge",
+        "description": "Select whether knowledge candidates are extracted."
+      },
+      "knowledge.promote": {
+        "type": "enum",
+        "values": ["skip", "conditional", "required"],
+        "owner": "knowledge",
+        "description": "Select whether accepted candidates are promoted."
+      },
+      "workspace.bootstrap.mode": {
+        "type": "enum",
+        "values": ["not_required", "revalidate", "required"],
+        "owner": "workspace_bootstrap",
+        "description": "Select bootstrap receipt production/revalidation."
+      },
+      "merge.ceremony": {
+        "type": "enum",
+        "values": ["compact", "normal", "full"],
+        "owner": "merge",
+        "description": "Select optional merge ceremony detail without disabling gates."
+      },
+      "merge.report_detail": {
+        "type": "enum",
+        "values": ["compact", "normal", "full"],
+        "owner": "merge",
+        "description": "Select merge report density."
+      },
+      "verification.depth": {
+        "type": "enum",
+        "values": ["minimal", "standard", "full"],
+        "owner": "verification",
+        "description": "Select proportional verification depth."
+      },
+      "evidence.level": {
+        "type": "enum",
+        "values": ["final_report", "protocol_record", "proof_bundle", "verification_passport", "rollout_evidence"],
+        "owner": "verification",
+        "description": "Select durable evidence depth."
+      }
+    },
+    "presets": {
+      "compact": {
+        "planning.mode": "no_plan",
+        "plan.review.mode": "self",
+        "subagents.route": "self_check",
+        "subagents.grouping": "off",
+        "subagents.pool_fallback": "runtime",
+        "report.markdown": true,
+        "report.html": false,
+        "observability.detail": "compact",
+        "knowledge.extract": "skip",
+        "knowledge.promote": "skip",
+        "workspace.bootstrap.mode": "not_required",
+        "merge.ceremony": "compact",
+        "merge.report_detail": "compact",
+        "verification.depth": "minimal",
+        "evidence.level": "final_report"
+      },
+      "normal": {
+        "planning.mode": "compact_plan",
+        "plan.review.mode": "grouped",
+        "subagents.route": "grouped_subagent",
+        "subagents.grouping": "allowlisted",
+        "subagents.pool_fallback": "runtime",
+        "report.markdown": true,
+        "report.html": false,
+        "observability.detail": "normal",
+        "knowledge.extract": "conditional",
+        "knowledge.promote": "conditional",
+        "workspace.bootstrap.mode": "revalidate",
+        "merge.ceremony": "normal",
+        "merge.report_detail": "normal",
+        "verification.depth": "standard",
+        "evidence.level": "proof_bundle"
+      },
+      "full": {
+        "planning.mode": "full_plan",
+        "plan.review.mode": "mixed",
+        "subagents.route": "mixed",
+        "subagents.grouping": "allowlisted",
+        "subagents.pool_fallback": "runtime",
+        "report.markdown": true,
+        "report.html": true,
+        "observability.detail": "full",
+        "knowledge.extract": "required",
+        "knowledge.promote": "required",
+        "workspace.bootstrap.mode": "required",
+        "merge.ceremony": "full",
+        "merge.report_detail": "full",
+        "verification.depth": "full",
+        "evidence.level": "verification_passport"
+      }
+    },
+    "flows": {
+      "mb_sdlc": {
+        "default_preset": "normal",
+        "supported": ["planning.mode", "plan.review.mode", "subagents.route", "subagents.grouping", "subagents.pool_fallback", "report.markdown", "report.html", "observability.detail", "knowledge.extract", "knowledge.promote", "workspace.bootstrap.mode", "merge.ceremony", "merge.report_detail", "verification.depth", "evidence.level"],
+        "defaults": { "preset": "normal" }
+      },
+      "coding": {
+        "default_preset": "normal",
+        "supported": ["planning.mode", "plan.review.mode", "subagents.route", "subagents.grouping", "subagents.pool_fallback", "report.markdown", "report.html", "observability.detail", "knowledge.extract", "knowledge.promote", "workspace.bootstrap.mode", "merge.ceremony", "merge.report_detail", "verification.depth", "evidence.level"],
+        "defaults": { "preset": "normal" }
+      },
+      "mb_sdlc_review": {
+        "default_preset": "full",
+        "supported": ["planning.mode", "plan.review.mode", "subagents.route", "subagents.grouping", "subagents.pool_fallback", "report.markdown", "report.html", "observability.detail", "knowledge.extract", "knowledge.promote", "workspace.bootstrap.mode", "verification.depth", "evidence.level"],
+        "defaults": { "preset": "full" }
+      },
+      "review": {
+        "default_preset": "normal",
+        "supported": ["plan.review.mode", "subagents.route", "subagents.grouping", "subagents.pool_fallback", "report.markdown", "report.html", "observability.detail", "knowledge.extract", "knowledge.promote", "workspace.bootstrap.mode", "verification.depth", "evidence.level"],
+        "defaults": { "preset": "normal" }
+      },
+      "mb-init": {
+        "default_preset": "full",
+        "supported": ["plan.review.mode", "subagents.route", "subagents.grouping", "subagents.pool_fallback", "report.markdown", "report.html", "observability.detail", "knowledge.extract", "knowledge.promote", "workspace.bootstrap.mode", "verification.depth", "evidence.level"],
+        "defaults": { "preset": "full" }
+      },
+      "mb-upgrade": {
+        "default_preset": "full",
+        "supported": ["plan.review.mode", "subagents.route", "subagents.grouping", "subagents.pool_fallback", "report.markdown", "report.html", "observability.detail", "knowledge.extract", "knowledge.promote", "workspace.bootstrap.mode", "verification.depth", "evidence.level"],
+        "defaults": { "preset": "full" }
+      },
+      "mb-audit": {
+        "default_preset": "normal",
+        "supported": ["plan.review.mode", "subagents.route", "subagents.grouping", "subagents.pool_fallback", "report.markdown", "report.html", "observability.detail", "knowledge.extract", "knowledge.promote", "workspace.bootstrap.mode", "verification.depth", "evidence.level"],
+        "defaults": { "preset": "normal" }
+      },
+      "mb-distill": {
+        "default_preset": "full",
+        "supported": ["plan.review.mode", "subagents.route", "subagents.grouping", "subagents.pool_fallback", "report.markdown", "report.html", "observability.detail", "knowledge.extract", "knowledge.promote", "workspace.bootstrap.mode", "verification.depth", "evidence.level"],
+        "defaults": { "preset": "full" }
+      },
+      "experiment": {
+        "default_preset": "normal",
+        "supported": ["planning.mode", "plan.review.mode", "subagents.route", "subagents.grouping", "subagents.pool_fallback", "report.markdown", "report.html", "observability.detail", "knowledge.extract", "knowledge.promote", "workspace.bootstrap.mode", "verification.depth", "evidence.level"],
+        "defaults": { "preset": "normal" }
+      },
+      "custom": {
+        "default_preset": "normal",
+        "supported": ["report.markdown", "report.html", "observability.detail", "workspace.bootstrap.mode", "verification.depth", "evidence.level"],
+        "defaults": { "preset": "normal" }
+      }
+    },
+    "mandatory_floors": [
+      {
+        "when": { "risk": ["high"], "contract_not": ["none"] },
+        "values": {
+          "planning.mode": "full_plan",
+          "plan.review.mode": "mixed",
+          "verification.depth": "full",
+          "evidence.level": "verification_passport"
+        },
+        "reason": "High-risk contract/runtime/data/security work requires full planning, independent review and durable evidence."
+      },
+      {
+        "when": { "risk": ["high"], "operations": ["ci", "deploy", "release", "rollback"] },
+        "values": {
+          "verification.depth": "full",
+          "evidence.level": "verification_passport"
+        },
+        "reason": "Operationally significant work requires full verification and durable evidence."
+      }
+    ],
+    "reduction_matrix": {
+      "compact": {
+        "skips": ["full_plan_analysis", "independent_review", "html_report", "knowledge_extraction", "knowledge_promotion", "bootstrap_revalidation", "optional_merge_ceremony"],
+        "keeps": ["mandatory_gate_checks", "git_fixation", "acceptance_check", "final_verification", "run_snapshot"],
+        "reduced_artifact_status": "reduced_artifact"
+      },
+      "normal": {
+        "skips": ["html_report"],
+        "keeps": ["compact_plan", "grouped_review", "conditional_knowledge", "bootstrap_receipt", "mandatory_gate_checks", "run_snapshot"],
+        "reduced_artifact_status": "not_applicable_or_conditional"
+      },
+      "full": {
+        "skips": [],
+        "keeps": ["full_plan", "independent_review", "html_report", "knowledge_extraction", "knowledge_promotion", "bootstrap_receipt", "full_merge_ceremony", "mandatory_gate_checks", "run_snapshot"],
+        "reduced_artifact_status": "complete"
+      }
+    },
+    "consumer_matrix": {
+      "planning.mode": ["mb_sdlc.specify", "mb_sdlc.plan"],
+      "plan.review.mode": ["mb_sdlc.plan", "review.plan"],
+      "subagents.route": ["mb_sdlc.plan", "mb_sdlc.implementation", "mb_sdlc.readiness"],
+      "report.markdown": ["report_enabled_stages"],
+      "report.html": ["report_enabled_stages"],
+      "knowledge.extract": ["mb_sdlc.specify", "mb_distill"],
+      "knowledge.promote": ["mb_sdlc.merge", "mb_distill"],
+      "workspace.bootstrap.mode": ["implementation", "merge"],
+      "merge.ceremony": ["merge_worker", "merge_job"],
+      "verification.depth": ["readiness", "merge"],
+      "evidence.level": ["plan", "readiness", "merge"]
+    }
+  }
+}

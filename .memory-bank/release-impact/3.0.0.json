@@ -1,0 +1,31 @@
+{
+  "schema_id": "dd-flow/release-impact@1",
+  "from_version": "2.18.0",
+  "to_version": "3.0.0",
+  "minimum_upgrade_mode": "full_migration",
+  "domains": [
+    "canonical_layer",
+    "root_structure",
+    "engineering",
+    "operations",
+    "plans",
+    "scenarios",
+    "protocol_evidence"
+  ],
+  "path_migration": true,
+  "runtime_migration": true,
+  "required_checks": [
+    "mb-lint",
+    "git diff --check",
+    "SPC-004 canonical runtime eval",
+    "SPC-005 canonical PLAN eval",
+    "flow-contract@5 and flow-run@2 schema validation",
+    "current report and protocol-plan schema validation",
+    "release-impact schema validation",
+    "compatibility schema and consistency validation",
+    "linked CLI 0.5.0 registry/tag/artifact-commit reconciliation",
+    "linked mb-lint 0.4.0 registry/tag reconciliation",
+    "clean integrated specify-to-plan eval"
+  ],
+  "notes": "This major release removes legacy RUN indexes, trace authoring, report selectors, semantic plan copies and old PLAN/report schemas. SQLite plus run.json/timeline.jsonl becomes the runtime authority, stage start/finish owns deterministic reports, and protocol plan.json becomes the sole semantic plan. There is no legacy reader or in-place active-RUN migration: finish or discard old-format active RUNs before upgrade. Compatible dd-flow-cli 0.5.0 and mb-lint 0.4.0 are required."
+}

@@ -1,0 +1,23 @@
+{
+  "schema_id": "dd-flow/archived-flow-manifest@1",
+  "archive_id": "mb-upgrade-2026-08-11-old-dd-flow",
+  "created_at": "2026-08-11T00:00:00Z",
+  "target_project_root": "/Users/deksden/Documents/_Projects/dd-tasks",
+  "source_flow_root": "/Users/deksden/Documents/_Projects/dd-tasks/.memory-bank/dd-flow",
+  "archive_root": "/Users/deksden/Documents/_Projects/dd-tasks/.memory-bank/archive/mb-upgrade-2026-08-11/old-dd-flow",
+  "items": [
+    {
+      "original_path": ".memory-bank/dd-flow",
+      "archive_path": ".memory-bank/archive/mb-upgrade-2026-08-11/old-dd-flow",
+      "classification": "old_full_canonical_copy",
+      "reason": "The pre-3.0.0 curated project flow pack is retained as a historical upgrade source while the active pack is replaced by the 3.0.0 canonical pack.",
+      "manual_review_required": false,
+      "replacement": {
+        "kind": "project_flow_pack_file",
+        "hint": "Use the active .memory-bank/dd-flow pack and its manifest.json; canonical-only mb-upgrade runs from DD_MEMORYBANK."
+      },
+      "source_commit": "af116584a66eab21a33a704a288a6ccb214c9885"
+    }
+  ],
+  "notes": "Aggregate entry covers every file in the archived pre-3.0.0 project flow pack; archive contents are immutable historical sources and are excluded from active lint/path migration."
+}

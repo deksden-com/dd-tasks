@@ -147,4 +147,10 @@ Write release evidence under the current `RUN-*`:
 - DEF/BLOCK items;
 - next delivery action: none, deploy, publish, ask user or handoff.
 
-When `dd-flow/release-stage-report@1` is available, write and validate `stage-report.json`, generate `stage-report.html` from `.memory-bank/dd-flow/stage-reports/release-stage-report-template.html`, and keep `report.md` as the concise human narrative. A completed release report must include release set, version decision evidence, artifacts, release readback and authorized or policy-backed not-required `operational_access` evidence.
+Write the release semantics to `@stage/stage-input.json`. `dd-flow stage finish`
+validates that input and generates the generic `stage-report.json`,
+`stage-report.md`, `stage-report.html` and protocol summary. Release-specific
+fields remain semantic data; the CLI owns paths, timestamps, Git facts and
+rendering. A completed release input must include release set, version decision
+evidence, artifacts, release readback and authorized or policy-backed
+not-required `operational_access` evidence.

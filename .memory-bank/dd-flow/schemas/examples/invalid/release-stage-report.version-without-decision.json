@@ -1,6 +1,6 @@
 {
   "schema_id": "dd-flow/release-stage-report@1",
-  "run": { "run_id": "RUN-160-release-canon-2110", "run_index": "../run-index.json" },
+  "run": { "run_id": "RUN-160-release-canon-2110", "run_state": "../run.json" },
   "stage": { "name": "release", "dir": "04-report", "status": "done" },
   "project": { "id": "PRJ-004-dd-memorybank", "title": "dd-memorybank" },
   "subject": { "id": "PSET-005", "title": "Release deploy publish flow model" },

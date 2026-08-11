@@ -101,4 +101,11 @@ Write publish evidence:
 
 Do not call the result published until target readback and required consumer checks pass.
 
-When `dd-flow/publish-stage-report@1` is available, write and validate `stage-report.json`, generate `stage-report.html` from `.memory-bank/dd-flow/stage-reports/publish-stage-report-template.html`, and keep `report.md` as the concise human narrative. A completed publish report must include release/version evidence, publish target, artifact, authorized `operational_access`, publish execution, target readback and required consumer smoke.
+Write the publish semantics to `@stage/stage-input.json`.
+`dd-flow stage finish` validates that input and generates the generic
+`stage-report.json`, `stage-report.md`, `stage-report.html` and protocol
+summary. Publish-specific fields remain semantic data; the CLI owns paths,
+timestamps, Git facts and rendering. A completed publish input must include
+release/version evidence, publish target, artifact, authorized
+`operational_access`, publish execution, target readback and required consumer
+smoke.

@@ -124,7 +124,7 @@ RUN-002-hr-agent-mb-upgrade
 RUN-003-playground-merge-queue-live
 ```
 
-The semantic subject is stored separately in `run-index.json`:
+The semantic subject is stored separately in the sole current `run.json` state:
 
 ```json
 {

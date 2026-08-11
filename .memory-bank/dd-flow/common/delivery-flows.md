@@ -106,11 +106,17 @@ Delivery flows are stage-report-enabled when the current Memory Bank contains th
 | `deploy.md` | `dd-flow/deploy-stage-report@1` | `.memory-bank/dd-flow/stage-reports/deploy-stage-report-template.html` |
 | `publish.md` | `dd-flow/publish-stage-report@1` | `.memory-bank/dd-flow/stage-reports/publish-stage-report-template.html` |
 
-Write `stage-report.json`, `stage-report.html` and `report.md` under the current `RUN-*` stage report folder. Validate JSON with `dd-flow schema validate` before claiming completion, and generate HTML by replacing the template's embedded JSON script with the validated payload.
+Write only semantic completion data to `@stage/stage-input.json`. The generic
+`dd-flow stage finish` command validates it and generates `stage-report.json`,
+`stage-report.md`, `stage-report.html` and protocol summary under the resolved
+stage root. The CLI owns the template, escaping, artifact paths and mechanical
+facts; the agent does not replace embedded JSON or hand-author report files.
 
 Every report includes `operational_access` using `dd-flow/operational-access-preflight@1`. A completed protected operation requires `outcome: authorized`; a genuinely local or unauthenticated operation uses policy-backed `outcome: not_required`. Other outcomes cannot produce `completed`.
 
-If a project uses an older Memory Bank without these contracts, write a clear `report.md`, record `stage_report_contract_unavailable`, and do not claim schema-backed report completion.
+If a project uses an older Memory Bank without these contracts, record
+`stage_report_contract_unavailable` in semantic completion data and do not
+claim schema-backed report completion.
 
 `dd-flow` records run state/evidence and validates reports. It is not a universal executor for external deploy providers, registries, stores or hosting platforms.
 

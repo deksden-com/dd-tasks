@@ -116,7 +116,7 @@ Read-only flows (`mb-audit`, `mb-lint`, review, scouts) still report Git state w
 6. Перейди в новый worktree и проверь `git status`, текущую ветку и base commit.
 7. Выполни или проверь bootstrap рабочей области по `workspace-bootstrap.md` и сохрани receipt текущего stage.
 8. Зарегистрируй runtime-протокол с `--workspace-path <feature-worktree>` и создай файловый `protocol/PRT-*` уже в feature-worktree, записав туда Git/workspace state.
-9. Если текущая Codex session остаётся в stable root, ограничь запись в feature-worktree минимальным handoff-пакетом: `.memory-bank/protocol/<PRT-ID>/summary.md`, optional `.memory-bank/protocol/<PRT-ID>/trace/` и compact index update. Не меняй продуктовые файлы, не создавай plan graph и не начинай implementation из stable-root session.
+9. Если текущая Codex session остаётся в stable root, ограничь запись в feature-worktree минимальным handoff-пакетом: `.memory-bank/protocol/<PRT-ID>/summary.md` и compact index update. Не меняй продуктовые файлы, не создавай plan graph и не начинай implementation из stable-root session.
 10. Перед остановкой stable-root session проверь, что `summary.md` существует и не пустой. Runtime state в `~/.dd-flow` сам по себе не является достаточным handoff.
 
 Если проектная политика требует другой порядок, следуй ей и объясни отклонение в протоколе.
@@ -209,11 +209,18 @@ Release dd-memorybank 2.11.1 [RUN-160/release]
 Upgrade project Memory Bank to 2.11.1 [RUN-161/mb-upgrade]
 ```
 
-Trace tag не заменяет protocol frontmatter, run index, stage report, changelog или release notes. Это компактный указатель в Git log для человека и агента.
+Trace tag не заменяет protocol frontmatter, RUN state, stage report, changelog или release notes. Это компактный указатель в Git log для человека и агента.
 
 Пуш (push) делай, когда это нужно для удалённой фиксации, проверки, запроса на слияние (pull request), предварительного окружения (preview), бета-стенда (beta) или другой проектной операции. Не запускай дорогие сборки без причины.
 
 ## Владение рабочими деревьями и ветками
+
+Создание feature/merge workspace выполняет только официальный pinned Worktrunk
+через JSON-команду `wt switch --create <branch> --base <base> --format json`.
+Git-операции этого документа применяются к уже разрешённому workspace и не
+заменяют Worktrunk. Не используй raw `git worktree`, случайный executable из
+`PATH`, package-manager install или unverified latest fallback для обхода
+workspace gate. Project hooks и allowlist конфигурации принадлежат проекту.
 
 Процесс может удалять только те ветки и рабочие деревья, которыми он владеет:
 

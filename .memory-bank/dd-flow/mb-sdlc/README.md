@@ -58,7 +58,7 @@ The canonical `mb-sdlc` stage layout inside `<run-home>` is:
   04-merge/
 ```
 
-Legacy runs may still expose the same stage folders under `.tasks/dd-flow-runs/<RUN-ID>/`; use their stored `run-index.json` paths rather than creating new happy-path artifacts there.
+Legacy runs may still expose the same stage folders under `.tasks/dd-flow-runs/<RUN-ID>/`; use their stored `run.json` paths rather than creating new happy-path artifacts there.
 
 When a stage is rerun, the current stage folder stays canonical. Previous contents move to `try-###` inside that same stage folder.
 

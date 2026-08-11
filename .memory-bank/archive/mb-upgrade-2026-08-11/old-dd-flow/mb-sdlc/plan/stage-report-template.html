@@ -1,0 +1,1115 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Фаза Plan</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #eef0ea;
+      --paper: #fbfaf4;
+      --paper-2: #f1f4ee;
+      --ink: #171b17;
+      --muted: #626a63;
+      --line: #c7d0c4;
+      --line-strong: #9fab9d;
+      --green: #176b5c;
+      --green-soft: #dcebe4;
+      --blue: #2d5d83;
+      --blue-soft: #dbe8ee;
+      --amber: #b56a24;
+      --amber-soft: #f4e3c7;
+      --red: #ad3f35;
+      --shadow: 0 18px 42px rgba(32, 42, 31, .10);
+    }
+
+    [data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #11161a;
+      --paper: #192026;
+      --paper-2: #202932;
+      --ink: #f2eadc;
+      --muted: #b5bbb8;
+      --line: #33404a;
+      --line-strong: #536471;
+      --green: #79c8ae;
+      --green-soft: #17372f;
+      --blue: #8ebbd3;
+      --blue-soft: #1d3342;
+      --amber: #dfae62;
+      --amber-soft: #3d2c16;
+      --red: #e18078;
+      --shadow: 0 18px 42px rgba(0, 0, 0, .28);
+    }
+
+    [data-theme="light"] { color-scheme: light; }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 14px;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Avenir Next", "Gill Sans", Verdana, sans-serif;
+      letter-spacing: 0;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(90deg, color-mix(in srgb, var(--green) 5%, transparent) 0 1px, transparent 1px 38px),
+        repeating-linear-gradient(0deg, color-mix(in srgb, var(--green) 4%, transparent) 0 1px, transparent 1px 38px),
+        linear-gradient(135deg, color-mix(in srgb, var(--paper) 32%, transparent), transparent 58%);
+      filter: blur(1px);
+      opacity: .54;
+    }
+
+    button,
+    summary { font: inherit; }
+
+    .page {
+      width: min(1480px, 100%);
+      margin: 0 auto;
+      padding: 0 0 20px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .breadcrumb {
+      color: var(--muted);
+      font-size: 13px;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .themeSwitch {
+      display: inline-grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      padding: 5px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--paper) 72%, transparent);
+    }
+
+    .themeSwitch button {
+      border: 0;
+      border-radius: 6px;
+      padding: 7px 10px;
+      min-width: 64px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .themeSwitch button[aria-pressed="true"] {
+      background: var(--ink);
+      color: var(--paper);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .card {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--paper) 94%, transparent);
+      box-shadow: var(--shadow);
+    }
+
+    .headline {
+      padding: 14px;
+      min-height: 126px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .projectName {
+      color: var(--green);
+      font-size: 13px;
+      letter-spacing: 0;
+      font-weight: 900;
+    }
+
+    h1 {
+      margin: 2px 0 7px;
+      font-family: "Iowan Old Style", Georgia, serif;
+      font-size: clamp(28px, 2.6vw, 36px);
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 860px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.42;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 31px;
+      padding: 6px 9px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: color-mix(in srgb, var(--paper-2) 80%, transparent);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .pill b { color: var(--ink); }
+
+    .verdict {
+      display: grid;
+      gap: 10px;
+      overflow: hidden;
+      padding: 16px;
+      background: linear-gradient(180deg, var(--ink), color-mix(in srgb, var(--ink) 92%, var(--green)));
+      color: var(--paper);
+      border-color: color-mix(in srgb, var(--ink) 80%, var(--line));
+    }
+
+    .verdict > * { min-width: 0; }
+
+    .verdictLabel {
+      color: color-mix(in srgb, var(--paper) 70%, transparent);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-weight: 900;
+    }
+
+    .verdictText {
+      font-size: 24px;
+      line-height: 1.06;
+      font-weight: 950;
+      overflow-wrap: anywhere;
+    }
+
+    .scoreLine {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) max-content;
+      gap: 10px;
+      align-items: center;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .bar {
+      width: 100%;
+      min-width: 0;
+      height: 11px;
+      overflow: hidden;
+      border: 1px solid color-mix(in srgb, var(--paper) 22%, transparent);
+      border-radius: 5px;
+      background: color-mix(in srgb, var(--paper) 12%, transparent);
+    }
+
+    .bar span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--green), var(--amber));
+    }
+
+    .scoreLine strong {
+      justify-self: end;
+      white-space: nowrap;
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .verdictNote {
+      color: color-mix(in srgb, var(--paper) 78%, transparent);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .coverageGrid,
+    .planGrid {
+      display: grid;
+      gap: 12px;
+      align-items: start;
+      margin-bottom: 12px;
+    }
+
+    .coverageGrid { grid-template-columns: 340px minmax(0, 1fr); }
+    .planGrid { grid-template-columns: 480px minmax(0, 1fr); }
+
+    .panel { padding: 14px; }
+
+    .sectionHeader {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: 0;
+    }
+
+    .sectionLead {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.42;
+    }
+
+    .hint,
+    .inlineInfo,
+    .noteButton {
+      display: inline-grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: color-mix(in srgb, var(--paper-2) 72%, transparent);
+      color: var(--muted);
+      cursor: help;
+      font-weight: 850;
+      flex: 0 0 auto;
+    }
+
+    .hint { width: 25px; height: 25px; }
+    .inlineInfo { width: 16px; height: 16px; font-size: 10px; }
+    .noteButton { width: 23px; height: 23px; font-size: 12px; }
+
+    .radarBox,
+    .graphBox {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--paper-2) 70%, transparent);
+    }
+
+    .radarBox {
+      display: grid;
+      justify-items: center;
+      padding: 10px;
+    }
+
+    canvas {
+      width: 360px;
+      height: 320px;
+      max-width: 100%;
+      border-radius: 8px;
+      background: var(--paper-2);
+    }
+
+    .graphBox {
+      min-height: 840px;
+      overflow: hidden;
+    }
+
+    .graphSvg {
+      display: block;
+      width: 100%;
+      height: 880px;
+    }
+
+    .node rect {
+      fill: var(--paper);
+      stroke: var(--line-strong);
+      stroke-width: 1.2;
+      rx: 8;
+    }
+
+    .node.done rect { fill: var(--green-soft); stroke: var(--green); }
+    .node.ready rect { fill: var(--blue-soft); stroke: var(--blue); }
+    .node.watch rect { fill: var(--amber-soft); stroke: var(--amber); }
+    .node.next rect { fill: var(--ink); stroke: var(--ink); }
+    .node.next text { fill: var(--paper); }
+
+    .node text {
+      fill: var(--ink);
+      font-size: 11.5px;
+      font-weight: 850;
+      text-anchor: middle;
+      dominant-baseline: middle;
+    }
+
+    .edge {
+      fill: none;
+      stroke: var(--line-strong);
+      stroke-width: 1.5;
+      marker-end: url(#arrow);
+    }
+
+    .rowList {
+      display: grid;
+      gap: 8px;
+    }
+
+    details.row {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--paper-2) 76%, transparent);
+      overflow: visible;
+    }
+
+    details.row[open] {
+      background: color-mix(in srgb, var(--paper) 88%, transparent);
+    }
+
+    details.row summary {
+      display: grid;
+      align-items: center;
+      gap: 10px;
+      min-height: 54px;
+      padding: 10px;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    details.row summary::-webkit-details-marker { display: none; }
+
+    .aspectRow summary {
+      grid-template-columns: minmax(170px, 1.1fr) 92px 50px minmax(0, 2fr) 20px;
+    }
+
+    .planRow summary {
+      grid-template-columns: minmax(220px, 1.5fr) 88px 84px minmax(0, 1.35fr) 20px;
+    }
+
+    .rowTitle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+      font-weight: 650;
+      font-size: 15px;
+      line-height: 1.18;
+    }
+
+    .rowTitle span:first-child {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .rowText {
+      min-width: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: max-content;
+      min-width: 74px;
+      min-height: 24px;
+      padding: 3px 7px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--paper-2);
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .status.ready,
+    .status.reviewed,
+    .status.done { background: var(--green-soft); border-color: var(--green); }
+
+    .status.watch { background: var(--amber-soft); border-color: var(--amber); }
+    .status.next { background: var(--blue-soft); border-color: var(--blue); }
+
+    .chev {
+      color: var(--muted);
+      font-size: 22px;
+      transform: rotate(90deg);
+      transition: transform .15s ease;
+    }
+
+    details[open] .chev { transform: rotate(270deg); }
+
+    .rowBody {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 10px;
+      padding: 0 10px 10px;
+    }
+
+    .mini {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--paper) 86%, transparent);
+      padding: 10px;
+    }
+
+    .mini h3 {
+      margin: 0 0 6px;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: var(--muted);
+    }
+
+    .mini p,
+    .mini li {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.42;
+      font-size: 13px;
+    }
+
+    .mini ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .routeGrid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .routeItem {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--paper-2) 76%, transparent);
+      padding: 10px;
+      cursor: help;
+    }
+
+    .routeItem strong {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      margin-bottom: 4px;
+    }
+
+    .routeItem span {
+      display: block;
+      overflow-wrap: anywhere;
+      font-weight: 850;
+    }
+
+    #tooltip {
+      position: fixed;
+      z-index: 2147483647;
+      max-width: min(340px, calc(100vw - 24px));
+      padding: 10px 11px;
+      border-radius: 8px;
+      background: var(--ink);
+      color: var(--paper);
+      box-shadow: var(--shadow);
+      font-size: 12px;
+      line-height: 1.35;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity .12s ease;
+    }
+
+    #tooltip.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --bg: #11161a;
+        --paper: #192026;
+        --paper-2: #202932;
+        --ink: #f2eadc;
+        --muted: #b5bbb8;
+        --line: #33404a;
+        --line-strong: #536471;
+        --green: #79c8ae;
+        --green-soft: #17372f;
+        --blue: #8ebbd3;
+        --blue-soft: #1d3342;
+        --amber: #dfae62;
+        --amber-soft: #3d2c16;
+        --red: #e18078;
+        --shadow: 0 18px 42px rgba(0, 0, 0, .28);
+      }
+    }
+
+    @media (max-width: 1180px) {
+      .hero,
+      .coverageGrid,
+      .planGrid,
+      .routeGrid {
+        grid-template-columns: 1fr;
+      }
+
+      .graphBox { min-height: 760px; }
+      .graphSvg { height: 800px; }
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 8px; }
+      .page { width: 100%; padding-top: 0; }
+      .topbar { align-items: stretch; flex-direction: column; }
+      .themeSwitch { width: 100%; }
+      .themeSwitch button { min-width: 0; }
+      .headline { min-height: 0; }
+      .aspectRow summary,
+      .planRow summary {
+        grid-template-columns: minmax(0, 1fr) 24px;
+      }
+      .aspectRow summary > :not(.rowTitle):not(.chev),
+      .planRow summary > :not(.rowTitle):not(.chev) {
+        grid-column: 1 / -1;
+      }
+      .chev {
+        grid-column: 2;
+        grid-row: 1;
+      }
+      .rowBody { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <script id="plan-data" type="application/json">
+{
+  "schema_id": "dd-flow/plan-stage-report@4",
+  "generated_at": "2026-06-04T17:10:00Z",
+  "protocol": {
+    "id": "PRT-2026-06-04-plan-dashboard-sample",
+    "title": "Фаза Plan",
+    "project": "dd-memorybank",
+    "branch": "main",
+    "stage": "plan"
+  },
+  "overall": {
+    "verdict": "ready_for_code",
+    "verdict_label": "Готово к code",
+    "score": 8.4,
+    "score_max": 10,
+    "next_action": "Запустить code flow: реализовать data contract, template generator и render smoke gate.",
+    "summary": "План достаточно проработан для реализации. Основные риски видны, aspect coverage полный, два решения требуют контроля на readiness."
+  },
+  "route": [
+    {
+      "label": "standard",
+      "value": "standard",
+      "note": "Нормальный путь: есть несколько аспектов, есть проверочные ворота, но без полного исследовательского цикла."
+    },
+    {
+      "label": "worktree",
+      "value": "feature_worktree",
+      "note": "Реализация пойдет в отдельном рабочем дереве/feature branch, чтобы не загрязнять интеграционную ветку."
+    },
+    {
+      "label": "merge",
+      "value": "merge_queue",
+      "note": "После readiness code flow должен поставить задачу в merge queue; слияние выполняет merge worker."
+    },
+    {
+      "label": "ci",
+      "value": "none",
+      "note": "Удаленный CI не требуется для примера; локальные проверки и browser smoke остаются обязательными."
+    }
+  ],
+  "flow_flags": {
+    "flow_kind": "plan",
+    "snapshot_revision": 1,
+    "resolution_status": "valid",
+    "values": {},
+    "snapshot_checksum": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "task_assessment": {
+    "scope_breadth": {
+      "level": "system_wide",
+      "surfaces": ["plan", "report", "template"],
+      "reason": "The sample covers the plan contract and its rendered report."
+    },
+    "solution_novelty": {
+      "level": "extend_existing",
+      "surfaces": ["schema", "dashboard"],
+      "reason": "The current plan report extends the existing dashboard contract."
+    },
+    "solution_uncertainty": {
+      "level": "bounded",
+      "surfaces": ["rendering", "validation"],
+      "reason": "Schema and render checks bound the remaining uncertainty."
+    },
+    "failure_impact": {
+      "level": "medium",
+      "surfaces": ["code_handoff", "reporting"],
+      "reason": "A stale report can misroute the code handoff."
+    },
+    "plan_floor": {
+      "level": "full_plan",
+      "surfaces": ["implementation", "verification"],
+      "reason": "The sample spans implementation, reporting and verification."
+    }
+  },
+  "legacy_projection": {
+    "size": "large",
+    "risk": "medium",
+    "planning_route_hint": "full_plan",
+    "verification_mode": "automated",
+    "sources": {
+      "size": "task_assessment.scope_breadth",
+      "risk": "task_assessment.failure_impact",
+      "planning_route_hint": "task_assessment.plan_floor",
+      "verification_mode": "independent_policy"
+    }
+  },
+  "execution_summary": {
+    "wall_clock_ms": 1200
+  },
+  "graph": {
+    "nodes": [
+      { "id": "request", "label": "Запрос", "x": 205, "y": 24, "status": "done", "note": "Пользовательская идея превращена в проверяемую цель plan-фазы." },
+      { "id": "context", "label": "Контекст", "x": 205, "y": 96, "status": "done", "note": "Собраны канон, предыдущие dashboard lessons, DEF и ограничения текущего flow." },
+      { "id": "policy", "label": "Политика", "x": 30, "y": 176, "status": "done", "note": "Учтены git/language/dashboard правила проекта и канона." },
+      { "id": "defs", "label": "DEF", "x": 205, "y": 176, "status": "done", "note": "Проверены активные нерешенные задачи, которые могут влиять на план." },
+      { "id": "gaps", "label": "Gaps", "x": 380, "y": 176, "status": "done", "note": "Недосказанности и противоречия превращены в явные assumptions/decisions." },
+      { "id": "aspect_gate", "label": "Aspect gate", "x": 205, "y": 260, "status": "done", "note": "Решено, какие аспекты требуют глубокой проверки и нужны ли субагенты." },
+      { "id": "ux", "label": "UX", "x": 16, "y": 352, "status": "done", "note": "Проверяется понятность пользовательского dashboard и отсутствие визуального шума." },
+      { "id": "runtime", "label": "Runtime", "x": 144, "y": 352, "status": "watch", "note": "Проверяется, как CLI должен обновлять dashboard и artifacts." },
+      { "id": "verification", "label": "Проверки", "x": 272, "y": 352, "status": "watch", "note": "Формируется render smoke, schema check и DOM overflow gate." },
+      { "id": "delivery", "label": "Доставка", "x": 400, "y": 352, "status": "done", "note": "Проверяется, как code flow получит handoff и как дальше пойдет merge." },
+      { "id": "synthesis", "label": "Синтез", "x": 205, "y": 464, "status": "done", "note": "Aspect findings, route и gates сведены в один реалистичный план." },
+      { "id": "tasks", "label": "Task graph", "x": 82, "y": 556, "status": "ready", "note": "План разбит на work items с зависимостями и проверками." },
+      { "id": "dashboard", "label": "Dashboard", "x": 328, "y": 556, "status": "ready", "note": "Экран должен показать только полезную для plan-фазы информацию." },
+      { "id": "qa", "label": "QA gates", "x": 205, "y": 660, "status": "watch", "note": "Перед code handoff проверяются видимый текст, раскрытия, подсказки и overflow." },
+      { "id": "handoff", "label": "Code handoff", "x": 205, "y": 760, "status": "next", "note": "Следующая стадия: code flow." }
+    ],
+    "edges": [
+      ["request", "context"],
+      ["context", "policy"],
+      ["context", "defs"],
+      ["context", "gaps"],
+      ["policy", "aspect_gate"],
+      ["defs", "aspect_gate"],
+      ["gaps", "aspect_gate"],
+      ["aspect_gate", "ux"],
+      ["aspect_gate", "runtime"],
+      ["aspect_gate", "verification"],
+      ["aspect_gate", "delivery"],
+      ["ux", "synthesis"],
+      ["runtime", "synthesis"],
+      ["verification", "synthesis"],
+      ["delivery", "synthesis"],
+      ["synthesis", "tasks"],
+      ["synthesis", "dashboard"],
+      ["tasks", "qa"],
+      ["dashboard", "qa"],
+      ["qa", "handoff"]
+    ]
+  },
+  "aspects": [
+    { "id": "scope", "label": "Границы", "radar_label": "Границы", "score": 5, "status": "reviewed", "summary": "Цель и границы ясны.", "note": "Dashboard показывает readiness plan stage, не заменяет full protocol report.", "findings": ["Не смешивать plan stage report с code/readiness report.", "Показывать skipped/degraded aspects явно."] },
+    { "id": "architecture", "label": "Архитектура", "radar_label": "Архит.", "score": 4, "status": "reviewed", "summary": "Контракт данных выбран.", "note": "Нужно определить schema и generator ownership в code flow.", "findings": ["Данные dashboard и HTML должны проверяться на согласованность.", "Граф в UI должен строиться из структурных узлов, а не показывать исходник пользователю."] },
+    { "id": "ux", "label": "UX", "radar_label": "UX", "score": 4, "status": "reviewed", "summary": "UI согласован с mb-upgrade-review.", "note": "Следить за overflow, first-screen density и hover/focus подсказками.", "findings": ["Details rows лучше таблиц с длинными hover-only notes.", "Route не должен занимать hero: это контекстный блок снизу."] },
+    { "id": "subagents", "label": "Маршрутизация", "radar_label": "Route", "score": 4, "status": "reviewed", "summary": "Аспекты по умолчанию закрываются локально.", "note": "Dashboard показывает promotion trigger только для фактически delegated aspects.", "findings": ["Local route не требует downgrade marker.", "Required delegated aspect требует accepted report или явный blocker."] },
+    { "id": "verification", "label": "Проверки", "radar_label": "Проверки", "score": 4, "status": "reviewed", "summary": "Нужны schema + render smoke.", "note": "Schema validation ловит contract, browser smoke ловит пустой dashboard.", "findings": ["Проверять visible text, overflow и отсутствие sample data.", "Скриншот полезен как evidence, но не заменяет DOM checks."] },
+    { "id": "runtime", "label": "Runtime", "radar_label": "Runtime", "score": 3, "status": "watch", "summary": "CLI/dashboard refresh требует решения.", "note": "Нужно решить, когда plan stage report обновляется автоматически.", "findings": ["Dashboard refresh может быть частью dd-flow CLI mutation hooks.", "Нужно избежать лишнего шума в cmux markdown/dashboard files."] },
+    { "id": "delivery", "label": "Доставка", "radar_label": "Доставка", "score": 4, "status": "reviewed", "summary": "Handoff в code понятен.", "note": "Code flow должен получить next action, graph, gates и blockers.", "findings": ["Code prompt должен ссылаться на dashboard/data paths.", "Merge остается отдельной стадией после readiness."] },
+    { "id": "defs", "label": "DEF", "radar_label": "DEF", "score": 5, "status": "reviewed", "summary": "DEF preflight обязателен.", "note": "Active DEF должны быть показаны как input context, blockers или tracked deferrals.", "findings": ["Relevant DEF входят в planning intake.", "Новые major findings должны становиться discoverable DEF."] }
+  ],
+  "plan_items": [
+    { "id": "P1", "title": "Закрепить контракт plan stage report", "owner": "orchestrator", "status": "ready", "depends_on": [], "verification": "schema fixture passes", "note": "Контракт должен покрывать graph, aspects, route, plan items and handoff.", "details": ["Схема фиксирует обязательные поля для verdict, aspect rows, route chips and plan dependencies.", "Fixture должен включать сложный branching graph, а не только linear happy path."] },
+    { "id": "P2", "title": "Собрать граф планирования", "owner": "code worker", "status": "ready", "depends_on": ["P1"], "verification": "graph nodes match data", "note": "Граф показывает порядок решений, развилки и точки синтеза.", "details": ["Graph должен поддерживать branches: UX/runtime/verification/delivery могут идти параллельно.", "В dashboard показываем только отрисованный граф и подсказки по узлам."] },
+    { "id": "P3", "title": "Собрать блок аспектов", "owner": "frontend worker", "status": "ready", "depends_on": ["P1"], "verification": "aspect rows expand and radar renders", "note": "Aspect row раскрывается как в mb-upgrade-review; i стоит рядом с названием аспекта.", "details": ["Score показывается только в aspect row.", "Radar показывает форму покрытия, но не дублирует числовую легенду."] },
+    { "id": "P4", "title": "Собрать блок плана", "owner": "frontend worker", "status": "ready", "depends_on": ["P1", "P2"], "verification": "plan rows expand and dependency labels fit", "note": "Каждый пункт плана раскрывает детали, assumptions and verification gate.", "details": ["Plan table не должна выносить страницу горизонтально.", "Long dependency lists wrap inside the row."] },
+    { "id": "P5", "title": "Подключить browser smoke", "owner": "verifier", "status": "watch", "depends_on": ["P2", "P3", "P4"], "verification": "visible text and no overflow", "note": "Проверять verdict, project, aspect block, graph, plan block, route block and details.", "details": ["cmux-browser или agent-browser делает text/body check.", "DOM metrics проверяют body/page/card overflow."] },
+    { "id": "P6", "title": "Описать code handoff", "owner": "orchestrator", "status": "ready", "depends_on": ["P1", "P5"], "verification": "handoff summary references dashboard", "note": "Code flow получает dashboard path, data path, blockers and verification plan.", "details": ["Next action в dashboard должен совпадать с final plan report.", "Если plan не ready, code handoff не формируется."] },
+    { "id": "P7", "title": "Зафиксировать UX-правила", "owner": "reviewer", "status": "ready", "depends_on": ["P3", "P4"], "verification": "no noisy sections visible", "note": "Экран показывает только полезные для plan-фазы данные.", "details": ["Route уходит вниз.", "Source artifacts и технические поля не выводятся в пользовательский экран."] }
+  ],
+  "handoff": {
+    "code_prompt": ".memory-bank/dd-flow/code.md",
+    "must_read": ["plan-stage-report.json", "phase-summary.md"],
+    "next_gate": "code readiness"
+  }
+}
+  </script>
+
+  <div id="tooltip" role="tooltip"></div>
+  <main class="page">
+    <div class="topbar">
+      <div class="breadcrumb" id="breadcrumb"></div>
+      <div class="themeSwitch" role="group" aria-label="Theme mode">
+        <button type="button" data-theme-button="system" aria-pressed="true">Система</button>
+        <button type="button" data-theme-button="light" aria-pressed="false">Свет</button>
+        <button type="button" data-theme-button="dark" aria-pressed="false">Тьма</button>
+      </div>
+    </div>
+
+    <section class="hero">
+      <section class="card headline">
+        <div>
+          <div class="projectName" id="projectName"></div>
+          <h1 id="title"></h1>
+          <p class="lead" id="lead"></p>
+        </div>
+        <div class="meta" id="meta"></div>
+      </section>
+
+      <aside class="card verdict">
+        <div class="verdictLabel">plan verdict</div>
+        <div class="verdictText" id="verdictText"></div>
+        <div class="scoreLine">
+          <div class="bar"><span id="scoreBar"></span></div>
+          <strong id="scoreLabel"></strong>
+        </div>
+        <div class="verdictNote" id="nextAction"></div>
+      </aside>
+    </section>
+
+    <section class="coverageGrid">
+      <section class="card panel">
+        <div class="sectionHeader">
+          <h2>Покрытие аспектов</h2>
+          <button class="hint" type="button" data-tip="Радар показывает форму покрытия аспектов. Точные score/status находятся в строках справа.">?</button>
+        </div>
+        <p class="sectionLead">Где план крепкий, а где code flow должен быть внимательнее.</p>
+        <div class="radarBox">
+          <canvas id="radar" width="360" height="320"></canvas>
+        </div>
+      </section>
+
+      <section class="card panel">
+        <div class="sectionHeader">
+          <h2>Аспекты</h2>
+          <button class="hint" type="button" data-tip="Каждая строка раскрывается. i рядом с аспектом дает короткую подсказку без открытия строки.">?</button>
+        </div>
+        <p class="sectionLead">Точные score/status и смысловые notes по каждому аспекту.</p>
+        <div class="rowList" id="aspectRows"></div>
+      </section>
+    </section>
+
+    <section class="planGrid">
+      <section class="card panel">
+        <div class="sectionHeader">
+          <h2>Граф плана</h2>
+          <button class="hint" type="button" data-tip="Сложный пример: после coverage идут параллельные UX/runtime/verification ветки, затем synthesis и readiness.">?</button>
+        </div>
+        <p class="sectionLead">Граф показывает порядок и развилки; подробности каждого work item раскрываются справа.</p>
+        <div class="graphBox">
+          <svg class="graphSvg" id="graphSvg" viewBox="0 0 560 900" role="img" aria-label="Plan stage graph"></svg>
+        </div>
+      </section>
+
+      <section class="card panel">
+        <div class="sectionHeader">
+          <h2>План реализации</h2>
+          <button class="hint" type="button" data-tip="Каждый пункт раскрывается: что делаем, какие зависимости, какой gate подтверждает готовность.">?</button>
+        </div>
+        <p class="sectionLead">Code-ready task graph без технического шума.</p>
+        <div class="rowList" id="planRows"></div>
+      </section>
+    </section>
+
+    <section class="card panel">
+      <div class="sectionHeader">
+        <h2>Route</h2>
+        <button class="hint" type="button" data-tip="Route вынесен вниз как контекст выполнения: он важен, но не должен занимать главный экран планирования.">?</button>
+      </div>
+      <div class="routeGrid" id="routeGrid"></div>
+    </section>
+  </main>
+
+  <script>
+    const data = JSON.parse(document.getElementById("plan-data").textContent);
+    const root = document.documentElement;
+    const themeButtons = Array.from(document.querySelectorAll("[data-theme-button]"));
+    const tooltip = document.getElementById("tooltip");
+    const storedTheme = localStorage.getItem("planDashboardTheme") || "system";
+
+    function text(value, fallback = "") {
+      return value === undefined || value === null ? fallback : String(value);
+    }
+
+    function escapeHtml(value) {
+      return text(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function cssColor(name) {
+      return getComputedStyle(root).getPropertyValue(name).trim();
+    }
+
+    function setTheme(mode) {
+      if (mode === "system") root.removeAttribute("data-theme");
+      else root.setAttribute("data-theme", mode);
+      localStorage.setItem("planDashboardTheme", mode);
+      themeButtons.forEach(btn => btn.setAttribute("aria-pressed", String(btn.dataset.themeButton === mode)));
+      renderGraph();
+      drawRadar();
+    }
+
+    themeButtons.forEach(btn => btn.addEventListener("click", () => setTheme(btn.dataset.themeButton)));
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+      if ((localStorage.getItem("planDashboardTheme") || "system") === "system") {
+        renderGraph();
+        drawRadar();
+      }
+    });
+
+    function renderShell() {
+      document.getElementById("breadcrumb").textContent = `dd-flow / plan / ${data.protocol.project}`;
+      document.getElementById("projectName").textContent = `Project: ${data.protocol.project}`;
+      document.getElementById("title").textContent = data.protocol.title;
+      document.getElementById("lead").textContent = data.overall.summary;
+      document.getElementById("verdictText").textContent = data.overall.verdict_label;
+      document.getElementById("scoreLabel").textContent = `${data.overall.score} / ${data.overall.score_max}`;
+      document.getElementById("scoreBar").style.width = `${Math.min(100, data.overall.score / data.overall.score_max * 100)}%`;
+      document.getElementById("nextAction").innerHTML = `<b>Next:</b> ${escapeHtml(data.overall.next_action)}`;
+      document.getElementById("meta").innerHTML = [
+        ["Protocol", data.protocol.id],
+        ["Stage", data.protocol.stage],
+        ["Branch", data.protocol.branch]
+      ].map(([label, value]) => `<span class="pill"><b>${escapeHtml(label)}</b> ${escapeHtml(value)}</span>`).join("");
+    }
+
+    function renderGraph() {
+      const svg = document.getElementById("graphSvg");
+      const layout = new Map(data.graph.nodes.map(node => [node.id, { x: node.x, y: node.y, w: 150, h: 50 }]));
+      const edges = data.graph.edges.map(([from, to]) => {
+        const a = layout.get(from);
+        const b = layout.get(to);
+        if (!a || !b) return "";
+        const ax = a.x + a.w / 2;
+        const ay = a.y + a.h;
+        const bx = b.x + b.w / 2;
+        const by = b.y;
+        const dy = Math.max(24, (by - ay) / 2);
+        return `<path class="edge" d="M ${ax} ${ay} C ${ax} ${ay + dy}, ${bx} ${by - dy}, ${bx} ${by}" />`;
+      }).join("");
+      const nodes = data.graph.nodes.map(node => {
+        const box = layout.get(node.id);
+        return `
+          <g class="node ${escapeHtml(node.status)}" tabindex="0" data-tip="${escapeHtml(node.note)}" transform="translate(${box.x}, ${box.y})">
+            <rect width="${box.w}" height="${box.h}"></rect>
+            <text x="${box.w / 2}" y="26">${escapeHtml(node.label)}</text>
+          </g>
+        `;
+      }).join("");
+      svg.innerHTML = `
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="${cssColor("--line-strong")}"></path>
+          </marker>
+        </defs>
+        ${edges}
+        ${nodes}
+      `;
+    }
+
+    function aspectRow(aspect, index) {
+      const findings = (aspect.findings || []).map(item => `<li>${escapeHtml(item)}</li>`).join("");
+      return `
+        <details class="row aspectRow" ${index === 0 ? "open" : ""}>
+          <summary>
+            <span class="rowTitle"><span>${escapeHtml(aspect.label)}</span><button class="inlineInfo" type="button" data-tip="${escapeHtml(aspect.note)}">i</button></span>
+            <span class="status ${escapeHtml(aspect.status)}">${escapeHtml(aspect.status)}</span>
+            <span class="rowText">${escapeHtml(aspect.score)}/5</span>
+            <span class="rowText">${escapeHtml(aspect.summary)}</span>
+            <span class="chev">›</span>
+          </summary>
+          <div class="rowBody">
+            <div class="mini"><h3>Note</h3><p>${escapeHtml(aspect.note)}</p></div>
+            <div class="mini"><h3>Findings</h3><ul>${findings}</ul></div>
+          </div>
+        </details>
+      `;
+    }
+
+    function planRow(item, index) {
+      const details = (item.details || []).map(line => `<li>${escapeHtml(line)}</li>`).join("");
+      const deps = item.depends_on.length ? item.depends_on.join(", ") : "none";
+      return `
+        <details class="row planRow" ${index === 0 ? "open" : ""}>
+          <summary>
+            <span class="rowTitle"><span>${escapeHtml(item.id)} · ${escapeHtml(item.title)}</span><button class="inlineInfo" type="button" data-tip="${escapeHtml(item.note)}">i</button></span>
+            <span class="status ${escapeHtml(item.status)}">${escapeHtml(item.status)}</span>
+            <span class="rowText">${escapeHtml(deps)}</span>
+            <span class="rowText">${escapeHtml(item.verification)}</span>
+            <span class="chev">›</span>
+          </summary>
+          <div class="rowBody">
+            <div class="mini"><h3>Plan note</h3><p>${escapeHtml(item.note)}</p></div>
+            <div class="mini"><h3>Details</h3><ul>${details}</ul></div>
+          </div>
+        </details>
+      `;
+    }
+
+    function renderRows() {
+      document.getElementById("aspectRows").innerHTML = data.aspects.map(aspectRow).join("");
+      document.getElementById("planRows").innerHTML = data.plan_items.map(planRow).join("");
+    }
+
+    function renderCards() {
+      document.getElementById("routeGrid").innerHTML = data.route.map(item => `
+        <div class="routeItem" tabindex="0" data-tip="${escapeHtml(item.note)}">
+          <strong>${escapeHtml(item.label)}</strong>
+          <span>${escapeHtml(item.value)}</span>
+        </div>
+      `).join("");
+    }
+
+    function drawRadar() {
+      const canvas = document.getElementById("radar");
+      const ctx = canvas.getContext("2d");
+      const aspects = data.aspects;
+      const w = canvas.width;
+      const h = canvas.height;
+      const cx = w / 2;
+      const cy = h / 2;
+      const r = 94;
+      const line = cssColor("--line");
+      const strong = cssColor("--line-strong");
+      const muted = cssColor("--muted");
+      const green = cssColor("--green");
+      const paper = cssColor("--paper-2");
+
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = paper;
+      ctx.fillRect(0, 0, w, h);
+      ctx.font = "11px Avenir Next, Gill Sans, sans-serif";
+
+      for (let ring = 1; ring <= 5; ring++) {
+        ctx.beginPath();
+        aspects.forEach((_, i) => {
+          const angle = -Math.PI / 2 + i * Math.PI * 2 / aspects.length;
+          const rr = r * ring / 5;
+          const x = cx + Math.cos(angle) * rr;
+          const y = cy + Math.sin(angle) * rr;
+          i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+        });
+        ctx.closePath();
+        ctx.strokeStyle = ring === 5 ? strong : line;
+        ctx.lineWidth = ring === 5 ? 1.5 : 1;
+        ctx.stroke();
+      }
+
+      aspects.forEach((aspect, i) => {
+        const angle = -Math.PI / 2 + i * Math.PI * 2 / aspects.length;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + Math.cos(angle) * r, cy + Math.sin(angle) * r);
+        ctx.strokeStyle = line;
+        ctx.stroke();
+        ctx.fillStyle = muted;
+        ctx.textAlign = Math.cos(angle) > .25 ? "left" : Math.cos(angle) < -.25 ? "right" : "center";
+        ctx.fillText(aspect.radar_label || aspect.label, cx + Math.cos(angle) * (r + 28), cy + Math.sin(angle) * (r + 24));
+      });
+
+      ctx.beginPath();
+      aspects.forEach((aspect, i) => {
+        const angle = -Math.PI / 2 + i * Math.PI * 2 / aspects.length;
+        const rr = r * aspect.score / 5;
+        const x = cx + Math.cos(angle) * rr;
+        const y = cy + Math.sin(angle) * rr;
+        i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+      });
+      ctx.closePath();
+      ctx.fillStyle = colorWithAlpha(green, .24);
+      ctx.strokeStyle = green;
+      ctx.lineWidth = 3;
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    function colorWithAlpha(color, alpha) {
+      const tmp = document.createElement("span");
+      tmp.style.color = color;
+      document.body.appendChild(tmp);
+      const rgb = getComputedStyle(tmp).color;
+      tmp.remove();
+      const m = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+      return m ? `rgba(${m[1]}, ${m[2]}, ${m[3]}, ${alpha})` : color;
+    }
+
+    function placeTooltip(target) {
+      const tip = target.getAttribute("data-tip");
+      if (!tip) return;
+      tooltip.textContent = tip;
+      tooltip.style.left = "0px";
+      tooltip.style.top = "0px";
+      tooltip.classList.add("visible");
+      const rect = target.getBoundingClientRect();
+      const tipRect = tooltip.getBoundingClientRect();
+      const margin = 10;
+      const topSpace = rect.top;
+      let top = topSpace > tipRect.height + 18 ? rect.top - tipRect.height - 8 : rect.bottom + 8;
+      let left = rect.left + rect.width / 2 - tipRect.width / 2;
+      left = Math.max(margin, Math.min(left, window.innerWidth - tipRect.width - margin));
+      top = Math.max(margin, Math.min(top, window.innerHeight - tipRect.height - margin));
+      tooltip.style.left = `${left}px`;
+      tooltip.style.top = `${top}px`;
+    }
+
+    function hideTooltip() {
+      tooltip.classList.remove("visible");
+    }
+
+    document.addEventListener("mouseover", event => {
+      const target = event.target.closest("[data-tip]");
+      if (target) placeTooltip(target);
+    });
+    document.addEventListener("focusin", event => {
+      const target = event.target.closest("[data-tip]");
+      if (target) placeTooltip(target);
+    });
+    document.addEventListener("mouseout", event => {
+      const target = event.target.closest("[data-tip]");
+      if (target && !target.contains(event.relatedTarget)) hideTooltip();
+    });
+    document.addEventListener("focusout", event => {
+      if (event.target.closest("[data-tip]")) hideTooltip();
+    });
+    document.addEventListener("scroll", hideTooltip, true);
+
+    renderShell();
+    renderRows();
+    renderCards();
+    setTheme(storedTheme);
+  </script>
+</body>
+</html>

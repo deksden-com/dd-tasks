@@ -2,7 +2,7 @@
   "schema_id": "dd-flow/publish-stage-report@1",
   "run": {
     "run_id": "RUN-162-publish-cli",
-    "run_index": "../run-index.json"
+    "run_state": "../run.json"
   },
   "stage": {
     "name": "publish",

@@ -112,10 +112,10 @@ Create or recover a `RUN-*` envelope with `flow_kind: mb-sdlc-review` or compati
     evidence/
 ```
 
-Attach the review stage in the run index:
+Start the generated review stage:
 
 ```bash
-dd-flow run attach-stage "<RUN-ID>" --project-root "<project-root>" --stage review --dir 04-review --status running --data-schema-id dd-flow/mb-sdlc-review-report@1 --json
+dd-flow stage start "<RUN-ID>" --stage review --json
 ```
 
 If `dd-flow` runtime is unavailable, record `runtime_cli_degraded` in `final-report.md` and do not claim dashboard integration evidence.
@@ -211,7 +211,7 @@ Create:
 Validate the JSON:
 
 ```bash
-dd-flow schema validate --schema mb-sdlc-review-report --file "<run-home>/04-review/stage-report.json" --project-root "<project-root>" --json
+dd-flow schema validate --schema stage-report --file "<run-home>/04-review/stage-report.json" --project-root "<project-root>" --json
 ```
 
 Generate HTML from `.memory-bank/dd-flow/mb-sdlc/review/stage-report-template.html` by replacing `<script id="review-data" type="application/json">`. Prove embedded JSON is semantically equal to standalone `stage-report.json` and save the proof under `04-review/evidence/`.

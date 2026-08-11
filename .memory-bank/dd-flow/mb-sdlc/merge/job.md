@@ -12,7 +12,6 @@
 
 - `.memory-bank/project-policy.md` and any linked branch retention owner, если файл существует;
 - `.memory-bank/dd-flow/common/style.md`
-- `.memory-bank/dd-flow/common/trace.md`
 - `.memory-bank/dd-flow/common/runtime-cli.md`
 - `.memory-bank/dd-flow/common/flow-runs.md`
 - `.memory-bank/dd-flow/common/lifecycle-guards.md`
@@ -73,7 +72,10 @@
    - никогда не удаляй current/integration/protected/unmerged/dirty worktree-owned branches;
    - удали безопасные merged disposable branches locally and remotely;
    - запиши deleted local, deleted remote, retained and unsafe skipped branches with reasons and command/evidence paths.
-10. Создай `04-merge/stage-report.json`, `stage-report.html`, `report.md` только для real merge job. Для legacy run layout используй существующий `03-merge/`.
+10. Запиши semantic completion data в `@stage/stage-input.json`; `stage finish`
+    создаст `stage-report.json`, `stage-report.md`, `stage-report.html` и
+    protocol summary для real merge job. Для legacy run layout используй
+    resolved `@stage`, а не вручную выбранный `03-merge/`.
 
 Перед terminal closure real merge job обязан выполнить knowledge promotion gate:
 
@@ -114,7 +116,9 @@
 
 ## Merge stage report
 
-`stage-report.json` должен валидироваться схемой `dd-flow/merge-stage-report@2` для нового RUN (legacy `@1` остаётся читаемым) и показывать текущий `flow_flags` snapshot projection:
+`stage-report.json` должен валидироваться общей схемой
+`dd-flow/stage-report@1`; merge-specific data входит в semantic payload, а
+mechanical fields добавляет CLI:
 
 - `invocation_mode`: `one_shot` или `long_lived_worker`;
 - protocol/run/project;

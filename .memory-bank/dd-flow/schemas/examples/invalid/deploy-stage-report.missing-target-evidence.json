@@ -1,6 +1,6 @@
 {
   "schema_id": "dd-flow/deploy-stage-report@1",
-  "run": { "run_id": "RUN-161-deploy-preview", "run_index": "../run-index.json" },
+  "run": { "run_id": "RUN-161-deploy-preview", "run_state": "../run.json" },
   "stage": { "name": "deploy", "dir": "04-report", "status": "done" },
   "project": { "id": "PRJ-101-web-app", "title": "web-app" },
   "subject": { "id": "PRT-200-preview-deploy", "title": "Preview deploy" },

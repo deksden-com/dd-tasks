@@ -15,7 +15,6 @@
 Перед делегированием в `prime.md` прочитай общие правила:
 
 - `.memory-bank/dd-flow/common/style.md`
-- `.memory-bank/dd-flow/common/trace.md`
 - `.memory-bank/dd-flow/common/runtime-cli.md`
 - `.memory-bank/dd-flow/common/memorybank.md`
 
@@ -37,9 +36,7 @@
 
 Твоя задача - подготовить контекст, а не начинать реализацию.
 
-Если доступен `dd-flow` CLI и это заметный read-only вход в проект без активной задачи, зарегистрируй session по `common/runtime-cli.md` как `flow_kind: research_no_protocol`, `continuation_policy: none`, `current_stage: priming`. Если CLI недоступен, просто веди обычный файловый след.
-
-Запиши compact start trace по `common/trace.md`. Если протокола ещё нет, используй временный trace в `.tasks/dd-flow-trace/` и укажи в отчёте `protocol: not_created`.
+Если доступен `dd-flow` CLI и это заметный read-only вход в проект без активной задачи, зарегистрируй session по `common/runtime-cli.md` как `flow_kind: research_no_protocol`, `continuation_policy: none`, `current_stage: priming`. Если CLI недоступен, укажи `runtime_cli_degraded` в итоговом докладе; ручной trace не создавай.
 
 Разберись:
 
@@ -51,7 +48,7 @@
 Вернись с коротким докладом:
 
 - навигационный блок из `.memory-bank/dd-flow/common/style.md`: `prompt: f.md`, `protocol: not_created`, `current_stage: primed`, `completed_stage: priming`, следующий шаг и блокеры;
-- где записаны `trace_start` и `trace_report`;
+- какие CLI/runtime artifacts доступны и почему ручной trace не создавался;
 - что является главным входом в проект;
 - какие ключевые разделы Банка памяти ты увидел;
 - где искать продуктовые, системные, инженерные и эксплуатационные правила;

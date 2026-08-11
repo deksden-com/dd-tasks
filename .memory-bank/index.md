@@ -2,7 +2,7 @@
 file: '.memory-bank/index.md'
 description: 'Рабочий вход в Банк памяти проекта dd-tasks.'
 purpose: 'Фиксирует подтверждённое состояние проекта на текущем Git-снимке.'
-version: '1.4.0'
+version: '1.5.0'
 date: '2026-08-11'
 status: 'ACTIVE'
 c4_level: 'project'
@@ -19,6 +19,9 @@ memory_bank_version: '3.0.0'
 initialization_status: 'initialized_published'
 tags: [dd-tasks, memory-bank]
 history:
+  - version: '1.5.0'
+    date: '2026-08-11'
+    changes: 'Актуализированы PRT-005/PRT-006, checkpoint-03 и публичный Exe.dev preview; удалено устаревшее утверждение об отсутствии remote delivery/deploy.'
   - version: '1.4.0'
     date: '2026-08-11'
     changes: 'Canonical Memory Bank 3.0.0 синхронизирован; breaking runtime/stage lifecycle и single-source PLAN contracts, path-migration archive и curated flow-pack обновлены, RUN-302 архивирован; runtime/home migration остаётся отдельным gated follow-up.'
@@ -88,6 +91,10 @@ deterministic local acceptance.
 
 Foundation history и annotated `checkpoint-01-foundation` не переписываются.
 PRT-003/RUN-298 приняли CODE/readiness; implementation content `5027fa1`
-fast-forward интегрирован в local stable `main`, post-merge gates green и
-annotated local tag `checkpoint-02-core` фиксирует closure commit. Remote
-delivery, CI и deploy не заявляются. `.tasks` остаётся игнорируемой рабочей зоной.
+fast-forward интегрирован в stable `main`, post-merge gates green и annotated
+tag `checkpoint-02-core` фиксирует closure commit. PRT-005 и PRT-006 также
+интегрированы; annotated tag `checkpoint-03-preview-access-policy` указывает на
+deployed commit `15021169f90245c6d9254488b8a3ba0621b5bc07`. Публичный preview
+`https://ddtasks-cp02.exe.xyz/` отдаёт этот source revision и работает с
+`registration_mode=closed`. CI/CD и production не заявляются. `.tasks` остаётся
+игнорируемой рабочей зоной.

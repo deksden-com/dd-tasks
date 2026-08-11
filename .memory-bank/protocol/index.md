@@ -2,8 +2,8 @@
 file: '.memory-bank/protocol/index.md'
 description: 'Curated протоколы работ проекта.'
 purpose: 'Сохраняет долговечные следы инициализации и дальнейших работ, включая pre-CODE handoff.'
-version: '1.3.0'
-date: '2026-08-05'
+version: '1.4.0'
+date: '2026-08-11'
 status: 'ACTIVE'
 c4_level: 'project'
 parent: '.memory-bank/index.md'
@@ -16,6 +16,9 @@ children:
   - .memory-bank/protocol/PRT-006-preview-access-policy/index.md
 tags: [protocol]
 history:
+  - version: '1.4.0'
+    date: '2026-08-11'
+    changes: 'PRT-005/PRT-006 закрыты после интеграции; checkpoint-03 опубликован и его public+closed Exe.dev preview подтверждён readback.'
   - version: '1.3.0'
     date: '2026-08-05'
     changes: 'PRT-006 прошёл CODE/readiness и передан в canonical merge с clean source-package evidence; merge, immutable checkpoint и Exe.dev live deploy остаются отдельными воротами.'
@@ -69,7 +72,9 @@ history:
   SCN-003; фактическая Exe.dev mutation остаётся отдельным `deploy.md` flow.
 - [Linear workflow UI](PRT-005-linear-workflow-ui/index.md): нормализует
   создание и редактирование проектов, добавляет task detail route и доступные
-  rename/delete interactions без новых backend-контрактов.
+  rename/delete interactions без новых backend-контрактов; интегрирован в
+  `main` коммитом `a394286` и входит в checkpoint-03.
 - [Preview access policy](PRT-006-preview-access-policy/index.md): задаёт
   независимые deploy-параметры private/public visibility и open/closed
-  registration, безопасные defaults, readback и границу `public + open`.
+  registration, безопасные defaults, readback и границу `public + open`;
+  интегрирован и публично развёрнут как checkpoint-03 в режиме `public+closed`.

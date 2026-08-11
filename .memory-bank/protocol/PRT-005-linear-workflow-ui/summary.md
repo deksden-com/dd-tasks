@@ -2,10 +2,10 @@
 file: '.memory-bank/protocol/PRT-005-linear-workflow-ui/summary.md'
 description: 'Scope, UX findings and executable acceptance for Linear-подобного workflow UI.'
 purpose: 'Ограничивает изменение project/task interaction model минимальным полезным контуром.'
-version: '0.2.0'
-date: '2026-08-05'
+version: '0.3.0'
+date: '2026-08-11'
 status: 'ACTIVE'
-protocol_lifecycle: 'READY_FOR_MERGE'
+protocol_lifecycle: 'CLOSED'
 c4_level: 'product'
 parent: '.memory-bank/protocol/PRT-005-linear-workflow-ui/index.md'
 source_user_input:
@@ -13,6 +13,10 @@ source_user_input:
 related_scenarios:
   - .memory-bank/scenarios/SCN-002-workspace-task-core.md
 tags: [protocol, ui, ux, projects, tasks, accessibility]
+history:
+  - version: '0.3.0'
+    date: '2026-08-11'
+    changes: 'Зафиксированы integration closure и включение результата в deployed checkpoint-03.'
 ---
 
 # PRT-005 — Linear workflow UI
@@ -62,3 +66,5 @@ Implementation plan:
   added.
 - Automated gates and a browser-level owner walkthrough are recorded in the
   [verification passport](evidence/verification-passport.md).
+- Feature commit `a394286` интегрирован в `main`; результат входит в
+  `checkpoint-03-preview-access-policy` и текущий Exe.dev preview.

@@ -2,8 +2,8 @@
 file: '.memory-bank/defs/index.md'
 description: 'Индекс долговечных именованных отложений проекта dd-tasks.'
 purpose: 'Даёт будущим flow discoverable lookup для известных внешних и follow-up gates.'
-version: '0.3.0'
-date: '2026-08-07'
+version: '0.5.0'
+date: '2026-08-11'
 status: 'ACTIVE'
 c4_level: 'project'
 parent: '.memory-bank/index.md'
@@ -23,6 +23,11 @@ tags: [dd-tasks, deferrals, memory-lifecycle]
 
 ## История
 
+- `0.5.0` — осиротевший `RUN-302` и stale session `RUN-309` штатно
+  reconciled CLI; runtime DEF теперь блокируется только отсутствующими явными
+  migration units для major-version перехода.
+- `0.4.0` — runtime DEF обновлён для `RUN-309` и перехода `2.18.0 → 3.0.0`;
+  backup получен, но supported legacy runtime reconciliation пока отсутствует.
 - `0.3.0` — runtime active-state DEF обновлён для `RUN-303` и перехода
   `2.15.0 → 2.16.0`; файловый canonical upgrade не блокируется, runtime
   migration остаётся отдельным gate.
@@ -35,8 +40,8 @@ tags: [dd-tasks, deferrals, memory-lifecycle]
 - [Protocol evidence shelf](DEF-MBU-PROTOCOL-EVIDENCE-SHELF.md) — не делать
   durable acceptance claim из raw run-local evidence до публикации паспорта.
 - [Runtime active state](DEF-MBU-RUNTIME-ACTIVE-STATE.md) — не начинать
-  runtime/home migration до backup, inactive-state и supported verification gates;
-  для `RUN-303` migration report остаётся blocked.
+  runtime/home migration до появления supported major-version migration units;
+  backup и inactive-state gates уже подтверждены.
 
 ## Закрытые
 

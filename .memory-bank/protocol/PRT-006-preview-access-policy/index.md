@@ -2,10 +2,10 @@
 file: '.memory-bank/protocol/PRT-006-preview-access-policy/index.md'
 description: 'Навигация протокола управляемой видимости preview и режима регистрации.'
 purpose: 'Связывает пользовательский ввод, specification, trace и будущую реализацию безопасных deploy-параметров.'
-version: '0.3.0'
-date: '2026-08-05'
+version: '0.4.0'
+date: '2026-08-11'
 status: 'ACTIVE'
-protocol_lifecycle: 'READY_FOR_MERGE'
+protocol_lifecycle: 'CLOSED'
 c4_level: 'operations'
 parent: '.memory-bank/protocol/index.md'
 children:
@@ -24,10 +24,13 @@ related_scenarios:
   - .memory-bank/scenarios/SCN-003-private-preview-runtime.md
 source_user_input:
   - .memory-bank/protocol/PRT-006-preview-access-policy/intake/user-input.md
-continuation_prompt: 'plan.md'
+continuation_prompt: null
 implements_scope: 'Два независимых безопасных preview-параметра: provider visibility и application registration mode.'
 tags: [protocol, preview, deploy, auth, registration, exe-dev]
 history:
+  - version: '0.4.0'
+    date: '2026-08-11'
+    changes: 'Merge, checkpoint publication и public+closed Exe.dev deployment закрыты точным source/digest readback.'
   - version: '0.3.0'
     date: '2026-08-05'
     changes: 'CODE и readiness приняты на clean feature HEAD с project-specific gates, focused quality review и явными non-blocking degradations; следующий gate — canonical merge.'
@@ -48,8 +51,10 @@ history:
 - [Plan handoff](trace/20260805T-plan-report.md)
 - [CODE/readiness handoff](trace/20260805T-readiness-report.md)
 
-Runtime artifacts находятся в ignored run-папке
-`.tasks/dd-flow-runs/RUN-304-preview-access-policy/`. CLI недоступен в текущем
-окружении, поэтому RUN оформлен как явно degraded файловый runtime без ручной
-правки внешнего state store. Readiness принята как `ready_for_merge`; это не
-claim merge, remote checkpoint или provider deploy.
+Исторические planning/readiness artifacts находятся в ignored run-папке
+`.tasks/dd-flow-runs/RUN-304-preview-access-policy/`. Feature интегрирована в
+`main`; annotated tag `checkpoint-03-preview-access-policy` указывает на commit
+`15021169f90245c6d9254488b8a3ba0621b5bc07`. Публичный preview
+`https://ddtasks-cp02.exe.xyz/` подтвердил этот revision, artifact digest
+`sha256:d73565c7a844b4cea758ad58890d20418a0b0b2367491a3dd2af20017f96803c`
+и `registration_mode=closed`.

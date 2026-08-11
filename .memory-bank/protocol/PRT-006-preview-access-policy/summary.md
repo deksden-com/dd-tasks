@@ -2,10 +2,10 @@
 file: '.memory-bank/protocol/PRT-006-preview-access-policy/summary.md'
 description: 'Problem-space specification для provider visibility и управляемой регистрации preview.'
 purpose: 'Фиксирует безопасную матрицу режимов, scope, acceptance и handoff в plan без преждевременного technical design.'
-version: '0.3.0'
-date: '2026-08-05'
+version: '0.4.0'
+date: '2026-08-11'
 status: 'ACTIVE'
-protocol_lifecycle: 'READY_FOR_MERGE'
+protocol_lifecycle: 'CLOSED'
 c4_level: 'operations'
 parent: '.memory-bank/protocol/PRT-006-preview-access-policy/index.md'
 blocked_by_protocols: []
@@ -19,10 +19,13 @@ related_scenarios:
   - .memory-bank/scenarios/SCN-003-private-preview-runtime.md
 source_user_input:
   - .memory-bank/protocol/PRT-006-preview-access-policy/intake/user-input.md
-continuation_prompt: 'plan.md'
+continuation_prompt: null
 implements_scope: 'Управляемая видимость Exe.dev preview и server-authoritative open/closed registration policy.'
 tags: [protocol, specified, preview, visibility, registration, auth, security]
 history:
+  - version: '0.4.0'
+    date: '2026-08-11'
+    changes: 'Зафиксированы merge closure, checkpoint-03 и успешный public+closed Exe.dev source/config readback.'
   - version: '0.3.0'
     date: '2026-08-05'
     changes: 'CODE/readiness gate completed: clean source-package evidence, readiness assessment/review and project-specific acceptance passed with disclosed non-blocking gaps.'
@@ -43,11 +46,11 @@ protocol:
   id: PRT-006-preview-access-policy
   title: Preview visibility and registration policy
   mode: normal
-  current_stage: readiness
+  current_stage: closed
   stage_status: completed
-  next_action: canonical fast-forward merge into main, post-merge checks and source delivery gate
+  next_action: none
   scope_sizing_verdict: single_executable_protocol
-  stage_verdict: ready_for_merge
+  stage_verdict: accepted_live_provider
 run_id: RUN-304-preview-access-policy
 runtime_cli: degraded_unavailable
 ```
@@ -240,9 +243,12 @@ secrets policies, preview stages, base/provider runbooks и SCN-003.
 protocol/specify. Provider mutation, remote checkpoint delivery и live
 public/private readback остаются последующими gates, а не частью specify.
 
-## Handoff
+## Closure
 
-`plan.md` должен подготовить минимальный сквозной change set без новой
-зависимости, DB migration, deploy CLI или domain-allowlist abstraction. План
-обязан связать runtime/API/UI/Compose/runbook/tests и сохранить отдельное
-provider/application evidence для обеих осей.
+Feature интегрирована в `main`. Annotated tag
+`checkpoint-03-preview-access-policy` фиксирует commit
+`15021169f90245c6d9254488b8a3ba0621b5bc07`; live `/api/ready` подтвердил его и
+artifact digest `sha256:d73565c7a844b4cea758ad58890d20418a0b0b2367491a3dd2af20017f96803c`.
+Публичный `https://ddtasks-cp02.exe.xyz/` доступен без Exe.dev login gate, а
+`/api/config` возвращает `registration_mode=closed`. Новых действий по этому
+протоколу не требуется.

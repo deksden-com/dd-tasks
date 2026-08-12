@@ -1,9 +1,9 @@
 ---
 file: '.memory-bank/dd-flow/README.md'
-description: 'Canonical dd-flow prompt package and SPC-004 v0.2/SPC-005 contract entry.'
+description: 'Canonical dd-flow prompt package and SPC-004/005/006 contract entry.'
 purpose: 'Route agents through the Memory Bank SDLC while keeping runtime ownership explicit.'
-version: '1.1.0'
-date: '2026-08-10'
+version: '1.2.0'
+date: '2026-08-12'
 status: 'DRAFT'
 c4_level: 'documentation'
 parent: '.memory-bank/index.md'
@@ -13,7 +13,7 @@ related_files:
   - common/flow-runs.md
   - common/runtime-cli.md
   - schemas/index.md
-tags: [dd-flow, prompts, spc-004, spc-005, navigation]
+tags: [dd-flow, prompts, spc-004, spc-005, spc-006, navigation]
 ---
 
 # dd-flow
@@ -21,17 +21,17 @@ tags: [dd-flow, prompts, spc-004, spc-005, navigation]
 `dd-flow/` contains the canonical prompts that guide Memory Bank work. Durable
 meaning remains in `.memory-bank/`; runtime facts remain in the CLI-owned RUN.
 The normative breaking contracts for the current flow pack are
-[SPC-004](../spec/engineering/SPC-004-flow-runtime-observability-workspaces-and-lint-throughput.md)
-and [SPC-005](../spec/engineering/SPC-005-single-source-plan-and-fast-plan-stage.md),
+[SPC-004](../spec/engineering/SPC-004-flow-runtime-observability-workspaces-and-lint-throughput.md),
+[SPC-005](../spec/engineering/SPC-005-single-source-plan-and-fast-plan-stage.md)
+and [SPC-006](../spec/engineering/SPC-006-stage-bootstrap-and-context-packet.md),
 implemented in the canonical follow-up protocol
 `../protocol/PRT-341-spc-004-v2-spc-005-canonical-cutover.md`.
 
 ## Normal route
 
 ```text
-prime.md
-  -> protocol.md / protocol-implement.md
-  -> specify
+prime.md (only without a selected practical task)
+  -> protocol.md -> bootstrap `stage start` -> specify
   -> plan.md
   -> code.md -> mb-sdlc/code/implement.md -> readiness
   -> merge.md / merge-start.md -> merge/job.md -> merge/integrate.md
@@ -42,13 +42,17 @@ actions:
 
 ```bash
 dd-flow stage start <RUN> --stage <stage> --json
-dd-flow stage finish <RUN> --stage <stage> --status done --json
+dd-flow stage finish <RUN> --stage <stage> --outcome <outcome> --json
 ```
 
-Start generates one `stage-prompt.md`; the agent performs semantic work in
-`@stage`; finish derives mechanical facts and unconditionally renders
+For a new ordinary task, start with `stage start --bootstrap --stage specify`.
+Start returns the authoritative context packet and generates its identical
+`stage-prompt.md` audit projection; the agent performs semantic work in
+`@stage`; finish derives mechanical facts, validates the semantic outcome and
+unconditionally renders
 `stage-report.json`, `stage-report.md`, `stage-report.html` and the protocol
-summary.
+summary/transition. Accepted stage artifacts are sealed; reruns create a new
+`try-NNN` attempt.
 
 ## Shared contracts
 

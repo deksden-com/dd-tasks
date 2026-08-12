@@ -85,7 +85,7 @@ Map each requirement to the canonical file, companion owner and evidence:
 | Surface | Canonical owner | Proof boundary |
 | --- | --- | --- |
 | plan schema/example | dd-memorybank | schema and round-trip fixtures |
-| prompt/routing | dd-memorybank | seven-section and route snapshots |
+| prompt/routing | dd-memorybank | eight-section and route snapshots |
 | runtime progress/readers | dd-flow-cli PRT-012 | runtime integration fixtures |
 | selected-file lint | mb-lint PRT-003 | isolation and all-findings fixtures |
 | reports/summary | CLI projection over canonical data | receipt schema/template fixtures |

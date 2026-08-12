@@ -1,11 +1,15 @@
 {
-  "schema_id": "dd-flow/stage-prompt@1",
+  "schema_id": "dd-flow/stage-prompt@2",
   "run_id": "RUN-308-spc-004-canonical-runtime-contract",
   "stage": "code",
   "generated_at": "2026-08-10T14:00:00Z",
   "prompt_path": "03-code/stage-prompt.md",
-  "sections": ["stage_identity", "runtime_context", "intake", "applicable_instructions", "stage_cli", "file_boundaries", "completion_contract"],
+  "sections": ["stage_identity", "authoritative_runtime_facts", "preflight", "task_intake", "applicable_instructions", "required_context", "work_contract", "completion_contract"],
   "aliases": {"project": "@project", "workspace": "@workspace", "run": "@run", "stage": "@stage", "protocol": "@protocol", "intake": "@intake"},
   "write_boundary": {"current": "@stage", "archive": "try-001", "archive_writable": false},
-  "source_fragments": [".memory-bank/dd-flow/common/runtime-contract.md", ".memory-bank/dd-flow/mb-sdlc/code/implement.md"]
+  "source_fragments": [".memory-bank/dd-flow/mb-sdlc/specify/stage.md", ".memory-bank/dd-flow/mb-sdlc/specify/discovery.md"],
+  "authoritative_facts": {"git": {"branch": "main", "head": "abc123"}, "runtime": {"memory_bank": "3.0.0", "flow_pack": "3.1.0"}},
+  "preflight": {"compatibility": {"status": "ok"}, "permissions": {"status": "ok"}, "session_binding": {"status": "bound", "session_id": "019f"}},
+  "required_context": [{"path": ".memory-bank/spec/product/index.md", "reason": "Existing task behavior", "stop_condition": "Task facts are established."}],
+  "worker_prompt_markdown": "<stage_identity>\\n# Stage\\n</stage_identity>"
 }

@@ -46,7 +46,7 @@ Run the cheapest relevant checks during implementation. Before readiness, run
 fresh canonical checks and then:
 
 ```bash
-dd-flow stage finish <RUN> --stage code --status done --json
+dd-flow stage finish <RUN> --stage code --outcome <outcome> --json
 ```
 
 Finish owns mechanical enrichment, exact delta validation, generated

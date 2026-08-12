@@ -31,7 +31,7 @@ tags: [dd-flow, index, routing, lifecycle, spc-004]
 
 - A concrete flow has one `RUN-*`, one current `run.json` and one append-only
   `timeline.jsonl`.
-- A stage has one generated seven-section `stage-prompt.md`, one current stage
+- A stage has one generated eight-section `stage-prompt.md`, one current stage
   root and archive-only `try-NNN` directories.
 - The only stage lifecycle actions are `stage start` and `stage finish`.
 - Successful finish always generates JSON, Markdown, HTML and summary views.

@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "dd-flow/stage-start-response@1",
+  "$id": "dd-flow/stage-start-response@2",
   "title": "Stage start response",
   "type": "object",
   "additionalProperties": false,
@@ -10,9 +10,9 @@
       "then": {"required": ["plan_ref", "aspect_map_ref"]}
     }
   ],
-  "required": ["schema_id", "run_id", "stage", "attempt_number", "stage_root", "prompt_path", "aliases", "next_command"],
+  "required": ["schema_id", "run_id", "stage", "attempt_number", "stage_root", "prompt_path", "aliases", "resolved_context", "preflight", "worker_prompt_markdown", "next_command"],
   "properties": {
-    "schema_id": {"const": "dd-flow/stage-start-response@1"},
+    "schema_id": {"const": "dd-flow/stage-start-response@2"},
     "run_id": {"type": "string", "minLength": 1},
     "stage": {"type": "string", "minLength": 1},
     "attempt_number": {"type": "integer", "minimum": 1},
@@ -23,7 +23,10 @@
     "resolved_context": {"type": "object", "additionalProperties": true},
     "plan_ref": {"type": "string", "pattern": "^\\.memory-bank/protocol/[^/]+/plan\\.json$"},
     "aspect_map_ref": {"type": "string", "minLength": 1},
-    "next_command": {"const": "dd-flow stage finish"},
-    "permission_probe": {"type": "object", "additionalProperties": true}
+    "next_command": {"type": "string", "pattern": "^dd-flow stage finish "},
+    "preflight": {"type": "object", "required": ["git", "compatibility", "permissions", "session_binding"], "additionalProperties": true},
+    "worker_prompt_markdown": {"type": "string", "minLength": 1},
+    "permission_probe": {"type": "object", "additionalProperties": true},
+    "bootstrap": {"type": "boolean"}
   }
 }

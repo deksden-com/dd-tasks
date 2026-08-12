@@ -45,7 +45,7 @@ Let the CLI add timestamps,
 duration, paths, Git state, sessions/usage and generated report paths:
 
 ```bash
-dd-flow stage finish <RUN> --stage code --status done --json
+dd-flow stage finish <RUN> --stage code --outcome <outcome> --json
 ```
 
 Readiness may transition the protocol to `ready_for_merge`. Do not claim a

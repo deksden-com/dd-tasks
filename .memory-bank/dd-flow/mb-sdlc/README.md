@@ -34,6 +34,7 @@ This directory holds the internal stage prompts and templates:
 ```text
 mb-sdlc/
   specify/
+    stage.md
     discovery.md
     gap-analysis/
   plan/
@@ -69,3 +70,8 @@ contour inside `specify`. Its umbrella router selects bounded discovery and the
 smallest sufficient method checklists; it does not create a runtime stage or
 replace `specify/design-aspects/`, which remains the owner of design defaults
 passed to planning.
+
+`specify/stage.md` is the stage-specific fragment selected by the SPC-006
+renderer. A generated SPECIFY prompt must include it and may include only its
+allowlisted discovery/gap/design fragments; it must not include root `code.md`,
+implementation, readiness, merge or PLAN-only fragments.

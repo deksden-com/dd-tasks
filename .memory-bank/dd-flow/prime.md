@@ -2,8 +2,8 @@
 file: '.memory-bank/dd-flow/prime.md'
 description: 'Session priming without protocol creation.'
 purpose: 'Load Memory Bank and active dd-flow SPC-004 context before a user selects practical work.'
-version: '1.0.0'
-date: '2026-08-10'
+version: '1.1.0'
+date: '2026-08-12'
 status: 'DRAFT'
 c4_level: 'prompt'
 parent: '.memory-bank/dd-flow/README.md'
@@ -19,6 +19,12 @@ tags: [dd-flow, prime, session, spc-004]
 Read the project Memory Bank entry points, project policy, MBB indexes and the
 active dd-flow catalog. Also read `common/runtime-contract.md` so later work
 uses one RUN state, generated stages and the explicit ownership boundaries.
+
+Use this entrypoint only when no practical task is selected. When a user asks
+to create, change or plan a concrete task, do not run a standalone priming
+ritual first: after any harness-required Goal, the worker begins the selected
+stage with `dd-flow stage start`. Its generated context packet contains the
+bounded priming and stage instructions that matter for that task.
 
 Priming does not create a protocol, specification, plan, stage, report,
 summary, trace or project runtime state. It does not choose a task profile,

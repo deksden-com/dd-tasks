@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "dd-flow/flow-contract@5",
+  "$id": "dd-flow/flow-contract@6",
   "title": "dd-flow canonical runtime contract",
-  "description": "Structural contract for the SPC-004 v0.2 and SPC-005 runtime/PLAN cutover. Dynamic command and cross-repository checks belong to companion projects.",
+  "description": "Structural contract for the SPC-004/005/006 runtime, PLAN and deterministic stage-context cutover. Dynamic command and cross-repository checks belong to companion projects.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -25,21 +25,21 @@
     "policy"
   ],
   "properties": {
-    "schema_id": {"const": "dd-flow/flow-contract@5"},
+    "schema_id": {"const": "dd-flow/flow-contract@6"},
     "id": {"const": "dd-flow-canonical-2026-08"},
     "contract_id": {"type": "string", "pattern": "^dd-flow-canonical-[0-9]{4}-[0-9]{2}$"},
-    "version": {"const": 5},
+    "version": {"const": 6},
     "status": {"const": "active"},
     "source": {"const": ".memory-bank/dd-flow/common/runtime-contract.md"},
     "specifications": {
       "type": "array",
-      "minItems": 2,
+      "minItems": 3,
       "items": {
         "type": "object",
         "additionalProperties": false,
         "required": ["id", "version", "sha256"],
         "properties": {
-          "id": {"enum": ["SPC-004", "SPC-005"]},
+          "id": {"enum": ["SPC-004", "SPC-005", "SPC-006"]},
           "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
           "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
         }
@@ -73,21 +73,23 @@
     "stageLifecycle": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["actions", "start_command", "finish_command", "prompt_sections", "current_write_alias", "archive_pattern"],
+      "required": ["actions", "start_command", "bootstrap_command", "finish_command", "prompt_sections", "current_write_alias", "archive_pattern"],
       "properties": {
         "actions": {
           "const": ["stage_start", "stage_finish"]
         },
         "start_command": {"const": "dd-flow stage start <RUN> --stage <stage> --json"},
-        "finish_command": {"const": "dd-flow stage finish <RUN> --stage <stage> --status done --json"},
+        "bootstrap_command": {"const": "dd-flow stage start --bootstrap --stage specify --project-root <root> --subject <label> --intake-file <path> --json"},
+        "finish_command": {"const": "dd-flow stage finish <RUN> --stage <stage> --outcome <outcome> --json"},
         "prompt_sections": {
           "const": [
             "stage_identity",
-            "runtime_context",
-            "intake",
+            "authoritative_runtime_facts",
+            "preflight",
+            "task_intake",
             "applicable_instructions",
-            "stage_cli",
-            "file_boundaries",
+            "required_context",
+            "work_contract",
             "completion_contract"
           ]
         },
@@ -112,7 +114,7 @@
       "required": ["finish_outputs", "model_input", "mechanical_facts"],
       "properties": {
         "finish_outputs": {"const": ["stage-report.json", "stage-report.md", "stage-report.html", "summary.md"]},
-        "model_input": {"const": "semantic-only"},
+        "model_input": {"const": "semantic-only; outcome flag"},
         "mechanical_facts": {"const": "cli-owned"}
       }
     },

@@ -1,5 +1,5 @@
 {
-  "schema_id": "dd-flow/stage-start-response@1",
+  "schema_id": "dd-flow/stage-start-response@2",
   "run_id": "RUN-308-spc-004-canonical-runtime-contract",
   "stage": "code",
   "attempt_number": 1,
@@ -7,6 +7,8 @@
   "archive_path": null,
   "prompt_path": "/runs/RUN-308/03-code/stage-prompt.md",
   "aliases": {"run": "@run", "stage": "@stage"},
-  "resolved_context": {"protocol": "PRT-340-spc-004-canonical-runtime-contract", "schema": "dd-flow/stage-prompt@1"},
-  "next_command": "dd-flow stage finish"
+  "resolved_context": {"protocol": "PRT-340-spc-004-canonical-runtime-contract", "schema": "dd-flow/stage-prompt@2"},
+  "preflight": {"git": {"branch": "main"}, "compatibility": {"status": "ok"}, "permissions": {"status": "ok"}, "session_binding": {"status": "bound"}},
+  "worker_prompt_markdown": "<stage_identity>\\n# Code\\n</stage_identity>",
+  "next_command": "dd-flow stage finish RUN-308-spc-004-canonical-runtime-contract --stage code --outcome ready_for_merge --json"
 }

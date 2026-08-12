@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "dd-flow/stage-prompt@1",
+  "$id": "dd-flow/stage-prompt@2",
   "title": "Generated stage prompt",
   "type": "object",
   "additionalProperties": false,
@@ -16,16 +16,20 @@
       }
     }
   ],
-  "required": ["schema_id", "run_id", "stage", "generated_at", "prompt_path", "sections", "aliases", "write_boundary", "source_fragments"],
+  "required": ["schema_id", "run_id", "stage", "generated_at", "prompt_path", "sections", "aliases", "write_boundary", "source_fragments", "authoritative_facts", "preflight", "required_context", "worker_prompt_markdown"],
   "properties": {
-    "schema_id": {"const": "dd-flow/stage-prompt@1"},
+    "schema_id": {"const": "dd-flow/stage-prompt@2"},
     "run_id": {"type": "string", "minLength": 1},
     "stage": {"type": "string", "minLength": 1},
     "generated_at": {"type": "string", "format": "date-time"},
     "prompt_path": {"type": "string", "minLength": 1},
-    "sections": {"type": "array", "minItems": 7, "maxItems": 7, "items": {"enum": ["stage_identity", "runtime_context", "intake", "applicable_instructions", "stage_cli", "file_boundaries", "completion_contract"]}},
+    "sections": {"const": ["stage_identity", "authoritative_runtime_facts", "preflight", "task_intake", "applicable_instructions", "required_context", "work_contract", "completion_contract"]},
     "aliases": {"type": "object", "required": ["project", "workspace", "run", "stage", "protocol", "intake"], "additionalProperties": {"type": "string"}},
     "write_boundary": {"type": "object", "required": ["current", "archive", "archive_writable"], "properties": {"current": {"const": "@stage"}, "archive": {"pattern": "try-[0-9]{3}"}, "archive_writable": {"const": false}}, "additionalProperties": false},
-    "source_fragments": {"type": "array", "items": {"type": "string", "minLength": 1}}
+    "source_fragments": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "authoritative_facts": {"type": "object", "required": ["git", "runtime"], "additionalProperties": true},
+    "preflight": {"type": "object", "required": ["compatibility", "permissions", "session_binding"], "additionalProperties": true},
+    "required_context": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["path", "reason", "stop_condition"], "properties": {"path": {"type": "string", "minLength": 1}, "reason": {"type": "string", "minLength": 1}, "stop_condition": {"type": "string", "minLength": 1}}}},
+    "worker_prompt_markdown": {"type": "string", "minLength": 1}
   }
 }

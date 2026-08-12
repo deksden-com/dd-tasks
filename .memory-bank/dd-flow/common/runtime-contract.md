@@ -1,15 +1,16 @@
 ---
 file: '.memory-bank/dd-flow/common/runtime-contract.md'
-description: 'Canonical SPC-004 v0.2 and SPC-005 runtime, session, report and PLAN contract.'
+description: 'Canonical SPC-004/005/006 runtime, stage context, session, report and PLAN contract.'
 purpose: 'Single source for active dd-flow prompts and schemas after the breaking SPC-004 cutover.'
-version: '0.2.0'
-date: '2026-08-10'
+version: '0.3.0'
+date: '2026-08-12'
 status: 'DRAFT'
 c4_level: 'documentation'
 parent: '.memory-bank/dd-flow/README.md'
 related_specs:
   - .memory-bank/spec/engineering/SPC-004-flow-runtime-observability-workspaces-and-lint-throughput.md
   - .memory-bank/spec/engineering/SPC-005-single-source-plan-and-fast-plan-stage.md
+  - .memory-bank/spec/engineering/SPC-006-stage-bootstrap-and-context-packet.md
   - .memory-bank/protocol/PRT-341-spc-004-v2-spc-005-canonical-cutover.md
 related_protocols:
   - .memory-bank/protocol/PRT-012-spc-004-v2-spc-005-runtime-cutover.md
@@ -17,9 +18,10 @@ related_protocols:
 tags: [dd-flow, spc-004, spc-005, runtime-contract, stages, reports, workspaces, plan]
 ---
 
-# Canonical SPC-004 v0.2 and SPC-005 runtime contract
+# Canonical SPC-004/005/006 runtime contract
 
-This document is the active Memory Bank contract for SPC-004 v0.2 and SPC-005.
+This document is the active Memory Bank contract for SPC-004 v0.2, SPC-005 and
+SPC-006.
 The source specifications are
 `.memory-bank/spec/engineering/SPC-004-flow-runtime-observability-workspaces-and-lint-throughput.md`;
 `.memory-bank/spec/engineering/SPC-005-single-source-plan-and-fast-plan-stage.md`.
@@ -51,19 +53,34 @@ reconstruct it from a guessed project-local path.
 
 ## Two-command stage lifecycle
 
-The normal stage path is exactly:
+The normal worker path is exactly:
 
 ```bash
 dd-flow stage start <RUN> --stage <stage> --json
 # semantic work in @stage
-dd-flow stage finish <RUN> --stage <stage> --status done --json
+dd-flow stage finish <RUN> --stage <stage> --outcome <outcome> --json
 ```
+
+For a new practical task, the first worker flow command is the bootstrap form:
+
+```bash
+dd-flow stage start --bootstrap --stage specify --project-root <root> \
+  --subject <label> --intake-file <path> --json
+```
+
+The CLI allocates protocol/RUN and materializes their minimum scaffold. A UI
+Goal, when the harness requires one, is the only allowed action before this
+command. Standalone `prime.md` remains a no-task orientation flow, not a
+prerequisite for a stage worker.
 
 `stage start` resolves project, protocol, RUN and workspace, checks containment,
 archives an existing stage root into the next numeric `try-NNN` directory,
 creates the clean current root, runs exact-target permission probes, records
-CLI-owned Git/time facts, binds the harness session and generates one
-`stage-prompt.md`.
+CLI-owned Git/time facts, binds the harness session and generates one context
+packet. `stage-prompt.json` is its structured source; the saved
+`stage-prompt.md` and `worker_prompt_markdown` response are the same rendering.
+The response facts are authoritative for the attempt and the worker does not
+repeat CLI discovery, help, Git, compatibility, permission or runtime checks.
 
 The agent writes only semantic completion data to the generated
 `@stage/stage-input.json`; the file is validated against
@@ -72,9 +89,10 @@ semantic agent output only. The CLI adds finish time,
 duration, Git state, session/usage coverage and artifact paths; validates the
 completion contract; rejects writes under `@stage/try-NNN`; validates changed
 Memory Bank delta; renders all required artifacts; updates `run.json`,
-`timeline.jsonl` and the protocol summary; and returns one structured result.
-The agent does not provide timestamps, hashes, duration, Git facts, session
-ids, usage totals or report-choice flags.
+`timeline.jsonl` and the protocol summary; performs the allowed validated
+protocol transition; seals accepted artifacts; and returns one structured
+receipt. The agent does not provide timestamps, hashes, duration, Git facts,
+session ids, usage totals, report-choice flags or transition payloads.
 
 The current attempt always writes directly to `@stage`. `try-NNN` is archive
 history only and is never a current output target or a model-selected attempt.
@@ -106,23 +124,27 @@ coverage artifact.
 
 ## Generated stage prompt
 
-`stage-prompt.md` is the only required stage prompt. It is generated from
-canonical fragments plus resolved runtime facts and contains exactly these
-sections, in this order:
+`stage-prompt.md` is the only required stage prompt. It is generated from the
+same `stage-prompt.json` returned by start and contains exactly these sections,
+in this order:
 
 ```text
 <stage_identity>...</stage_identity>
-<runtime_context>...</runtime_context>
-<intake>...</intake>
+<authoritative_runtime_facts>...</authoritative_runtime_facts>
+<preflight>...</preflight>
+<task_intake>...</task_intake>
 <applicable_instructions>...</applicable_instructions>
-<stage_cli>...</stage_cli>
-<file_boundaries>...</file_boundaries>
+<required_context>...</required_context>
+<work_contract>...</work_contract>
 <completion_contract>...</completion_contract>
 ```
 
-The CLI fragment contains exact stage commands; agents do not begin by probing
-global help. The file-boundary fragment states that new artifacts belong in
-`@stage` and that `@stage/try-NNN` is read-only archive history.
+The renderer uses a closed stage-to-fragment allowlist. It physically excludes
+instructions for other stages: a SPECIFY prompt cannot contain CODE/readiness,
+merge or full-only PLAN instructions. The CLI fragment contains exact stage
+commands; agents do not begin by probing global help. The file-boundary
+fragment states that new artifacts belong in `@stage` and that `@stage/try-NNN`
+is read-only archive history.
 
 ## Generated artifacts and summary
 

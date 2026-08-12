@@ -359,7 +359,7 @@ report path. Если template недоступен, это `blocked`/`degraded_
 В конце merge stage:
 
 ```bash
-dd-flow stage finish "<RUN-ID>" --stage merge --status done --json
+dd-flow stage finish "<RUN-ID>" --stage merge --outcome <outcome> --json
 dd-flow run complete "<RUN-ID>" --project-root "<project-root>" --status done --verdict accepted --next-action none --json
 ```
 

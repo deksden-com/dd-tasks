@@ -10,23 +10,22 @@
 
 ## Git contour
 
-Перед созданием протокола проверь:
+Для практической задачи worker не выполняет Git/runtime bootstrap вручную.
+Первый `stage start --bootstrap --stage specify` детерминированно возвращает
+Git snapshot, compatibility, точные permission probes, protocol/RUN/workspace
+aliases и session-binding result. Эти сведения авторитетны для текущей попытки.
 
-- текущий Git root и ветку;
-- чистоту рабочей области;
-- `.memory-bank/project-policy.md`, если он есть;
-- интеграционную ветку проекта по Git policy;
-- есть ли активный lock интеграционной ветки;
-- можно ли работать напрямую в интеграционной ветке или нужна feature-ветка/worktree;
-- стартовый commit, от которого создаётся протокол.
-
-Если пользователь не указал Git-контур, задай вопрос только верхнего уровня. Рекомендуй feature-ветку/worktree для всего, что может длительно блокировать интеграционную ветку. Прямую работу в интеграционной ветке допускай для маленьких обратимых правок, когда проектная политика это разрешает.
-
-Если интеграционная ветка заблокирована интерактивной или merge-сессией, новый протокол можно создавать от зафиксированного стабильного base commit этой ветки, если проектная политика и `dd-flow` runtime явно позволяют такой старт.
+Initial SPECIFY не выбирает feature worktree, ветку, merge lane или deployment
+route: это не влияет на выявление problem-space gaps. CLI проверяет только
+безопасность выбранного текущего workspace; worktree route выбирается и
+создаётся в той поздней стадии, где он действительно требуется.
 
 ## Общая запись протокола
 
-Минимальный `summary.md` нового протокола должен содержать:
+В bootstrap mode CLI создаёт минимальный scaffold протокола и raw intake.
+Semantic `summary.md` генерируется при успешном `stage finish`; worker не
+создаёт и не редактирует summary/index/transition как самостоятельные runtime
+артефакты. Его долговечное содержание после finish должно включать:
 
 ```yaml
 protocol:
@@ -63,22 +62,10 @@ verification:
 
 ## Runtime registration
 
-Если доступен CLI, зарегистрируй или обнови protocol/run state по `runtime-cli.md`. Runtime payload должен хранить:
-
-- `protocol_id`;
-- `project_root`;
-- `workspace_path`;
-- `base_commit`;
-- `integration_branch`;
-- `feature_branch`, если есть;
-- `current_stage`;
-- `next_action`;
-- `flow_mode`: `normal` или `interactive`;
-- snapshot auto policy, если она влияет на переходы.
-- snapshot relevant project-policy entries, если они повлияли на Git contour, check profile, delivery route or evidence gate.
-
-Если CLI недоступен, продолжай файлово и запиши `runtime_cli_degraded` в
-сгенерированный stage report или protocol summary; ручной trace не создавай.
+CLI registration is part of `stage start`, not a worker subtask. A missing or
+incompatible CLI fails the required bootstrap before semantic work; the worker
+does not search for alternate binaries or hand-edit runtime files. The CLI owns
+protocol/RUN fields, policy snapshots and lifecycle state.
 
 ## Следующий шаг
 

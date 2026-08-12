@@ -4,45 +4,33 @@
 
 Flow origin policy: `project_local`.
 
-`protocol.md` создаёт или обновляет `PRT-*`, выбирает Git-контур и переводит обычную задачу в стадию `specify`. Он не выполняет `plan`, `code` или `merge`.
+`protocol.md` маршрутизирует практическую задачу в initial `specify`. Он не
+выполняет `plan`, `code` или `merge`.
 
 Если пользователь формулирует намерение как "оформи протокол", "создай протокол", "заведи протокол" или любой близкий вариант, это означает именно запуск `protocol.md` и переход в `specify`. Недостаточно просто записать summary или черновик без этого flow.
 
-## Что прочитать сначала
+## Первый action
 
-Прочитай:
+После обязательного Goal, если его требует harness, первым worker flow action
+запусти bootstrap стадии. Не читай вручную preflight-файлы, не ищи CLI, не
+вызывай help/status/version/permissions и не создавай protocol/RUN отдельно:
 
-- `.memory-bank/dd-flow/common/style.md`
-- `.memory-bank/dd-flow/common/runtime-cli.md`
-- `.memory-bank/dd-flow/common/protocol-bootstrap.md`
-- `.memory-bank/dd-flow/common/context-discovery.md`
-- `.memory-bank/dd-flow/common/specification.md`
-- `.memory-bank/dd-flow/common/flow-runs.md`
-- `.memory-bank/dd-flow/common/git-ops.md`
-- `.memory-bank/dd-flow/common/memorybank.md`
-- `.memory-bank/dd-flow/common/flow-flags.md`
-- `.memory-bank/index.md`
-- `.memory-bank/protocol/index.md`, если есть
-- `.memory-bank/mbb/index.md`
+```bash
+dd-flow stage start --bootstrap --stage specify --project-root <root> \
+  --subject <label> --intake-file <path> --json
+```
 
-После чтения `common/runtime-cli.md` выполни CLI version/operation preflight, если `dd-flow` доступен: `dd-flow version --json` и `dd-flow status --project-root "<project-root>" --json`. Если compatibility verdict `incompatible` или `unknown`, не скрывай это: зафиксируй degraded/blocker note до создания/изменения runtime state и продолжай только если выбранный route безопасен без требуемого CLI поведения. Если CLI блокирует project/runtime mutation через operation-level compatibility gate, не обходи отказ ручным редактированием runtime-файлов; установи compatible engine, перейди в explicit `mb-upgrade` contour или остановись с blocker/DEF.
+Ответ команды содержит единственный требуемый stage prompt, Git/runtime/
+permission/session receipt, aliases, bounded required context и точную команду
+finish. Эти факты авторитетны для текущей попытки. Прочитай только returned
+stage prompt и перечисленные им project sources.
 
-## Алгоритм
-
-1. Определи, есть ли уже выбранный активный `PRT-*`.
-2. Если пользователь явно хочет новый протокол, выдели новый id по `entity-ids.md`.
-3. До финального создания executable protocol проверь, достаточно ли task-specific контекста. Если общего priming-а мало, выполни `context_discovery` по `common/context-discovery.md`.
-   Если текущая сессия только что выполняла `.memory-bank/dd-flow/fix-def.md`, используй его финальный отчет как structured problem-space context: выбранные группы DEF, рекомендации, ответы пользователя и protocolization guidance. Не повторяй полный DEF inventory без причины; `protocol.md` всё равно остаётся единственной точкой создания `PRT-*`/`PSET-*`.
-4. Выполни `scope_sizing`: оцени, помещается ли работа в один исполняемый протокол с одной целью и одним главным acceptance-сценарием.
-5. Выполни Git preflight и выбери Git contour по `common/protocol-bootstrap.md`.
-6. Если нужен feature worktree, создай/выбери его по `git-ops.md`, выполни workspace bootstrap и создай протокол уже там.
-7. Запиши `summary.md` с исходным запросом, пониманием, scope, workspace, base commit, текущей стадией `specify` и следующим шагом.
-8. Если есть `protocol/index.md`, добавь ссылку на новый протокол.
-9. Зарегистрируй runtime protocol/run state, если доступен CLI.
-10. Сразу выполни optimized `specify` pass из `common/specification.md`: baseline scan, research gate, applicability matrix выбранных requirements methods, consolidated gap ledger и user-question gate. Не возвращай пользователю только факт создания протокола, если substantive discussion уже содержит достаточно материала для этого анализа.
-11. Сформируй `01-specify` specification/report artifacts, зафиксируй `open_questions`/`fixed_questions`, сценарии happy/alternate/error и task profile. Если material problem-space questions остались, остановись на `waiting_for_user`; иначе передай plan-ready handoff в `plan.md`.
-
-Важно: `protocol.md` всегда открывает problem-space work, а не solution-space planning. Если запрос был "оформи протокол", следующий осмысленный шаг после materialization — немедленный requirements-gap pass внутри `specify`, а не ручное создание протокола без анализа. Этот pass может завершиться без вопросов (`baseline_only`), с вопросами (`waiting_for_user`) или с plan-ready specification; он не выбирает архитектуру и не заменяет design aspects.
+`protocol.md` всегда открывает problem-space work, а не solution-space
+planning. Bootstrap создаёт минимальный durable scaffold; immediate SPECIFY
+определяет scope, methods, gap ledger, scenario consequences и user-question
+gate. Этот pass может завершиться без вопросов (`baseline_only`), с вопросами
+(`waiting_for_user`) или plan-ready specification; он не выбирает архитектуру
+и не заменяет design aspects.
 
 ## Scope Sizing
 

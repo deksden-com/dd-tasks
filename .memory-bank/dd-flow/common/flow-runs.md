@@ -2,8 +2,8 @@
 file: '.memory-bank/dd-flow/common/flow-runs.md'
 description: 'SPC-004 RUN state, timeline, generated stages and archive contract.'
 purpose: 'Read before any practical dd-flow stage.'
-version: '1.0.0'
-date: '2026-08-10'
+version: '1.1.0'
+date: '2026-08-12'
 status: 'DRAFT'
 c4_level: 'documentation'
 parent: 'README.md'
@@ -72,23 +72,34 @@ write target.
 
 ## Stage lifecycle
 
-The public lifecycle has exactly two stage actions:
+The public worker lifecycle has exactly two stage actions:
 
 ```bash
 dd-flow stage start <RUN> --stage <stage> --json
-dd-flow stage finish <RUN> --stage <stage> --status done --json
+dd-flow stage finish <RUN> --stage <stage> --outcome <outcome> --json
+```
+
+For a new ordinary task, its first flow command is bootstrap start:
+
+```bash
+dd-flow stage start --bootstrap --stage specify --project-root <root> \
+  --subject <label> --intake-file <path> --json
 ```
 
 Start resolves all context in one response, atomically archives existing stage
 contents into the next `try-NNN`, creates the current root, performs exact
-target probes, binds the harness session and generates the seven-section
-`stage-prompt.md`.
+target probes, binds the harness session and generates the eight-section
+prompt. The response returns `worker_prompt_markdown`; the saved
+`stage-prompt.md` is its identical audit projection from `stage-prompt.json`.
+The receipt also contains the authoritative Git/compatibility/permission/session
+facts, aliases and bounded sources to read. The worker does not redo them.
 
 Finish receives bounded semantic input. The CLI derives timestamps, duration,
 Git facts, session/usage coverage, changed-file delta, artifact paths and
-protocol transition. It validates the semantic contract and renders the JSON,
-Markdown, HTML and summary outputs. A finish cannot accept an archive path or
-model-authored mechanical facts.
+protocol transition from the validated outcome. It validates the semantic
+contract, renders the JSON, Markdown, HTML and summary outputs and seals the
+accepted attempt. A finish cannot accept an archive path, model-authored
+mechanical facts or a hand-authored transition payload.
 
 ## PLAN state and artifacts
 
@@ -112,12 +123,13 @@ changes only packing.
 Every generated stage prompt contains, in order:
 
 1. `<stage_identity>`;
-2. `<runtime_context>`;
-3. `<intake>`;
-4. `<applicable_instructions>`;
-5. `<stage_cli>`;
-6. `<file_boundaries>`;
-7. `<completion_contract>`.
+2. `<authoritative_runtime_facts>`;
+3. `<preflight>`;
+4. `<task_intake>`;
+5. `<applicable_instructions>`;
+6. `<required_context>`;
+7. `<work_contract>`;
+8. `<completion_contract>`.
 
 The prompt is assembled from the installed project flow pack and runtime facts.
 Canonical prose remains project-owned; the CLI does not hardcode it.

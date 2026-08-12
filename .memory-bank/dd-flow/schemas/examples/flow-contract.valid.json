@@ -1,25 +1,28 @@
 {
-  "schema_id": "dd-flow/flow-contract@5",
+  "schema_id": "dd-flow/flow-contract@6",
   "id": "dd-flow-canonical-2026-08",
   "contract_id": "dd-flow-canonical-2026-08",
-  "version": 5,
+  "version": 6,
   "status": "active",
   "source": ".memory-bank/dd-flow/common/runtime-contract.md",
   "specifications": [
     {"id": "SPC-004", "version": "0.2.0", "sha256": "c151193f2cbffa7a27daaa08b9b5c0f5626cb6cad642601b05e9ad5a2155664f"},
-    {"id": "SPC-005", "version": "0.1.0", "sha256": "02622b24f3656c5707f4d50e22a70a85df22c18b1e9c80c725e24be997cf8dd1"}
+    {"id": "SPC-005", "version": "0.1.0", "sha256": "02622b24f3656c5707f4d50e22a70a85df22c18b1e9c80c725e24be997cf8dd1"},
+    {"id": "SPC-006", "version": "0.1.0", "sha256": "4e70e5e7c243da28ac3acb31649cbc61d921c80925d65f6b0218c731f55bb8e8"}
   ],
   "stage_lifecycle": {
     "actions": ["stage_start", "stage_finish"],
     "start_command": "dd-flow stage start <RUN> --stage <stage> --json",
-    "finish_command": "dd-flow stage finish <RUN> --stage <stage> --status done --json",
+    "bootstrap_command": "dd-flow stage start --bootstrap --stage specify --project-root <root> --subject <label> --intake-file <path> --json",
+    "finish_command": "dd-flow stage finish <RUN> --stage <stage> --outcome <outcome> --json",
     "prompt_sections": [
       "stage_identity",
-      "runtime_context",
-      "intake",
+      "authoritative_runtime_facts",
+      "preflight",
+      "task_intake",
       "applicable_instructions",
-      "stage_cli",
-      "file_boundaries",
+      "required_context",
+      "work_contract",
       "completion_contract"
     ],
     "current_write_alias": "@stage",
@@ -33,7 +36,7 @@
   },
   "artifacts": {
     "finish_outputs": ["stage-report.json", "stage-report.md", "stage-report.html", "summary.md"],
-    "model_input": "semantic-only",
+    "model_input": "semantic-only; outcome flag",
     "mechanical_facts": "cli-owned"
   },
   "plan": {

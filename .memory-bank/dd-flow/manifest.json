@@ -1,16 +1,17 @@
 {
   "schema_id": "dd-flow/project-flow-pack-manifest@2",
-  "pack_version": "3.0.0",
+  "pack_version": "3.1.0",
   "flow_origin_policy": "project_local_pack",
   "canon_root": "/Users/deksden/Documents/_Projects/dd-memorybank",
   "canon_memory_bank_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank",
   "canon_flow_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank/dd-flow",
-  "source_commit": "1e8c39078ed7a34adde93315a9cdcf2bbfc15374",
-  "canon_version_at_source_commit": "3.0.0",
+  "source_commit": "6cfaeaa4d4c9c4a5d2b932cb92370dbfd1464bf6",
+  "canon_version_at_source_commit": "3.1.0",
   "flow_contract": "dd-flow-canonical-2026-08",
-  "installed_at": "2026-08-11T12:38:48Z",
+  "installed_at": "2026-08-12T07:30:22.561Z",
   "included_files": [
     "README.md",
+    "code",
     "code.md",
     "common/browser-verification.md",
     "common/canonical-sync.md",
@@ -140,9 +141,12 @@
     "mb-sdlc/specify/gap-analysis/methods/08-misuse-cases.md",
     "mb-sdlc/specify/gap-analysis/methods/09-fmea-light.md",
     "mb-sdlc/specify/stage-report-template.html",
+    "mb-sdlc/specify/stage.md",
+    "merge",
     "merge-start.md",
     "merge-stop.md",
     "merge.md",
+    "plan",
     "plan.md",
     "prime.md",
     "prime/scouts/code-surface.md",
@@ -265,6 +269,7 @@
     "schemas/timeline-event.schema.json",
     "schemas/version-report.schema.json",
     "schemas/worktrunk-workspace.schema.json",
+    "specify",
     "stage-reports/deploy-stage-report-template.html",
     "stage-reports/publish-stage-report-template.html",
     "stage-reports/release-stage-report-template.html",
@@ -289,5 +294,5 @@
   "generated_allow_patterns": [
     ".generated/**"
   ],
-  "notes": "Curated project-local flow pack synchronized with canonical Memory Bank 3.0.0."
+  "notes": "Curated project-local flow pack synchronized with canonical Memory Bank 3.1.0; canonical-only flows, evals and experiments remain canonical/source-only."
 }

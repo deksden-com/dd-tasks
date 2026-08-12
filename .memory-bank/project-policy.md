@@ -2,13 +2,16 @@
 file: '.memory-bank/project-policy.md'
 description: 'Компактная карта политик, влияющих на маршрутизацию работ, Git cleanup и local delivery.'
 purpose: 'Собирает подтверждённые правила Git, checkpoint fixation, deploy handoff и безопасного удаления завершённых worktree.'
-version: '0.5.0'
-date: '2026-08-05'
+version: '0.6.0'
+date: '2026-08-12'
 status: 'ACTIVE'
 c4_level: 'operations'
 parent: '.memory-bank/index.md'
 tags: [dd-tasks, policy, git]
 history:
+  - version: '0.6.0'
+    date: '2026-08-12'
+    changes: 'Добавлен компактный routing для Memory Bank 3.1.0, flow-contract@6 и требуемого CLI/router/engine 0.6.0; package.json и продуктовый release contour не изменены.'
   - version: '0.5.0'
     date: '2026-08-05'
     changes: 'Deploy разрешён только после commit/push exact main и immutable checkpoint tag с remote readback; superseded preview volumes удаляются после принятия нового runtime.'
@@ -54,6 +57,13 @@ history:
 CLI `0.4.0` не завершает requeue/merge-queue contour для этого protocol: исторический queue item `185` сохранён как `cancelled` с audit trail, а новый item не создаётся, пока cancelled binding остаётся. Разрешён только этот protocol-scoped queue bypass; runtime state вручную не редактируется.
 
 README подтверждает маршрут protocol → specify → plan → code → readiness → merge, сохранение verification evidence и обновление Memory Bank в том же accepted commit. Hidden eval materials не входят в проектную истину. Реализация остаётся простой и conventional; shared package появляется только при реальном sharing; platform/database constraints предпочтительнее custom infrastructure. До явной потребности не добавляются background jobs, cron, polling, billing, analytics или deployment machinery. Будущие root-команды должны детерминированно покрывать format, lint, typecheck, test, build, reset и e2e; это planned contract, не текущие установленные команды.
+
+## Memory Bank и flow compatibility
+
+- Активный Memory Bank marker: `3.1.0`; migration window: `3.0.0 → 3.1.0`; canonical source commit: `6cfaeaa4d4c9c4a5d2b932cb92370dbfd1464bf6`.
+- Активный curated flow pack использует `flow-contract@6` и требует совместимые `dd-flow` CLI/router/engine `0.6.0`. Для обычной задачи текущий bootstrap route — `dd-flow stage start --bootstrap --stage specify`, а stage finish принимает CLI-owned `--outcome`.
+- Product version source — `package.json` (`0.1.0`). Memory Bank upgrade не меняет product version и не создаёт product changelog/release entry.
+- Static file sync не доказывает runtime/home migration. `DEF-MBU-RUNTIME-ACTIVE-STATE` остаётся владельцем gated follow-up; SQLite, runtime JSON и control-plane state не редактируются вручную.
 
 ## Git branch strategy
 

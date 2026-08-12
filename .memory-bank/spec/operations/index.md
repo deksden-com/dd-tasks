@@ -2,8 +2,8 @@
 file: '.memory-bank/spec/operations/index.md'
 description: 'Operational, preview-runtime and Git delivery contour dd-tasks through PRT-006.'
 purpose: 'Fixes bootstrap, stage/check/access/secrets safety, one-port preview runtime, evidence contour and source delivery.'
-version: '1.4.0'
-date: '2026-08-05'
+version: '1.6.0'
+date: '2026-08-12'
 status: 'ACTIVE'
 c4_level: 'operations'
 parent: '.memory-bank/spec/index.md'
@@ -20,6 +20,9 @@ children:
   - .memory-bank/spec/operations/runbooks/exe-dev-preview.md
 tags: [dd-tasks, operations, git, checkpoint-02, delivery]
 history:
+  - version: '1.6.0'
+    date: '2026-08-12'
+    changes: 'Операционный контур выровнен с Memory Bank 3.1.0, flow-contract@6 и требуемым dd-flow CLI/router/engine 0.6.0; runtime/home migration оставлена отдельным gated follow-up.'
   - version: '1.5.0'
     date: '2026-08-07'
     changes: 'Добавлена явная политика разделения package version и Memory Bank canon marker; продуктовый release/version bump остаётся отдельным user gate.'
@@ -72,10 +75,27 @@ history:
 
 # Операции
 
+## Текущий Memory Bank и flow-контур
+
+Активный проектный flow pack синхронизирован с canonical Memory Bank `3.1.0`
+из source commit `6cfaeaa4d4c9c4a5d2b932cb92370dbfd1464bf6`. Его compatibility
+контур требует `dd-flow` CLI/router/engine `0.6.0` и `flow-contract@6`.
+Обычный worker flow начинается через
+`dd-flow stage start --bootstrap --stage specify` и завершается через
+`dd-flow stage finish --outcome <outcome>`; runtime identities, paths,
+transitions, reports и timestamps принадлежат CLI.
+
+Это обновление Memory Bank не является продуктовым релизом: текущая версия
+продукта в `package.json` остаётся `0.1.0`, а product changelog/release entry
+не создаётся. Статическая синхронизация файлов также не означает выполненную
+runtime/home или SQLite migration. `DEF-MBU-RUNTIME-ACTIVE-STATE` остаётся
+отдельным gated follow-up; runtime state вручную не редактируется.
+
 PRT-004/PRT-006 CODE выполняется только в exact feature worktree
 `feature/prt-<number>-<slug>`; stable `main` изменяется только
-canonical merge flow после readiness. Runtime управляется штатным `dd-flow` CLI
-0.4.0, без ручной правки DB/JSON.
+canonical merge flow после readiness. Project-owned operations сохраняют
+штатные bootstrap, secrets, Git и check policies ниже; runtime управляется
+совместимым `dd-flow` CLI/engine `0.6.0`, без ручной правки DB/JSON.
 
 Local/test PostgreSQL остаётся на loopback `55433`. `pnpm db:migrate`, `db:reset`,
 `db:seed` и `db:check` требуют exact profile; remote, production-like и

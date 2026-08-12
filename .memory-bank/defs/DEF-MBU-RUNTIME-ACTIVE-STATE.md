@@ -2,8 +2,8 @@
 file: '.memory-bank/defs/DEF-MBU-RUNTIME-ACTIVE-STATE.md'
 description: 'Отложение по gated runtime/home migration после полученного backup evidence.'
 purpose: 'Отделяет безопасный файловый upgrade от миграции runtime/home primary data.'
-version: '0.5.0'
-date: '2026-08-11'
+version: '0.6.0'
+date: '2026-08-12'
 status: 'ACTIVE'
 c4_level: 'operations'
 parent: '.memory-bank/defs/index.md'
@@ -28,6 +28,9 @@ related_files:
   - '.memory-bank/dd-flow/common/runtime-cli.md'
 tags: [deferral, mb-upgrade, runtime, backup, operations]
 history:
+  - version: '0.6.0'
+    date: '2026-08-12'
+    changes: 'RUN-310 подтвердил static-only upgrade 3.0.0 → 3.1.0: project files обновляются, runtime/home и SQLite migration не выполняются; supported migration units по-прежнему отсутствуют.'
   - version: '0.5.0'
     date: '2026-08-11'
     changes: 'CLI cleanup штатно перевёл осиротевший RUN-302 в discarded и закрыл stale RUN-309 session; inactive-state gate снят, остаётся отсутствие major-version migration units.'
@@ -49,10 +52,11 @@ Runtime/home migration не выполнялась. `RUN-309` имеет реа�
 `RUN-302` физически архивирован, а его осиротевшая control-plane строка штатно
 переведена `dd-flow cleanup apply` в `discarded`; stale orchestrator-session
 `RUN-309` также закрыта. `RUN-003` остаётся terminal historical blocked record и
-не считается активным runtime state. Статический Memory Bank 3.0.0 upgrade не
-выдаёт это состояние за применённую runtime/home migration: свежий migration
-plan всё ещё блокируется отсутствием явных migration units для major-version
-перехода `2.18.0 → 3.0.0`.
+не считается активным runtime state. RUN-310 выполняет только static upgrade
+Memory Bank `3.0.0 → 3.1.0`: обновление project files, compatibility и
+curated flow pack не выдаётся за применённую runtime/home или SQLite
+migration. Supported migration units и post-migration verification для
+runtime/home по-прежнему отсутствуют.
 
 ## Current Status
 
@@ -60,28 +64,30 @@ plan всё ещё блокируется отсутствием явных migr
 - Type: `operations_blocker`
 - Severity: `high`
 - Owner: dd-flow runtime/operations owner
-- Opened: 2026-08-04; updated: 2026-08-11
+- Opened: 2026-08-04; updated: 2026-08-12
 - Review condition: explicit major-version migration units и post-migration
   verification доступны через supported CLI.
 
 ## Origin and evidence
 
-- Flow/run: `mb-upgrade / RUN-309-mb-upgrade-3-0-0-dd-tasks / 03-upgrade`
+- Flow/run: `mb-upgrade / RUN-310-mb-upgrade-3-1-0-dd-tasks / 03-upgrade`
+- Previous runtime source: `RUN-309-mb-upgrade-3-0-0-dd-tasks`.
 - Evidence: `RUN-309/03-preflight/impact-assessment.json`, backup receipt,
-  `RUN-309/03-upgrade/migration-report.json` и текущий CLI readback.
+  `RUN-309/03-upgrade/migration-report.json`, RUN-310
+  `03-upgrade/migration-report.json` и текущий CLI readback.
 - Read-only facts: backup present; `RUN-302` is `discarded`; `RUN-309` session is
   `stopped`; blocked `RUN-003-prt-001-checkpoint-01-foundation-code` remains
   untouched as terminal history.
-- Target static upgrade: Memory Bank `2.18.0 → 3.0.0` completed; runtime
-  primary-data migration remains unapplied.
+- Target static upgrade: Memory Bank `3.0.0 → 3.1.0` is the RUN-310 file
+  migration scope; runtime/home primary-data migration remains unapplied.
 
 ## Context for follow-up
 
 Backup/rollback receipt уже получен, legacy authority и inactive-state
-reconciled штатным CLI. Следующий gate — explicit supported migration units для
-major-version перехода; затем штатными командами выполнить migration plan,
-migration verify, status и dashboard checks. Ни один отчёт текущего run не
-доказывает применение runtime migration.
+reconciled штатным CLI. Следующий gate — explicit supported migration units и
+отдельный runtime/home migration flow; затем штатными командами выполнить
+migration plan, migration verify, status и dashboard checks. Ни один отчёт
+RUN-310 не доказывает применение runtime migration.
 
 ## User blocker and fixability
 

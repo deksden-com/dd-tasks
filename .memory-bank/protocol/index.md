@@ -2,8 +2,8 @@
 file: '.memory-bank/protocol/index.md'
 description: 'Curated протоколы работ проекта.'
 purpose: 'Сохраняет долговечные следы инициализации и дальнейших работ, включая pre-CODE handoff.'
-version: '1.4.0'
-date: '2026-08-11'
+version: '1.5.0'
+date: '2026-08-12'
 status: 'ACTIVE'
 c4_level: 'project'
 parent: '.memory-bank/index.md'
@@ -16,6 +16,9 @@ children:
   - .memory-bank/protocol/PRT-006-preview-access-policy/index.md
 tags: [protocol]
 history:
+  - version: '1.5.0'
+    date: '2026-08-12'
+    changes: 'RUN-310 проверил curated verification passports и сохранил отдельные границы protocol-evidence и runtime/home migration; активные DEF остаются discoverable.'
   - version: '1.4.0'
     date: '2026-08-11'
     changes: 'PRT-005/PRT-006 закрыты после интеграции; checkpoint-03 опубликован и его public+closed Exe.dev preview подтверждён readback.'
@@ -78,3 +81,18 @@ history:
   независимые deploy-параметры private/public visibility и open/closed
   registration, безопасные defaults, readback и границу `public + open`;
   интегрирован и публично развёрнут как checkpoint-03 в режиме `public+closed`.
+
+## Evidence и активные отложения
+
+Curated verification passports находятся внутри соответствующих protocol trees:
+[PRT-001](PRT-001-checkpoint-01-foundation/evidence/verification-passport.md),
+[PRT-003](PRT-003-checkpoint-02-core/evidence/verification-passport.md) и
+[PRT-004](PRT-004-exe-preview-runtime/evidence/verification-passport.md).
+Они доказывают только заявленные local/source-package контуры и не заменяют
+provider, runtime/home или чужой RUN evidence.
+
+- [DEF-MBU-PROTOCOL-EVIDENCE-SHELF](../defs/DEF-MBU-PROTOCOL-EVIDENCE-SHELF.md)
+  остаётся открытым для отдельного recovery passport RUN-304.
+- [DEF-MBU-RUNTIME-ACTIVE-STATE](../defs/DEF-MBU-RUNTIME-ACTIVE-STATE.md)
+  запрещает объявлять runtime/home primary-data migration применённой без
+  supported migration units и post-migration verification.

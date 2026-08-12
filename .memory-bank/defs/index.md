@@ -2,8 +2,8 @@
 file: '.memory-bank/defs/index.md'
 description: 'Индекс долговечных именованных отложений проекта dd-tasks.'
 purpose: 'Даёт будущим flow discoverable lookup для известных внешних и follow-up gates.'
-version: '0.5.0'
-date: '2026-08-11'
+version: '0.6.0'
+date: '2026-08-12'
 status: 'ACTIVE'
 c4_level: 'project'
 parent: '.memory-bank/index.md'
@@ -22,6 +22,10 @@ tags: [dd-tasks, deferrals, memory-lifecycle]
 найти их после завершения RUN.
 
 ## История
+
+- `0.6.0` — RUN-310 обновил provenance runtime DEF для static-only перехода
+  `3.0.0 → 3.1.0` и подтвердил, что отдельный recovery evidence DEF RUN-304
+  остаётся открытым; curated passports PRT-001/003/004 сохранены.
 
 - `0.5.0` — осиротевший `RUN-302` и stale session `RUN-309` штатно
   reconciled CLI; runtime DEF теперь блокируется только отсутствующими явными

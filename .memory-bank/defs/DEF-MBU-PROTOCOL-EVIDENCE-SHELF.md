@@ -2,8 +2,8 @@
 file: '.memory-bank/defs/DEF-MBU-PROTOCOL-EVIDENCE-SHELF.md'
 description: 'Отложение по публикации durable protocol verification passport/evidence shelf.'
 purpose: 'Не допускает превращать raw run-local evidence в durable acceptance claim без независимого паспорта.'
-version: '0.1.0'
-date: '2026-08-07'
+version: '0.2.0'
+date: '2026-08-12'
 status: 'ACTIVE'
 c4_level: 'operations'
 parent: '.memory-bank/defs/index.md'
@@ -26,6 +26,10 @@ related_specs:
 related_scenarios:
   - '.memory-bank/scenarios/SCN-003-private-preview-runtime.md'
 tags: [deferral, mb-upgrade, protocol, evidence]
+history:
+  - version: '0.2.0'
+    date: '2026-08-12'
+    changes: 'RUN-310 подтвердил наличие отдельных curated passports для PRT-001/003/004, но они не закрывают recovery evidence gap RUN-304; DEF остаётся открытым.'
 ---
 
 # DEF-MBU-PROTOCOL-EVIDENCE-SHELF: durable passport gap
@@ -36,9 +40,11 @@ tags: [deferral, mb-upgrade, protocol, evidence]
 
 The recovery review found a useful readiness handoff, but the exact raw
 artifacts are referenced through an ignored/run-local path and no reusable
-verification passport or `.memory-bank/evidence/` shelf entry is discoverable
-in the project snapshot. The static Memory Bank upgrade therefore makes no
-durable acceptance claim from that raw evidence.
+verification passport for the specific recovery run `RUN-304` is discoverable
+in the project snapshot. The project does have separate curated passports for
+PRT-001, PRT-003 and PRT-004; they do not provide evidence for RUN-304. The
+static Memory Bank upgrade therefore makes no durable acceptance claim from
+that recovery raw evidence.
 
 ## Close condition
 
@@ -50,5 +56,7 @@ verdict and `does_not_prove` boundary, and use the fully qualified run slug
 
 ## Current disposition
 
-`RUN-304` records this DEF as an open follow-up. Runtime/home migration remains
+`RUN-304` records this DEF as an open follow-up. RUN-310 reviewed the existing
+passport shelf and left this DEF open because its close condition is scoped to
+the separate RUN-304 recovery evidence. Runtime/home migration remains
 separately governed by `DEF-MBU-RUNTIME-ACTIVE-STATE`.

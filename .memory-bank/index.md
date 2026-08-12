@@ -2,8 +2,8 @@
 file: '.memory-bank/index.md'
 description: 'Рабочий вход в Банк памяти проекта dd-tasks.'
 purpose: 'Фиксирует подтверждённое состояние проекта на текущем Git-снимке.'
-version: '1.5.0'
-date: '2026-08-11'
+version: '1.6.0'
+date: '2026-08-12'
 status: 'ACTIVE'
 c4_level: 'project'
 parent: null
@@ -15,10 +15,13 @@ children:
   - .memory-bank/scenarios/index.md
   - .memory-bank/protocol/index.md
   - .memory-bank/defs/index.md
-memory_bank_version: '3.0.0'
+memory_bank_version: '3.1.0'
 initialization_status: 'initialized_published'
 tags: [dd-tasks, memory-bank]
 history:
+  - version: '1.6.0'
+    date: '2026-08-12'
+    changes: 'Canonical Memory Bank 3.1.0 и curated flow pack provenance обновлены до source commit 6cfaeaa; SPC-006/flow-contract@6 добавлены в активную навигацию, runtime/home migration остаётся отдельным gated follow-up.'
   - version: '1.5.0'
     date: '2026-08-11'
     changes: 'Актуализированы PRT-005/PRT-006, checkpoint-03 и публичный Exe.dev preview; удалено устаревшее утверждение об отсутствии remote delivery/deploy.'
@@ -71,8 +74,9 @@ history:
 
 # Банк памяти dd-tasks
 
-Канонический релиз Банка памяти: `3.0.0`. Curated project flow pack
-происходит из canonical commit `1e8c39078ed7a34adde93315a9cdcf2bbfc15374`;
+Канонический релиз Банка памяти: `3.1.0`. Curated project flow pack
+происходит из canonical commit
+`6cfaeaa4d4c9c4a5d2b932cb92370dbfd1464bf6`;
 canonical-only entrypoints запускаются только из canonical checkout.
 
 dd-tasks — небольшой командный трекер задач. После нулевого checkpoint и
@@ -88,6 +92,10 @@ deterministic local acceptance.
 - [Полка протоколов](protocol/)
 - [Индекс именованных отложений](defs/index.md)
 - [Канон MBB](mbb/index.md)
+- [Активный dd-flow pack](dd-flow/README.md): `flow-contract@6`, CLI/engine
+  `0.6.0` и CLI-owned stage bootstrap/context-packet semantics.
+- [SPC-006 stage bootstrap/context packet](spec/engineering/SPC-006-stage-bootstrap-and-context-packet.md)
+  — project-facing engineering contract for the 3.1 flow release.
 
 Foundation history и annotated `checkpoint-01-foundation` не переписываются.
 PRT-003/RUN-298 приняли CODE/readiness; implementation content `5027fa1`

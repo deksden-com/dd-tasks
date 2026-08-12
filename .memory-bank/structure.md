@@ -2,13 +2,16 @@
 file: '.memory-bank/structure.md'
 description: 'Карта разделов и текущей плотности знаний.'
 purpose: 'Объясняет, где живёт подтверждённая проектная истина.'
-version: '0.9.0'
-date: '2026-08-11'
+version: '1.0.0'
+date: '2026-08-12'
 status: 'ACTIVE'
 c4_level: 'project'
 parent: '.memory-bank/index.md'
 tags: [dd-tasks, structure]
 history:
+  - version: '1.0.0'
+    date: '2026-08-12'
+    changes: 'Отражены canonical MBB/curated flow pack 3.1.0, source commit 6cfaeaa, flow-contract@6 и SPC-006; project-owned shelves и архивная история сохранены.'
   - version: '0.9.0'
     date: '2026-08-11'
     changes: 'Отражены canonical MBB и curated flow-pack 3.0.0, breaking runtime/stage lifecycle и single-source PLAN contracts; прежние слои сохранены в upgrade archive.'
@@ -53,7 +56,13 @@ adr, evidence, ui, guides, skills и archive существуют как кан�
 foundation создан один canonical scenario; raw run artifacts не подменяют
 Memory Bank truth.
 
-mbb — копия MBB 3.0.0. dd-flow — curated project-local pack из canonical
-commit `1e8c39078ed7a34adde93315a9cdcf2bbfc15374`; canonical-only mb-init,
-mb-upgrade и mb-distill не установлены. Предыдущие `mbb` и `dd-flow` сохранены
-в `.memory-bank/archive/mb-upgrade-2026-08-11/`.
+mbb — копия MBB 3.1.0. dd-flow — curated project-local pack из canonical
+commit `6cfaeaa4d4c9c4a5d2b932cb92370dbfd1464bf6`; active pack использует
+`flow-contract@6`, CLI/engine `0.6.0` и исключает canonical-only mb-init,
+mb-upgrade и mb-distill, а также eval/experiment shelves. Предыдущие `mbb` и
+`dd-flow` сохранены в `.memory-bank/archive/mb-upgrade-2026-08-11/` и
+`.memory-bank/archive/mb-upgrade-2026-08-12/`.
+
+SPC-006 deterministic stage bootstrap/context packet и outcome-based sealed
+stage finish принадлежат engineering/flow contract contour; runtime/home data
+не считается мигрированным статическим обновлением файлов.

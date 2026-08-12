@@ -2,8 +2,8 @@
 file: '.memory-bank/spec/engineering/index.md'
 description: 'Подтверждённый engineering/test contour checkpoint-02-core и private preview runtime.'
 purpose: 'Фиксирует canonical commands, test ownership, container smoke и границы локального доказательства.'
-version: '0.6.0'
-date: '2026-08-04'
+version: '0.7.0'
+date: '2026-08-12'
 status: 'ACTIVE'
 c4_level: 'documentation'
 index_type: 'shallow'
@@ -31,6 +31,9 @@ test_files:
   - apps/web/tests/browser/preview.spec.ts
 tags: [dd-tasks, engineering, checkpoint-02, preview, quality, playwright, container]
 history:
+  - version: '0.7.0'
+    date: '2026-08-12'
+    changes: 'Добавлен project-facing summary канонического SPC-006 для Memory Bank 3.1.0; flow/runtime contracts и package-owned quality facts разделены.'
   - version: '0.6.0'
     date: '2026-08-05'
     changes: 'Добавлены access-policy unit/API/UI/browser gates, build-manifest policy handoff и closed-registration SCN-003 readback.'
@@ -46,6 +49,15 @@ history:
 ---
 
 # Инженерный слой
+
+## Active flow contract
+
+[SPC-006 stage bootstrap and context packet](SPC-006-stage-bootstrap-and-context-packet.md)
+— project-facing summary канонического контракта 3.1.0. Полная механика
+принадлежит активному [dd-flow runtime contract](../../dd-flow/common/runtime-contract.md),
+`flow-contract@6` и совместимому `dd-flow-cli` 0.6.0; этот engineering layer
+сохраняет только применимое к проекту boundary и не заменяет project-owned
+quality/test commands ниже.
 
 Canonical bootstrap — `pnpm bootstrap`; в non-interactive окружении script сам
 задаёт `CI=true`, не меняя интерактивный режим. Root gates:

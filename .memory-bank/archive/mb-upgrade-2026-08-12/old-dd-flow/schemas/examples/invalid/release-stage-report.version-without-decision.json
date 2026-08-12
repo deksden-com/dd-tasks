@@ -1,0 +1,32 @@
+{
+  "schema_id": "dd-flow/release-stage-report@1",
+  "run": { "run_id": "RUN-160-release-canon-2110", "run_state": "../run.json" },
+  "stage": { "name": "release", "dir": "04-report", "status": "done" },
+  "project": { "id": "PRJ-004-dd-memorybank", "title": "dd-memorybank" },
+  "subject": { "id": "PSET-005", "title": "Release deploy publish flow model" },
+  "overall": {
+    "verdict": "completed",
+    "summary": "Incorrectly claims release completion without a version decision.",
+    "next_action": "none"
+  },
+  "release_set": {
+    "source": "merged protocols",
+    "included_changes": [{ "label": "PRT-074", "path": ".memory-bank/protocol/PRT-074-delivery-flow-reports-runtime-and-evals.md" }],
+    "excluded_changes": []
+  },
+  "version_decision": {
+    "status": "user_required",
+    "selected_version": "2.11.0",
+    "decision_source": "",
+    "evidence": []
+  },
+  "artifacts": [{ "label": "tag", "path": "refs/tags/v2.11.0" }],
+  "release_readback": {
+    "status": "passed",
+    "evidence": [{ "label": "tag readback", "path": "evidence/tag-readback.json" }]
+  },
+  "gates": [],
+  "checks": [],
+  "evidence": [],
+  "defs": []
+}

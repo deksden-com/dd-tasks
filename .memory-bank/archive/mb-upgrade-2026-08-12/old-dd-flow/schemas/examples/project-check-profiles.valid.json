@@ -1,0 +1,31 @@
+{
+  "schema_id": "dd-flow/project-check-profiles@1",
+  "profiles": [
+    {
+      "id": "local-default",
+      "stage": "local",
+      "purpose": "Default local readiness before merge handoff.",
+      "environment": "developer machine",
+      "checks": [
+        {
+          "name": "memory-bank lint",
+          "command_or_procedure": "npx @deksden-com/mb-lint@latest --root . --format json",
+          "required_for_gate": true,
+          "evidence": "lint JSON output",
+          "manual": false
+        }
+      ],
+      "green_definition": "All required checks pass and no manual gate is skipped without DEF.",
+      "manual_verification_policy": {
+        "allow_skip_with_def": true,
+        "required_def_fields": [
+          "scenario",
+          "reason",
+          "next_gate",
+          "blocks",
+          "does_not_block"
+        ]
+      }
+    }
+  ]
+}

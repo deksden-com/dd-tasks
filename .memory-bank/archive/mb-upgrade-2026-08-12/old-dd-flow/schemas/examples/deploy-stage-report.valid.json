@@ -1,0 +1,95 @@
+{
+  "schema_id": "dd-flow/deploy-stage-report@1",
+  "run": {
+    "run_id": "RUN-161-deploy-preview",
+    "run_state": "../run.json"
+  },
+  "stage": {
+    "name": "deploy",
+    "dir": "04-report",
+    "status": "done"
+  },
+  "project": {
+    "id": "PRJ-101-web-app",
+    "title": "web-app"
+  },
+  "subject": {
+    "id": "PRT-200-preview-deploy",
+    "title": "Preview deploy"
+  },
+  "overall": {
+    "verdict": "completed",
+    "summary": "Build artifact was deployed to Vercel preview and verified by readback.",
+    "next_action": "Promote or close according to project policy."
+  },
+  "operational_access": {
+    "schema_id": "dd-flow/operational-access-preflight@1",
+    "applicability": "required",
+    "outcome": "authorized",
+    "verdicts": { "identity": "verified", "authority": "verified", "target": "verified", "approval": "verified" },
+    "next_action": "Consume this fresh preflight immediately before the protected deploy."
+  },
+  "target": {
+    "runtime_stage": "preview",
+    "deploy_provider": "vercel",
+    "deploy_target": "web-app-preview",
+    "url": "https://web-app-preview.example.com",
+    "evidence": [
+      {
+        "label": "deployment target readback",
+        "path": "evidence/vercel-deployment.json"
+      }
+    ]
+  },
+  "source_artifact": {
+    "label": "source commit",
+    "path": "git:abcdef1234567890",
+    "kind": "git-commit"
+  },
+  "pre_deploy_gates": [
+    {
+      "id": "artifact_selected",
+      "status": "pass",
+      "summary": "Source artifact is fixed before deploy.",
+      "evidence": "evidence/source-artifact.md"
+    }
+  ],
+  "execution": {
+    "mode": "provider-cli",
+    "deployment_id": "dpl_123",
+    "command_or_trigger": "vercel deploy --prebuilt",
+    "evidence": [
+      {
+        "label": "deploy command log",
+        "path": "logs/vercel-deploy.log"
+      }
+    ]
+  },
+  "post_deploy": {
+    "verdict": "passed",
+    "evidence": [
+      {
+        "label": "health check",
+        "path": "evidence/health-check.json"
+      }
+    ]
+  },
+  "rollback": {
+    "posture": "roll-forward",
+    "summary": "Preview deploy can be superseded by a new deployment."
+  },
+  "checks": [
+    {
+      "name": "browser smoke",
+      "status": "passed",
+      "evidence": "evidence/browser-smoke.md"
+    }
+  ],
+  "evidence": [
+    {
+      "label": "deploy report",
+      "path": "report.md"
+    }
+  ],
+  "defs": []
+}

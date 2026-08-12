@@ -1,0 +1,11 @@
+{
+  "schema_id": "dd-flow/worktrunk-workspace@1",
+  "command": "wt switch --create <branch> --base <base> --format json",
+  "official_pinned_artifact": {"url": "https://github.com/maxbrunsfeld/worktrunk/releases/download/v0.68.0/wt", "version": "0.68.0", "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef", "verified": true},
+  "workspace_path": "/worktrees/feature",
+  "branch": "feature/prt-340",
+  "base": "main",
+  "tool_version": "0.68.0",
+  "bootstrap_status": "bootstrap_not_required",
+  "hooks": [".worktreeinclude", ".config/wt.toml"]
+}

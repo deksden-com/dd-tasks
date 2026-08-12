@@ -1,0 +1,93 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/mb-upgrade-migration-report@1",
+  "title": "mb-upgrade runtime/home migration report",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "ok",
+    "schema_id",
+    "generated_at",
+    "project",
+    "migration",
+    "backup",
+    "active_state",
+    "primary_data",
+    "derived_artifacts",
+    "verification"
+  ],
+  "properties": {
+    "ok": { "const": true },
+    "schema_id": { "const": "dd-flow/mb-upgrade-migration-report@1" },
+    "generated_at": { "type": "string", "minLength": 1 },
+    "project": {
+      "type": "object",
+      "required": ["id", "root", "memory_bank_version"],
+      "additionalProperties": true,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "root": { "type": "string", "minLength": 1 },
+        "memory_bank_version": { "type": ["string", "null"] }
+      }
+    },
+    "migration": {
+      "type": "object",
+      "required": [
+        "mode",
+        "status",
+        "source_memory_bank_version",
+        "target_memory_bank_version",
+        "adjacent_only",
+        "chain",
+        "blocked_reasons"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "mode": { "const": "mb-upgrade-only" },
+        "status": { "enum": ["ready", "blocked", "noop", "completed", "failed", "degraded"] },
+        "source_memory_bank_version": { "type": "string", "minLength": 1 },
+        "target_memory_bank_version": { "type": "string", "minLength": 1 },
+        "adjacent_only": { "const": true },
+        "chain": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "from", "to", "status"],
+            "additionalProperties": true,
+            "properties": {
+              "id": { "type": "string", "minLength": 1 },
+              "from": { "type": "string", "minLength": 1 },
+              "to": { "type": "string", "minLength": 1 },
+              "status": { "enum": ["planned", "applied", "skipped", "failed", "blocked"] }
+            }
+          }
+        },
+        "blocked_reasons": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "backup": {
+      "type": "object",
+      "required": ["status", "path", "created_at", "rollback_route"],
+      "additionalProperties": true,
+      "properties": {
+        "status": { "enum": ["present", "planned", "missing"] },
+        "path": { "type": ["string", "null"] },
+        "created_at": { "type": ["string", "null"] },
+        "rollback_route": { "type": "string", "minLength": 1 }
+      }
+    },
+    "active_state": { "type": "object", "additionalProperties": true },
+    "primary_data": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "derived_artifacts": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "verification": { "type": "object", "additionalProperties": true }
+  }
+}

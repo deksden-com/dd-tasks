@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/session-usage@1",
+  "title": "Session and usage coverage",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "session_coverage", "usage_coverage", "sessions", "usage"],
+  "properties": {
+    "schema_id": {"const": "dd-flow/session-usage@1"},
+    "session_coverage": {"$ref": "#/definitions/coverage"},
+    "usage_coverage": {"$ref": "#/definitions/coverage"},
+    "sessions": {"type": "array", "items": {"type": "object", "required": ["session_id", "kind", "status"], "properties": {"session_id": {"type": "string"}, "kind": {"type": "string"}, "status": {"type": "string"}}, "additionalProperties": true}},
+    "usage": {"type": "object", "required": ["input_tokens", "cache_read_input_tokens", "cache_write_input_tokens", "output_tokens", "reasoning_output_tokens"], "properties": {"input_tokens": {"type": ["integer", "null"]}, "cache_read_input_tokens": {"type": ["integer", "null"]}, "cache_write_input_tokens": {"type": ["integer", "null"]}, "output_tokens": {"type": ["integer", "null"]}, "reasoning_output_tokens": {"type": ["integer", "null"]}}, "additionalProperties": true}
+  },
+  "definitions": {"coverage": {"type": "object", "required": ["status", "expected", "observed", "missing_sessions"], "properties": {"status": {"enum": ["complete", "partial", "unavailable"]}, "expected": {"type": "array"}, "observed": {"type": "array"}, "missing_sessions": {"type": "array"}}, "additionalProperties": true}}
+}

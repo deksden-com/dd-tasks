@@ -1,0 +1,127 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/project-flow-pack-manifest@2",
+  "title": "Project flow pack manifest",
+  "description": "Manifest for the curated project-local dd-flow pack installed under .memory-bank/dd-flow/.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_id",
+    "pack_version",
+    "flow_origin_policy",
+    "canon_root",
+    "canon_flow_root",
+    "source_commit",
+    "installed_at",
+    "included_files",
+    "excluded_canonical_only_flows"
+  ],
+  "properties": {
+    "schema_id": {
+      "type": "string",
+      "enum": ["dd-flow/project-flow-pack-manifest@1", "dd-flow/project-flow-pack-manifest@2"]
+    },
+    "pack_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "flow_origin_policy": {
+      "const": "project_local_pack"
+    },
+    "canon_root": {
+      "type": "string",
+      "minLength": 1
+    },
+    "canon_memory_bank_root": {
+      "type": "string",
+      "minLength": 1
+    },
+    "canon_flow_root": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_commit": {
+      "type": "string",
+      "minLength": 7
+    },
+    "canon_version_at_source_commit": {
+      "type": "string",
+      "minLength": 1
+    },
+    "canon_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "flow_contract": {
+      "type": "string",
+      "minLength": 1
+    },
+    "installed_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "included_files": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/definitions/projectLocalFile"
+      }
+    },
+    "file_hashes": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "excluded_canonical_only_flows": {
+      "type": "array",
+      "minItems": 3,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": ["mb-init.md", "mb-upgrade.md", "mb-distill.md"]
+      }
+    },
+    "generated_allow_patterns": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "schema_id": {
+            "const": "dd-flow/project-flow-pack-manifest@2"
+          }
+        }
+      },
+      "then": {
+        "required": ["canon_memory_bank_root", "canon_flow_root", "canon_version_at_source_commit", "flow_contract"]
+      }
+    }
+  ],
+  "definitions": {
+    "projectLocalFile": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!manifest\\.json$)[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$",
+      "not": {
+        "anyOf": [
+          { "pattern": "^(mb-init|mb-upgrade|mb-distill)\\.md$" },
+          { "pattern": "^(mb-init|mb-upgrade|mb-distill)/" },
+          { "pattern": "^experiments/" },
+          { "pattern": "^evals/" }
+        ]
+      }
+    }
+  }
+}

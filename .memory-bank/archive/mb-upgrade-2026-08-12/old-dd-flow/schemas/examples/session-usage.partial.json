@@ -1,0 +1,7 @@
+{
+  "schema_id": "dd-flow/session-usage@1",
+  "session_coverage": {"status": "partial", "expected": ["orchestrator", "worker-1"], "observed": ["orchestrator"], "missing_sessions": ["worker-1"]},
+  "usage_coverage": {"status": "partial", "expected": ["orchestrator"], "observed": ["orchestrator"], "missing_sessions": []},
+  "sessions": [{"session_id": "session-orchestrator", "kind": "orchestrator", "status": "observed"}],
+  "usage": {"input_tokens": 1200, "cache_read_input_tokens": 400, "cache_write_input_tokens": null, "output_tokens": 300, "reasoning_output_tokens": 50}
+}

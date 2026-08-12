@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/worktrunk-workspace@1",
+  "title": "Verified Worktrunk workspace result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "command", "official_pinned_artifact", "workspace_path", "branch", "base", "tool_version", "bootstrap_status"],
+  "properties": {
+    "schema_id": {"const": "dd-flow/worktrunk-workspace@1"},
+    "command": {"const": "wt switch --create <branch> --base <base> --format json"},
+    "official_pinned_artifact": {"type": "object", "required": ["url", "version", "sha256", "verified"], "properties": {"url": {"type": "string"}, "version": {"type": "string"}, "sha256": {"pattern": "^[a-f0-9]{64}$"}, "verified": {"const": true}}, "additionalProperties": false},
+    "workspace_path": {"type": "string", "minLength": 1},
+    "branch": {"type": "string", "minLength": 1},
+    "base": {"type": "string", "minLength": 1},
+    "tool_version": {"type": "string", "minLength": 1},
+    "bootstrap_status": {"type": "string", "minLength": 1},
+    "hooks": {"type": "array", "items": {"type": "string"}}
+  }
+}

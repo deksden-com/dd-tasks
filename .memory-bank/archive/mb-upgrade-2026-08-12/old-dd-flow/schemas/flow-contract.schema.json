@@ -1,0 +1,182 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/flow-contract@5",
+  "title": "dd-flow canonical runtime contract",
+  "description": "Structural contract for the SPC-004 v0.2 and SPC-005 runtime/PLAN cutover. Dynamic command and cross-repository checks belong to companion projects.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_id",
+    "id",
+    "contract_id",
+    "version",
+    "status",
+    "source",
+    "specifications",
+    "stage_lifecycle",
+    "run",
+    "artifacts",
+    "plan",
+    "validation",
+    "workspace",
+    "lint",
+    "removed_contracts",
+    "presets",
+    "policy"
+  ],
+  "properties": {
+    "schema_id": {"const": "dd-flow/flow-contract@5"},
+    "id": {"const": "dd-flow-canonical-2026-08"},
+    "contract_id": {"type": "string", "pattern": "^dd-flow-canonical-[0-9]{4}-[0-9]{2}$"},
+    "version": {"const": 5},
+    "status": {"const": "active"},
+    "source": {"const": ".memory-bank/dd-flow/common/runtime-contract.md"},
+    "specifications": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "version", "sha256"],
+        "properties": {
+          "id": {"enum": ["SPC-004", "SPC-005"]},
+          "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+          "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+        }
+      }
+    },
+    "stage_lifecycle": {"$ref": "#/definitions/stageLifecycle"},
+    "run": {"$ref": "#/definitions/runContract"},
+    "artifacts": {"$ref": "#/definitions/artifactContract"},
+    "plan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["semantic_source", "schema", "progress_projection", "worker_projection", "coverage_source", "removed"],
+      "properties": {
+        "semantic_source": {"const": ".memory-bank/protocol/<PRT-ID>/plan.json"},
+        "schema": {"const": ".memory-bank/dd-flow/schemas/protocol-plan.schema.json"},
+        "progress_projection": {"const": "run.json.plan_progress"},
+        "worker_projection": {"const": "run.json.workers"},
+        "coverage_source": {"const": "<RUN-home>/02-plan/aspect-map.json"},
+        "removed": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "validation": {"$ref": "#/definitions/validationContract"},
+    "workspace": {"$ref": "#/definitions/workspaceContract"},
+    "lint": {"$ref": "#/definitions/lintContract"},
+    "removed_contracts": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "presets": {"$ref": "#/definitions/presets"},
+    "policy": {"$ref": "#/definitions/policy"}
+  },
+  "definitions": {
+    "nonEmptyString": {"type": "string", "minLength": 1},
+    "stageLifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["actions", "start_command", "finish_command", "prompt_sections", "current_write_alias", "archive_pattern"],
+      "properties": {
+        "actions": {
+          "const": ["stage_start", "stage_finish"]
+        },
+        "start_command": {"const": "dd-flow stage start <RUN> --stage <stage> --json"},
+        "finish_command": {"const": "dd-flow stage finish <RUN> --stage <stage> --status done --json"},
+        "prompt_sections": {
+          "const": [
+            "stage_identity",
+            "runtime_context",
+            "intake",
+            "applicable_instructions",
+            "stage_cli",
+            "file_boundaries",
+            "completion_contract"
+          ]
+        },
+        "current_write_alias": {"const": "@stage"},
+        "archive_pattern": {"const": "try-NNN"}
+      }
+    },
+    "runContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["current_state", "history", "sole_authority", "legacy_state"],
+      "properties": {
+        "current_state": {"const": "run.json"},
+        "history": {"const": "timeline.jsonl"},
+        "sole_authority": {"const": true},
+        "legacy_state": {"const": "retired"}
+      }
+    },
+    "artifactContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["finish_outputs", "model_input", "mechanical_facts"],
+      "properties": {
+        "finish_outputs": {"const": ["stage-report.json", "stage-report.md", "stage-report.html", "summary.md"]},
+        "model_input": {"const": "semantic-only"},
+        "mechanical_facts": {"const": "cli-owned"}
+      }
+    },
+    "validationContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["permission_scope", "memory_bank_scope", "alias_policy"],
+      "properties": {
+        "permission_scope": {"const": "known-targets-only"},
+        "memory_bank_scope": {"const": "post-write-delta"},
+        "alias_policy": {"const": "typed-contained-fail-closed"}
+      }
+    },
+    "workspaceContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["manager", "command", "project_hooks", "fallbacks"],
+      "properties": {
+        "manager": {"const": "official-worktrunk"},
+        "command": {"const": "wt switch --create <branch> --base <base> --format json"},
+        "project_hooks": {"const": [".worktreeinclude", ".config/wt.toml"]},
+        "fallbacks": {"const": "forbidden"}
+      }
+    },
+    "lintContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["progress_channel", "result_channel", "default_concurrency", "findings_order"],
+      "properties": {
+        "progress_channel": {"const": "stderr"},
+        "result_channel": {"const": "stdout"},
+        "default_concurrency": {"const": 32},
+        "findings_order": {"const": "deterministic"}
+      }
+    },
+    "presets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["compact", "normal", "full"],
+      "properties": {
+        "compact": {"$ref": "#/definitions/preset"},
+        "normal": {"$ref": "#/definitions/preset"},
+        "full": {"$ref": "#/definitions/preset"}
+      }
+    },
+    "preset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["planning", "verification"],
+      "properties": {
+        "planning": {"enum": ["compact", "normal", "full"]},
+        "verification": {"enum": ["mandatory", "full"]}
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_of_truth", "runtime_owner", "lint_owner", "integrated_gate"],
+      "properties": {
+        "source_of_truth": {"const": "canonical prompts and schemas"},
+        "runtime_owner": {"const": "dd-flow-cli"},
+        "lint_owner": {"const": "mb-lint"},
+        "integrated_gate": {"const": "compatible releases plus clean specify-to-plan eval"}
+      }
+    }
+  }
+}

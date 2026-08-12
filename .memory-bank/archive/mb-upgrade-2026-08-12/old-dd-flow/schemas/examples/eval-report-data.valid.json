@@ -1,0 +1,54 @@
+{
+  "schema_id": "dd-flow/eval-report-data@1",
+  "generated_at": "2026-06-23T12:00:00Z",
+  "subject": {
+    "id": "EVL-001-demo",
+    "title": "Demo prompt behavior evaluation",
+    "mode": "baseline",
+    "scenario_id": "SCN-001-demo",
+    "run_id": "RUN-001-demo"
+  },
+  "overall": {
+    "verdict": "accepted",
+    "summary": "The evaluated behavior meets the baseline for the demo criteria.",
+    "score": 8,
+    "score_max": 10,
+    "threshold": 7,
+    "next_action": "keep_baseline"
+  },
+  "aspects": [
+    {
+      "id": "correctness",
+      "label": "Correctness",
+      "score": 4,
+      "score_max": 5,
+      "verdict": "accepted",
+      "summary": "The output satisfies the expected semantic contract."
+    },
+    {
+      "id": "evidence_quality",
+      "label": "Evidence Quality",
+      "score": 4,
+      "score_max": 5,
+      "verdict": "accepted",
+      "summary": "The report links to sufficient evidence for this demo baseline."
+    }
+  ],
+  "findings": [
+    {
+      "severity": "info",
+      "aspect": "correctness",
+      "summary": "No blocking findings in the demo report.",
+      "evidence": "Demo evidence bundle referenced by this example.",
+      "next_action": "none"
+    }
+  ],
+  "evidence": [
+    {
+      "label": "Demo evidence bundle",
+      "href": "../evidence/demo-evidence.md",
+      "what_it_proves": "The demo report can link to source evidence.",
+      "what_it_does_not_prove": "It does not prove a real product gate."
+    }
+  ]
+}

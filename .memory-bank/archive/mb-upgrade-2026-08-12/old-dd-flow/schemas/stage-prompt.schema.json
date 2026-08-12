@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/stage-prompt@1",
+  "title": "Generated stage prompt",
+  "type": "object",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {"properties": {"stage": {"const": "plan"}}, "required": ["stage"]},
+      "then": {
+        "properties": {
+          "aliases": {
+            "required": ["plan", "aspect-map"]
+          }
+        }
+      }
+    }
+  ],
+  "required": ["schema_id", "run_id", "stage", "generated_at", "prompt_path", "sections", "aliases", "write_boundary", "source_fragments"],
+  "properties": {
+    "schema_id": {"const": "dd-flow/stage-prompt@1"},
+    "run_id": {"type": "string", "minLength": 1},
+    "stage": {"type": "string", "minLength": 1},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "prompt_path": {"type": "string", "minLength": 1},
+    "sections": {"type": "array", "minItems": 7, "maxItems": 7, "items": {"enum": ["stage_identity", "runtime_context", "intake", "applicable_instructions", "stage_cli", "file_boundaries", "completion_contract"]}},
+    "aliases": {"type": "object", "required": ["project", "workspace", "run", "stage", "protocol", "intake"], "additionalProperties": {"type": "string"}},
+    "write_boundary": {"type": "object", "required": ["current", "archive", "archive_writable"], "properties": {"current": {"const": "@stage"}, "archive": {"pattern": "try-[0-9]{3}"}, "archive_writable": {"const": false}}, "additionalProperties": false},
+    "source_fragments": {"type": "array", "items": {"type": "string", "minLength": 1}}
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "current_stage": "plan",
+  "lifecycle": {
+    "flow": "mb_sdlc",
+    "stage": "plan",
+    "substage": null,
+    "status": "in_progress",
+    "status_reason": null,
+    "terminal": false,
+    "legacy_stage": null,
+    "legacy_status": null,
+    "raw_stage": "plan",
+    "raw_status": "running",
+    "queue_status": null,
+    "source": "runtime_state",
+    "diagnostics": []
+  },
+  "allowed_next_stages": ["implementation", "blocked", "waiting_for_user"],
+  "recommended_next_action": "run code flow",
+  "recommended_prompt": ".memory-bank/dd-flow/code.md",
+  "required_predecessor_evidence": [
+    "~/.dd-flow/projects/PRJ-001-demo/runs/RUN-001-demo/02-plan/stage-report.json",
+    "~/.dd-flow/projects/PRJ-001-demo/runs/RUN-001-demo/02-plan/stage-report.html"
+  ],
+  "guards": [
+    {
+      "id": "code_flow_requires_plan_ready",
+      "status": "pass",
+      "summary": "Plan stage report exists in linked run evidence."
+    }
+  ],
+  "blocked_if_missing": []
+}

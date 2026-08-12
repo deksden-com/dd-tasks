@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0.0",
+  "schema_id": "dd-flow/mb-upgrade-review-data@1",
+  "review": {
+    "run_id": "invalid-major-report-only",
+    "generated_at": "2026-06-04T12:00:00Z",
+    "target_project": "demo",
+    "target_language": "ru",
+    "reviewed_upgrade_path": ".tasks/upgrade",
+    "reviewed_branch": "feature/demo",
+    "reviewed_commit": "abc1234",
+    "integration_branch": "main",
+    "source_integrated_review_path": ".tasks/review/integrated-review.md",
+    "final_report_path": ".tasks/review/05-review/04-stage-report/final-report.md",
+    "aspect_coverage_path": ".tasks/review/aspect-coverage.md",
+    "dashboard_template": ".memory-bank/dd-flow/mb-upgrade/review/stage-report-template.html"
+  },
+  "overall": {
+    "verdict": "accepted",
+    "verdict_label": "Принято",
+    "verdict_note": "Invalid fixture.",
+    "score_total": 50,
+    "score_max": 50,
+    "score_label": "50 / 50",
+    "blockers": 0,
+    "blocker_summary": "",
+    "delivery_state": "demo",
+    "next_action": "demo"
+  },
+  "aspects": [],
+  "findings": [
+    {
+      "id": "FIND-MBU-REVIEW-001",
+      "display_order": 1,
+      "aspect_id": "01-goal-and-delivery",
+      "severity": "major",
+      "severity_label": "Значимая",
+      "title": "Invalid major report only",
+      "problem": "Major finding cannot remain report-only.",
+      "impact": "Finding would be lost.",
+      "next_action": "Create or reuse DEF.",
+      "status_label": "Report only",
+      "evidence": [{"kind": "note", "label": "Note", "path": "", "summary": "Invalid case."}],
+      "tracking": {
+        "status": "report_only",
+        "label": "Report only",
+        "badge_kind": "report",
+        "def_id": "",
+        "def_path": "",
+        "reason": ""
+      }
+    }
+  ],
+  "evidence": [],
+  "defs": {"created": [], "updated": [], "existing": []},
+  "verification": [],
+  "dashboard": {
+    "kicker": "Invalid",
+    "title": "Invalid",
+    "lead": "Invalid",
+    "meta": [],
+    "top_signals": [],
+    "tooltips": {
+      "quality_profile": "Invalid",
+      "aspect_review": "Invalid",
+      "timeline": "Invalid",
+      "verification": "Invalid"
+    },
+    "timeline": []
+  }
+}

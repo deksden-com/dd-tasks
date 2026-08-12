@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/stage-start-response@1",
+  "title": "Stage start response",
+  "type": "object",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {"properties": {"stage": {"const": "plan"}}, "required": ["stage"]},
+      "then": {"required": ["plan_ref", "aspect_map_ref"]}
+    }
+  ],
+  "required": ["schema_id", "run_id", "stage", "attempt_number", "stage_root", "prompt_path", "aliases", "next_command"],
+  "properties": {
+    "schema_id": {"const": "dd-flow/stage-start-response@1"},
+    "run_id": {"type": "string", "minLength": 1},
+    "stage": {"type": "string", "minLength": 1},
+    "attempt_number": {"type": "integer", "minimum": 1},
+    "stage_root": {"type": "string", "minLength": 1},
+    "archive_path": {"type": ["string", "null"]},
+    "prompt_path": {"type": "string", "minLength": 1},
+    "aliases": {"type": "object", "additionalProperties": {"type": "string"}},
+    "resolved_context": {"type": "object", "additionalProperties": true},
+    "plan_ref": {"type": "string", "pattern": "^\\.memory-bank/protocol/[^/]+/plan\\.json$"},
+    "aspect_map_ref": {"type": "string", "minLength": 1},
+    "next_command": {"const": "dd-flow stage finish"},
+    "permission_probe": {"type": "object", "additionalProperties": true}
+  }
+}

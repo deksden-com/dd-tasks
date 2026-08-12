@@ -1,0 +1,44 @@
+{
+  "schema_id": "dd-flow/project-summary@1",
+  "schema_version": "1.0.0",
+  "generated_at": "2026-07-03T00:00:00.000Z",
+  "project_id": "PRJ-001-demo",
+  "name": "demo",
+  "root": "/Users/example/demo",
+  "root_exists": true,
+  "status": "active",
+  "memorybank_version": "2.8.0",
+  "memorybank_status": "present",
+  "flow_pack_status": "present",
+  "required_engine_range": ">=0.3.0 <0.4.0",
+  "cli_version": "0.3.0",
+  "engine_version": "0.3.0",
+  "engine_status": "selected",
+  "summary_path": "/Users/example/.dd-flow/projects/PRJ-001-demo/summary/project-summary.json",
+  "dashboard_path": "/Users/example/.dd-flow/projects/PRJ-001-demo/dashboard/project-dashboard.html",
+  "protocol_counts": {
+    "active": 1,
+    "waiting": 0,
+    "done": 3,
+    "total": 4
+  },
+  "active_protocols": [
+    {
+      "id": "PRT-001-demo",
+      "stage": "implementation",
+      "status": "running",
+      "next_action": "code.md",
+      "updated_at": "2026-07-03T00:00:00.000Z"
+    }
+  ],
+  "waiting_items": [],
+  "resource_summary": {
+    "queue": 0,
+    "locks": 0,
+    "waiters": 0,
+    "sessions": 1,
+    "open_defs": 0
+  },
+  "warnings": [],
+  "last_activity_at": "2026-07-03T00:00:00.000Z"
+}

@@ -1,0 +1,126 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/global-dashboard-data@1",
+  "title": "dd-flow global dashboard data",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_id",
+    "generated_at",
+    "target_language",
+    "page",
+    "metrics",
+    "supported_summary_versions",
+    "summary_version_groups",
+    "unsupported_projects",
+    "project_cards",
+    "warnings"
+  ],
+  "properties": {
+    "schema_id": { "const": "dd-flow/global-dashboard-data@1" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "target_language": { "type": "string", "minLength": 2 },
+    "page": { "$ref": "#/definitions/page" },
+    "links": { "type": "object", "additionalProperties": { "$ref": "#/definitions/link" } },
+    "metrics": { "type": "array", "items": { "$ref": "#/definitions/metric" } },
+    "supported_summary_versions": { "type": "array", "items": { "$ref": "#/definitions/summaryVersion" } },
+    "summary_version_groups": { "type": "array", "items": { "$ref": "#/definitions/summaryVersionGroup" } },
+    "unsupported_projects": { "type": "array", "items": { "$ref": "#/definitions/unsupportedProject" } },
+    "project_cards": { "type": "array", "items": { "$ref": "#/definitions/card" } },
+    "warnings": { "type": "array" }
+  },
+  "definitions": {
+    "page": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["kind", "screen_id", "title", "html_path", "json_path"],
+      "properties": {
+        "kind": { "const": "global" },
+        "screen_id": { "const": "SCR-DD-FLOW-GLOBAL-DASHBOARD" },
+        "title": { "type": "string", "minLength": 1 },
+        "html_path": { "type": "string", "minLength": 1 },
+        "json_path": { "type": "string", "minLength": 1 }
+      }
+    },
+    "metric": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "label", "value", "status", "source"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1 },
+        "value": { "type": ["number", "null"] },
+        "status": { "type": "string", "enum": ["known", "unknown", "degraded", "not_applicable"] },
+        "source": { "type": "string", "minLength": 1 }
+      }
+    },
+    "link": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["label", "href", "path_kind", "status"],
+      "properties": {
+        "label": { "type": "string", "minLength": 1 },
+        "href": { "type": "string" },
+        "path_kind": { "type": "string", "enum": ["absolute", "relative"] },
+        "status": { "type": "string", "enum": ["available", "pending", "missing", "not_applicable"] },
+        "degraded_reason": { "type": "string" }
+      }
+    },
+    "card": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "title", "display_status", "action_level", "lifecycle_summary", "resource_summary", "metrics"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "display_status": { "type": "string", "minLength": 1 },
+        "action_level": { "type": "string", "enum": ["none", "watch", "actionable", "blocked"] },
+        "lifecycle_summary": { "type": "object", "additionalProperties": true },
+        "resource_summary": { "type": "object", "additionalProperties": true },
+        "metrics": { "type": "object" }
+      }
+    },
+    "summaryVersion": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["schema_id", "schema_version", "label", "status"],
+      "properties": {
+        "schema_id": { "type": "string", "minLength": 1 },
+        "schema_version": { "type": ["string", "null"] },
+        "label": { "type": "string", "minLength": 1 },
+        "status": { "type": "string", "minLength": 1 }
+      }
+    },
+    "summaryVersionGroup": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["schema_id", "schema_version", "compatible", "count", "project_ids", "project_names"],
+      "properties": {
+        "schema_id": { "type": "string", "minLength": 1 },
+        "schema_version": { "type": "string", "minLength": 1 },
+        "compatible": { "type": "boolean" },
+        "count": { "type": "integer", "minimum": 0 },
+        "project_ids": { "type": "array", "items": { "type": "string" } },
+        "project_names": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "unsupportedProject": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "title", "root", "status", "display_status", "reason", "summary_path"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "root": { "type": "string", "minLength": 1 },
+        "status": { "type": "string", "minLength": 1 },
+        "display_status": { "const": "unsupported" },
+        "reason": { "type": "string", "minLength": 1 },
+        "detail": { "type": "string" },
+        "summary_schema_id": { "type": ["string", "null"] },
+        "summary_schema_version": { "type": ["string", "null"] },
+        "summary_path": { "type": "string", "minLength": 1 },
+        "install_hint": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

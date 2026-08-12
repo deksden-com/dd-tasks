@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>dd-flow stage report</title>
+  <style>
+    :root{color-scheme:dark;--bg:#101318;--panel:#181d24;--line:#303946;--text:#edf2f7;--muted:#9aa7b5;--ok:#5bd18a;--warn:#f3c969}
+    body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,sans-serif}
+    main{max-width:980px;margin:0 auto;padding:32px 20px}
+    section{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;margin:14px 0}
+    h1,h2{margin:0 0 10px} h1{font-size:24px} h2{font-size:16px}
+    .meta{color:var(--muted);display:flex;gap:18px;flex-wrap:wrap}
+    .verdict{font-weight:700;color:var(--ok)} .verdict.warn{color:var(--warn)}
+    pre{white-space:pre-wrap;overflow:auto;color:var(--muted)}
+    a{color:#9bc7ff}
+  </style>
+</head>
+<body data-dd-flow-template="generated-stage-report">
+  <main>
+    <h1 id="title">Отчёт стадии</h1>
+    <div class="meta"><span id="run"></span><span id="stage"></span><span id="generated"></span></div>
+    <section><h2>Вердикт</h2><div id="verdict" class="verdict"></div><p id="result"></p></section>
+    <section><h2>Приёмка и проверки</h2><ul id="acceptance"></ul><ul id="checks"></ul></section>
+    <section><h2>План и validation</h2><ul id="plan-ref"></ul><ul id="evidence"></ul></section>
+    <section><h2>Следующее действие</h2><p id="next"></p></section>
+    <section><h2>Данные отчёта</h2><pre id="details"></pre></section>
+  </main>
+  <script id="stage-report-data" type="application/json">__STAGE_REPORT_DATA__</script>
+  <script>
+    (() => {
+      const raw = document.getElementById("stage-report-data").textContent || "{}";
+      const data = JSON.parse(raw);
+      const semantic = data.semantic || {};
+      const overall = data.overall || {};
+      const text = (id, value) => { document.getElementById(id).textContent = value == null ? "" : String(value); };
+      const list = (id, values) => { const node = document.getElementById(id); for (const value of values || []) { const li = document.createElement("li"); li.textContent = String(value); node.appendChild(li); } };
+      text("title", data.stage ? "Отчёт стадии: " + data.stage : "Отчёт стадии");
+      text("run", data.run_id ? "RUN " + data.run_id : (data.protocol && data.protocol.id ? data.protocol.id : ""));
+      text("stage", data.stage ? "stage " + data.stage : (data.protocol && data.protocol.stage ? "stage " + data.protocol.stage : ""));
+      text("generated", data.generated_at || "");
+      text("verdict", data.verdict || overall.verdict_label || overall.verdict || "");
+      text("result", overall.summary || semantic.result || "");
+      text("next", overall.next_action || semantic.next_action || (data.transition && data.transition.next_stage) || "");
+      list("acceptance", semantic.acceptance || (overall.summary ? [overall.summary] : []));
+      list("checks", semantic.checks || (data.delta_lint ? ["delta lint: " + data.delta_lint.status] : []));
+      list("evidence", semantic.evidence || (data.aspect_map_ref ? ["aspect map: " + data.aspect_map_ref.path] : []));
+      list("plan-ref", data.plan_ref ? ["plan: " + data.plan_ref.path, "revision: " + data.plan_ref.revision, "items: " + data.plan_ref.item_count] : []);
+      document.getElementById("details").textContent = data.plan_ref ? JSON.stringify({plan_ref:data.plan_ref, aspect_map_ref:data.aspect_map_ref, delta_lint:data.delta_lint, transition:data.transition}, null, 2) : JSON.stringify(data, null, 2);
+      if (["blocked","failed","degraded"].includes(data.verdict)) document.getElementById("verdict").classList.add("warn");
+    })();
+  </script>
+</body>
+</html>

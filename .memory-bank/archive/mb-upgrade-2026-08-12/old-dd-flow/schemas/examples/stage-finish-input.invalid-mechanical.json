@@ -1,0 +1,13 @@
+{
+  "schema_id": "dd-flow/stage-finish-input@1",
+  "status": "done",
+  "result": "invalid mechanical input",
+  "acceptance": [],
+  "changed_files": [],
+  "checks": [],
+  "evidence": [],
+  "next_action": "stop",
+  "duration_ms": 42,
+  "session_id": "model-invented-session",
+  "stage_root": "try-001"
+}

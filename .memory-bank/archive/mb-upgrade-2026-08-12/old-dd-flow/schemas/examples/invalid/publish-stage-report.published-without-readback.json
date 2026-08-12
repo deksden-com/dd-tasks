@@ -1,0 +1,39 @@
+{
+  "schema_id": "dd-flow/publish-stage-report@1",
+  "run": { "run_id": "RUN-162-publish-cli", "run_state": "../run.json" },
+  "stage": { "name": "publish", "dir": "05-report", "status": "done" },
+  "project": { "id": "PRJ-004-dd-memorybank", "title": "dd-memorybank" },
+  "subject": { "id": "PRT-210-cli-publish", "title": "CLI package publish" },
+  "overall": {
+    "verdict": "completed",
+    "summary": "Incorrectly claims publish completion without registry readback.",
+    "next_action": "none"
+  },
+  "release": {
+    "version": "0.5.0",
+    "release_set": "PRT-210",
+    "evidence": [{ "label": "version bump", "path": "package.json" }]
+  },
+  "publish_target": {
+    "target_kind": "package_registry",
+    "target": "npm:@deksden-com/dd-flow-cli",
+    "channel": "latest"
+  },
+  "artifact": { "label": "npm package tarball", "path": "evidence/npm-pack.json" },
+  "dry_run": { "name": "npm pack", "status": "passed", "evidence": "evidence/npm-pack.json" },
+  "execution": {
+    "mode": "registry-cli",
+    "publish_id": "npm:@deksden-com/dd-flow-cli@0.5.0",
+    "evidence": [{ "label": "publish log", "path": "logs/npm-publish.log" }]
+  },
+  "readback": {
+    "status": "unknown",
+    "evidence": []
+  },
+  "consumer_smoke": { "name": "npx version smoke", "status": "passed", "evidence": "evidence/npx-version.txt" },
+  "fallback": { "posture": "deprecate-or-patch-forward", "summary": "Published versions are immutable." },
+  "gates": [],
+  "checks": [],
+  "evidence": [],
+  "defs": []
+}

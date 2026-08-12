@@ -1,0 +1,14 @@
+{
+  "schema_id": "dd-flow/operational-access-preflight@1",
+  "applicability": "required",
+  "operation": { "kind": "deploy", "subject_ref": "runtime-stage:preview", "provider": "vercel", "host": "vercel.com", "target": "project:prj_preview", "stage": "preview", "run_id": "RUN-161-deploy-preview", "request_id": "deploy-preview-001" },
+  "binding": { "resolution": "exact", "profile_id": "access-profile-vercel-team", "binding_id": "access-binding-preview-deploy", "rule_id": "access-rule-preview-deploy", "policy_source": ".memory-bank/spec/operations/operational-access-policy.md", "expected_identity": { "kind": "team", "id": "team_expected" }, "expected_target": { "kind": "project", "id": "prj_preview" } },
+  "readback": { "status": "verified", "procedure_id": "access-readback-vercel-context", "observed_at": "2026-07-10T14:00:00Z", "expires_at": "2026-07-10T14:05:00Z", "side_effect": "read_only", "noninteractive": true, "timeout_ms": 10000, "argv": ["vercel", "whoami", "--json"], "extractor_id": "vercel-public-context-v1", "redaction_policy": "persist-public-identifiers-only", "actual_identity": { "kind": "team", "id": "team_wrong" }, "actual_target": { "kind": "project", "id": "prj_preview" }, "evidence": [] },
+  "verdicts": { "identity": "mismatch", "authority": "not_required", "target": "verified", "approval": "not_required" },
+  "freshness": { "status": "fresh", "consumed_at": "2026-07-10T14:00:10Z", "process_boundary_changed": false, "context_changed": false, "target_changed": false },
+  "actions": { "authentication": [], "context_switch": [], "mutation": [] },
+  "outcome": "authorized",
+  "blockers": [],
+  "next_action": "Continue despite mismatch.",
+  "evidence": []
+}

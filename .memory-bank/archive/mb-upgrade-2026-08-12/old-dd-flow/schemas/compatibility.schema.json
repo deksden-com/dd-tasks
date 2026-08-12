@@ -1,0 +1,105 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/compatibility@1",
+  "title": "dd-flow compatibility manifest",
+  "description": "Canonical compatibility map between a Memory Bank release, tool packages, routed CLI engine expectations and machine data contracts required or recommended by that release.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "memory_bank_version", "dd_flow_cli", "router", "engine", "contracts", "migrations", "mb_lint"],
+  "properties": {
+    "schema_id": { "const": "dd-flow/compatibility@1" },
+    "memory_bank_version": { "type": "string", "minLength": 1 },
+    "dd_flow_cli": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["package_name", "min_version", "recommended_version", "status_contract", "version_contract", "flow_contract"],
+      "properties": {
+        "package_name": { "type": "string", "minLength": 1 },
+        "min_version": { "type": "string", "minLength": 1 },
+        "recommended_version": { "type": "string", "minLength": 1 },
+        "status_contract": { "type": "string", "minLength": 1 },
+        "version_contract": { "type": "string", "minLength": 1 },
+        "flow_contract": { "type": "string", "minLength": 1 }
+      }
+    },
+    "router": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["package_name", "min_version", "recommended_version", "routing_model", "engine_store"],
+      "properties": {
+        "package_name": { "type": "string", "minLength": 1 },
+        "min_version": { "type": "string", "minLength": 1 },
+        "recommended_version": { "type": "string", "minLength": 1 },
+        "routing_model": { "type": "string", "minLength": 1 },
+        "engine_store": { "type": "string", "minLength": 1 },
+        "notes": { "type": "string" }
+      }
+    },
+    "engine": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["package_name", "version_range", "recommended_version", "install_hint", "old_engine_install_hint", "first_engine_installable_version", "legacy_direct_cli_before", "manifest_contract", "status"],
+      "properties": {
+        "package_name": { "type": "string", "minLength": 1 },
+        "version_range": { "type": "string", "minLength": 1 },
+        "recommended_version": { "type": "string", "minLength": 1 },
+        "install_hint": { "type": "string", "minLength": 1 },
+        "old_engine_install_hint": { "type": "string", "minLength": 1 },
+        "first_engine_installable_version": { "type": "string", "minLength": 1 },
+        "legacy_direct_cli_before": { "type": "string", "minLength": 1 },
+        "manifest_contract": { "type": "string", "minLength": 1 },
+        "status": { "type": "string", "minLength": 1 }
+      }
+    },
+    "contracts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["storage_contract_set", "project_summary_contract", "project_dashboard_contract", "global_dashboard_contract", "status_contract", "version_contract"],
+      "properties": {
+        "storage_contract_set": { "type": "string", "minLength": 1 },
+        "project_summary_contract": { "type": "string", "minLength": 1 },
+        "project_dashboard_contract": { "type": "string", "minLength": 1 },
+        "global_dashboard_contract": { "type": "string", "minLength": 1 },
+        "status_contract": { "type": "string", "minLength": 1 },
+        "version_contract": { "type": "string", "minLength": 1 }
+      }
+    },
+    "global_dashboard": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["supported_project_summary_contracts", "unsupported_project_visibility", "summary_version_groups"],
+      "properties": {
+        "supported_project_summary_contracts": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "unsupported_project_visibility": { "type": "boolean" },
+        "summary_version_groups": { "type": "boolean" }
+      }
+    },
+    "migrations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "from_previous", "to_this", "adjacent_only", "normal_commands_may_migrate"],
+      "properties": {
+        "mode": { "const": "mb-upgrade-only" },
+        "from_previous": { "type": ["string", "null"] },
+        "to_this": { "type": "string", "minLength": 1 },
+        "adjacent_only": { "type": "boolean" },
+        "normal_commands_may_migrate": { "const": false }
+      }
+    },
+    "mb_lint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["package_name", "min_version", "recommended_version", "command_contract"],
+      "properties": {
+        "package_name": { "type": "string", "minLength": 1 },
+        "min_version": { "type": "string", "minLength": 1 },
+        "recommended_version": { "type": "string", "minLength": 1 },
+        "command_contract": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

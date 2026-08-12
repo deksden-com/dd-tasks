@@ -1,0 +1,126 @@
+{
+  "schema_id": "dd-flow/merge-stage-report@1",
+  "run": { "run_id": "RUN-014-merge-worker-entrypoints", "run_state": "../run.json" },
+  "stage": { "name": "merge", "dir": "03-merge", "status": "done" },
+  "project": { "id": "PRJ-004-dd-memorybank", "title": "dd-memorybank" },
+  "subject": { "id": "PRT-2026-06-14-merge-worker-entrypoints", "title": "Merge worker entrypoints" },
+  "overall": { "verdict": "merged", "summary": "One-shot merge processed exactly one queued protocol.", "next_action": "none" },
+  "operational_access": {
+    "schema_id": "dd-flow/operational-access-preflight@1",
+    "applicability": "not_required",
+    "outcome": "not_required",
+    "verdicts": { "identity": "not_required", "authority": "not_required", "target": "not_required", "approval": "not_required" },
+    "next_action": "Local fixture merge has no authenticated remote mutation."
+  },
+  "invocation_mode": "one_shot",
+  "breadcrumbs": [
+    { "label": "Plan", "href": "../01-plan/stage-report.html", "status": "done" },
+    { "label": "Code", "href": "../02-code/stage-report.html", "status": "done" },
+    { "label": "Merge", "href": "stage-report.html", "status": "current" }
+  ],
+  "worker": { "id": "merge-oneshot-dd-memorybank-20260614-103000", "session_kind": "merge_job", "status_before": "one_shot", "status_after": "stopped" },
+  "queue_context": {
+    "before": "ready",
+    "claimed_job": "PRT-2026-06-14-merge-worker-entrypoints",
+    "position_before": 1,
+    "pending_after": 0,
+    "after": "merged",
+    "final_reason": "merged, checked, cleanup skipped by project policy"
+  },
+  "lane_lock": { "owner": "merge-oneshot-dd-memorybank-20260614-103000", "status_before": "none", "status_after": "released", "lease_token": "fixture-token" },
+  "integration": {
+    "source_branch": "feature/merge-worker-entrypoints",
+    "source_commit": "abc1234",
+    "target_branch": "main",
+    "result": "merged",
+    "result_commit": "def5678",
+    "conflicts": "none"
+  },
+  "merge_job": { "status": "merged", "claimed_by": "merge-oneshot-dd-memorybank-20260614-103000", "queue_result": "complete" },
+  "git": { "source_branch": "feature/merge-worker-entrypoints", "target_branch": "main", "result_commit": "def5678" },
+  "checks": [{ "name": "pnpm test", "status": "passed", "evidence": "logs/pnpm-test.log" }],
+  "policy_context": {
+    "sources": {
+      "project_policy": ".memory-bank/project-policy.md",
+      "operations": [".memory-bank/dd-flow/common/sdlc-contours.md", ".memory-bank/dd-flow/common/git-ops.md"],
+      "verification": [".memory-bank/dd-flow/schemas"],
+      "defs": []
+    },
+    "git": {
+      "workspace_route": "feature_worktree",
+      "delivery_strategy": "merge_queue",
+      "fixation_required": true,
+      "result_evidence_required": ["queue_completion", "target_result_commit"],
+      "actual_result_evidence": ["merge_job:merged", "git.result_commit:def5678"],
+      "evidence_verdict": "passed"
+    },
+    "checks": {
+      "local_profile": "pnpm test",
+      "ci_profile": "none"
+    },
+    "delivery": {
+      "current_gate": "source_integration",
+      "release_required_next": false,
+      "deploy_required_next": false,
+      "publish_required_next": false
+    },
+    "gaps": {
+      "questions": [],
+      "blockers": [],
+      "defs": []
+    }
+  },
+  "sdlc_contours": {
+    "summary": "Source integration completed; no release/deploy/publish action was in scope.",
+    "next_delivery_action": "none",
+    "contours": [
+      {
+        "name": "git",
+        "applicability_status": "applicable",
+        "verification_state": "checked_passed",
+        "closure_state": "merged",
+        "gate_status": "pass",
+        "summary": "Feature branch merged into main and queue completed."
+      },
+      {
+        "name": "deploy",
+        "applicability_status": "not_applicable",
+        "verification_state": "not_checked",
+        "closure_state": "merged",
+        "gate_status": "not_applicable",
+        "summary": "No runtime deployment belongs to this merge job.",
+        "reason": "Canonical prompt/doc change only."
+      }
+    ]
+  },
+  "cleanup": [
+    { "name": "branch cleanup policy read", "status": "passed", "evidence": "evidence/branch-cleanup.md" },
+    { "name": "merged local branch revision", "status": "passed", "evidence": "evidence/branch-cleanup.md" },
+    { "name": "merged remote branch revision", "status": "passed", "evidence": "evidence/branch-cleanup.md" },
+    { "name": "deleted local branches", "status": "none", "evidence": "evidence/branch-cleanup.md" },
+    { "name": "deleted remote branches", "status": "none", "evidence": "evidence/branch-cleanup.md" },
+    { "name": "retained branches", "status": "none", "evidence": "evidence/branch-cleanup.md" },
+    { "name": "unsafe skipped branches", "status": "none", "evidence": "evidence/branch-cleanup.md" },
+    { "name": "queue note", "status": "updated", "evidence": "evidence/queue-note.md" }
+  ],
+  "defs": [],
+  "knowledge_promotion": {
+    "status": "passed",
+    "summary": "Knowledge candidates and code-derived facts were resolved before closure.",
+    "report_path": "knowledge-promotion/promotion-report.md",
+    "source_candidates": "../01-specify/knowledge-extraction/candidates.json",
+    "candidate_results": {
+      "promoted": 1,
+      "already_documented": 1,
+      "deferred_as_DEF": 0,
+      "blocked": 0
+    },
+    "code_derived": {
+      "promoted": 1,
+      "already_documented": 0
+    },
+    "durable_writes": 2,
+    "deferred_defs": 0,
+    "blocked_promotions": 0
+  }
+}

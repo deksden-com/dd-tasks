@@ -1,0 +1,184 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/operational-access-preflight@1",
+  "title": "Operational access preflight",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schema_id", "applicability", "operation", "binding", "readback", "verdicts", "freshness", "actions", "outcome", "blockers", "next_action", "evidence"],
+  "properties": {
+    "schema_id": { "const": "dd-flow/operational-access-preflight@1" },
+    "applicability": { "type": "string", "enum": ["required", "not_required"] },
+    "operation": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["kind", "subject_ref", "provider", "host", "target", "stage", "run_id", "request_id"],
+      "properties": {
+        "kind": { "type": "string", "minLength": 1 },
+        "subject_ref": { "type": "string", "minLength": 1 },
+        "provider": { "type": "string", "minLength": 1 },
+        "host": { "type": "string", "minLength": 1 },
+        "target": { "type": "string", "minLength": 1 },
+        "stage": { "type": "string", "minLength": 1 },
+        "run_id": { "type": "string", "minLength": 1 },
+        "request_id": { "type": "string", "minLength": 1 }
+      }
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["resolution", "policy_source"],
+      "properties": {
+        "resolution": { "type": "string", "enum": ["exact", "zero_matches", "duplicate", "ambiguous", "conflict", "not_required"] },
+        "profile_id": { "type": "string", "minLength": 1 },
+        "binding_id": { "type": "string", "minLength": 1 },
+        "rule_id": { "type": "string", "minLength": 1 },
+        "policy_source": { "type": "string", "minLength": 1 },
+        "expected_identity": { "$ref": "#/definitions/publicIdentifier" },
+        "expected_authority": { "$ref": "#/definitions/publicIdentifier" },
+        "expected_target": { "$ref": "#/definitions/publicIdentifier" }
+      }
+    },
+    "readback": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["status", "side_effect", "noninteractive", "evidence"],
+      "properties": {
+        "status": { "type": "string", "enum": ["verified", "missing_session", "unsafe", "failed", "not_required"] },
+        "procedure_id": { "type": "string", "minLength": 1 },
+        "observed_at": { "type": "string", "format": "date-time" },
+        "expires_at": { "type": "string", "format": "date-time" },
+        "side_effect": { "type": "string", "enum": ["read_only", "not_required"] },
+        "noninteractive": { "type": "boolean" },
+        "timeout_ms": { "type": "integer", "minimum": 1 },
+        "argv": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+        "procedure_steps": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/readbackStep" } },
+        "permitted_environment_variables": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[A-Z_][A-Z0-9_]*$" } },
+        "extractor_id": { "type": "string", "minLength": 1 },
+        "redaction_policy": { "type": "string", "minLength": 1 },
+        "actual_identity": { "$ref": "#/definitions/publicIdentifier" },
+        "actual_authority": { "$ref": "#/definitions/publicIdentifier" },
+        "actual_target": { "$ref": "#/definitions/publicIdentifier" },
+        "session_fingerprint": { "type": "string", "minLength": 1 },
+        "evidence": { "type": "array", "items": { "$ref": "#/definitions/evidenceItem" } }
+      }
+    },
+    "verdicts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["identity", "authority", "target", "approval"],
+      "properties": {
+        "identity": { "type": "string", "enum": ["verified", "mismatch", "not_observable", "not_required"] },
+        "authority": { "type": "string", "enum": ["verified", "mismatch", "not_observable", "not_required"] },
+        "target": { "type": "string", "enum": ["verified", "mismatch", "not_observable", "not_required"] },
+        "approval": { "type": "string", "enum": ["verified", "missing", "stale", "revoked", "scope_mismatch", "not_observable", "not_required"] }
+      }
+    },
+    "approval_reference": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "approver_ref", "binding_id", "operation", "target", "stage", "run_id", "request_id", "decision_source", "decided_at", "expires_at", "revocation_status"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "approver_ref": { "type": "string", "minLength": 1 },
+        "binding_id": { "type": "string", "minLength": 1 },
+        "operation": { "type": "string", "minLength": 1 },
+        "target": { "type": "string", "minLength": 1 },
+        "stage": { "type": "string", "minLength": 1 },
+        "artifact_ref": { "type": "string" },
+        "run_id": { "type": "string", "minLength": 1 },
+        "request_id": { "type": "string", "minLength": 1 },
+        "decision_source": { "type": "string", "minLength": 1 },
+        "decided_at": { "type": "string", "format": "date-time" },
+        "expires_at": { "type": "string", "format": "date-time" },
+        "revocation_status": { "const": "active" }
+      }
+    },
+    "freshness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "process_boundary_changed", "context_changed", "target_changed"],
+      "properties": {
+        "status": { "type": "string", "enum": ["fresh", "stale", "drifted", "not_required"] },
+        "consumed_at": { "type": "string", "format": "date-time" },
+        "process_boundary_changed": { "type": "boolean" },
+        "context_changed": { "type": "boolean" },
+        "target_changed": { "type": "boolean" }
+      }
+    },
+    "actions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["authentication", "context_switch", "mutation"],
+      "properties": {
+        "authentication": { "type": "array", "maxItems": 0 },
+        "context_switch": { "type": "array", "maxItems": 0 },
+        "mutation": { "type": "array", "maxItems": 0 }
+      }
+    },
+    "outcome": { "type": "string", "enum": ["authorized", "authorization_required", "identity_mismatch", "target_mismatch", "insufficient_authority", "approval_required", "blocked", "failed", "not_required"] },
+    "blockers": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "next_action": { "type": "string", "minLength": 1 },
+    "evidence": { "type": "array", "items": { "$ref": "#/definitions/evidenceItem" } }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "applicability": { "const": "not_required" } }, "required": ["applicability"] },
+      "then": {
+        "properties": {
+          "binding": { "properties": { "resolution": { "const": "not_required" } } },
+          "readback": { "properties": { "status": { "const": "not_required" }, "side_effect": { "const": "not_required" } } },
+          "verdicts": { "properties": { "identity": { "const": "not_required" }, "authority": { "const": "not_required" }, "target": { "const": "not_required" }, "approval": { "const": "not_required" } } },
+          "freshness": { "properties": { "status": { "const": "not_required" } } },
+          "outcome": { "const": "not_required" },
+          "blockers": { "maxItems": 0 }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "outcome": { "const": "authorized" } }, "required": ["outcome"] },
+      "then": {
+        "properties": {
+          "applicability": { "const": "required" },
+          "binding": { "required": ["profile_id", "binding_id", "rule_id", "expected_identity", "expected_target"], "properties": { "resolution": { "const": "exact" } } },
+          "readback": { "required": ["procedure_id", "observed_at", "expires_at", "timeout_ms", "extractor_id", "redaction_policy", "actual_identity", "actual_target"], "properties": { "status": { "const": "verified" }, "side_effect": { "const": "read_only" }, "noninteractive": { "const": true } }, "anyOf": [{ "required": ["argv"] }, { "required": ["procedure_steps"] }] },
+          "verdicts": { "properties": { "identity": { "const": "verified" }, "authority": { "enum": ["verified", "not_required"] }, "target": { "const": "verified" }, "approval": { "enum": ["verified", "not_required"] } } },
+          "freshness": { "required": ["consumed_at"], "properties": { "status": { "const": "fresh" }, "process_boundary_changed": { "const": false }, "context_changed": { "const": false }, "target_changed": { "const": false } } },
+          "blockers": { "maxItems": 0 }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "verdicts": { "properties": { "approval": { "const": "verified" } }, "required": ["approval"] } }, "required": ["verdicts"] },
+      "then": { "required": ["approval_reference"] }
+    },
+    {
+      "if": { "properties": { "applicability": { "const": "required" }, "outcome": { "not": { "const": "authorized" } } }, "required": ["applicability", "outcome"] },
+      "then": { "properties": { "blockers": { "minItems": 1 } } }
+    }
+  ],
+  "definitions": {
+    "readbackStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "argv", "side_effect", "noninteractive"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "argv": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+        "side_effect": { "const": "read_only" },
+        "noninteractive": { "const": true }
+      }
+    },
+    "publicIdentifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id"],
+      "properties": { "kind": { "type": "string", "minLength": 1 }, "id": { "type": "string", "minLength": 1 } }
+    },
+    "evidenceItem": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["label", "path"],
+      "properties": { "label": { "type": "string", "minLength": 1 }, "path": { "type": "string", "minLength": 1 } }
+    }
+  }
+}

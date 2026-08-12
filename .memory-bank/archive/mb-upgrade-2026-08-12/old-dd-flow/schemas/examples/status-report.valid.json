@@ -1,0 +1,110 @@
+{
+  "ok": true,
+  "schema_id": "dd-flow/status-report@1",
+  "dd_flow_home": "/Users/example/.dd-flow",
+  "cwd": "/Users/example/project",
+  "cli": {
+    "version": "0.1.0",
+    "package_name": "@deksden-com/dd-flow-cli",
+    "compatibility": {
+      "verdict": "outdated",
+      "reason": "installed_below_recommended_version",
+      "package_name": "@deksden-com/dd-flow-cli",
+      "installed_version": "0.1.0",
+      "memory_bank_version": "2.3.0",
+      "min_version": "0.1.0",
+      "recommended_version": "0.2.0",
+      "status_contract": "dd-flow/status-report@1",
+      "version_contract": "dd-flow/version-report@1",
+      "flow_contract": "dd-flow-canonical-2026-05",
+      "update_command": "pnpm add -g @deksden-com/dd-flow-cli@0.2.0"
+    },
+    "build": {
+      "status": "present",
+      "built_at": "2026-06-15T10:00:00Z",
+      "commit": "1234567890abcdef",
+      "built_with_canon": {
+        "version": "2.3.0",
+        "commit": "abcdef1234567890",
+        "flow_contract": "dd-flow-canonical-2026-05",
+        "repo_root": "/Users/example/dd-memorybank",
+        "memorybank_root": "/Users/example/dd-memorybank/.memory-bank",
+        "flow_root": "/Users/example/dd-memorybank/.memory-bank/dd-flow",
+        "layout": "dot_memory_bank",
+        "status": "present"
+      }
+    }
+  },
+  "project": {
+    "requested_root": "/Users/example/project",
+    "root": "/Users/example/project",
+    "root_source": "explicit",
+    "registered": true,
+    "id": "PRJ-001-project",
+    "status": "active",
+    "memory_bank": {
+      "root": "/Users/example/project/.memory-bank",
+      "folder_name": ".memory-bank",
+      "version": "2.3.0",
+      "source": ".memory-bank/index.md",
+      "status": "present"
+    },
+    "flow_pack": {
+      "manifest_path": ".memory-bank/dd-flow/manifest.json",
+      "schema_id": "dd-flow/project-flow-pack-manifest@2",
+      "pack_version": "2026-06-15.1",
+      "canon_root": "/Users/example/dd-memorybank",
+      "canon_memory_bank_root": "/Users/example/dd-memorybank/.memory-bank",
+      "canon_flow_root": "/Users/example/dd-memorybank/.memory-bank/dd-flow",
+      "source_commit": "abcdef1234567890",
+      "canon_version_at_source_commit": "2.3.0",
+      "flow_contract": "dd-flow-canonical-2026-05",
+      "status": "present",
+      "canonical_only_files": []
+    },
+    "drift": {
+      "memory_bank_version": {
+        "status": "same",
+        "confidence": "semver",
+        "reason": "semver_equal",
+        "current": "2.3.0",
+        "target": "2.3.0"
+      },
+      "flow_pack_commit": {
+        "status": "same",
+        "confidence": "exact",
+        "reason": "commit_equal",
+        "current": "abcdef1234567890",
+        "target": "abcdef1234567890"
+      },
+      "flow_contract": {
+        "status": "same",
+        "confidence": "exact",
+        "reason": "flow_contract_equal",
+        "current": "dd-flow-canonical-2026-05",
+        "target": "dd-flow-canonical-2026-05"
+      },
+      "overall": "same",
+      "next_action": "no_action"
+    }
+  },
+  "canon": {
+    "ok": true,
+    "resolved": {
+      "root": "/Users/example/dd-memorybank",
+      "repo_root": "/Users/example/dd-memorybank",
+      "source": "env",
+      "layout": "dot_memory_bank",
+      "flow_root": "/Users/example/dd-memorybank/.memory-bank/dd-flow",
+      "mbb_root": "/Users/example/dd-memorybank/.memory-bank/mbb",
+      "memorybank_root": "/Users/example/dd-memorybank/.memory-bank",
+      "version": "2.3.0",
+      "commit": "abcdef1234567890",
+      "flow_contract": "dd-flow-canonical-2026-05"
+    },
+    "compatibility": {
+      "cli_built_with_resolved_canon": "same",
+      "reason": "semver_equal"
+    }
+  }
+}

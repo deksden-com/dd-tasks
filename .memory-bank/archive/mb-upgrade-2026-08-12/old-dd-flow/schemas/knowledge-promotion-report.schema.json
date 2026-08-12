@@ -1,0 +1,145 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/knowledge-promotion-report@1",
+  "title": "Knowledge promotion report produced during merge",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_id",
+    "protocol_id",
+    "run_id",
+    "stage",
+    "source_candidates_path",
+    "candidate_results",
+    "code_derived_knowledge",
+    "durable_writes",
+    "deferred_defs",
+    "blocked_promotions",
+    "verification_summary",
+    "generated_by",
+    "created_at"
+  ],
+  "properties": {
+    "schema_id": { "const": "dd-flow/knowledge-promotion-report@1" },
+    "protocol_id": { "type": "string", "minLength": 1 },
+    "run_id": { "type": "string", "minLength": 1 },
+    "stage": { "type": "string", "minLength": 1 },
+    "source_candidates_path": { "type": "string" },
+    "candidate_results": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/candidateResult" }
+    },
+    "code_derived_knowledge": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/codeDerivedKnowledge" }
+    },
+    "durable_writes": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/durableWrite" }
+    },
+    "deferred_defs": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/deferredDef" }
+    },
+    "blocked_promotions": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/blockedPromotion" }
+    },
+    "verification_summary": { "type": "string", "minLength": 1 },
+    "generated_by": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["role", "prompt"],
+      "properties": {
+        "role": { "type": "string", "minLength": 1 },
+        "prompt": { "type": "string", "minLength": 1 },
+        "subagent_id": { "type": "string" }
+      }
+    },
+    "created_at": { "type": "string", "format": "date-time" }
+  },
+  "definitions": {
+    "candidateResult": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["candidate_id", "status", "summary", "evidence"],
+      "properties": {
+        "candidate_id": { "type": "string", "pattern": "^KND-[0-9]{3}$" },
+        "status": {
+          "type": "string",
+          "enum": [
+            "promoted",
+            "already_documented",
+            "task_local_only",
+            "not_applicable",
+            "rejected",
+            "deferred_as_DEF",
+            "needs_user_confirmation",
+            "blocked"
+          ]
+        },
+        "summary": { "type": "string", "minLength": 1 },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "target_files": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "codeDerivedKnowledge": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "claim", "source", "status"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "claim": { "type": "string", "minLength": 1 },
+        "source": { "type": "string", "minLength": 1 },
+        "status": {
+          "type": "string",
+          "enum": ["promoted", "already_documented", "task_local_only", "deferred_as_DEF", "blocked"]
+        }
+      }
+    },
+    "durableWrite": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["path", "kind", "summary"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "kind": { "type": "string", "minLength": 1 },
+        "summary": { "type": "string", "minLength": 1 },
+        "candidate_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "deferredDef": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "summary", "reason"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "summary": { "type": "string", "minLength": 1 },
+        "reason": { "type": "string", "minLength": 1 },
+        "candidate_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "blockedPromotion": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "summary", "next_action"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "summary": { "type": "string", "minLength": 1 },
+        "next_action": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

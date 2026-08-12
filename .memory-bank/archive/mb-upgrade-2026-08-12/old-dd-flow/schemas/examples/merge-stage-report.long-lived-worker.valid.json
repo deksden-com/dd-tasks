@@ -1,0 +1,80 @@
+{
+  "schema_id": "dd-flow/merge-stage-report@1",
+  "run": { "run_id": "RUN-014-merge-worker-entrypoints", "run_state": "../run.json" },
+  "stage": { "name": "merge", "dir": "03-merge", "status": "done" },
+  "project": { "id": "PRJ-004-dd-memorybank", "title": "dd-memorybank" },
+  "subject": { "id": "PRT-2026-06-14-merge-worker-entrypoints", "title": "Merge worker entrypoints" },
+  "overall": { "verdict": "merged", "summary": "Long-lived worker merged a claimed job and returned to waiting.", "next_action": "wait_next_job" },
+  "operational_access": {
+    "schema_id": "dd-flow/operational-access-preflight@1",
+    "applicability": "required",
+    "outcome": "authorized",
+    "verdicts": { "identity": "verified", "authority": "verified", "target": "verified", "approval": "not_required" },
+    "next_action": "Use the fresh Git host context for the owned remote push only."
+  },
+  "invocation_mode": "long_lived_worker",
+  "breadcrumbs": [
+    { "label": "Plan", "href": "../01-plan/stage-report.html", "status": "done" },
+    { "label": "Code", "href": "../02-code/stage-report.html", "status": "done" },
+    { "label": "Merge", "href": "stage-report.html", "status": "current" }
+  ],
+  "worker": { "id": "merge-dd-memorybank-live", "session_kind": "merge_worker", "status_before": "busy_active", "status_after": "idle_active" },
+  "queue_context": {
+    "before": "claimed",
+    "claimed_job": "PRT-2026-06-14-merge-worker-entrypoints",
+    "position_before": 1,
+    "pending_after": 2,
+    "after": "merged",
+    "final_reason": "merged, pushed, checked, cleanup completed"
+  },
+  "lane_lock": { "owner": "merge-dd-memorybank-live", "status_before": "active", "status_after": "active", "lease_token": "fixture-token" },
+  "integration": {
+    "source_branch": "feature/merge-worker-entrypoints",
+    "source_commit": "abc1234",
+    "target_branch": "main",
+    "result": "merged",
+    "result_commit": "def5678",
+    "conflicts": "resolved"
+  },
+  "merge_job": { "status": "merged", "claimed_by": "merge-dd-memorybank-live", "queue_result": "complete" },
+  "git": { "source_branch": "feature/merge-worker-entrypoints", "target_branch": "main", "result_commit": "def5678" },
+  "checks": [
+    { "name": "pnpm test", "status": "passed", "evidence": "logs/pnpm-test.log" },
+    { "name": "git diff --check", "status": "passed", "evidence": "logs/diff-check.log" }
+  ],
+  "sdlc_contours": {
+    "summary": "Long-lived worker completed integration and continues waiting; no release/deploy/publish action was in scope.",
+    "next_delivery_action": "wait_for_next_merge_job",
+    "contours": [
+      {
+        "name": "git",
+        "applicability_status": "applicable",
+        "verification_state": "checked_passed",
+        "closure_state": "merged",
+        "gate_status": "pass",
+        "summary": "Worker integrated one queued job and kept lane ownership according to policy."
+      },
+      {
+        "name": "release",
+        "applicability_status": "not_applicable",
+        "verification_state": "not_checked",
+        "closure_state": "merged",
+        "gate_status": "not_applicable",
+        "summary": "Release fixation is outside this merge worker job.",
+        "reason": "The protocol only changes canonical flow mechanics."
+      }
+    ]
+  },
+  "cleanup": [
+    { "name": "branch cleanup policy read", "status": "passed", "evidence": "evidence/branch-cleanup.md" },
+    { "name": "merged local branch revision", "status": "passed", "evidence": "evidence/branch-cleanup.md" },
+    { "name": "merged remote branch revision", "status": "passed", "evidence": "evidence/branch-cleanup.md" },
+    { "name": "deleted local branches", "status": "completed", "evidence": "evidence/branch-cleanup.md" },
+    { "name": "deleted remote branches", "status": "completed", "evidence": "evidence/branch-cleanup.md" },
+    { "name": "retained branches", "status": "reported", "evidence": "evidence/branch-cleanup.md" },
+    { "name": "unsafe skipped branches", "status": "reported", "evidence": "evidence/branch-cleanup.md" },
+    { "name": "worktree cleanup", "status": "completed", "evidence": "evidence/worktree-cleanup.md" },
+    { "name": "queue final note", "status": "updated", "evidence": "evidence/queue-note.md" }
+  ],
+  "defs": []
+}

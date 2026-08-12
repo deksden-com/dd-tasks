@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/release-impact@1",
+  "title": "Canonical release impact",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "from_version", "to_version", "minimum_upgrade_mode", "domains", "path_migration", "runtime_migration", "required_checks"],
+  "properties": {
+    "schema_id": {"const": "dd-flow/release-impact@1"},
+    "from_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "to_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "minimum_upgrade_mode": {"enum": ["patch", "targeted_minor", "full_migration"]},
+    "domains": {"type": "array", "items": {"enum": ["canonical_layer", "root_structure", "product", "system", "engineering", "operations", "adr", "plans", "scenarios", "ui", "guides", "protocol_evidence", "skills", "archive", "code_traceability"]}, "uniqueItems": true},
+    "path_migration": {"type": "boolean"},
+    "runtime_migration": {"type": "boolean"},
+    "required_checks": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "notes": {"type": "string"}
+  },
+  "allOf": [{"if": {"properties": {"minimum_upgrade_mode": {"const": "patch"}}}, "then": {"properties": {"path_migration": {"const": false}, "runtime_migration": {"const": false}}}}]
+}

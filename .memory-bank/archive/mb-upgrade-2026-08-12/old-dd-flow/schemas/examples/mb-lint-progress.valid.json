@@ -1,0 +1,9 @@
+{
+  "schema_id": "dd-flow/mb-lint-progress@1",
+  "mode": "json",
+  "progress_channel": "stderr",
+  "result_channel": "stdout",
+  "concurrency": 32,
+  "events": [{"kind": "progress", "phase": "parsing", "elapsed_ms": 100}, {"kind": "heartbeat", "phase": "parsing", "elapsed_ms": 1100}, {"kind": "finish", "phase": "complete", "elapsed_ms": 2100}],
+  "findings_order": "deterministic"
+}

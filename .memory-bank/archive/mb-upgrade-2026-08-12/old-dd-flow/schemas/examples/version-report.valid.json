@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "schema_id": "dd-flow/version-report@1",
+  "cli": {
+    "package_name": "@deksden-com/dd-flow-cli",
+    "version": "0.3.0"
+  }
+}

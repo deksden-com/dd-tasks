@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/project-check-profiles@1",
+  "title": "Project check profiles",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "profiles"],
+  "properties": {
+    "schema_id": { "const": "dd-flow/project-check-profiles@1" },
+    "profiles": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/definitions/profile" }
+    }
+  },
+  "definitions": {
+    "profile": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "stage", "purpose", "checks", "green_definition"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "stage": { "type": "string", "minLength": 1 },
+        "purpose": { "type": "string", "minLength": 1 },
+        "environment": { "type": "string" },
+        "checks": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": ["name", "command_or_procedure", "required_for_gate"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "command_or_procedure": { "type": "string", "minLength": 1 },
+              "required_for_gate": { "type": "boolean" },
+              "evidence": { "type": "string" },
+              "manual": { "type": "boolean" }
+            }
+          }
+        },
+        "green_definition": { "type": "string", "minLength": 1 },
+        "manual_verification_policy": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "allow_skip_with_def": { "type": "boolean" },
+            "required_def_fields": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

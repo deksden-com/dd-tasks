@@ -1,0 +1,20 @@
+{
+  "$schema": "../../protocol-plan.schema.json",
+  "schema_id": "dd-flow/protocol-plan@1",
+  "plan_id": "PLAN-INVALID",
+  "protocol_id": "PRT-INVALID",
+  "revision": 0,
+  "title": "Invalid plan",
+  "summary": "",
+  "specifications": [],
+  "protocol_reference": {"path": ".memory-bank/protocol/PRT-INVALID.md", "sha256": "bad"},
+  "goal": {"outcome": "", "constraints": [], "non_goals": []},
+  "task_assessment": {},
+  "route_decision": {"initial_state": "orchestrator_local", "selected_route": "local_compact", "selected_execution_mode": "", "reason": "", "capacity_probe": "", "packing": ""},
+  "policy_context": {"target_language": "en", "source_authority": "x", "current_truth_boundary": "x", "validation": "x", "lint": "x"},
+  "sdlc_contours": {"summary": "x", "contours": []},
+  "items": [],
+  "verification": {"scenario_seeds": [], "commands": [], "acceptance": ""},
+  "code_handoff": {"must_read": [], "accepted_plan_ref": {"path": ".memory-bank/protocol/PRT-INVALID/plan.json", "revision": 0, "sha256": "bad"}, "companion_handoffs": [], "next_stage": "code", "known_external_gate": "x"},
+  "runtime_progress": {"P1": "done"}
+}

@@ -63,7 +63,7 @@ The normal worker path is exactly:
 ```bash
 dd-flow stage start <RUN> --stage <stage> --json
 # semantic work in @stage
-dd-flow stage finish <RUN> --stage <stage> --outcome <outcome> --json
+dd-flow stage finish <RUN> --stage <stage> --json
 ```
 
 For a new practical task, the first worker flow command is the bootstrap form:
@@ -90,7 +90,8 @@ repeat CLI discovery, help, Git, compatibility, permission or runtime checks.
 The agent writes only semantic completion data to the generated
 `@stage/stage-input.json`; the file is validated against
 `dd-flow/stage-finish-input@1`. `stage finish` reads that file and accepts
-semantic agent output only. The CLI adds finish time,
+semantic agent output only; its `status` is `done`, `waiting_for_user`,
+`blocked` or `failed`. The CLI adds finish time,
 duration, Git state, session/usage coverage and artifact paths; validates the
 completion contract; rejects writes under `@stage/try-NNN`; validates changed
 Memory Bank delta; renders all required artifacts; updates `run.json`,
@@ -101,6 +102,10 @@ session ids, usage totals, report-choice flags or transition payloads.
 
 The current attempt always writes directly to `@stage`. `try-NNN` is archive
 history only and is never a current output target or a model-selected attempt.
+
+`dd-flow run override <RUN> --status cancelled|failed --reason <text> --json`
+is an audited operator recovery only. Normal workers never use `run complete`
+or an override command.
 
 ## Canonical PLAN and runtime progress
 

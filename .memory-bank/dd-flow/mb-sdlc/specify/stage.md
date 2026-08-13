@@ -30,6 +30,7 @@ architecture, implementation order, worktree, merge or other solution-space
 choices.
 
 Write semantic results only to the target named by `<work_contract>`. If
-blocking product questions remain, choose the `waiting_for_user` outcome. If
-they do not, choose the plan-ready outcome named by `<completion_contract>`.
+blocking product questions remain, set `status: waiting_for_user` and preserve
+each question as a structured item in `questions` (`id`, `question`, `impact`,
+and a recommendation when known). If they do not, set `status: done`.
 Do not hand-author reports, protocol summary/index, transition data or trace.

@@ -65,7 +65,7 @@ The only public worker lifecycle is:
 
 ```bash
 dd-flow stage start <RUN> --stage <stage> --json
-dd-flow stage finish <RUN> --stage <stage> --outcome <outcome> --json
+dd-flow stage finish <RUN> --stage <stage> --json
 ```
 
 For a new ordinary task, use the bootstrap form instead of separately calling
@@ -99,8 +99,12 @@ stage artifacts.
 
 Protocol files remain the durable semantic owner. Inspection/repair tools may
 expose explicit transition commands to operators, but a normal stage worker
-does not call them: `stage finish --outcome` validates and performs its allowed
-transition atomically.
+does not call them: `stage finish` validates semantic status and performs its
+allowed transition atomically.
+
+Only an operator may terminate a damaged or abandoned RUN manually:
+`dd-flow run override <RUN> --status cancelled|failed --reason <text> --json`.
+It is audited as `manual_override`; it is never a worker command.
 
 Operator commands include:
 
@@ -139,8 +143,9 @@ Install/register one idempotent observing `PreToolUse` binding in each active
 supplies the actual session id, and a model-provided id is not authoritative.
 The installed command is `dd-flow codex hook handle --event PreToolUse --json`
 without `--project-root`: Codex supplies the session `cwd` in stdin and the
-handler resolves the registered project from that path. `--project-root` is
-only an optional manual override.
+handler resolves the registered project from the command's `--project-root`,
+then falls back to that path. `--project-root` is only an optional manual
+override for non-stage commands.
 After upgrading or switching the installed `dd-flow` CLI, refresh every active
 `CODEX_HOME` with `dd-flow codex hooks install --project-root <root> --target
 isolated|default [--yes] --json`, verify it with `dd-flow codex hooks status`,

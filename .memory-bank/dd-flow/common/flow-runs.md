@@ -94,7 +94,7 @@ The public worker lifecycle has exactly two stage actions:
 
 ```bash
 dd-flow stage start <RUN> --stage <stage> --json
-dd-flow stage finish <RUN> --stage <stage> --outcome <outcome> --json
+dd-flow stage finish <RUN> --stage <stage> --json
 ```
 
 For a new ordinary task, its first flow command is bootstrap start:

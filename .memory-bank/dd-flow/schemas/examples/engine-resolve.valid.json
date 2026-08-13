@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "schema_id": "dd-flow/engine-resolve@1",
+  "selection": {
+    "status": "selected",
+    "package_name": "@deksden-com/dd-flow-cli",
+    "required_range": ">=0.6.0 <0.7.0",
+    "recommended_version": "0.6.0",
+    "selected": { "package_version": "0.6.0" },
+    "diagnostics": []
+  },
+  "contexts": {
+    "project_current": { "name": "project_current", "engine_version": "0.4.2" },
+    "upgrade_target": { "name": "upgrade_target", "engine_version": "0.6.0" },
+    "effective_execution": {
+      "operation": "engine.resolve",
+      "mode": "mb_upgrade",
+      "package_name": "@deksden-com/dd-flow-cli",
+      "engine_version": "0.6.0",
+      "reason": "explicit_upgrade_allowlist_target_canon"
+    }
+  }
+}

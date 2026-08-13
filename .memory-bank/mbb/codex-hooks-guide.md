@@ -198,8 +198,16 @@ Manual smoke:
 
 ```bash
 printf '%s' '{"hook_event_name":"PreToolUse","session_id":"s","turn_id":"t","cwd":"<project-root>","model":"gpt-5","permission_mode":"bypassPermissions","tool_name":"Bash","tool_use_id":"tool-1","tool_input":{"command":"echo ok"},"transcript_path":null}' \
-  | dd-flow codex hook handle --event PreToolUse --project-root "<project-root>" --json
+  | dd-flow codex hook handle --event PreToolUse --json
 ```
+
+The managed hook command must not hard-code `--project-root`. Codex provides
+the session `cwd` in stdin; the handler resolves the registered project from
+that path. `--project-root` remains an optional manual override for a manual
+smoke or recovery command. After changing the installed `dd-flow` CLI, reinstall
+the hook in every active `CODEX_HOME`, run `dd-flow codex hooks status`, and
+start a new Codex session; only installer/status commands receive
+`--project-root`.
 
 Expected output:
 

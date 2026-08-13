@@ -45,6 +45,11 @@ either companion tool.
   event, run, optional stage/attempt/session/job/status and redacted payload.
 - Full prompts, transcripts, raw tool output, secrets and token payloads never
   enter timeline or dashboards.
+- The router owns immutable `engine-binding.json` beside each RUN. It is not a
+  second state projection: it records the checksum-verified executor snapshot
+  and takes priority over project/upgrade compatibility for commands bound to
+  that RUN. Legacy recovery requires a successful old-engine `run status`
+  probe before the sidecar is written.
 - The active contract has no second current locator, index alias or reader
   fallback; SQLite never owns semantic documents.
 

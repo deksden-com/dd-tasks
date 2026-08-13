@@ -15,10 +15,13 @@ children:
   - .memory-bank/scenarios/index.md
   - .memory-bank/protocol/index.md
   - .memory-bank/defs/index.md
-memory_bank_version: '3.1.0'
+memory_bank_version: '3.2.0'
 initialization_status: 'initialized_published'
 tags: [dd-tasks, memory-bank]
 history:
+  - version: '1.7.0'
+    date: '2026-08-13'
+    changes: 'Canonical Memory Bank 3.2.0 и curated flow pack provenance обновлены до source commit 2a1aaec; target-driven engine routing, explicit storage migration safety, immutable RUN bindings и schema registry contracts синхронизированы; runtime/home migration применена через RUN-310.'
   - version: '1.6.0'
     date: '2026-08-12'
     changes: 'Canonical Memory Bank 3.1.0 и curated flow pack provenance обновлены до source commit 6cfaeaa; SPC-006/flow-contract@6 добавлены в активную навигацию, runtime/home migration остаётся отдельным gated follow-up.'
@@ -74,9 +77,9 @@ history:
 
 # Банк памяти dd-tasks
 
-Канонический релиз Банка памяти: `3.1.0`. Curated project flow pack
+Канонический релиз Банка памяти: `3.2.0`. Curated project flow pack
 происходит из canonical commit
-`6cfaeaa4d4c9c4a5d2b932cb92370dbfd1464bf6`;
+`2a1aaec84ee7d62b9f5a6549de5d1f0cb88082c0`;
 canonical-only entrypoints запускаются только из canonical checkout.
 
 dd-tasks — небольшой командный трекер задач. После нулевого checkpoint и
@@ -93,9 +96,10 @@ deterministic local acceptance.
 - [Индекс именованных отложений](defs/index.md)
 - [Канон MBB](mbb/index.md)
 - [Активный dd-flow pack](dd-flow/README.md): `flow-contract@6`, CLI/engine
-  `0.6.0` и CLI-owned stage bootstrap/context-packet semantics.
+  `0.7.0`, target-driven engine routing, explicit storage migration safety,
+  immutable RUN bindings и schema registry contracts.
 - [SPC-006 stage bootstrap/context packet](spec/engineering/SPC-006-stage-bootstrap-and-context-packet.md)
-  — project-facing engineering contract for the 3.1 flow release.
+  — project-facing engineering contract retained in the 3.2 flow release.
 
 Foundation history и annotated `checkpoint-01-foundation` не переписываются.
 PRT-003/RUN-298 приняли CODE/readiness; implementation content `5027fa1`

@@ -2,7 +2,7 @@
 file: '.memory-bank/dd-flow/schemas/index.md'
 description: 'Canonical machine-readable SPC-004/005/006 contracts.'
 purpose: 'Map schema ids to generated runtime artifacts and semantic input.'
-version: '1.2.0'
+version: '1.3.0'
 date: '2026-08-12'
 status: 'DRAFT'
 c4_level: 'schema-catalog'
@@ -11,6 +11,10 @@ related_files:
   - ../common/runtime-contract.md
   - ../common/flow-runs.md
 tags: [schemas, dd-flow, spc-004, spc-005, spc-006, plan]
+history:
+  - version: '1.3.0'
+    date: '2026-08-12'
+    changes: 'Documented structured implementation guidance for newly authored protocol plan items.'
 ---
 
 # Schema catalog
@@ -23,6 +27,7 @@ agent author mechanical facts.
 |---|---|---|
 | `dd-flow/flow-contract@6` | `../flow-contract.json` | canonical contract |
 | `dd-flow/flow-run@2` | `flow-run.schema.json` | current RUN state |
+| `dd-flow/run-engine-binding@1` | `run-engine-binding.schema.json` | immutable executor binding beside a RUN |
 | `dd-flow/timeline-event@1` | `timeline-event.schema.json` | safe append-only event |
 | `dd-flow/stage-prompt@2` | `stage-prompt.schema.json` | generated context/prompt |
 | `dd-flow/stage-start-response@2` | `stage-start-response.schema.json` | start receipt with rendered prompt |
@@ -35,6 +40,7 @@ agent author mechanical facts.
 | `dd-flow/memorybank-delta@1` | `memorybank-delta.schema.json` | post-write validation |
 | `dd-flow/worktrunk-workspace@1` | `worktrunk-workspace.schema.json` | verified workspace result |
 | `dd-flow/mb-lint-progress@1` | `mb-lint-progress.schema.json` | lint output boundary |
+| `dd-flow/engine-manifest@1` | `engine-manifest.schema.json` | immutable engine snapshot and schema registry |
 
 The existing domain-specific `*-stage-report.schema.json` files remain
 semantic payload profiles for release, review and delivery contours. They are
@@ -45,6 +51,10 @@ data under its semantic payload.
 ## Rules
 
 - `run.json` is the sole current RUN state; no second state/index schema exists.
+- `engine-binding.json` is a router-owned immutable sidecar, not a second RUN
+  state. It identifies the exact checksum-verified engine snapshot that must
+  execute commands for that RUN. New RUNs receive it at allocation; a legacy
+  RUN can receive it only after a successful read probe by the selected engine.
 - `stage-prompt.md` and `worker_prompt_markdown` are identical projections of
   `stage-prompt.json` and have exactly eight ordered sections.
 - `stage-finish-input` accepts semantic values only. Mechanical facts are
@@ -52,6 +62,10 @@ data under its semantic payload.
 - `protocol-plan@1` is the only semantic plan. It lives at
   `.memory-bank/protocol/<PRT-ID>/plan.json`; runtime progress, workers,
   timestamps and derived evidence are never plan fields.
+- Newly authored plan items use the existing `details` field for an actionable
+  guidance block with an approach, ordered steps, controls, pitfalls, stop
+  conditions and completion criterion. Historical accepted `protocol-plan@1`
+  files remain readable.
 - Every successful finish has JSON, Markdown, HTML and summary outputs.
 - Session coverage distinguishes `complete`, `partial` and `unavailable`.
 - Cache-read and cache-write tokens are distinct and nullable.
@@ -60,6 +74,12 @@ data under its semantic payload.
 - Worktrunk results require an official pinned verified artifact.
 - mb-lint progress is `stderr`; final text/JSON result is `stdout`; concurrency
   is bounded at `32` and findings are deterministic.
+- A RUN-bound artifact resolves its schema from the immutable engine snapshot's
+  `schema_registry`, not from a later project canon; the registry stores each
+  schema `$id` (including its version), path and checksum. The binding is the
+  exact engine snapshot checksum, not merely the package version; historical
+  snapshots without a manifest registry use an explicit checksum-bound
+  compatibility registry and otherwise fail closed.
 
 Validate changed JSON with the installed CLI schema command when its engine
 knows the schema id; otherwise use the repository's schema-capable test

@@ -123,6 +123,7 @@
         "expected": {"type": "array", "items": {"type": "string"}},
         "observed": {"type": "array", "items": {"type": "string"}},
         "missing": {"type": "array", "items": {"type": "string"}},
+        "diagnostics": {"type": "array", "items": {"type": "string"}},
         "reason": {"type": "string"}
       }
     },

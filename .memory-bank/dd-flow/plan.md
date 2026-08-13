@@ -2,7 +2,7 @@
 file: '.memory-bank/dd-flow/plan.md'
 description: 'Canonical PLAN-stage prompt for SPC-004 v0.2 and SPC-005.'
 purpose: 'Turn an accepted specification into one lossless semantic protocol plan and an honest CODE handoff.'
-version: '2.0.0'
+version: '2.1.0'
 date: '2026-08-10'
 status: 'DRAFT'
 c4_level: 'prompt'
@@ -14,6 +14,10 @@ related_files:
   - mb-sdlc/plan/review.md
   - mb-sdlc/plan/implementation.md
 tags: [dd-flow, plan, spc-004, spc-005, canonical-plan]
+history:
+  - version: '2.1.0'
+    date: '2026-08-12'
+    changes: 'Required self-contained implementation guidance for every newly authored executable plan item.'
 ---
 
 # PLAN
@@ -51,9 +55,26 @@ assessment, route decision, SDLC contours, executable task graph, semantic
 spines, execution contexts, verification contracts and CODE handoff.
 
 Every executable item has a non-empty `summary`, `depends_on` only for an
-actual consumed predecessor output, `semantic_spine`, `execution_context` and
-`verification_contract`. Preserve every structured field; do not collapse
-details, verification or notes into prose and do not default missing fields.
+actual consumed predecessor output, `semantic_spine`, `execution_context`,
+`details` and `verification_contract`. Preserve every structured field; do not
+collapse guidance or verification into generic prose and do not default missing
+fields.
+
+## Transferable implementation guidance
+
+Write `details` in each newly authored executable item as a self-contained handoff for a
+developer who knows the project stack but did not participate in the planning
+discussion. The item must explain the approach, the ordered implementation
+steps, the exact context to read, the write boundary, the invariants to
+preserve, control points, likely pitfalls, stop conditions and the completion
+criterion. Keep the detail proportional to the task: a small item may use short
+lists, but it must still remove the need to guess.
+
+This is an execution contract, not a request for hidden chain-of-thought. Record
+facts, decisions, actions and checks that another worker can use; never copy
+private deliberation or a planning transcript into the plan. If a worker would
+need an unstated decision from the discussion to proceed, the item is not
+plan-ready.
 
 The plan is immutable after acceptance. Mutable item progress, worker/session
 state, timestamps, Git facts, hashes generated at finish and actual evidence

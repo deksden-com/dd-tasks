@@ -1,14 +1,14 @@
 {
   "schema_id": "dd-flow/project-flow-pack-manifest@2",
-  "pack_version": "3.1.0",
+  "pack_version": "3.2.0",
   "flow_origin_policy": "project_local_pack",
   "canon_root": "/Users/deksden/Documents/_Projects/dd-memorybank",
   "canon_memory_bank_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank",
   "canon_flow_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank/dd-flow",
-  "source_commit": "6cfaeaa4d4c9c4a5d2b932cb92370dbfd1464bf6",
-  "canon_version_at_source_commit": "3.1.0",
+  "source_commit": "2a1aaec84ee7d62b9f5a6549de5d1f0cb88082c0",
+  "canon_version_at_source_commit": "3.2.0",
   "flow_contract": "dd-flow-canonical-2026-08",
-  "installed_at": "2026-08-12T07:30:22.561Z",
+  "installed_at": "2026-08-13T08:58:20Z",
   "included_files": [
     "README.md",
     "code",
@@ -164,9 +164,11 @@
     "review.md",
     "schemas/archived-flow-manifest.schema.json",
     "schemas/code-stage-report.schema.json",
+    "schemas/compatibility-contexts.schema.json",
     "schemas/compatibility.schema.json",
     "schemas/deploy-stage-report.schema.json",
     "schemas/engine-manifest.schema.json",
+    "schemas/engine-resolve.schema.json",
     "schemas/eval-report-data.schema.json",
     "schemas/examples/archived-flow-manifest.valid.json",
     "schemas/examples/code-stage-report.valid.json",
@@ -176,6 +178,8 @@
     "schemas/examples/eval-report-data.v2.valid.json",
     "schemas/examples/eval-report-data.v3.valid.json",
     "schemas/examples/eval-report-data.valid.json",
+    "schemas/examples/compatibility-contexts.valid.json",
+    "schemas/examples/engine-resolve.valid.json",
     "schemas/examples/flow-contract.valid.json",
     "schemas/examples/flow-guidance.valid.json",
     "schemas/examples/flow-run.valid.json",
@@ -259,6 +263,7 @@
     "schemas/publish-stage-report.schema.json",
     "schemas/release-impact.schema.json",
     "schemas/release-stage-report.schema.json",
+    "schemas/run-engine-binding.schema.json",
     "schemas/session-usage.schema.json",
     "schemas/specification-stage-report.schema.json",
     "schemas/stage-finish-input.schema.json",
@@ -294,5 +299,5 @@
   "generated_allow_patterns": [
     ".generated/**"
   ],
-  "notes": "Curated project-local flow pack synchronized with canonical Memory Bank 3.1.0; canonical-only flows, evals and experiments remain canonical/source-only."
+  "notes": "Curated project-local flow pack synchronized with canonical Memory Bank 3.2.0; canonical-only flows, evals and experiments remain canonical/source-only."
 }

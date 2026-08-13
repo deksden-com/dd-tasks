@@ -9,6 +9,9 @@ c4_level: 'project'
 parent: '.memory-bank/index.md'
 tags: [dd-tasks, structure]
 history:
+  - version: '1.1.0'
+    date: '2026-08-13'
+    changes: 'Отражены canonical MBB/curated flow pack 3.2.0, source commit 2a1aaec, target-driven engine routing, explicit storage migration safety, immutable RUN bindings и schema registry; project-owned shelves и архивная история сохранены.'
   - version: '1.0.0'
     date: '2026-08-12'
     changes: 'Отражены canonical MBB/curated flow pack 3.1.0, source commit 6cfaeaa, flow-contract@6 и SPC-006; project-owned shelves и архивная история сохранены.'
@@ -56,13 +59,17 @@ adr, evidence, ui, guides, skills и archive существуют как кан�
 foundation создан один canonical scenario; raw run artifacts не подменяют
 Memory Bank truth.
 
-mbb — копия MBB 3.1.0. dd-flow — curated project-local pack из canonical
-commit `6cfaeaa4d4c9c4a5d2b932cb92370dbfd1464bf6`; active pack использует
-`flow-contract@6`, CLI/engine `0.6.0` и исключает canonical-only mb-init,
-mb-upgrade и mb-distill, а также eval/experiment shelves. Предыдущие `mbb` и
-`dd-flow` сохранены в `.memory-bank/archive/mb-upgrade-2026-08-11/` и
+mbb — копия MBB 3.2.0. dd-flow — curated project-local pack из canonical
+commit `2a1aaec84ee7d62b9f5a6549de5d1f0cb88082c0`; active pack использует
+`flow-contract@6`, CLI/engine `0.7.0`, target-driven engine routing, explicit
+storage migration safety, immutable RUN bindings и schema registry contracts,
+а также исключает canonical-only mb-init, mb-upgrade и mb-distill и
+eval/experiment shelves. Предыдущие `mbb` и `dd-flow` сохранены в
+`.memory-bank/archive/mb-upgrade-2026-08-11/` и
 `.memory-bank/archive/mb-upgrade-2026-08-12/`.
 
 SPC-006 deterministic stage bootstrap/context packet и outcome-based sealed
-stage finish принадлежат engineering/flow contract contour; runtime/home data
-не считается мигрированным статическим обновлением файлов.
+stage finish принадлежат engineering/flow contract contour. Runtime/home
+migration для перехода 3.1.0 → 3.2.0 применена отдельным explicit
+`dd-flow migration apply` с backup/evidence в RUN-310; статический sync и
+runtime apply теперь согласованы.

@@ -41,6 +41,9 @@ children:
   - templates/index.md
 tags: [mbb, memory-bank, standards, documentation, sdlc, canonical]
 history:
+  - version: '3.2.0'
+    date: '2026-08-13'
+    changes: 'Updated the canonical marker for target-driven engine routing, explicit storage migration safety, immutable RUN engine bindings and schema registry validation.'
   - version: '3.1.0'
     date: '2026-08-12'
     changes: 'Updated the canonical marker for SPC-006 deterministic stage bootstrap, context packets and sealed stage finish.'
@@ -141,7 +144,7 @@ history:
 
 # Memory Bank Bible
 
-Текущая версия канона Memory Bank: `3.1.0`.
+Текущая версия канона Memory Bank: `3.2.0`.
 
 Memory Bank Bible (MBB) is the canonical rule set for creating and maintaining a project Memory Bank: a compact, linked, agent-friendly knowledge base that preserves context, decisions, contracts, and delivery evidence.
 

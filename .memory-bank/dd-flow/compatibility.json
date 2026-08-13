@@ -1,32 +1,53 @@
 {
   "schema_id": "dd-flow/compatibility@1",
-  "memory_bank_version": "3.1.0",
+  "memory_bank_version": "3.2.0",
   "dd_flow_cli": {
     "package_name": "@deksden-com/dd-flow-cli",
-    "min_version": "0.6.0",
-    "recommended_version": "0.6.0",
+    "min_version": "0.7.0",
+    "recommended_version": "0.7.0",
     "status_contract": "dd-flow/status-report@1",
     "version_contract": "dd-flow/version-report@1",
     "flow_contract": "dd-flow-canonical-2026-08"
   },
   "router": {
     "package_name": "@deksden-com/dd-flow-cli",
-    "min_version": "0.6.0",
-    "recommended_version": "0.6.0",
+    "min_version": "0.7.0",
+    "recommended_version": "0.7.0",
     "routing_model": "routed_engine_dispatch",
     "engine_store": "~/.dd-flow/engines",
-    "notes": "The global router selects an installed compatible engine; 0.6.0 implements the SPC-004/SPC-005/SPC-006 runtime contract."
+    "notes": "The global router selects an installed compatible engine; 0.7.0 implements target-driven engine routing, explicit storage migration safety, immutable RUN engine bindings and the SPC-004/SPC-005/SPC-006 runtime contract."
   },
   "engine": {
     "package_name": "@deksden-com/dd-flow-cli",
-    "version_range": ">=0.6.0 <0.7.0",
-    "recommended_version": "0.6.0",
-    "install_hint": "npm install -g @deksden-com/dd-flow-cli@0.6.0",
+    "version_range": ">=0.7.0 <0.8.0",
+    "recommended_version": "0.7.0",
+    "install_hint": "npm install -g @deksden-com/dd-flow-cli@0.7.0",
     "old_engine_install_hint": "npx @deksden-com/dd-flow-cli@<version> engine install",
     "first_engine_installable_version": "0.4.0",
     "legacy_direct_cli_before": "0.4.0",
     "manifest_contract": "dd-flow/engine-manifest@1",
     "status": "active_router_engine_split"
+  },
+  "upgrade_contract": {
+    "model": "dual_context_target_routing",
+    "authorization": "command_allowlist",
+    "storage_mutation": "explicit_migration_apply_only",
+    "run_creation": "after_storage_readiness",
+    "post_sync_routing": "marker_free_project_current",
+    "contexts": ["project_current", "upgrade_target", "effective_execution"],
+    "order": [
+      "pin_target_canon",
+      "verify_target_router",
+      "resolve_contexts",
+      "read_only_diagnostics",
+      "check_shared_home_activity",
+      "verify_backup",
+      "plan_adjacent_migration",
+      "apply_migration_explicitly",
+      "create_upgrade_run",
+      "sync_canonical_layer",
+      "verify_marker_free_normal_route"
+    ]
   },
   "contracts": {
     "storage_contract_set": "dd-flow/storage-contract-set@3.0",
@@ -43,8 +64,8 @@
   },
   "migrations": {
     "mode": "mb-upgrade-only",
-    "from_previous": "3.0.0",
-    "to_this": "3.1.0",
+    "from_previous": "3.1.0",
+    "to_this": "3.2.0",
     "adjacent_only": true,
     "normal_commands_may_migrate": false
   },

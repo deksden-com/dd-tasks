@@ -137,6 +137,15 @@ non-empty Memory Bank delta, and generates JSON/Markdown/HTML/summary receipts.
 Install/register one idempotent observing `PreToolUse` binding in each active
 `CODEX_HOME`; never install it in a project root. The hook/controller adapter
 supplies the actual session id, and a model-provided id is not authoritative.
+The installed command is `dd-flow codex hook handle --event PreToolUse --json`
+without `--project-root`: Codex supplies the session `cwd` in stdin and the
+handler resolves the registered project from that path. `--project-root` is
+only an optional manual override.
+After upgrading or switching the installed `dd-flow` CLI, refresh every active
+`CODEX_HOME` with `dd-flow codex hooks install --project-root <root> --target
+isolated|default [--yes] --json`, verify it with `dd-flow codex hooks status`,
+and start a new Codex session. The installer command needs `--project-root`;
+the stored runtime handler does not.
 Repeated hook events are idempotent, unrelated commands are ignored, and
 `PostToolUse` pairing is not part of the contract. A session switching between
 RUNs uses timestamped non-overlapping segments rather than overwriting one

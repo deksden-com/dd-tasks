@@ -1,0 +1,37 @@
+{
+  "schema_id": "dd-flow/compatibility-contexts@1",
+  "project_current": {
+    "name": "project_current",
+    "canon": { "source": "project_current" },
+    "memory_bank_version": "2.18.0",
+    "package_name": "@deksden-com/dd-flow-cli",
+    "required_engine_range": ">=0.4.0 <0.5.0",
+    "recommended_engine_version": "0.4.2",
+    "resolution": "selected",
+    "engine_version": "0.4.2",
+    "diagnostics": []
+  },
+  "upgrade_target": {
+    "name": "upgrade_target",
+    "canon": {
+      "root": "/Users/example/dd-memorybank",
+      "version": "3.1.0",
+      "commit": "fd0f50c60940fe32455c2a10a8102f31aa40c6dd",
+      "compatibility_sha256": "edd87380189a289b93de8ddddf451311b20150e4c74ca14605dfe9130a470410"
+    },
+    "memory_bank_version": "3.1.0",
+    "package_name": "@deksden-com/dd-flow-cli",
+    "required_engine_range": ">=0.6.0 <0.7.0",
+    "recommended_engine_version": "0.6.0",
+    "resolution": "selected",
+    "engine_version": "0.6.0",
+    "diagnostics": []
+  },
+  "effective_execution": {
+    "operation": "engine.resolve",
+    "mode": "mb_upgrade",
+    "package_name": "@deksden-com/dd-flow-cli",
+    "engine_version": "0.6.0",
+    "reason": "explicit_upgrade_allowlist_target_canon"
+  }
+}

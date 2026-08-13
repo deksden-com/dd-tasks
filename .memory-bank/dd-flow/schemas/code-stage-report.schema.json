@@ -124,10 +124,15 @@
     "run": {
       "type": "object",
       "additionalProperties": true,
-      "required": ["run_id", "run_state"],
+      "required": ["run_id"],
+      "anyOf": [
+        {"required": ["run_state"]},
+        {"required": ["run_index"]}
+      ],
       "properties": {
         "run_id": { "type": "string", "pattern": "^RUN-[0-9]{3}-[a-z0-9]+(?:-[a-z0-9]+)*$" },
-        "run_state": { "type": "string", "minLength": 1 }
+        "run_state": { "type": "string", "minLength": 1 },
+        "run_index": { "type": "string", "minLength": 1 }
       }
     },
     "stage": {

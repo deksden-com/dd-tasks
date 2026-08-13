@@ -44,6 +44,28 @@
         "items": { "type": "string", "minLength": 1 }
       }
     },
+    "schema_registry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_id", "entries"],
+      "properties": {
+        "schema_id": { "const": "dd-flow/engine-schema-registry@1" },
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "id", "path", "checksum"],
+            "properties": {
+              "name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+              "id": { "type": "string", "minLength": 1 },
+              "path": { "type": "string", "pattern": "^dist/schemas/[a-z0-9][a-z0-9-]*\\.schema\\.json$" },
+              "checksum": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+            }
+          }
+        }
+      }
+    },
     "integrity": {
       "type": "object",
       "additionalProperties": false,

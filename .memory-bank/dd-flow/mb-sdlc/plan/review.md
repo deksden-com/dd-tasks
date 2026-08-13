@@ -2,7 +2,7 @@
 file: '.memory-bank/dd-flow/mb-sdlc/plan/review.md'
 description: 'Canonical PLAN review and aspect-routing prompt for SPC-005.'
 purpose: 'Select proportional coverage, preserve semantic dependencies and produce one accepted aspect map.'
-version: '2.0.0'
+version: '2.1.0'
 date: '2026-08-10'
 status: 'DRAFT'
 c4_level: 'prompt'
@@ -14,6 +14,10 @@ related_files:
   - ../../schemas/protocol-plan.schema.json
   - ../plan-aspects/index.md
 tags: [dd-flow, plan, review, routing, spc-005]
+history:
+  - version: '2.1.0'
+    date: '2026-08-12'
+    changes: 'Added semantic acceptance checks for actionable plan-item implementation guidance.'
 ---
 
 # PLAN review and routing
@@ -28,7 +32,16 @@ The plan must contain one `plan.json` at
 `.memory-bank/protocol/<PRT-ID>/plan.json` and one RUN-local
 `<RUN-home>/02-plan/aspect-map.json`. The plan is the only semantic task graph;
 the aspect map is the only semantic coverage map. A plan item must expose
-structured `semantic_spine`, `execution_context` and `verification_contract`.
+structured `semantic_spine`, `execution_context`, `details` and
+`verification_contract`.
+
+For every newly authored executable item, `details` must be a
+self-contained handoff for a developer who knows the project stack but did not
+join the planning discussion. It must state the approach, ordered steps,
+control points, pitfalls, stop conditions and completion criterion. Reject an
+item when the worker would need hidden discussion context, private model
+reasoning or vague instructions such as "implement" / "run tests" to proceed.
+Keep the detail proportional to the task; short work may use short lists.
 
 The map contains every catalog aspect:
 
@@ -110,7 +123,11 @@ Before handing CODE the plan, verify:
 - the plan validates with `schemas/protocol-plan.schema.json` and preserves all
   structured semantic fields;
 - every required item has a non-empty summary, execution context and
-  verification contract;
+  implementation guidance and verification contract;
+- every new `details` guidance block names an actionable approach,
+  ordered steps, controls, pitfalls, stop conditions and completion criterion;
+- guidance transfers facts and decisions but does not capture chain-of-thought,
+  private transcripts or a second plan;
 - dependencies are acyclic and name consumed outputs;
 - tiny work has no capacity probe and suitable multi-aspect work has a grouped
   one-wave route;

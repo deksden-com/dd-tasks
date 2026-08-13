@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/engine-resolve@1",
+  "title": "dd-flow engine resolve report",
+  "description": "Engine selection and dual compatibility contexts for normal and mb-upgrade routing.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["ok", "schema_id", "selection", "contexts"],
+  "properties": {
+    "ok": { "type": "boolean" },
+    "schema_id": { "const": "dd-flow/engine-resolve@1" },
+    "selection": { "type": "object", "additionalProperties": true },
+    "contexts": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["project_current", "upgrade_target", "effective_execution"]
+    }
+  }
+}

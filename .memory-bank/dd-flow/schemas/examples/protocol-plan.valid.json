@@ -58,6 +58,7 @@
       "kind": "documentation_contract",
       "title": "Validate the example",
       "summary": "Validate the canonical example against the shared schema.",
+      "details": "Approach: validate the existing example through the shared schema. Steps: read the schema and example, run validation, then confirm semantic fields remain and runtime fields stay absent. Control points: preserve one semantic plan and every structured field. Pitfalls: do not add mutable status, worker state or generated hashes. Stop conditions: stop if validation requires changing runtime ownership or adding a second plan. Completion criterion: the example validates without runtime-only state.",
       "depends_on": [],
       "owner": "schema-owner",
       "target_stage": "code",

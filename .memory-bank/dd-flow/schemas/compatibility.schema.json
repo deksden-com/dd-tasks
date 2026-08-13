@@ -51,6 +51,38 @@
         "status": { "type": "string", "minLength": 1 }
       }
     },
+    "upgrade_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model", "authorization", "storage_mutation", "run_creation", "post_sync_routing", "contexts", "order"],
+      "properties": {
+        "model": { "const": "dual_context_target_routing" },
+        "authorization": { "const": "command_allowlist" },
+        "storage_mutation": { "const": "explicit_migration_apply_only" },
+        "run_creation": { "const": "after_storage_readiness" },
+        "post_sync_routing": { "const": "marker_free_project_current" },
+        "contexts": {
+          "type": "array",
+          "const": ["project_current", "upgrade_target", "effective_execution"]
+        },
+        "order": {
+          "type": "array",
+          "const": [
+            "pin_target_canon",
+            "verify_target_router",
+            "resolve_contexts",
+            "read_only_diagnostics",
+            "check_shared_home_activity",
+            "verify_backup",
+            "plan_adjacent_migration",
+            "apply_migration_explicitly",
+            "create_upgrade_run",
+            "sync_canonical_layer",
+            "verify_marker_free_normal_route"
+          ]
+        }
+      }
+    },
     "contracts": {
       "type": "object",
       "additionalProperties": false,

@@ -28,6 +28,7 @@ New runs use the project-scoped dd-flow home:
 ```text
 ~/.dd-flow/projects/<PRJ-ID-slug>/runs/<RUN-ID-slug>/
   run.json
+  engine-binding.json
   timeline.jsonl
   01-specify/
   02-plan/
@@ -48,6 +49,23 @@ tool output and token payloads are forbidden.
 
 There is no second current locator payload. A locator database, if used by the CLI,
 is rebuildable and cannot become a second payload authority.
+
+## Executor binding
+
+`engine-binding.json` is a router-owned immutable sidecar, not RUN state. It
+binds package/version, snapshot path and content checksum to the engine that
+created the RUN. For every command that names that RUN, the router resolves the
+binding before project or upgrade compatibility and executes the exact healthy
+snapshot. This lets historical `flow-run@1` RUNs complete on their retained
+engine after project compatibility moves forward.
+
+New RUN allocation writes the binding before `run.json` becomes visible. A
+legacy RUN has no implicit fallback: recover it once with
+`dd-flow engine bind-run <RUN> --project-root <root> --engine-version <version>
+--reason <text> --json`. The router probes `run status` through the requested
+snapshot before atomically writing the sidecar. A missing, changed or unhealthy
+bound snapshot fails closed. Reinstalling the same semantic engine version may
+not replace a snapshot referenced by an active binding.
 
 ## Stage layout
 

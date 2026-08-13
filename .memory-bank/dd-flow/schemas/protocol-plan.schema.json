@@ -193,7 +193,7 @@
         "kind": {"type": "string", "minLength": 1},
         "title": {"type": "string", "minLength": 1},
         "summary": {"type": "string", "minLength": 1},
-        "details": {"type": "string", "minLength": 1},
+        "details": {"type": "string", "minLength": 1, "description": "Self-contained implementation guidance for newly authored executable items: approach, ordered steps, control points, pitfalls, stop conditions and completion criterion."},
         "depends_on": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^P[0-9]+$"}},
         "owner": {"type": "string", "minLength": 1},
         "target_stage": {"enum": ["specify", "plan", "code", "readiness", "merge", "release"]},

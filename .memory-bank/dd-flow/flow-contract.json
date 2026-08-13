@@ -28,10 +28,6 @@
     "current_write_alias": "@stage",
     "archive_pattern": "try-NNN"
   },
-  "manual_recovery": {
-    "command": "dd-flow run override <RUN> --status cancelled|failed --reason <text> --json",
-    "worker_visible": false
-  },
   "run": {
     "current_state": "run.json",
     "history": "timeline.jsonl",

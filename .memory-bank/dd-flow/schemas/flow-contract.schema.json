@@ -80,7 +80,7 @@
         },
         "start_command": {"const": "dd-flow stage start <RUN> --stage <stage> --json"},
         "bootstrap_command": {"const": "dd-flow stage start --bootstrap --stage specify --project-root <root> --subject <label> --intake-file <path> --json"},
-        "finish_command": {"const": "dd-flow stage finish <RUN> --stage <stage> --outcome <outcome> --json"},
+        "finish_command": {"const": "dd-flow stage finish <RUN> --stage <stage> --json"},
         "prompt_sections": {
           "const": [
             "stage_identity",
@@ -114,7 +114,7 @@
       "required": ["finish_outputs", "model_input", "mechanical_facts"],
       "properties": {
         "finish_outputs": {"const": ["stage-report.json", "stage-report.md", "stage-report.html", "summary.md"]},
-        "model_input": {"const": "semantic-only; outcome flag"},
+        "model_input": {"const": "semantic-only; status in stage-input.json"},
         "mechanical_facts": {"const": "cli-owned"}
       }
     },

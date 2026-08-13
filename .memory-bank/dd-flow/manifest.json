@@ -1,12 +1,12 @@
 {
   "schema_id": "dd-flow/project-flow-pack-manifest@2",
-  "pack_version": "3.2.0-beta.2",
+  "pack_version": "3.2.0-beta.3",
   "flow_origin_policy": "project_local_pack",
   "canon_root": "/Users/deksden/Documents/_Projects/dd-memorybank",
   "canon_memory_bank_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank",
   "canon_flow_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank/dd-flow",
   "source_commit": "2a1aaec84ee7d62b9f5a6549de5d1f0cb88082c0",
-  "canon_version_at_source_commit": "3.2.0-beta.2",
+  "canon_version_at_source_commit": "3.2.0",
   "flow_contract": "dd-flow-canonical-2026-08",
   "installed_at": "2026-08-13T08:58:20Z",
   "included_files": [
@@ -140,6 +140,7 @@
     "mb-sdlc/specify/gap-analysis/methods/07-event-storming-light.md",
     "mb-sdlc/specify/gap-analysis/methods/08-misuse-cases.md",
     "mb-sdlc/specify/gap-analysis/methods/09-fmea-light.md",
+    "mb-sdlc/specify/packet.md",
     "mb-sdlc/specify/stage-report-template.html",
     "mb-sdlc/specify/stage.md",
     "merge",

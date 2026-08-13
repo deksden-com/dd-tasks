@@ -41,7 +41,7 @@
       "stage-report.html",
       "summary.md"
     ],
-    "model_input": "semantic-only; status in stage-input.json",
+    "model_input": "semantic-only; status in stage-input.json; mechanical facts are CLI-owned",
     "mechanical_facts": "cli-owned"
   },
   "plan": {

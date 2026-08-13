@@ -2,7 +2,7 @@
 file: '.memory-bank/dd-flow/mb-sdlc/specify/stage.md'
 description: 'Stage-specific semantic instructions for the generated SPECIFY prompt.'
 purpose: 'Keep initial requirements discovery bounded after CLI-owned stage bootstrap.'
-version: '0.1.0'
+version: '0.2.0'
 date: '2026-08-12'
 status: 'DRAFT'
 c4_level: 'prompt'
@@ -19,9 +19,9 @@ tags: [dd-flow, specify, stage, requirements, spc-006]
 
 The generated stage packet is authoritative for Git, runtime, permissions,
 aliases, session binding, write scope and completion command. Do not repeat
-those checks or inspect CLI help/status/version. Read only the project sources
-listed in `<required_context>`, then stop when its stated questions are settled
-or become explicit gaps.
+those checks or inspect CLI help/status/version. Its embedded packet is the
+bounded context for this stage; do not reopen its sources unless new semantic
+evidence makes one specific source necessary.
 
 Determine the smallest applicable requirements methods. Record project facts,
 problem-space gaps, question impact and scenario consequences. Ask the user
@@ -34,3 +34,8 @@ blocking product questions remain, set `status: waiting_for_user` and preserve
 each question as a structured item in `questions` (`id`, `question`, `impact`,
 and a recommendation when known). If they do not, set `status: done`.
 Do not hand-author reports, protocol summary/index, transition data or trace.
+
+If the finish command rejects a required status or a successful receipt
+contradicts the semantic result, stop and report `flow_contract_conflict`.
+Never rewrite a waiting result to `done` or `blocked` just to satisfy a schema,
+retry the command with another status, or repair RUN state manually.

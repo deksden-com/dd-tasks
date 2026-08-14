@@ -72,8 +72,8 @@ Do this in the following order and record it in the result.
    conflicts and a stop reason. Stop as soon as the named question is resolved,
    disproved or converted to an explicit gap; do not search merely for more
    confidence.
-3. **Applicability matrix before method files.** Make one compact row for each
-   method below: `not_applicable`, `light` or `full`, with signal, reason,
+3. **Applicability matrix before method files.** Make exactly one compact row
+   for each of all nine methods below: `not_applicable`, `light` or `full`, with signal, reason,
    question and stop condition. Read a method file only for `light` or `full`.
    Normally select one to three methods; more needs independent hard-risk
    triggers and an explicit reason.

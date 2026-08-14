@@ -41,19 +41,19 @@ The current stage is created and completed through exactly two mechanical
 actions:
 
 ```bash
-dd-flow stage start <RUN> --stage <stage> --json
-dd-flow stage finish <RUN> --stage <stage> --outcome <outcome> --json
+dd-flow stage start <RUN> --project-root <root> --stage <stage> --json
+dd-flow stage finish <RUN> --project-root <root> --stage <stage> --semantic-file <RUN-local-json> --json
 ```
 
 For a discussed ordinary task, `vnext/start.md` materializes raw intake and
-starts `flow launch --flow mb-sdlc-vnext-specify`. Launch returns the
+starts `stage start --bootstrap --stage specify`. It returns the
 authoritative context packet and generates its identical
-`stage-prompt.md` audit projection; the agent performs semantic work in
-`@stage`; finish derives mechanical facts, validates the semantic outcome and
-unconditionally renders
-`stage-report.json`, `stage-report.md`, `stage-report.html` and the protocol
-summary/transition. Accepted stage artifacts are sealed; reruns create a new
-`try-NNN` attempt.
+`stage-prompt.md` audit projection. That prompt names the result file, its
+schema, a compact valid skeleton, and the exact `stage finish` invocation;
+the worker does not discover those details itself. In this vNext proof,
+SPECIFY finish validates and receipts the result, renders its Markdown
+projection, and moves the RUN either to `waiting_for_user` or `specified`.
+It deliberately creates neither a protocol nor a general stage report.
 
 ## Shared contracts
 

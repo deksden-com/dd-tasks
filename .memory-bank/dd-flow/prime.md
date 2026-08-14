@@ -24,8 +24,8 @@ Use this entrypoint only when no practical task is selected. When a user asks
 to create, change or plan a concrete task, do not run a standalone priming
 ritual first: after any harness-required Goal, route through the active
 user-level flow entry. In this beta that entry is `vnext/start.md`; its
-`flow launch` command returns the bounded stage instructions that matter for
-the task.
+`stage start --bootstrap --stage specify` command returns the bounded stage
+instructions that matter for the task.
 
 Priming does not create a protocol, specification, plan, stage, report,
 summary, trace or project runtime state. It does not choose a task profile,

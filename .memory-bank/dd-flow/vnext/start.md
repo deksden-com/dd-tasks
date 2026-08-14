@@ -17,8 +17,8 @@ tags: [dd-flow, vnext, start, specify, beta]
 
 Use this entry only after the user has already discussed a concrete change and
 asks to formalize it. The semantic first stage is SPECIFY. `vnext/specify.md`
-is not opened directly: `flow launch` must first create the RUN, root Work,
-stage workspace, trusted session binding and bounded prompt.
+is not opened directly: `stage start --bootstrap --stage specify` creates the
+RUN, root Work, stage workspace, trusted session binding and bounded prompt.
 
 ## Actions
 
@@ -30,10 +30,10 @@ stage workspace, trusted session binding and bounded prompt.
 3. Run exactly this first lifecycle command from the current worker session:
 
    ```bash
-   dd-flow flow launch --flow mb-sdlc-vnext-specify \
+   dd-flow stage start --bootstrap --stage specify \
      --project-root "<project-root>" \
      --intake-file "<project-root>/.tasks/dd-flow/intake/<slug>/initial-request.md" \
-     --slug "<slug>" --json
+     --subject "<slug>" --json
    ```
 
 4. Treat returned `worker_prompt_markdown` as the complete SPECIFY task. Do

@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/vnext-specify-result@1",
+  "title": "vNext SPECIFY semantic result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "outcome", "summary", "scope", "requirements", "constraints", "grounding", "acceptance", "assumptions", "questions", "next_stage_context"],
+  "properties": {
+    "schema_id": {"const": "dd-flow/vnext-specify-result@1"},
+    "outcome": {"enum": ["waiting_for_user", "specified", "failed", "cancelled"]},
+    "summary": {"type": "string", "minLength": 1},
+    "scope": {"type": "object", "additionalProperties": false, "required": ["in", "out"], "properties": {"in": {"type": "array", "items": {"type": "string", "minLength": 1}}, "out": {"type": "array", "items": {"type": "string", "minLength": 1}}}},
+    "requirements": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "constraints": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "grounding": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["source", "finding"], "properties": {"source": {"type": "string", "minLength": 1}, "finding": {"type": "string", "minLength": 1}}}},
+    "acceptance": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "assumptions": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "questions": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["id", "question", "impact"], "properties": {"id": {"type": "string", "minLength": 1}, "question": {"type": "string", "minLength": 1}, "impact": {"type": "string", "minLength": 1}, "recommended_answer": {"type": "string", "minLength": 1}}}},
+    "next_stage_context": {"type": "array", "items": {"type": "string", "minLength": 1}}
+  }
+}

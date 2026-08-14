@@ -2,7 +2,7 @@
 file: '.memory-bank/dd-flow/schemas/index.md'
 description: 'Canonical machine-readable SPC-004/005/006 contracts.'
 purpose: 'Map schema ids to generated runtime artifacts and semantic input.'
-version: '1.3.0'
+version: '1.4.0'
 date: '2026-08-12'
 status: 'DRAFT'
 c4_level: 'schema-catalog'
@@ -12,6 +12,9 @@ related_files:
   - ../common/flow-runs.md
 tags: [schemas, dd-flow, spc-004, spc-005, spc-006, plan]
 history:
+  - version: '1.4.0'
+    date: '2026-08-14'
+    changes: 'Added the semantic result schema for the isolated vNext SPECIFY beta flow.'
   - version: '1.3.0'
     date: '2026-08-12'
     changes: 'Documented structured implementation guidance for newly authored protocol plan items.'
@@ -32,6 +35,7 @@ agent author mechanical facts.
 | `dd-flow/stage-prompt@2` | `stage-prompt.schema.json` | generated context/prompt |
 | `dd-flow/stage-start-response@2` | `stage-start-response.schema.json` | start receipt with rendered prompt |
 | `dd-flow/stage-finish-input@1` | `stage-finish-input.schema.json` | semantic agent input |
+| `dd-flow/vnext-specify-result@1` | `vnext-specify-result.schema.json` | semantic result of the vNext SPECIFY proof flow |
 | `dd-flow/stage-report@1` | `stage-report.schema.json` | generated stage report |
 | `dd-flow/plan-stage-report@5` | `plan-stage-report.schema.json` | generated PLAN receipt projection |
 | `dd-flow/protocol-plan@1` | `protocol-plan.schema.json` | canonical semantic protocol plan |

@@ -23,6 +23,7 @@ tags: [dd-flow, index, routing, lifecycle, spc-004]
 | Materialize work | `protocol.md` | substantive task input | `PRT-*` and specify handoff |
 | Continue a protocol | `protocol-implement.md` | selected non-terminal `PRT-*` | next safe stage |
 | Specify | `common/specification.md` | protocol exists | problem-space acceptance |
+| vNext SPECIFY beta | `vnext/specify.md` | materialized user discussion | self-contained result or blocking user questions |
 | Plan | `plan.md` | specify ready | plan graph and plan stage report |
 | Implement | `code.md` | plan ready | code stage and readiness |
 | Merge | `merge.md` / `merge-start.md` | ready for merge | claimed integration and closure |

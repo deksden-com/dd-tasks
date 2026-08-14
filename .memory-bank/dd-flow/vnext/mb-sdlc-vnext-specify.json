@@ -1,0 +1,25 @@
+{
+  "schema_id": "dd-flow/vnext-flow@1",
+  "id": "mb-sdlc-vnext-specify",
+  "version": 1,
+  "start": "specify.default",
+  "stages": {
+    "specify": {
+      "entries": {
+        "default": {
+          "actions": [
+            {"handler": "specify.bootstrap"},
+            {"agent": {"prompt": "specify.md", "result_schema": "vnext-specify-result"}},
+            {"handler": "specify.accept"}
+          ],
+          "transitions": {
+            "waiting_for_user": "wait.user",
+            "specified": "terminal.specified",
+            "failed": "terminal.failed",
+            "cancelled": "terminal.cancelled"
+          }
+        }
+      }
+    }
+  }
+}

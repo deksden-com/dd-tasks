@@ -19,7 +19,7 @@
     "scenario_coverage": { "type": "object" },
     "problem_solution_boundary": { "type": "object" },
     "design_aspects": { "type": "array" },
-    "policy_context": { "type": "object" },
+    "policy_context": { "type": "object", "additionalProperties": false, "required": ["sources", "findings", "gaps"], "properties": { "sources": { "type": "array", "items": { "type": "string", "minLength": 1 } }, "findings": { "type": "array", "items": { "type": "string", "minLength": 1 } }, "gaps": { "type": "array", "items": { "type": "string", "minLength": 1 } } } },
     "task_assessment": { "type": "object" },
     "legacy_projection": { "type": "object" },
     "delivery_shape": { "type": "object" },

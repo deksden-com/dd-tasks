@@ -95,7 +95,13 @@ Do this in the following order and record it in the result.
    table; behavioral rule boundaries → example mapping; unfamiliar roles and
    handoffs → domain storytelling; events/async/integration → event storming;
    trust boundary/sensitive action → misuse; irreversible/high consequence →
-   FMEA. `light` means only the narrow relevant checklist, not a reduced full
+   FMEA. A user-visible acceptance path with an actor performing two or more
+   steps (for example create, edit or list) is a positive `use_case_analysis`
+   signal: select it as `light` even when `entity_operation_crud_plus` is also
+   selected. CRUD+ checks operation completeness; it never replaces the
+   actor's journey. Mark use case `not_applicable` only when there is no
+   actor-visible flow at all, such as an isolated internal configuration
+   change. `light` means only the narrow relevant checklist, not a reduced full
    project.
 4. **One ledger and resolution gate.** Consolidate research and selected
    method findings into the one `gap_analysis`: gaps, requirement updates and

@@ -31,8 +31,8 @@ implemented in the canonical follow-up protocol
 
 ```text
 prime.md (only without a selected practical task)
-  -> protocol.md -> bootstrap `stage start` -> specify
-  -> plan.md
+  -> vnext/start.md -> vNext SPECIFY
+  -> protocolize / plan (after specified result)
   -> code.md -> mb-sdlc/code/implement.md -> readiness
   -> merge.md / merge-start.md -> merge/job.md -> merge/integrate.md
 ```
@@ -45,8 +45,9 @@ dd-flow stage start <RUN> --stage <stage> --json
 dd-flow stage finish <RUN> --stage <stage> --outcome <outcome> --json
 ```
 
-For a new ordinary task, start with `stage start --bootstrap --stage specify`.
-Start returns the authoritative context packet and generates its identical
+For a discussed ordinary task, `vnext/start.md` materializes raw intake and
+starts `flow launch --flow mb-sdlc-vnext-specify`. Launch returns the
+authoritative context packet and generates its identical
 `stage-prompt.md` audit projection; the agent performs semantic work in
 `@stage`; finish derives mechanical facts, validates the semantic outcome and
 unconditionally renders

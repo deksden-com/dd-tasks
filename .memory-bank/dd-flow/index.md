@@ -20,10 +20,9 @@ tags: [dd-flow, index, routing, lifecycle, spc-004]
 | User intent | Prompt | Predecessor | Result |
 |---|---|---|---|
 | Prime a fresh session | `prime.md` | Memory Bank exists | Read-only priming |
-| Materialize work | `protocol.md` | substantive task input | `PRT-*` and specify handoff |
+| Formalize discussed work | `vnext/start.md` | substantive user discussion | SPECIFY-first RUN; no PRT yet |
 | Continue a protocol | `protocol-implement.md` | selected non-terminal `PRT-*` | next safe stage |
-| Specify | `common/specification.md` | protocol exists | problem-space acceptance |
-| vNext SPECIFY beta | `vnext/specify.md` | materialized user discussion | self-contained result or blocking user questions |
+| SPECIFY worker | `vnext/specify.md` | vNext RUN started | self-contained result or blocking user questions |
 | Plan | `plan.md` | specify ready | plan graph and plan stage report |
 | Implement | `code.md` | plan ready | code stage and readiness |
 | Merge | `merge.md` / `merge-start.md` | ready for merge | claimed integration and closure |

@@ -2,7 +2,7 @@
 file: '.memory-bank/dd-flow/vnext/start.md'
 description: 'User-level entry to the vNext SPECIFY-first flow.'
 purpose: 'Materialize the active user discussion and start the deterministic SPECIFY flow.'
-version: '0.1.0'
+version: '0.2.0'
 date: '2026-08-14'
 status: 'DRAFT'
 c4_level: 'prompt'
@@ -23,22 +23,23 @@ RUN, root Work, stage workspace, trusted session binding and bounded prompt.
 ## Actions
 
 1. Choose a short stable slug from the discussed task.
-2. Use `.tasks/dd-flow/intake/<slug>/initial-request.md` as the raw input. If
-   it already exists, it is caller-owned: do not read, edit, normalize or
-   replace it; pass it unchanged. Only when it does not exist, create it from
-   the material user discussion relevant to the requested work, including
-   already given answers and constraints. Do not add your own solution,
-   questions, plan or inferred requirements to raw intake.
-3. Run exactly this first lifecycle command from the current worker session:
+2. Make `stage start` the first practical command. Pass the raw material user
+   discussion once on standard input: the original request plus already given
+   answers and constraints. Do not add your solution, questions, plan or
+   inferred requirements. The CLI stores the bytes unchanged in the new RUN.
 
    ```bash
-   dd-flow stage start --bootstrap --stage specify \
+   cat <<'USER_INTAKE' | dd-flow stage start --bootstrap --stage specify \
      --project-root "<project-root>" \
-     --intake-file "<project-root>/.tasks/dd-flow/intake/<slug>/initial-request.md" \
-     --subject "<slug>" --json
+     --subject "<slug>" --intake-stdin --json
+   <raw material user discussion>
+   USER_INTAKE
    ```
 
-4. Treat returned `worker_prompt_markdown` as the complete SPECIFY task. Do
+   If a caller has already supplied a durable raw-input file, pass that exact
+   file with `--intake-file` instead; do not read, edit, normalize or replace
+   it.
+3. Treat returned `worker_prompt_markdown` as the complete SPECIFY task. Do
    not perform separate lifecycle, Git, eval, protocol, plan, code, review or
    merge work before or after it.
 

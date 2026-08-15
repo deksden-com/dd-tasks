@@ -2,7 +2,7 @@
 file: '.memory-bank/dd-flow/vnext/specify.md'
 description: 'Canonical-specify semantic work adapted to the vNext SPECIFY → PROTOCOLIZE order.'
 purpose: 'Produce a portable problem-space contract before any executable protocol is created.'
-version: '0.2.0'
+version: '0.3.0'
 date: '2026-08-14'
 status: 'DRAFT'
 c4_level: 'prompt'
@@ -49,7 +49,7 @@ its headings so the handoff is scannable; concise bullets are enough.
   an eval/experiment is needed rather than a deterministic scenario;
 - durable assumptions, fixed and open `Q-*` questions;
 - project/policy facts that materially constrain accepted behavior;
-- independent task assessment axes and their legacy projection;
+- independent task assessment axes;
 - a delivery shape: one executable protocol or a protocol set with vertical
   value slices; and a compact handoff to PROTOCOLIZE.
 
@@ -130,16 +130,17 @@ seeds in `handoff`.
 
 Assess independently: scope breadth, solution novelty, solution uncertainty,
 failure impact and the derived plan floor. A cross-layer task or request to
-plan is not by itself a `full_plan` trigger. Preserve the one-way legacy
-projection (`size`, `risk`, `planning_route_hint`, `verification_mode`).
+plan is not by itself a `full_plan` trigger. Do not derive or record a second
+size/risk projection.
 
 If this is too large for one executable protocol, state `protocol set` and
 give vertical slices with one goal and acceptance scenario each. Do not ask the
 user how to slice it. Otherwise state `single protocol`.
 
-The `PROTOCOLIZE handoff` is deliberately small: tell PROTOCOLIZE the outcome it must preserve,
-the exact artifacts/facts it must read, any remaining gate, and verification
-seeds. Do not restate runtime data or implementation details there.
+The `PROTOCOLIZE handoff` is deliberately small: record material sources,
+any remaining gate and verification seeds. Each fact belongs once in its
+natural section: refer to the settled scope/defaults above rather than copying
+them into the handoff. Do not restate runtime data or implementation details.
 
 Use `failed` only for a real execution failure and `cancelled` only when the
 request was cancelled.

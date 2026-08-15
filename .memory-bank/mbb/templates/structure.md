@@ -63,8 +63,8 @@ memory-bank/
 Canonical new-project layout for epics/features:
 
 ```text
-memory-bank/plans/epics/EP-XXX-<slug>/index.md
-memory-bank/plans/epics/EP-XXX-<slug>/features/FT-XXX-YY-<slug>.md
+memory-bank/epics/EP-XXX-<slug>/index.md
+memory-bank/epics/EP-XXX-<slug>/features/FT-XXX-YY-<slug>/index.md
 ```
 
 ### `scenarios/`

@@ -216,7 +216,7 @@ JSDoc/docstrings нужны не для каждого helper. Они нужны
  * @docs memory-bank/spec/system/<area>/contract.md
  * @spec memory-bank/spec/system/<area>/contract.md
  * @adr memory-bank/adr/ADR-XXX-<slug>.md
- * @feature memory-bank/plans/epics/EP-XXX-<slug>/features/FT-XXX-YY-<slug>.md
+ * @feature memory-bank/epics/EP-XXX-<slug>/features/FT-XXX-YY-<slug>/index.md
  * @protocol memory-bank/protocol/PRT-XXX-<slug>.md
  * @scenario memory-bank/scenarios/SCN-XXX-<slug>.md
  */

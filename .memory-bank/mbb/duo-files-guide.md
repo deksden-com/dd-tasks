@@ -301,7 +301,7 @@ runtime/
 related_files:
   - memory-bank/spec/system/runtime/state-store/state-store-implementation.md
   - memory-bank/spec/system/runtime/state-store/locking.md
-  - memory-bank/plans/epics/EP-001-<slug>/features/FT-001-04-<slug>.md
+  - memory-bank/epics/EP-001-<slug>/features/FT-001-04-<slug>/index.md
 ```
 
 ## Best Practices

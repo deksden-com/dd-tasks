@@ -14,7 +14,7 @@ tags: [engineering, coding-standards]
 history:
   - version: '0.2.0'
     date: '2026-06-30'
-    changes: 'Aligned public API doc-link examples with plans/epics feature paths and protocol traceability.'
+    changes: 'Aligned public API doc-link examples with epics feature paths and protocol traceability.'
 ---
 
 # Coding Standards
@@ -87,7 +87,7 @@ history:
  * @docs memory-bank/spec/system/<area>/contract.md
  * @adr memory-bank/adr/ADR-XXX-<slug>.md
  * @spec memory-bank/spec/system/<area>/contract.md
- * @feature memory-bank/plans/epics/EP-XXX-<slug>/features/FT-XXX-YY-<slug>.md
+ * @feature memory-bank/epics/EP-XXX-<slug>/features/FT-XXX-YY-<slug>/index.md
  * @protocol memory-bank/protocol/PRT-XXX-<slug>.md
  * @scenario memory-bank/scenarios/SCN-XXX-<slug>.md
  */

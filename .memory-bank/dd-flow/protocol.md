@@ -110,7 +110,7 @@ execution_topology:
 
 `blocked_by_protocols` - единственный mandatory dependency mechanism для v1. Не изобретай обязательный graph engine: CLI and dashboard can derive ready/blocked state from each member protocol frontmatter plus runtime status.
 
-Если большой scope требует durable system/product knowledge, создай или обнови соответствующие `spec/`, `plans/epics`, `plans/features`, `adr/` and `scenarios/` документы как самостоятельные deliverables внутри member protocols. Не используй `spec/features/<feature-id>/slicing.md` as canonical oversized-work branch.
+Если большой scope требует durable system/product knowledge, создай или обнови соответствующие `spec/`, `epics/`, `adr/` and `scenarios/` документы как самостоятельные deliverables внутри member protocols. Не используй `spec/features/<feature-id>/slicing.md` as canonical oversized-work branch.
 
 Исходный пользовательский ввод сохрани дословно один раз в `intake/user-input.md` там, где он задаёт общий scope: обычно рядом с исходным/первым member protocol или согласно PSET. Остальные протоколы ссылаются на `source_user_input`, а не дублируют весь raw intake.
 

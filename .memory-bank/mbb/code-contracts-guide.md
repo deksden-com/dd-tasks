@@ -130,7 +130,7 @@ Memory Bank должен отвечать:
  *
  * @docs memory-bank/ui/screen-registry.md
  * @docs memory-bank/ui/automation/test-id-registry.md
- * @feature memory-bank/plans/epics/EP-XXX-<slug>/features/FT-XXX-YY-<slug>.md
+ * @feature memory-bank/epics/EP-XXX-<slug>/features/FT-XXX-YY-<slug>/index.md
  * @protocol memory-bank/protocol/PRT-XXX-<slug>.md
  * @scenario memory-bank/scenarios/XE-004-admin-workflow.md
  */

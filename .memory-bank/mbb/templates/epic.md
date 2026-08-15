@@ -1,5 +1,5 @@
 ---
-file: 'memory-bank/plans/epics/EP-XXX-<slug>/index.md'
+file: '.memory-bank/epics/EP-XXX-<slug>/index.md'
 description: '<Epic value area and feature map.>'
 purpose: '<Read to understand the delivered value, feature breakdown, progress, and evidence.>'
 version: '0.1.0'
@@ -7,7 +7,7 @@ date: 'YYYY-MM-DD'
 status: 'DRAFT'
 c4_level: 'documentation'
 epic: 'EP-XXX'
-parent: 'memory-bank/plans/epics/index.md'
+parent: '.memory-bank/epics/index.md'
 children:
   - features/FT-XXX-YY-<slug>.md
 related_files: []

@@ -34,7 +34,7 @@ JSDoc/TSDoc/docstrings, `@docs`, `@spec`, `@adr`, `@feature`, `@protocol`, `@sce
 - `spec/system/`
 - `spec/engineering/`
 - `scenarios/`
-- `plans/epics/`
+- `epics/`
 - `adr/`
 - `protocol/`
 - `evidence/`

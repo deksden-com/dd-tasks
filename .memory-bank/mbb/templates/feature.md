@@ -1,5 +1,5 @@
 ---
-file: 'memory-bank/plans/epics/EP-XXX-<slug>/features/FT-XXX-YY-<slug>.md'
+file: '.memory-bank/epics/EP-XXX-<slug>/features/FT-XXX-YY-<slug>/index.md'
 description: '<Feature outcome and scope.>'
 purpose: '<Read to understand acceptance intent, affected areas, grounding links, and closure evidence.>'
 version: '0.1.0'
@@ -8,7 +8,7 @@ status: 'DRAFT'
 c4_level: 'documentation'
 epic: 'EP-XXX'
 feature: 'FT-XXX-YY'
-parent: 'memory-bank/plans/epics/EP-XXX-<slug>/index.md'
+parent: '.memory-bank/epics/EP-XXX-<slug>/index.md'
 related_files: []
 related_specs:
   - memory-bank/spec/<product|system|engineering|operations>/<area>.md

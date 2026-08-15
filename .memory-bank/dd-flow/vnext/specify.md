@@ -8,7 +8,8 @@ status: 'DRAFT'
 c4_level: 'prompt'
 parent: '.memory-bank/dd-flow/index.md'
 related_files:
-  - mb-sdlc-vnext-specify.json
+  - mb-sdlc-vnext-protocolize.json
+  - protocolize.md
   - ../common/specification.md
   - ../mb-sdlc/specify/discovery.md
   - ../mb-sdlc/specify/gap-analysis/index.md

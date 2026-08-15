@@ -84,9 +84,9 @@ children:
 related_files:
   - memory-bank/adr/ADR-012-runtime-boundaries.md
 related_epics:
-  - memory-bank/plans/epics/EP-001-runtime/index.md
+  - memory-bank/epics/EP-001-runtime/index.md
 related_features:
-  - memory-bank/plans/epics/EP-001-runtime/features/FT-001-01-state-store.md
+  - memory-bank/epics/EP-001-runtime/features/FT-001-01-state-store/index.md
 related_specs:
   - memory-bank/spec/system/runtime/state-store.md
 related_adrs:
@@ -183,7 +183,7 @@ For scenario:
 scenario_id: SCN-001
 scenario_kind: capability | lifecycle | golden
 related_features:
-  - memory-bank/plans/epics/EP-XXX-<slug>/features/FT-XXX-YY-<slug>.md
+  - memory-bank/epics/EP-XXX-<slug>/features/FT-XXX-YY-<slug>/index.md
 related_specs:
   - memory-bank/spec/system/<area>.md
 evidence_files: []
@@ -196,9 +196,9 @@ protocol_set: memory-bank/protocol/_set/PSET-XXX-<slug>.md
 blocked_by_protocols:
   - PRT-001-<slug>
 related_epics:
-  - memory-bank/plans/epics/EP-XXX-<slug>/index.md
+  - memory-bank/epics/EP-XXX-<slug>/index.md
 related_features:
-  - memory-bank/plans/epics/EP-XXX-<slug>/features/FT-XXX-YY-<slug>.md
+  - memory-bank/epics/EP-XXX-<slug>/features/FT-XXX-YY-<slug>/index.md
 related_specs:
   - memory-bank/spec/system/<area>.md
 related_adrs:
@@ -266,9 +266,9 @@ For spec/sub-spec:
 ```yaml
 spec_id: SPC-001
 related_epics:
-  - memory-bank/plans/epics/EP-XXX-<slug>/index.md
+  - memory-bank/epics/EP-XXX-<slug>/index.md
 related_features:
-  - memory-bank/plans/epics/EP-XXX-<slug>/features/FT-XXX-YY-<slug>.md
+  - memory-bank/epics/EP-XXX-<slug>/features/FT-XXX-YY-<slug>/index.md
 related_adrs:
   - memory-bank/adr/ADR-XXX-<slug>.md
 related_scenarios:
@@ -291,7 +291,7 @@ decision_date: 2026-05-12
 related_specs:
   - memory-bank/spec/system/<area>.md
 related_features:
-  - memory-bank/plans/epics/EP-XXX-<slug>/features/FT-XXX-YY-<slug>.md
+  - memory-bank/epics/EP-XXX-<slug>/features/FT-XXX-YY-<slug>/index.md
 related_protocols:
   - memory-bank/protocol/PRT-XXX-<slug>.md
 ```

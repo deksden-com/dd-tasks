@@ -28,7 +28,7 @@ history:
     changes: 'Clarified scenario disposition matrices and machine-readable evidence placement.'
   - version: '0.4.0'
     date: '2026-06-30'
-    changes: 'Made plans/epics the canonical new-project home for epics/features and marked top-level epics as legacy/project-local.'
+    changes: 'Moved the canonical new-project home for epics/features to top-level epics.'
   - version: '0.5.0'
     date: '2026-07-07'
     changes: 'Added defs/ as canonical durable project-wide named deferral registry.'
@@ -210,14 +210,14 @@ ADR нужен, когда решение влияет на архитектур
 Для новых проектов канонический layout эпиков и фич:
 
 ```text
-memory-bank/plans/epics/
+memory-bank/epics/
 └── EP-XXX-<slug>/
     ├── index.md
     └── features/
         └── FT-XXX-YY-<slug>.md
 ```
 
-Top-level `memory-bank/epics/` допустим только как legacy/project-local вариант, если проект уже живет в такой структуре или `project-policy.md` явно закрепляет исключение. Новые шаблоны и flow-подсказки должны по умолчанию использовать `plans/epics/`.
+Top-level `memory-bank/epics/` — канонический каталог для epics/features. `plans/` остаётся для roadmaps, playbooks и verification matrices; не используй его как продуктовый каталог.
 
 ### `scenarios/`
 

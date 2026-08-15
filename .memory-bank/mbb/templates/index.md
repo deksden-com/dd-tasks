@@ -23,7 +23,7 @@ history:
     changes: 'Clarified compact stub usage when project facts do not justify expanding a full template.'
   - version: '0.5.0'
     date: '2026-06-30'
-    changes: 'Aligned epic/feature templates with canonical plans/epics layout and traceability fields.'
+    changes: 'Aligned epic/feature templates with canonical epics layout and traceability fields.'
   - version: '0.6.0'
     date: '2026-07-07'
     changes: 'Added base and operation-specific DevOps runbook templates plus template authoring guidance for agent notes.'
@@ -70,7 +70,7 @@ Optional sections from full templates are filled only when they carry source-bac
 - [Operational Access Policy](operational-access-policy.md): project-owned profiles, exact operation-scoped identity-target bindings, safe readback, authority, approval, freshness and value-free evidence rules without credentials.
 - [ADR](adr.md): architectural decision record with alternatives, consequences, and follow-up links.
 - [Coding Standards](coding-standards.md): project engineering standards for maintainable, agent-friendly code.
-- [Epic](epic.md): group of related delivered value under `plans/epics/`.
+- [Epic](epic.md): group of related delivered value under `epics/`.
 - [Feature](feature.md): minimal unit of delivered value under an epic's `features/` folder.
 - [Spec](spec.md): grounded implementation design.
 - [Protocol](protocol.md): factual execution/remediation trace.

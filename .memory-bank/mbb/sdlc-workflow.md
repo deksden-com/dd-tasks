@@ -49,7 +49,7 @@ history:
     changes: 'Добавлены first-class SDLC contours: Git, stage/environment, release, deploy/publish, verification and runbooks.'
   - version: '0.8.0'
     date: '2026-06-30'
-    changes: 'Added plans/epics feature layer, protocol set coordination, and stronger code-to-doc traceability in SDLC chains.'
+    changes: 'Added epics feature layer, protocol set coordination, and stronger code-to-doc traceability in SDLC chains.'
 ---
 
 # SDLC Workflow
@@ -91,7 +91,7 @@ Recommended active Memory Bank layers:
 
 - **`spec/`:** normative requirements and invariants, split into product, system, engineering, and operations.
 - **`adr/`:** decisions and rationale.
-- **`plans/`:** epics/features under `plans/epics/`, roadmaps, implementation playbooks, verification matrices.
+- **`epics/`:** product value areas and features. **`plans/`:** roadmaps, implementation playbooks and verification matrices.
 - **`scenarios/`:** executable verification contracts and cross-feature journeys.
 - **`protocol/`:** factual traces of work, remediation, acceptance and evidence summaries.
 - **`ui/`:** design system, `DESIGN.md` policy, screen contracts, automation contracts and visual references.

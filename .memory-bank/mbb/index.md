@@ -112,7 +112,7 @@ history:
     changes: 'Added seed/fixture safety and evals/experiments guides for scenario evidence and agentic assessment.'
   - version: '0.9.0'
     date: '2026-06-30'
-    changes: 'Added canonical glossary and strengthened delivery semantics for plans/epics, protocol sets, frontmatter, and traceability.'
+    changes: 'Added canonical glossary and strengthened delivery semantics for epics, protocol sets, frontmatter, and traceability.'
   - version: '0.9.1'
     date: '2026-07-07'
     changes: 'Added DevOps operator runbook template family and strengthened operations template usage guidance.'
@@ -211,7 +211,7 @@ This package is meant to be copied into a project Memory Bank, usually as `memor
 - [Coding Standards Template](templates/coding-standards.md): project engineering standards for code, tests, and agent work.
 - [Component Template](templates/component.md): component-level technical documentation.
 - [Subsystem Template](templates/subsystem.md): subsystem/container index.
-- [Epic Template](templates/epic.md): delivery value group under `plans/epics/`.
+- [Epic Template](templates/epic.md): delivery value group under `epics/`.
 - [Feature Template](templates/feature.md): minimal unit of delivered value under an epic.
 - [Spec Template](templates/spec.md): implementation-ready design.
 - [Protocol Template](templates/protocol.md): factual delivery/remediation trace.
@@ -281,7 +281,7 @@ Use the exact root name (`memory-bank/`, `.memory-bank/`, or another project con
 - Flow-affecting project policy hub -> `project-policy.md`
 - Normative product, system, engineering, and operations rules -> `spec/`
 - Decision rationale -> `adr/`
-- Epics/features for new projects -> `plans/epics/EP-XXX-<slug>/`
+- Epics/features for new projects -> `epics/EP-XXX-<slug>/`
 - Roadmaps, implementation playbooks, verification matrices -> `plans/`
 - UI screens, design system, automation contracts, visual references -> `ui/`
 - User-facing tutorials, how-to guides, references, explanations -> `guides/`

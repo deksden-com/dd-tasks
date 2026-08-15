@@ -8,7 +8,7 @@ status: 'DRAFT'
 c4_level: 'prompt'
 parent: '.memory-bank/dd-flow/index.md'
 related_files:
-  - mb-sdlc-vnext-specify.json
+  - mb-sdlc-vnext-protocolize.json
   - specify.md
 tags: [dd-flow, vnext, start, specify, beta]
 ---
@@ -39,9 +39,11 @@ RUN, root Work, stage workspace, trusted session binding and bounded prompt.
    If a caller has already supplied a durable raw-input file, pass that exact
    file with `--intake-file` instead; do not read, edit, normalize or replace
    it.
-3. Treat returned `worker_prompt_markdown` as the complete SPECIFY task. Do
-   not perform separate lifecycle, Git, eval, protocol, plan, code, review or
-   merge work before or after it.
+3. Treat returned `worker_prompt_markdown` as the complete SPECIFY task. After
+   a successful `specified` outcome, follow the returned `next` directive:
+   `same_session` continues in this session; `new_session` stops so the
+   controller can start `protocolize` in a fresh session. This is a project
+   policy (`execution.stage_handoff`), not an agent choice.
 
 The installed PreToolUse hook binds this real worker session automatically. Do
 not pass or discover a session id.

@@ -1,0 +1,43 @@
+{
+  "schema_id": "dd-flow/vnext-flow@1",
+  "id": "mb-sdlc-vnext-protocolize",
+  "version": 1,
+  "start": "specify.default",
+  "stages": {
+    "specify": {
+      "entries": {
+        "default": {
+          "actions": [
+            {"handler": "specify.bootstrap"},
+            {"agent": {"prompt": "specify.md", "result_format": "markdown"}},
+            {"handler": "specify.accept"}
+          ],
+          "transitions": {
+            "waiting_for_user": "specify.answer",
+            "specified": "protocolize.default",
+            "failed": "terminal.failed",
+            "cancelled": "terminal.cancelled"
+          }
+        }
+      }
+    },
+    "protocolize": {
+      "entries": {
+        "default": {
+          "actions": [
+            {"handler": "protocolize.prepare"},
+            {"agent": {"prompt": "protocolize.md", "result_format": "json"}},
+            {"handler": "protocolize.accept"}
+          ],
+          "transitions": {
+            "protocolized": "waiting.plan",
+            "requirement_gap": "specify.remediation",
+            "waiting_for_user": "protocolize.wait_user",
+            "failed": "terminal.failed",
+            "cancelled": "terminal.cancelled"
+          }
+        }
+      }
+    }
+  }
+}

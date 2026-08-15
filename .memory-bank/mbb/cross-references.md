@@ -56,7 +56,7 @@ children:
 related_files:
   - memory-bank/adr/ADR-012-runtime-boundaries.md
 related_features:
-  - memory-bank/plans/epics/EP-001-runtime/features/FT-001-01-state-store.md
+  - memory-bank/epics/EP-001-runtime/features/FT-001-01-state-store/index.md
 related_specs:
   - memory-bank/spec/system/runtime/state-store.md
 related_protocols:
@@ -114,7 +114,7 @@ Use only tags that are meaningful for the boundary:
  * @docs memory-bank/spec/system/<area>/contract.md
  * @spec memory-bank/spec/system/<area>/contract.md
  * @adr memory-bank/adr/ADR-XXX-<slug>.md
- * @feature memory-bank/plans/epics/EP-XXX-<slug>/features/FT-XXX-YY-<slug>.md
+ * @feature memory-bank/epics/EP-XXX-<slug>/features/FT-XXX-YY-<slug>/index.md
  * @protocol memory-bank/protocol/PRT-XXX-<slug>.md
  * @scenario memory-bank/scenarios/SCN-XXX-<slug>.md
  * @evidence memory-bank/evidence/<run-or-report>.md

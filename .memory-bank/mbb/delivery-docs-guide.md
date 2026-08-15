@@ -31,7 +31,7 @@ history:
     changes: 'Усилены правила протокола как временного интегратора, добавлены нормативная спецификация-компаньон и пакетный граф реализации.'
   - version: '0.5.0'
     date: '2026-06-30'
-    changes: 'Clarified canonical plans/epics layout, protocol sets, evidence semantics, and semantic split between epic, feature, spec, ADR, scenario, protocol and evidence.'
+    changes: 'Clarified canonical epics layout, protocol sets, evidence semantics, and semantic split between epic, feature, spec, ADR, scenario, protocol and evidence.'
 ---
 
 # Delivery Docs Guide
@@ -42,10 +42,10 @@ history:
 
 ## Canonical delivery layout
 
-Для новых проектов эпики и фичи живут в `plans/epics/`:
+Для новых проектов эпики и фичи живут в `epics/`:
 
 ```text
-memory-bank/plans/epics/
+memory-bank/epics/
 └── EP-XXX-<slug>/
     ├── index.md
     └── features/
@@ -58,7 +58,7 @@ Top-level `memory-bank/epics/` является legacy/project-local совме�
 
 `Epic` — это область доставляемой ценности, которая делится на фичи и явно называет, кто этой ценностью пользуется.
 
-Канонический новый путь: `memory-bank/plans/epics/EP-XXX-<slug>/index.md`.
+Канонический новый путь: `memory-bank/epics/EP-XXX-<slug>/index.md`.
 
 Используй epic для:
 - описания области ценности;
@@ -117,7 +117,7 @@ Top-level `memory-bank/epics/` является legacy/project-local совме�
 
 `Feature` — это минимальная поставка ценности, которую можно проверить.
 
-Канонический новый путь: `memory-bank/plans/epics/EP-XXX-<slug>/features/FT-XXX-YY-<slug>.md`.
+Канонический новый путь: `memory-bank/epics/EP-XXX-<slug>/features/FT-XXX-YY-<slug>/index.md`.
 
 Используй feature для:
 - пользовательского или системного результата;

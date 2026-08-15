@@ -25,7 +25,7 @@ history:
     changes: 'Added the four-part normative spec model for product, system, engineering, and operations.'
   - version: '0.2.0'
     date: '2026-06-30'
-    changes: 'Replaced spec/features slicing guidance with plans/epics feature records plus durable spec/sub-spec companions and protocol sets.'
+    changes: 'Replaced spec/features slicing guidance with epic feature records plus durable spec/sub-spec companions and protocol sets.'
 ---
 
 # Слой спецификаций
@@ -193,7 +193,7 @@ memory-bank/spec/
 `plans/` и `spec/` отвечают на разные вопросы.
 
 ```text
-plans/epics + features
+epics + features
   -> что доставляем и кому это нужно
 
 spec/product + system + engineering + operations
@@ -256,7 +256,7 @@ spec/engineering/coding-standards.md
 Capability/value layer:
 
 ```text
-plans/epics/EP-XXX-<slug>/
+epics/EP-XXX-<slug>/
   index.md
   features/
     FT-XXX-YY-<slug>.md

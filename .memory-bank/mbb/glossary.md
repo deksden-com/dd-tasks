@@ -61,7 +61,7 @@ ADR is not a feature, implementation plan, or protocol log. A spec can state the
 Canonical new-project home:
 
 ```text
-memory-bank/plans/epics/EP-XXX-<slug>/index.md
+memory-bank/epics/EP-XXX-<slug>/index.md
 ```
 
 Top-level `memory-bank/epics/` is legacy-compatible only unless a project policy explicitly keeps it.
@@ -73,7 +73,7 @@ Top-level `memory-bank/epics/` is legacy-compatible only unless a project policy
 Canonical new-project home:
 
 ```text
-memory-bank/plans/epics/EP-XXX-<slug>/features/FT-XXX-YY-<slug>.md
+memory-bank/epics/EP-XXX-<slug>/features/FT-XXX-YY-<slug>/index.md
 ```
 
 Feature docs do not replace specs. They link the durable product/system/engineering/operations rules they rely on.

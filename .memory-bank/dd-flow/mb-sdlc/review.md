@@ -125,7 +125,7 @@ If `dd-flow` runtime is unavailable, record `runtime_cli_degraded` in `final-rep
 Build `01-intake/source-map.md` and `source_map` in JSON before aspect review. Include applicable sources:
 
 - `.memory-bank/spec/product`, `.memory-bank/spec/system`, `.memory-bank/spec/engineering`, `.memory-bank/spec/operations`
-- `.memory-bank/plans/epics/**`
+- `.memory-bank/epics/**`
 - `.memory-bank/adr/**`
 - `.memory-bank/scenarios/**`
 - `.memory-bank/protocol/**`

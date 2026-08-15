@@ -53,7 +53,7 @@ Map every material request-level acceptance criterion to one or more PRTs.
 Do not invent new behavior. If delivery grounding exposes a material behavior
 conflict, return `requirement_gap`; the Flow will route back to SPECIFY.
 
-In `acceptance_coverage`, map each material request-level criterion to the
+In `acceptance_coverage`, map each material `AC-*` criterion from SPECIFY to the
 temporary `member_keys` that own it. Every member must own at least one
 criterion. The primary acceptance on that member is its concise acceptance
 contract, not a duplicate full PLAN.
@@ -83,8 +83,9 @@ Write only the supplied `protocolize-result.json` template. Use slugs and
 temporary member keys; CLI allocates all durable ids and renders documents.
 When `feature.action` is `create`, fill its `epic_path`, `title`, `slug` and
 short `summary`; they are required to create a useful, indexed feature record.
-For `link`, fill the existing feature's epic path and slug. Leave those fields
-empty only for `not_applicable`.
+For `link` or `update`, fill the existing feature's epic path and slug; CLI
+adds the new PRT ids to its `related_protocols` backlink idempotently. Leave
+those fields empty only for `not_applicable`.
 Replace every empty template placeholder, including `acceptance_coverage`
 criteria, before the one finish command. Do not run a separate syntax check:
 the finish command validates the result and returns any actionable error.

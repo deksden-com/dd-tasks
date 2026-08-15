@@ -45,5 +45,11 @@ RUN, root Work, stage workspace, trusted session binding and bounded prompt.
    controller can start `protocolize` in a fresh session. This is a project
    policy (`execution.stage_handoff`), not an agent choice.
 
+Every lifecycle receipt must be sufficient for the next action. `stage start`
+returns the exact semantic output contract and finish command for the current
+stage; successful `stage finish` returns the exact next-stage directive and
+command, or an explicit terminal/user gate. A normal worker never searches CLI
+help or flow files to reconstruct either command.
+
 The installed PreToolUse hook binds this real worker session automatically. Do
 not pass or discover a session id.

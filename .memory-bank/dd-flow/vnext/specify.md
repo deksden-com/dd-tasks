@@ -42,9 +42,11 @@ Record all of the following in the supplied `specify.md` result document. Keep
 its headings so the handoff is scannable; concise bullets are enough.
 
 - user problem, desired goal and affected actors where applicable;
-- functional requirements, non-functional requirements and constraints;
+- functional requirements, non-functional requirements and constraints, each
+  with a stable `R-001`-style identifier in `## Requirements`;
 - in-scope and intentionally out-of-scope behavior;
-- acceptance criteria and one concrete acceptance scenario: initial state,
+- acceptance criteria, each with a stable `AC-001`-style identifier in
+  `## Acceptance criteria`, and one concrete acceptance scenario: initial state,
   actor, steps and observable ready state;
 - automated and manual verification, fixture/world/cleanup needs, and whether
   an eval/experiment is needed rather than a deterministic scenario;

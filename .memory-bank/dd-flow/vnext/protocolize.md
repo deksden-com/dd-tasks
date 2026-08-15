@@ -85,5 +85,8 @@ When `feature.action` is `create`, fill its `epic_path`, `title`, `slug` and
 short `summary`; they are required to create a useful, indexed feature record.
 For `link`, fill the existing feature's epic path and slug. Leave those fields
 empty only for `not_applicable`.
+Replace every empty template placeholder, including `acceptance_coverage`
+criteria, before the one finish command. Do not run a separate syntax check:
+the finish command validates the result and returns any actionable error.
 Do not create PRT/PSET, epic, feature, runtime, report, Git or worktree files
 yourself. Finish with the exact command in the generated packet.

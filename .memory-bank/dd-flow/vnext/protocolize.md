@@ -81,5 +81,9 @@ member key; members without blockers are startable now.
 
 Write only the supplied `protocolize-result.json` template. Use slugs and
 temporary member keys; CLI allocates all durable ids and renders documents.
+When `feature.action` is `create`, fill its `epic_path`, `title`, `slug` and
+short `summary`; they are required to create a useful, indexed feature record.
+For `link`, fill the existing feature's epic path and slug. Leave those fields
+empty only for `not_applicable`.
 Do not create PRT/PSET, epic, feature, runtime, report, Git or worktree files
 yourself. Finish with the exact command in the generated packet.

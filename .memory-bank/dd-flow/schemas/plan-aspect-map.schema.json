@@ -1,0 +1,10 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/plan-aspect-map@2",
+  "type": "object",
+  "required": ["$schema", "schema_id", "protocol_id", "plan_id", "plan_revision", "catalog_ref", "aspects"],
+  "properties": {
+    "$schema": {"type": "string"}, "schema_id": {"const": "dd-flow/plan-aspect-map@2"}, "protocol_id": {"type": "string"}, "plan_id": {"type": "string"}, "plan_revision": {"type": "integer"}, "catalog_ref": {"type": "object"},
+    "aspects": {"type": "array", "items": {"type": "object", "required": ["aspect_id", "applicability", "reason", "coverage_mode", "verdict", "planned_artifact_refs", "reviewed_artifact_refs", "evidence_refs", "findings", "deferrals"], "properties": {"aspect_id": {"type": "string"}, "applicability": {"enum": ["applicable", "not_applicable"]}, "reason": {"type": "string"}, "coverage_mode": {"type": "string"}, "verdict": {"type": "string"}, "planned_artifact_refs": {"type": "array"}, "reviewed_artifact_refs": {"type": "array"}, "evidence_refs": {"type": "array"}, "findings": {"type": "array"}, "deferrals": {"type": "array"}}}}
+  }
+}

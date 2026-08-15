@@ -30,12 +30,24 @@
             {"handler": "protocolize.accept"}
           ],
           "transitions": {
-            "protocolized": "waiting.plan",
+            "protocolized": "plan.default",
             "requirement_gap": "specify.remediation",
             "waiting_for_user": "protocolize.wait_user",
             "failed": "terminal.failed",
             "cancelled": "terminal.cancelled"
           }
+        }
+      }
+    },
+    "plan": {
+      "entries": {
+        "default": {
+          "actions": [
+            {"handler": "plan.prepare"},
+            {"agent": {"prompt": "plan.md", "result_format": "files"}},
+            {"handler": "plan.accept"}
+          ],
+          "transitions": {"planned": "code.default", "waiting_for_user": "plan.answer", "failed": "terminal.failed", "cancelled": "terminal.cancelled"}
         }
       }
     }

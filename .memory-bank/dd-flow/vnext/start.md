@@ -23,10 +23,12 @@ RUN, root Work, stage workspace, trusted session binding and bounded prompt.
 ## Actions
 
 1. Choose a short stable slug from the discussed task.
-2. Create `.tasks/dd-flow/intake/<slug>/initial-request.md` in the current
-   project root. Copy the material user discussion relevant to the requested
-   work, including already given answers and constraints. Do not add your own
-   solution, questions, plan or inferred requirements to this raw intake.
+2. Use `.tasks/dd-flow/intake/<slug>/initial-request.md` as the raw input. If
+   it already exists, it is caller-owned: do not read, edit, normalize or
+   replace it; pass it unchanged. Only when it does not exist, create it from
+   the material user discussion relevant to the requested work, including
+   already given answers and constraints. Do not add your own solution,
+   questions, plan or inferred requirements to raw intake.
 3. Run exactly this first lifecycle command from the current worker session:
 
    ```bash

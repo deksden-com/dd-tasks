@@ -37,7 +37,8 @@ as research evidence or in the PROTOCOLIZE handoff.
 
 ## Required specification
 
-Record all of the following in the result contract:
+Record all of the following in the supplied `specify.md` result document. Keep
+its headings so the handoff is scannable; concise bullets are enough.
 
 - user problem, desired goal and affected actors where applicable;
 - functional requirements, non-functional requirements and constraints;
@@ -72,9 +73,10 @@ Do this in the following order and record it in the result.
    conflicts and a stop reason. Stop as soon as the named question is resolved,
    disproved or converted to an explicit gap; do not search merely for more
    confidence.
-3. **Applicability matrix before method files.** Make exactly one compact row
-   for each of all nine methods below: `not_applicable`, `light` or `full`, with signal, reason,
-   question and stop condition. Read a method file only for `light` or `full`.
+3. **Applicability matrix before method files.** In `Gap-method pass`, record
+   a compact assessment for all nine methods below: `not_applicable`, `light`
+   or `full`, with signal, reason, question and stop condition. Read a method
+   file only for `light` or `full`.
    Normally select one to three methods; more needs independent hard-risk
    triggers and an explicit reason.
 
@@ -104,8 +106,8 @@ Do this in the following order and record it in the result.
    change. `light` means only the narrow relevant checklist, not a reduced full
    project.
 4. **One ledger and resolution gate.** Consolidate research and selected
-   method findings into the one `gap_analysis`: gaps, requirement updates and
-   happy/alternate/error coverage. Resolve in order: current user statement or
+   method findings in the same `Gap-method pass`: gaps, requirement updates
+   and happy/alternate/error coverage. Resolve in order: current user statement or
    authoritative fact; strong analogy as a stated proposed default; safe
    solution-space default; reversible assumption/non-goal; then at most three
    highest-impact user questions; or an explicit deferral/blocker. Never make
@@ -113,16 +115,16 @@ Do this in the following order and record it in the result.
 
 For every material user question, use `Q-001` IDs and include why it matters,
 two or three meaningful options, recommendation and rationale, and the
-scope/acceptance effect. Preserve answered questions as `fixed`; do not reopen
-them. `waiting_for_user` is valid only when at least one `open` question
-remains. `specified` is valid only when no `open` question remains.
+scope/acceptance effect. Put them under `## Questions`; leave that section
+empty when no user answer is needed. `waiting_for_user` is valid only when at
+least one blocking question remains; otherwise finish as `specified`.
 
 ## Design aspects, assessment and handoff
 
 Consult `.memory-bank/dd-flow/mb-sdlc/specify/design-aspects/index.md` only
 when a relevant aspect is signalled (for example CLI, AI pipeline/model prompt
-or web UI). For every selected aspect, read its source and record applicability,
-accepted canonical defaults/deviations, user overrides and verification seeds.
+or web UI). For every selected aspect, record applicability, accepted canonical
+defaults/deviations, user overrides and verification seeds.
 Do not turn a design aspect into a hidden requirement. Put its verification
 seeds in `handoff`.
 
@@ -131,11 +133,11 @@ failure impact and the derived plan floor. A cross-layer task or request to
 plan is not by itself a `full_plan` trigger. Preserve the one-way legacy
 projection (`size`, `risk`, `planning_route_hint`, `verification_mode`).
 
-If this is too large for one executable protocol, set `delivery_shape.kind` to
-`protocol_set` and give vertical slices with one goal and acceptance scenario
-each. Do not ask the user how to slice it. Otherwise use `single_protocol`.
+If this is too large for one executable protocol, state `protocol set` and
+give vertical slices with one goal and acceptance scenario each. Do not ask the
+user how to slice it. Otherwise state `single protocol`.
 
-`handoff` is deliberately small: tell PROTOCOLIZE the outcome it must preserve,
+The `PROTOCOLIZE handoff` is deliberately small: tell PROTOCOLIZE the outcome it must preserve,
 the exact artifacts/facts it must read, any remaining gate, and verification
 seeds. Do not restate runtime data or implementation details there.
 

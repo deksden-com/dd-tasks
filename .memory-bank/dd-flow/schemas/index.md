@@ -35,7 +35,6 @@ agent author mechanical facts.
 | `dd-flow/stage-prompt@2` | `stage-prompt.schema.json` | generated context/prompt |
 | `dd-flow/stage-start-response@2` | `stage-start-response.schema.json` | start receipt with rendered prompt |
 | `dd-flow/stage-finish-input@1` | `stage-finish-input.schema.json` | semantic agent input |
-| `dd-flow/vnext-specify-result@1` | `vnext-specify-result.schema.json` | semantic result of the vNext SPECIFY proof flow |
 | `dd-flow/stage-report@1` | `stage-report.schema.json` | generated stage report |
 | `dd-flow/plan-stage-report@5` | `plan-stage-report.schema.json` | generated PLAN receipt projection |
 | `dd-flow/protocol-plan@1` | `protocol-plan.schema.json` | canonical semantic protocol plan |

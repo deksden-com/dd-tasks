@@ -11,6 +11,23 @@ You receive an accepted, self-contained SPECIFY result. Do not reopen the
 discussion transcript, repeat requirements-gap analysis, design implementation,
 read arbitrary code, create a worktree or write a PLAN.
 
+## Delivery decision
+
+First record `scope_sizing_verdict`:
+
+- `single_executable_protocol` — one vertical slice can be planned and coded
+  without a dependency boundary;
+- `single_compact_protocol` — one deliberately small change;
+- `specification_with_slices_required` — several independently useful slices
+  are necessary; use a PSET; or
+- `blocked_by_problem_space_question` — a material behavioural conflict was
+  found and must return to SPECIFY.
+
+Do not use a PSET merely to make work look parallel. A `protocol_set` needs at
+least two members, a decomposition rationale and execution topology. Keep
+technical design, aspect analysis, task graphs, subagent routing and test
+details for PLAN.
+
 ## Goal
 
 Turn the accepted request into the smallest durable delivery structure:
@@ -35,6 +52,30 @@ because their folders exist.
 Map every material request-level acceptance criterion to one or more PRTs.
 Do not invent new behavior. If delivery grounding exposes a material behavior
 conflict, return `requirement_gap`; the Flow will route back to SPECIFY.
+
+In `acceptance_coverage`, map each material request-level criterion to the
+temporary `member_keys` that own it. Every member must own at least one
+criterion. The primary acceptance on that member is its concise acceptance
+contract, not a duplicate full PLAN.
+
+## Durable context
+
+`durable_links` contains existing Memory Bank paths worth retaining as links:
+epics, features, specs, ADRs and scenarios. Set `preserve_raw_intake` only
+when the literal user wording is materially useful next to the first PRT.
+Never create placeholder docs. Creating or revising a spec, ADR or scenario
+requires its own positive trigger and explicit content; otherwise link the
+existing document or leave its list empty.
+
+For a PSET, write `delivery.pset`:
+
+- its selected execution mode and the `before_first_code` confirmation gate;
+- a concise dependency graph based only on real blocked-by, overlap or
+  boundary constraints;
+- feasible modes with their trade-offs, and excluded modes with a reason.
+
+Give every member a concise `role`. Mark a member blocked only by another
+member key; members without blockers are startable now.
 
 ## Output
 

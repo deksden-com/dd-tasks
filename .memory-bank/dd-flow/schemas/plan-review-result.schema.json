@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/plan-review-result@1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "overall_verdict", "summary"],
+  "properties": {
+    "schema_id": {"const": "dd-flow/plan-review-result@1"},
+    "overall_verdict": {"enum": ["pass", "watch", "needs_changes", "blocked"]},
+    "summary": {"type": "string", "minLength": 1}
+  }
+}

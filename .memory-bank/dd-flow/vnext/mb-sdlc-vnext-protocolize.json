@@ -47,7 +47,19 @@
             {"agent": {"prompt": "plan.md", "result_format": "files"}},
             {"handler": "plan.accept"}
           ],
-          "transitions": {"planned": "code.default", "waiting_for_user": "plan.answer", "failed": "terminal.failed", "cancelled": "terminal.cancelled"}
+          "transitions": {"planned": "plan-review.default", "waiting_for_user": "plan.answer", "failed": "terminal.failed", "cancelled": "terminal.cancelled"}
+        }
+      }
+    },
+    "plan-review": {
+      "entries": {
+        "default": {
+          "actions": [
+            {"handler": "plan-review.prepare"},
+            {"agent": {"prompt": "plan-review.md", "result_format": "files"}},
+            {"handler": "plan-review.accept"}
+          ],
+          "transitions": {"off": "code.default", "accepted": "code.default", "needs_changes": "plan-review.correction", "waiting_for_user": "plan-review.answer", "failed": "terminal.failed", "cancelled": "terminal.cancelled"}
         }
       }
     }

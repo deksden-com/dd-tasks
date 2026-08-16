@@ -18,37 +18,21 @@ Use a compact plan unless a named high-impact, irreversible, security, runtime
 or uncertainty trigger requires full depth. Classify every aspect. Ask the user
 only when no safe project-compatible default exists.
 
-Planning depth and review routing are independent decisions.
-`orchestrator_local` is only the initial routing owner, not the default review
-route. Use `local_compact` only for one genuinely tiny semantic unit or one
-short source scope. One PRT, one implementation item, an additive change or no
-plan-item dependency does **not** by itself make the review local. When the
-accepted plan has independent data/API/UI/evidence concerns, treat each
-concern as a review unit; if three or more such units are substantive, use a
-grouped route whenever the packet reports usable delegated capacity. For
-substantive multi-aspect read-only work, separate only real hard-output or
-independent trust boundaries, group the remaining compatible aspects in
-packets of at most three and prefer
-`single_wave_grouped`. Use known free capacity or one bounded probe when it is
-unknown; capacity changes packing only. Accept every aspect separately and
-retry only a rejected unit.
+Planning depth and independent review routing are separate decisions. Classify
+every applicable aspect and describe compatible review groups in the aspect
+map, but do not launch reviewers in PLAN. `orchestrator_local` is only the
+initial planning owner, not a claim that independent review is unnecessary.
+The next stage resolves the RUN-level `plan_review.mode` and either opens one
+grouped fresh-reviewer wave or deterministically skips it for `off`.
 
 Prepare `code-work-batch.json` with one `entry` CODE coordinator and its child
 Works. Each task must contain its implementation assignment, boundaries,
 invariants, checks and completion contract. Finish with the exact command in
 the generated prompt.
 
-For `single_wave_grouped` or `multi_wave_grouped`, use the second PLAN action
-after the draft artifacts exist: run the exact `plan reviews dispatch` command
-from the stage packet. It validates the draft and returns one ready Work per
-declared group plus exact worker-start commands. Launch those Work through the
-current harness in the available wave(s). A Desktop harness binds the child
-task ID to each Work deterministically before it sends the returned start
-command; workers never supply a session ID. Every worker's first action is its
-returned `work start` command; it must finish with a compact verdict result.
-Consume those results, update the affected aspect-map rows to
-`grouped_subagent` evidence, then run PLAN finish. Do not claim a grouped route
-without completed review Work and accepted verdicts.
+PLAN finishes when the plan, aspect maps and proposed CODE batch validate. It
+returns the exact `plan-review` start command. Do not start reviewers, mutate
+the proposed batch or start CODE from this stage.
 
 Use project-relative references for project artifacts and `run://<RUN-ID>/…`
 for RUN artifacts. Do not put an absolute filesystem path in a semantic plan,

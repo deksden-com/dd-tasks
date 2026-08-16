@@ -45,6 +45,19 @@ RUN, root Work, stage workspace, trusted session binding and bounded prompt.
    controller can start `protocolize` in a fresh session. This is a project
    policy (`execution.stage_handoff`), not an agent choice.
 
+If the user explicitly requested no plan review or a deep/focused plan review,
+normalize that single instruction immediately after bootstrap into this RUN;
+otherwise leave the default `auto` untouched. This is the only place where
+user prose is interpreted for the policy:
+
+```bash
+dd-flow run config set <RUN-ID> --project-root "<project-root>" \
+  --key plan_review.mode --value off|deep --reason "explicit user instruction" --json
+```
+
+`plan-review` later reads this stored RUN value. It never rereads the intake
+to guess whether review is wanted.
+
 Every lifecycle receipt must be sufficient for the next action. `stage start`
 returns the exact semantic output contract and finish command for the current
 stage; successful `stage finish` returns the exact next-stage directive and

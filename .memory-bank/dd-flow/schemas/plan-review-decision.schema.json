@@ -3,10 +3,11 @@
   "$id": "dd-flow/plan-review-decision@1",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_id", "outcome", "summary", "finding_decisions", "invalidated_groups"],
+  "required": ["schema_id", "plan_revision", "outcome", "summary", "finding_decisions", "invalidated_groups"],
   "properties": {
     "schema_id": {"const": "dd-flow/plan-review-decision@1"},
-    "outcome": {"enum": ["accepted", "needs_changes"]},
+    "plan_revision": {"type": "integer", "minimum": 1},
+    "outcome": {"enum": ["accepted", "needs_changes", "waiting_for_user", "blocked", "failed", "cancelled"]},
     "summary": {"type": "string", "minLength": 1},
     "finding_decisions": {"type": "array"},
     "invalidated_groups": {"type": "array", "items": {"type": "string"}}

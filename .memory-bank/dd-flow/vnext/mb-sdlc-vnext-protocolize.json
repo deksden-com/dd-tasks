@@ -1,7 +1,7 @@
 {
   "schema_id": "dd-flow/vnext-flow@1",
   "id": "mb-sdlc-vnext-protocolize",
-  "version": 2,
+  "version": 3,
   "start": "specify.default",
   "stages": {
     "specify": {
@@ -60,6 +60,18 @@
             {"handler": "plan-review.accept"}
           ],
           "transitions": {"off": "code.default", "accepted": "code.default", "needs_changes": "plan-review.correction", "waiting_for_user": "plan-review.answer", "failed": "terminal.failed", "cancelled": "terminal.cancelled"}
+        }
+      }
+    },
+    "code": {
+      "entries": {
+        "default": {
+          "actions": [
+            {"handler": "code.prepare"},
+            {"agent": {"prompt": "code.md", "result_format": "implementation"}},
+            {"handler": "code.accept"}
+          ],
+          "transitions": {"verified": "terminal.done", "blocked": "terminal.blocked", "failed": "terminal.failed", "cancelled": "terminal.cancelled"}
         }
       }
     }

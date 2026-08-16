@@ -24,12 +24,15 @@ with the returned `plan-review capacity record` command, then dispatch again.
 Do not register, wait for, or finish probe Works.
 
 When the latest required reviewer results are complete, write the exact
-`decision.json` path from the packet. Use `needs_changes` if a material plan
-correction is required; that closes this review attempt. Correct the PLAN,
-increment its revision, then start a new full PLAN-REVIEW attempt. Do not
-reuse prior reviewer evidence or retry individual groups. Use `accepted` only
-when the plan and proposed CODE graph are ready. The CLI validates evidence,
-registers CODE atomically and generates the reports.
+`decision.json` path from the packet. A reviewer may return `needs_changes`,
+but that is evidence, not the stage outcome. Classify every material finding,
+apply accepted corrections in this same orchestrator Work, update the PLAN and
+its dependent artifacts, and increment the revision when semantics changed.
+Do not start a second review automatically. Finish once with `accepted` and a
+`correction` receipt; use `waiting_for_user` only when no reasonable default
+exists, and `blocked` only for a real technical blocker. The CLI validates
+mechanical coherence, registers CODE atomically and generates the reports; it
+does not claim to prove semantic correctness.
 
 If the start response is `review_off`, no model review occurs. Follow its CODE
 entry command directly; do not create a reviewer, decision file or a separate

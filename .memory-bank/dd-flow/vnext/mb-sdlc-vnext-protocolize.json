@@ -59,7 +59,7 @@
             {"agent": {"prompt": "plan-review.md", "result_format": "files"}},
             {"handler": "plan-review.accept"}
           ],
-          "transitions": {"off": "code.default", "accepted": "code.default", "needs_changes": "plan.correction", "waiting_for_user": "plan-review.answer", "failed": "terminal.failed", "cancelled": "terminal.cancelled"}
+          "transitions": {"off": "code.default", "accepted": "code.default", "waiting_for_user": "plan-review.answer", "blocked": "terminal.blocked", "failed": "terminal.failed", "cancelled": "terminal.cancelled"}
         }
       }
     },

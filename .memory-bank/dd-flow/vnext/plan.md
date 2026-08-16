@@ -37,7 +37,9 @@ For `single_wave_grouped` or `multi_wave_grouped`, use the second PLAN action
 after the draft artifacts exist: run the exact `plan reviews dispatch` command
 from the stage packet. It validates the draft and returns one ready Work per
 declared group plus exact worker-start commands. Launch those Work through the
-current harness in the available wave(s). Every worker's first action is its
+current harness in the available wave(s). A Desktop harness binds the child
+task ID to each Work deterministically before it sends the returned start
+command; workers never supply a session ID. Every worker's first action is its
 returned `work start` command; it must finish with a compact verdict result.
 Consume those results, update the affected aspect-map rows to
 `grouped_subagent` evidence, then run PLAN finish. Do not claim a grouped route

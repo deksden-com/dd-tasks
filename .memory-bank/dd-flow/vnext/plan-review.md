@@ -13,9 +13,8 @@ product files. Do not create nested subagents.
 
 For compatible non-high-risk aspects, prefer one grouped wave; split only real
 trust, irreversible or hard-dependency boundaries. Review findings are inputs,
-not votes: accept evidence-backed material findings, reject unsupported or
-non-material preferences, and retry only a group invalidated by a meaningful
-plan correction.
+not votes: accept evidence-backed material findings and reject unsupported or
+non-material preferences.
 
 If `dispatch` returns `capacity_probe_required`, it is a harness measurement,
 not a set of reviewer Works: launch up to 15 empty fresh sessions in parallel,
@@ -26,9 +25,11 @@ Do not register, wait for, or finish probe Works.
 
 When the latest required reviewer results are complete, write the exact
 `decision.json` path from the packet. Use `needs_changes` if a material plan
-correction and targeted retry remain; use `accepted` only when the plan and
-proposed CODE graph are ready. Then run the exact finish command. The CLI
-validates evidence, registers CODE atomically and generates the reports.
+correction is required; that closes this review attempt. Correct the PLAN,
+increment its revision, then start a new full PLAN-REVIEW attempt. Do not
+reuse prior reviewer evidence or retry individual groups. Use `accepted` only
+when the plan and proposed CODE graph are ready. The CLI validates evidence,
+registers CODE atomically and generates the reports.
 
 If the start response is `review_off`, no model review occurs. Follow its CODE
 entry command directly; do not create a reviewer, decision file or a separate

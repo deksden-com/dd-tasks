@@ -21,9 +21,14 @@ only when no safe project-compatible default exists.
 Planning depth and review routing are independent decisions.
 `orchestrator_local` is only the initial routing owner, not the default review
 route. Use `local_compact` only for one genuinely tiny semantic unit or one
-short source scope. For substantive multi-aspect read-only work, separate only
-real hard-output or independent trust boundaries, group the remaining
-compatible aspects in packets of at most three and prefer
+short source scope. One PRT, one implementation item, an additive change or no
+plan-item dependency does **not** by itself make the review local. When the
+accepted plan has independent data/API/UI/evidence concerns, treat each
+concern as a review unit; if three or more such units are substantive, use a
+grouped route whenever the packet reports usable delegated capacity. For
+substantive multi-aspect read-only work, separate only real hard-output or
+independent trust boundaries, group the remaining compatible aspects in
+packets of at most three and prefer
 `single_wave_grouped`. Use known free capacity or one bounded probe when it is
 unknown; capacity changes packing only. Accept every aspect separately and
 retry only a rejected unit.
@@ -49,6 +54,11 @@ Use project-relative references for project artifacts and `run://<RUN-ID>/…`
 for RUN artifacts. Do not put an absolute filesystem path in a semantic plan,
 map or Work task; the CLI resolves portable RUN references in the live worker
 packet.
+
+Write artifacts only at the exact paths printed in the generated `<artifacts>`
+packet: `plan.json` belongs under the project protocol directory; aspect map
+and CODE batch belong under the listed RUN stage workspace. A similarly named
+file elsewhere is not an input to PLAN finish.
 
 The generated stage packet must include the complete `plan.json`,
 `aspect-map.json` and `code-work-batch.json` contracts, including a valid

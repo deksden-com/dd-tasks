@@ -1,7 +1,7 @@
 {
   "schema_id": "dd-flow/vnext-flow@1",
   "id": "mb-sdlc-vnext-specify",
-  "version": 1,
+  "version": 3,
   "start": "specify.default",
   "stages": {
     "specify": {

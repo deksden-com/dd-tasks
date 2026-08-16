@@ -134,6 +134,13 @@ pretend a local check is an independent worker verdict. Unknown capacity is
 reported as unknown, never fabricated as one slot. Probe cost and availability
 are runtime evidence, not model-authored fields.
 
+When a bounded capacity probe is required, launch at most 15 independent leaf
+probe sessions. Probe `NN` performs no tool call, file read, child launch or
+`dd-flow` call, waits 60 seconds, and returns exactly `AGENT-NN`. The controller
+waits for all probes or 180 seconds from the first launch, terminates unfinished
+probes, and records only exact-token completions as available slots. Creation
+requests, queued tasks and incomplete probes are not capacity.
+
 ## Acceptance
 
 The orchestrator verifies route choice, packet completeness, report status,

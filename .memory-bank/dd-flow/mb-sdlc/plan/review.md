@@ -86,6 +86,13 @@ or proof of a completed local review.
 8. Accept every unit separately. Recover only a rejected unit; accepted
    siblings remain accepted.
 
+If a substantive delegated route has unknown capacity, use one bounded probe:
+launch at most 15 independent leaf probes, each returning exactly `AGENT-NN`
+after a 60-second wait without tools or child launches. Wait for completion of
+all probes or 180 seconds total, terminate unfinished probes, and count only
+exact-token completions. Persist that count once as the RUN-level capacity
+observation; do not treat launch requests or queued probes as slots.
+
 Compatibility families in `plan-aspects/index.md` are preferences, not an
 allowlist. A group must be read-only, use one immutable or read-equivalent
 snapshot, have no hard edge between members and preserve one verdict/evidence

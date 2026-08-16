@@ -17,6 +17,13 @@ not votes: accept evidence-backed material findings, reject unsupported or
 non-material preferences, and retry only a group invalidated by a meaningful
 plan correction.
 
+If `dispatch` returns `capacity_probe_required`, it is a harness measurement,
+not a set of reviewer Works: launch up to 15 empty fresh sessions in parallel,
+have each return `READY` immediately without reading project files, and wait
+60 seconds. Count only sessions that actually started, record that one number
+with the returned `plan-review capacity record` command, then dispatch again.
+Do not register, wait for, or finish probe Works.
+
 When the latest required reviewer results are complete, write the exact
 `decision.json` path from the packet. Use `needs_changes` if a material plan
 correction and targeted retry remain; use `accepted` only when the plan and

@@ -26,8 +26,9 @@
             "items": {
               "type": "object",
               "additionalProperties": false,
-              "required": ["severity", "summary", "evidence_refs"],
+              "required": ["finding_id", "severity", "summary", "evidence_refs"],
               "properties": {
+                "finding_id": {"type": "string", "minLength": 1},
                 "severity": {"enum": ["blocker", "high", "medium", "low", "info"]},
                 "summary": {"type": "string", "minLength": 1},
                 "evidence_refs": {"type": "array", "items": {"type": "string", "minLength": 1}}

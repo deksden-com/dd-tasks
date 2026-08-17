@@ -1,14 +1,15 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "dd-flow/plan-review-decision@1",
+  "$id": "dd-flow/plan-review-decision@2",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_id", "plan_revision", "outcome", "summary", "finding_decisions"],
+  "required": ["schema_id", "plan_revision", "outcome", "summary", "finding_decisions", "correction"],
   "properties": {
-    "schema_id": {"const": "dd-flow/plan-review-decision@1"},
+    "schema_id": {"const": "dd-flow/plan-review-decision@2"},
     "plan_revision": {"type": "integer", "minimum": 1},
-    "outcome": {"enum": ["accepted", "needs_changes", "waiting_for_user", "blocked", "failed", "cancelled"]},
+    "outcome": {"enum": ["accepted", "waiting_for_user", "blocked", "failed", "cancelled"]},
     "summary": {"type": "string", "minLength": 1},
-    "finding_decisions": {"type": "array"}
+    "finding_decisions": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["finding_id", "decision", "reason"], "properties": {"finding_id": {"type": "string", "minLength": 1}, "decision": {"enum": ["accepted_fix", "rejected", "deferred_as_DEF", "requires_user", "duplicate"]}, "reason": {"type": "string", "minLength": 1}}}},
+    "correction": {"type": "object", "additionalProperties": false, "required": ["status", "previous_plan_revision", "changed_paths", "summary", "semantic_re_review"], "properties": {"status": {"enum": ["applied", "not_required"]}, "previous_plan_revision": {"type": "integer", "minimum": 1}, "changed_paths": {"type": "array", "items": {"type": "string"}}, "summary": {"type": "string", "minLength": 1}, "semantic_re_review": {"const": "not_run_by_policy"}}}
   }
 }

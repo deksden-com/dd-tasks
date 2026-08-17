@@ -21,18 +21,18 @@ trust, irreversible or hard-dependency boundaries. Review findings are inputs,
 not votes: accept evidence-backed material findings and reject unsupported or
 non-material preferences.
 
-If `dispatch` returns `capacity_probe_required`, it is a harness measurement,
-not a set of reviewer Works: launch up to 15 empty fresh sessions in parallel,
-have each return `READY` immediately without reading project files, and wait
-60 seconds. Count only sessions that actually started, record that one number
-with the returned `plan-review capacity record` command, then dispatch again.
-Do not register, wait for, or finish probe Works.
+Capacity, when needed, is described only by the generated lifecycle command
+packet. Follow that packet exactly; it is a harness measurement, not reviewer
+Work, and it must not be re-described or improvised here.
 
 When the latest required reviewer results are complete, write the exact
 `decision.json` path from the packet. A reviewer may return `needs_changes`,
 but that is evidence, not the stage outcome. Classify every material finding,
 apply accepted corrections in this same orchestrator Work, update the PLAN and
 its dependent artifacts, and increment the revision when semantics changed.
+Every reviewer finding has a stable id; preserve that id in the decision.
+Before reviewer results exist, delegated applicable aspects remain `pending`;
+the review result is the first place that may move them to `pass` or `watch`.
 Do not start a second review automatically. Finish once with `accepted` and a
 `correction` receipt; use `waiting_for_user` only when no reasonable default
 exists, and `blocked` only for a real technical blocker. The CLI validates

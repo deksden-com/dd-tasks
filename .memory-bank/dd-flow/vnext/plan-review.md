@@ -21,6 +21,13 @@ trust, irreversible or hard-dependency boundaries. Review findings are inputs,
 not votes: accept evidence-backed material findings and reject unsupported or
 non-material preferences.
 
+PLAN has already performed semantic grouping against the measured capacity.
+Execute those groups in `ceil(group_count / capacity)` waves: start up to the
+full capacity concurrently, then start the next wave only after the prior wave
+returns. Never create extra reviewers to fill unused slots. An underfilled tail
+wave is expected only when PLAN recorded boundaries that could not be combined
+safely.
+
 Capacity, when needed, is described only by the generated lifecycle command
 packet. It is a one-shot measurement, not productive Work: launch the one
 batch of 15 probes concurrently once, count only launches that actually start,

@@ -18,10 +18,13 @@ Use a compact plan unless a named high-impact, irreversible, security, runtime
 or uncertainty trigger requires full depth. Classify every aspect. Ask the user
 only when no safe project-compatible default exists.
 
-Planning depth and independent review routing are separate decisions. Classify
-every applicable aspect and describe compatible review groups in the aspect
-map, but do not launch reviewers in PLAN. `orchestrator_local` is only the
-initial planning owner, not a claim that independent review is unnecessary.
+Planning depth, PLAN execution routing, and independent review grouping are
+separate decisions. `routing.groups` describes only subagents used while
+making PLAN. `review_groups` describes every applicable aspect that a later
+PLAN-REVIEW may inspect. Always cover every applicable aspect exactly once in
+`review_groups`, with one to three compatible aspects per group. Do this even
+when `routing.selected_route` is `local_compact`: local PLAN does not mean
+independent review is unnecessary. Do not launch reviewers in PLAN.
 The next stage resolves the RUN-level `plan_review.mode` and either opens one
 grouped fresh-reviewer wave or deterministically skips it for `off`.
 

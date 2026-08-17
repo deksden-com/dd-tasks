@@ -22,8 +22,11 @@ not votes: accept evidence-backed material findings and reject unsupported or
 non-material preferences.
 
 Capacity, when needed, is described only by the generated lifecycle command
-packet. Follow that packet exactly; it is a harness measurement, not reviewer
-Work, and it must not be re-described or improvised here.
+packet. It is a one-shot measurement, not productive Work: launch the one
+batch of 15 probes concurrently once, count only launches that actually start,
+and never retry, replace, or try to reach fifteen successes. Rejected launches
+are expected evidence of the limit. Follow the returned cleanup deadline, then
+record the one observed number. Do not improvise another probe.
 
 When the latest required reviewer results are complete, write the exact
 `decision.json` path from the packet. A reviewer may return `needs_changes`,

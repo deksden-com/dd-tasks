@@ -1,7 +1,7 @@
 {
   "schema_id": "dd-flow/vnext-flow@1",
   "id": "mb-sdlc-vnext-specify",
-  "version": 3,
+  "version": 4,
   "start": "specify.default",
   "stages": {
     "specify": {
@@ -13,7 +13,6 @@
             {"handler": "specify.accept"}
           ],
           "transitions": {
-            "waiting_for_user": "wait.user",
             "specified": "terminal.specified",
             "failed": "terminal.failed",
             "cancelled": "terminal.cancelled"

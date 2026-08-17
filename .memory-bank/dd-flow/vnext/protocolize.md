@@ -19,9 +19,7 @@ First record `scope_sizing_verdict`:
   without a dependency boundary;
 - `single_compact_protocol` — one deliberately small change;
 - `specification_with_slices_required` — several independently useful slices
-  are necessary; use a PSET; or
-- `blocked_by_problem_space_question` — a material behavioural conflict was
-  found and must return to SPECIFY.
+  are necessary; use a PSET.
 
 Do not use a PSET merely to make work look parallel. A `protocol_set` needs at
 least two members, a decomposition rationale and execution topology. Keep
@@ -50,13 +48,15 @@ because their folders exist.
 ## Acceptance mapping
 
 Map every material request-level acceptance criterion to one or more PRTs.
-Do not invent new behavior. If delivery grounding exposes a material behavior
-conflict, return `requirement_gap`; the Flow will route back to SPECIFY.
+Do not invent new behavior.
 
 In `acceptance_coverage`, map each material `AC-*` criterion from SPECIFY to the
 temporary `member_keys` that own it. Every member must own at least one
 criterion. The primary acceptance on that member is its concise acceptance
-contract, not a duplicate full PLAN.
+contract, not a duplicate full PLAN. If PROTOCOLIZE itself exposes a material
+user decision with no reasonable default, pause this same PROTOCOLIZE Work,
+ask the question returned by the CLI, resume it with the raw answer, and then
+complete the delivery decision. Never restart or return to SPECIFY for HITL.
 
 ## Durable context
 

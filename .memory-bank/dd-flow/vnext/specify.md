@@ -2,7 +2,7 @@
 file: '.memory-bank/dd-flow/vnext/specify.md'
 description: 'Canonical-specify semantic work adapted to the vNext SPECIFY → PROTOCOLIZE order.'
 purpose: 'Produce a portable problem-space contract before any executable protocol is created.'
-version: '0.3.0'
+version: '0.4.0'
 date: '2026-08-14'
 status: 'DRAFT'
 c4_level: 'prompt'
@@ -119,8 +119,11 @@ Do this in the following order and record it in the result.
 For every material user question, use `Q-001` IDs and include why it matters,
 two or three meaningful options, recommendation and rationale, and the
 scope/acceptance effect. Put them under `## Questions`; leave that section
-empty when no user answer is needed. `waiting_for_user` is valid only when at
-least one blocking question remains; otherwise finish as `specified`.
+empty when no user answer is needed. If at least one question remains, pause
+this same SPECIFY stage with the exact `stage pause` command in the start
+packet. Ask the returned user message and stop the Turn. On the next Turn,
+resume this same Work before interpreting the answer. Finish as `specified`
+only after the section is empty.
 
 ## Design aspects, assessment and handoff
 

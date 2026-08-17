@@ -34,8 +34,9 @@ Every reviewer finding has a stable id; preserve that id in the decision.
 Before reviewer results exist, delegated applicable aspects remain `pending`;
 the review result is the first place that may move them to `pass` or `watch`.
 Do not start a second review automatically. Finish once with `accepted` and a
-`correction` receipt; use `waiting_for_user` only when no reasonable default
-exists, and `blocked` only for a real technical blocker. The CLI validates
+`correction` receipt. When no reasonable default exists, pause and later
+resume this same PLAN-REVIEW Work; do not finish it as waiting. Use `blocked`
+only for a real terminal technical blocker. The CLI validates
 mechanical coherence, registers CODE atomically and generates the reports; it
 does not claim to prove semantic correctness.
 

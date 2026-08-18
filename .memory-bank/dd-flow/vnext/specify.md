@@ -2,7 +2,7 @@
 file: '.memory-bank/dd-flow/vnext/specify.md'
 description: 'Canonical-specify semantic work adapted to the vNext SPECIFY → PROTOCOLIZE order.'
 purpose: 'Produce a portable problem-space contract before any executable protocol is created.'
-version: '0.4.0'
+version: '0.5.0'
 date: '2026-08-14'
 status: 'DRAFT'
 c4_level: 'prompt'
@@ -59,8 +59,11 @@ its headings so the handoff is scannable; concise bullets are enough.
 Use the smallest reasonable product decision. A missing optional detail is not
 a gap. Ask the user only when there is no safe, reasonable default and the
 choice changes outcome, scope, business rule, role/lifecycle semantics,
-irreversible effect, compatibility, risk or acceptance evidence. Never ask the
-user to design the implementation.
+irreversible effect, compatibility, risk or acceptance evidence. A new
+user-visible value taxonomy, a default for existing persisted data, or public
+input semantics has no safe default unless the user or an authoritative project
+source already establishes it; ask rather than inventing it. Never ask the user
+to design the implementation.
 
 ## Canonical requirements-gap pass
 

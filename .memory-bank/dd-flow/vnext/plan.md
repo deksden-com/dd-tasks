@@ -34,7 +34,11 @@ wave whenever compatible grouping permits it. Avoid an unnecessary tail wave
 such as `C + 1` groups when compatible light groups can be combined. Do not
 split aspects just to fill every slot, and do not merge incompatible high-risk
 work merely to save a wave. A partially filled final wave is valid only when
-the semantic boundaries require it.
+the semantic boundaries require it. If the measured capacity is positive, the
+map has more groups than `C`, and the last wave is partial, set
+`review_tail_reason` in that aspect map. State the irreducible semantic
+boundary; a generic claim about capacity is not a reason. First try to combine
+compatible light aspects. PLAN finish rejects an unexplained partial tail.
 
 If `C = 0`, preserve the smallest semantically safe groups without computing a
 wave count; PLAN-REVIEW cannot execute reviewers until capacity is available.

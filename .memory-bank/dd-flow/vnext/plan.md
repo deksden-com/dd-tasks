@@ -49,8 +49,12 @@ grouped fresh-reviewer wave or deterministically skips it for `off`.
 
 Prepare `code-work-batch.json` with one `entry` CODE coordinator and its child
 Works. Each task must contain its implementation assignment, boundaries,
-invariants, checks and completion contract. Finish with the exact command in
-the generated prompt.
+invariants, checks and completion contract. Every CODE Work has non-empty
+`requirement_refs`, `read_paths`, `write_paths` and `verification`; it must be
+executable from that record alone, without undefined phase labels or unnamed
+documents. Give negative cases and migration/backfill proof their own explicit
+verification entry whenever an accepted requirement needs them. Finish with the
+exact command in the generated prompt.
 
 PLAN finishes when the plan, aspect maps and proposed CODE batch validate. It
 returns the exact `plan-review` start command. Do not start reviewers, mutate

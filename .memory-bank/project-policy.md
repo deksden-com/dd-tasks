@@ -73,11 +73,13 @@ README подтверждает маршрут protocol → specify → plan →
 решением с обновлением этой политики.
 
 Полноценная продуктовая, контрактная, многозонная или иная существенная работа
-по протоколу использует `feature_worktree`. Для неё создаётся одноразовая ветка
-`feature/<protocol-slug>`, где protocol slug начинается с lowercase PRT ID,
-например `feature/prt-003-checkpoint-02-core`. В одном worktree этой ветки
+по протоколу использует `feature_worktree`. Для неё на `PROTOCOLIZE start`
+создаётся одноразовая ветка `feature/run-<RUN>-<slug>`, до публикации PRT/PSET.
+В одном worktree этой ветки
 последовательно живут protocol, SPECIFY, PLAN, CODE, readiness, продуктовые
 изменения и evidence. Отдельные ветки на стадии одного протокола не создаются.
+Машиночитаемый SSOT маршрута — `.memory-bank/dd-flow/project-workspace.json`;
+этот раздел объясняет политику, но CLI не выводит route из prose.
 
 `integration_branch_direct` допустим только для малой, безопасной и связной
 правки документации, политики или tooling, когда отдельный merge-контур не даёт

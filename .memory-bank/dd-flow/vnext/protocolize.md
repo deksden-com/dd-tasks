@@ -9,16 +9,17 @@ status: 'BETA'
 
 You receive an accepted, self-contained SPECIFY result. Do not reopen the
 discussion transcript, repeat requirements-gap analysis, design implementation,
-read arbitrary code, create a worktree or write a PLAN.
+read arbitrary code, create a worktree or write a PLAN. The CLI has already
+created the project-selected workspace before this stage begins.
 
 ## Delivery decision
 
 The supplied frozen Git policy is authoritative. Decide only the delivery
 shape, PRT/PSET topology and durable product links. Do not choose a branch,
 path or bootstrap command. On the finish command, `dd-flow` allocates durable
-ids, creates the policy-required feature worktree when applicable, runs the
-project-owned bootstrap, registers the workspace, and materializes the PRT,
-PSET and feature documents there. PLAN starts only after that handoff exists.
+ids, validates the already provisioned workspace, registers it, and
+materializes the PRT, PSET and feature documents there. A feature-worktree
+route then starts PLAN in a new session from the returned workspace path.
 
 First record `scope_sizing_verdict`:
 

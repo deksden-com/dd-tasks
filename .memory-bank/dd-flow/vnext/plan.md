@@ -3,7 +3,8 @@
 The generated prompt is the complete stage input. Read the accepted SPECIFY and
 PROTOCOLIZE artifacts named in it, then perform proportional grounding.
 
-For each PRT write `.memory-bank/protocol/<PRT>/plan.json` conforming to
+For each PRT write `.memory-bank/protocol/<PRT>/plan.json` in the registered
+feature worktree (or direct workspace) conforming to
 `dd-flow/protocol-plan@2` and `<RUN>/03-plan/<PRT>/aspect-map.json` conforming
 to `dd-flow/plan-aspect-map@2`. Keep future behavior DRAFT/PLANNED; do not
 change application code or claim implementation evidence.
@@ -61,9 +62,9 @@ map or Work task; the CLI resolves portable RUN references in the live worker
 packet.
 
 Write artifacts only at the exact paths printed in the generated `<artifacts>`
-packet: `plan.json` belongs under the project protocol directory; aspect map
-and CODE batch belong under the listed RUN stage workspace. A similarly named
-file elsewhere is not an input to PLAN finish.
+packet: `plan.json` belongs under the protocol directory in the registered
+RUN workspace; aspect map and CODE batch belong under the listed RUN stage
+workspace. A similarly named file elsewhere is not an input to PLAN finish.
 
 The generated stage packet must include the complete `plan.json`,
 `aspect-map.json` and `code-work-batch.json` contracts, including a valid

@@ -13,6 +13,13 @@ read arbitrary code, create a worktree or write a PLAN.
 
 ## Delivery decision
 
+The supplied frozen Git policy is authoritative. Decide only the delivery
+shape, PRT/PSET topology and durable product links. Do not choose a branch,
+path or bootstrap command. On the finish command, `dd-flow` allocates durable
+ids, creates the policy-required feature worktree when applicable, runs the
+project-owned bootstrap, registers the workspace, and materializes the PRT,
+PSET and feature documents there. PLAN starts only after that handoff exists.
+
 First record `scope_sizing_verdict`:
 
 - `single_executable_protocol` — one vertical slice can be planned and coded

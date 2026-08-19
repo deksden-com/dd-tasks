@@ -61,6 +61,9 @@
     "manager": "official-worktrunk",
     "command": "wt switch --create <branch> --base <base> --format json",
     "project_hooks": [".worktreeinclude", ".config/wt.toml"],
+    "feature_route_stage": "protocolize_finish",
+    "service_checkout_root": "$DD_FLOW_HOME/projects/<PRJ-ID>/checkouts/worktrees/<PRT-or-PSET>/<repo>",
+    "feature_branch_template": "feature/<PRT-or-PSET>-<slug>",
     "fallbacks": "forbidden"
   },
   "lint": {

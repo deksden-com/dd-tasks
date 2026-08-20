@@ -42,8 +42,9 @@ RUN, root Work, stage workspace, trusted session binding and bounded prompt.
 3. Treat returned `worker_prompt_markdown` as the complete SPECIFY task. After
    a successful `specified` outcome, follow the returned `next` directive:
    `same_session` continues in this session; `new_session` stops so the
-   controller can start `protocolize` in a fresh session. This is a project
-   policy (`execution.stage_handoff`), not an agent choice.
+   controller can start `protocolize` in a fresh session. This is the
+   `workspace.next_stage_session` value in `project-workspace.json`, not an
+   agent choice or a separate runtime setting.
 
 The bootstrap checkout is intentionally only the stable project identity while
 SPECIFY resolves the problem space. If the project selects `feature_worktree`,

@@ -138,8 +138,15 @@ When a bounded capacity probe is required, launch at most 15 independent leaf
 probe sessions. Probe `NN` performs no tool call, file read, child launch or
 `dd-flow` call, waits 60 seconds, and returns exactly `AGENT-NN`. The controller
 waits for all probes or 180 seconds from the first launch, terminates unfinished
-probes, and records only exact-token completions as available slots. Creation
+probes, then closes/deletes every completed probe session that the harness
+permits before recording capacity or launching productive work. Creation
 requests, queued tasks and incomplete probes are not capacity.
+
+Every delegated session is disposable unless its packet explicitly says it is
+long-lived. After its report is accepted or it is terminally rejected, the
+orchestrator closes/deletes that worker session when the harness permits before
+starting a later wave. A finished worker must not silently consume a slot and
+invalidate the capacity observation used to schedule the remaining work.
 
 ## Acceptance
 

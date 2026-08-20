@@ -33,7 +33,11 @@ packet. It is a one-shot measurement, not productive Work: launch the one
 batch of 15 probes concurrently once, count only launches that actually start,
 and never retry, replace, or try to reach fifteen successes. Rejected launches
 are expected evidence of the limit. Follow the returned cleanup deadline, then
-record the one observed number. Do not improvise another probe.
+record the one observed number. Do not improvise another probe. The probes
+exist only to measure capacity: after the observation window, cancel every
+probe that has not finished and close/delete every finished probe session that
+the harness permits. Do this before launching a reviewer. No probe agent may
+remain live and consume a slot for productive reviewer or CODE work.
 
 When the latest required reviewer results are complete, write the exact
 `decision.json` path from the packet. A reviewer may return `needs_changes`,

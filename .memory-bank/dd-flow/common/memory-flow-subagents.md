@@ -130,6 +130,10 @@ Degraded mode не допустим как обычная оптимизация
 5. Обновить coverage artifact.
 6. Зафиксировать принятые и отклонённые рекомендации.
 7. Создать `DEF-*`, если gap нельзя закрыть в текущем flow.
+8. После принятия или terminal rejection report закрыть/удалить disposable
+   worker session средствами harness, прежде чем запускать следующую волну.
+   Нельзя оставлять завершённого worker-а занимать слот и тем самым делать
+   наблюдённый лимит конкурентности недостоверным.
 
 Для SDLC-related gaps сначала классифицируй gap: `not_applicable`, `question`, `BLOCK-*`, `DEF-*` или accepted project-specific policy. Отсутствие release/deploy policy само по себе не DEF для маленького проекта; DEF нужен, когда gap влияет на active gate, future flow or discoverability.
 

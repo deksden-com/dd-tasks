@@ -19,7 +19,9 @@ shape, PRT/PSET topology and durable product links. Do not choose a branch,
 path or bootstrap command. On the finish command, `dd-flow` allocates durable
 ids, validates the already provisioned workspace, registers it, and
 materializes the PRT, PSET and feature documents there. A feature-worktree
-route then starts PLAN in a new session from the returned workspace path.
+route then starts PLAN in a new session from the returned workspace path. The
+finish receipt contains the exact branch, base commit and write workspace;
+that receipt is mandatory input to every later mutating stage.
 
 First record `scope_sizing_verdict`:
 

@@ -45,6 +45,13 @@ RUN, root Work, stage workspace, trusted session binding and bounded prompt.
    controller can start `protocolize` in a fresh session. This is a project
    policy (`execution.stage_handoff`), not an agent choice.
 
+The bootstrap checkout is intentionally only the stable project identity while
+SPECIFY resolves the problem space. If the project selects `feature_worktree`,
+the CLI creates and bootstraps it at `PROTOCOLIZE start`, before it materializes
+any durable delivery document. The resulting receipt then binds PLAN,
+PLAN-REVIEW and CODE to that workspace. Agents do not create branches or
+worktrees themselves.
+
 If the user explicitly requested no plan review or a deep/focused plan review,
 normalize that single instruction immediately after bootstrap into this RUN;
 otherwise leave the default `auto` untouched. This is the only place where

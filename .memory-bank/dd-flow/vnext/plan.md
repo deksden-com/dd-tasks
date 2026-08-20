@@ -3,6 +3,11 @@
 The generated prompt is the complete stage input. Read the accepted SPECIFY and
 PROTOCOLIZE artifacts named in it, then perform proportional grounding.
 
+The CLI verifies the immutable PROTOCOLIZE workspace receipt before PLAN opens.
+For a feature route, all project reads and writes are in that named worktree;
+the stable project root is used only by lifecycle commands. Do not create,
+switch, merge or delete branches/worktrees.
+
 For each PRT write `.memory-bank/protocol/<PRT>/plan.json` in the registered
 feature worktree (or direct workspace) conforming to
 `dd-flow/protocol-plan@2` and `<RUN>/03-plan/<PRT>/aspect-map.json` conforming

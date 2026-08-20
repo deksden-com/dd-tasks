@@ -21,10 +21,12 @@ tags: [dd-flow, index, routing, lifecycle, spc-004]
 |---|---|---|---|
 | Prime a fresh session | `prime.md` | Memory Bank exists | Read-only priming |
 | Formalize discussed work | `vnext/start.md` | substantive user discussion | SPECIFY-first RUN; no PRT yet |
-| Continue a protocol | `protocol-implement.md` | selected non-terminal `PRT-*` | next safe stage |
+| Materialize accepted requirements | `vnext/protocolize.md` | accepted SPECIFY | managed workspace plus PRT/PSET |
+| Plan | `vnext/plan.md` | accepted PROTOCOLIZE | verified implementation graph and CODE handoff |
+| Review plan | `vnext/plan-review.md` | accepted PLAN | accepted correction or CODE opening |
+| Implement | `vnext/code.md` | accepted or skipped PLAN-REVIEW | registered CODE Work graph |
+| Continue a legacy protocol | `protocol-implement.md` | selected non-terminal `PRT-*` | legacy next-safe-stage route |
 | SPECIFY worker | `vnext/specify.md` | vNext RUN started | self-contained result or blocking user questions |
-| Plan | `plan.md` | specify ready | plan graph and plan stage report |
-| Implement | `code.md` | plan ready | code stage and readiness |
 | Merge | `merge.md` / `merge-start.md` | ready for merge | claimed integration and closure |
 
 ## Runtime invariants
@@ -37,6 +39,10 @@ tags: [dd-flow, index, routing, lifecycle, spc-004]
 - Successful finish always generates JSON, Markdown, HTML and summary views.
 - `run.json`, stage reports and generated summary are runtime evidence; durable
   decisions belong in Memory Bank truth layers.
+- If project policy selects `feature_worktree`, `PROTOCOLIZE start` creates and
+  bootstraps it before any PRT/PSET materialization. PLAN, PLAN-REVIEW and CODE
+  require the immutable route receipt and use only that workspace for project
+  reads/writes; the stable project root is lifecycle identity, not a write target.
 
 ## Safe next actions
 

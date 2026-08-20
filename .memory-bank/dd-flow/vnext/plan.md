@@ -27,22 +27,12 @@ PLAN-REVIEW may inspect. Always cover every applicable aspect exactly once in
 when `routing.selected_route` is `local_compact`: local PLAN does not mean
 independent review is unnecessary. Do not launch reviewers in PLAN.
 
-The trusted PLAN packet gives the measured fresh-subagent capacity `C` for one
-wave. Optimize review grouping lexicographically: preserve real trust,
-irreversible, high-risk and hard-dependency boundaries first; then minimize
-`ceil(review_group_count / C)`; then minimize the number of groups. Prefer one
-wave whenever compatible grouping permits it. Avoid an unnecessary tail wave
-such as `C + 1` groups when compatible light groups can be combined. Do not
-split aspects just to fill every slot, and do not merge incompatible high-risk
-work merely to save a wave. A partially filled final wave is valid only when
-the semantic boundaries require it. If the measured capacity is positive, the
-map has more groups than `C`, and the last wave is partial, set
-`review_tail_reason` in that aspect map. State the irreducible semantic
-boundary; a generic claim about capacity is not a reason. First try to combine
-compatible light aspects. PLAN finish rejects an unexplained partial tail.
-
-If `C = 0`, preserve the smallest semantically safe groups without computing a
-wave count; PLAN-REVIEW cannot execute reviewers until capacity is available.
+Optimize review grouping semantically: preserve real trust, irreversible,
+high-risk and hard-dependency boundaries first, then use the fewest groups
+that retain independent review value. One grouped reviewer wave is preferable
+when compatible aspects allow it, but PLAN must not guess the number of
+physical waves. PLAN-REVIEW measures live fresh-session capacity immediately
+before reviewer dispatch and schedules unchanged groups in those waves.
 
 The next stage resolves the RUN-level `plan_review.mode` and either opens one
 grouped fresh-reviewer wave or deterministically skips it for `off`.

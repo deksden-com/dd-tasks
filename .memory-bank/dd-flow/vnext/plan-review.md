@@ -47,7 +47,10 @@ its dependent artifacts, and increment the revision when semantics changed.
 Every reviewer finding has a stable id; preserve that id in the decision.
 Before reviewer results exist, delegated applicable aspects remain `pending`;
 the review result is the first place that may move them to `pass` or `watch`.
-Do not start a second review automatically. Finish once with `accepted` and a
+A completed reviewer result with `needs_changes` or `blocked` is evidence for
+the coordinator to classify and address in this one pass; only missing,
+malformed or unfinished reviewer evidence blocks the stage. Do not start a
+second review automatically. Finish once with `accepted` and a
 `correction` receipt. When no reasonable default exists, pause and later
 resume this same PLAN-REVIEW Work; do not finish it as waiting. Use `blocked`
 only for a real terminal technical blocker. The CLI validates

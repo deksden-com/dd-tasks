@@ -65,6 +65,13 @@ input semantics has no safe default unless the user or an authoritative project
 source already establishes it; ask rather than inventing it. Never ask the user
 to design the implementation.
 
+An explicit project policy remains binding unless the user explicitly asks to
+change that policy. Broad product wording (for example “treat these entities
+the same”) is not an implicit authorization, lifecycle or read-only-policy
+override. Where the requested outcome would need such an exception and the
+user has not stated it, retain the policy as a constraint or ask the smallest
+material question; never invent a feature-specific exception as a default.
+
 ## Canonical requirements-gap pass
 
 Do this in the following order and record it in the result.

@@ -55,18 +55,19 @@ capability normally needs a feature; an epic needs several independent
 features. Do not create empty catalog records, ADRs, specs or scenarios merely
 because their folders exist.
 
-## Acceptance mapping
+## Obligation ownership
 
-Map every material request-level acceptance criterion to one or more PRTs.
-Do not invent new behavior.
+Allocate every supplied `R-*` and `AC-*` exactly once in
+`obligation_ownership`; do not paraphrase or invent behavior. An obligation
+may list multiple temporary `member_keys` only when it genuinely spans slices,
+never as blanket duplication. Every member must own at least one `AC-*`.
+The primary acceptance is a concise member contract, not a duplicate PLAN.
+The CLI writes the exact accepted statements into the PRT/PSET documents.
 
-In `acceptance_coverage`, map each material `AC-*` criterion from SPECIFY to the
-temporary `member_keys` that own it. Every member must own at least one
-criterion. The primary acceptance on that member is its concise acceptance
-contract, not a duplicate full PLAN. If PROTOCOLIZE itself exposes a material
-user decision with no reasonable default, pause this same PROTOCOLIZE Work,
-ask the question returned by the CLI, resume it with the raw answer, and then
-complete the delivery decision. Never restart or return to SPECIFY for HITL.
+If PROTOCOLIZE itself exposes a material user decision with no reasonable
+default, pause this same PROTOCOLIZE Work, ask the question returned by the
+CLI, resume it with the raw answer, and then complete the delivery decision.
+Never restart or return to SPECIFY for HITL.
 
 ## Durable context
 
@@ -96,8 +97,8 @@ short `summary`; they are required to create a useful, indexed feature record.
 For `link` or `update`, fill the existing feature's epic path and slug; CLI
 adds the new PRT ids to its `related_protocols` backlink idempotently. Leave
 those fields empty only for `not_applicable`.
-Replace every empty template placeholder, including `acceptance_coverage`
-criteria, before the one finish command. Do not run a separate syntax check:
+Replace every empty template placeholder, including `obligation_ownership`,
+before the one finish command. Do not run a separate syntax check:
 the finish command validates the result and returns any actionable error.
 Do not create PRT/PSET, epic, feature, runtime, report, Git or worktree files
 yourself. Finish with the exact command in the generated packet.

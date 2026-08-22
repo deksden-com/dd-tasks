@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/vnext-protocolize-result@2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "outcome", "scope_sizing_verdict", "delivery", "obligation_ownership", "durable_links", "feature"],
+  "properties": {
+    "schema_id": {"const": "dd-flow/vnext-protocolize-result@2"},
+    "outcome": {"const": "protocolized"},
+    "scope_sizing_verdict": {"enum": ["single_executable_protocol", "single_compact_protocol", "specification_with_slices_required"]},
+    "delivery": {"$ref": "#/$defs/delivery"},
+    "obligation_ownership": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/ownership"}},
+    "durable_links": {"$ref": "#/$defs/durableLinks"},
+    "feature": {"$ref": "#/$defs/feature"}
+  },
+  "$defs": {
+    "strings": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "ownership": {"type": "object", "additionalProperties": false, "required": ["obligation_id", "member_keys"], "properties": {"obligation_id": {"type": "string", "pattern": "^(R|AC)-[0-9]{3,}$"}, "member_keys": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}}}},
+    "primaryAcceptance": {"type": "object", "additionalProperties": false, "required": ["actor", "initial_state", "action", "expected_result", "verification", "proof_limits"], "properties": {"actor": {"type": "string", "minLength": 1}, "initial_state": {"type": "string"}, "action": {"type": "string", "minLength": 1}, "expected_result": {"type": "string", "minLength": 1}, "verification": {"type": "string", "minLength": 1}, "proof_limits": {"type": "string"}}},
+    "member": {"type": "object", "additionalProperties": false, "required": ["key", "title", "slug", "goal", "role", "in_scope", "out_of_scope", "primary_acceptance", "blocked_by"], "properties": {"key": {"type": "string", "minLength": 1}, "title": {"type": "string", "minLength": 1}, "slug": {"type": "string", "minLength": 1}, "goal": {"type": "string", "minLength": 1}, "role": {"type": "string", "minLength": 1}, "in_scope": {"$ref": "#/$defs/strings"}, "out_of_scope": {"type": "array", "items": {"type": "string", "minLength": 1}}, "primary_acceptance": {"$ref": "#/$defs/primaryAcceptance"}, "blocked_by": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}}},
+    "mode": {"type": "object", "additionalProperties": false, "required": ["mode", "graph", "relative_duration", "reason"], "properties": {"mode": {"enum": ["shared_serial_bundle", "isolated_parallel", "isolated_dependency_waves"]}, "graph": {"type": "string", "minLength": 1}, "relative_duration": {"type": "string", "minLength": 1}, "reason": {"type": "string", "minLength": 1}}},
+    "pset": {"type": "object", "additionalProperties": false, "required": ["selected", "workspace_owner", "confirmation_gate", "dependency_graph", "feasible_modes", "excluded_modes"], "properties": {"selected": {"enum": ["shared_serial_bundle", "isolated_parallel", "isolated_dependency_waves"]}, "workspace_owner": {"type": "string", "minLength": 1}, "confirmation_gate": {"const": "before_first_code"}, "dependency_graph": {"$ref": "#/$defs/strings"}, "feasible_modes": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/mode"}}, "excluded_modes": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["mode", "reason"], "properties": {"mode": {"enum": ["shared_serial_bundle", "isolated_parallel", "isolated_dependency_waves"]}, "reason": {"type": "string", "minLength": 1}}}}}},
+    "delivery": {"type": "object", "additionalProperties": false, "required": ["kind", "title", "slug", "members"], "properties": {"kind": {"enum": ["single_protocol", "protocol_set"]}, "title": {"type": "string", "minLength": 1}, "slug": {"type": "string", "minLength": 1}, "decomposition_rationale": {"type": "string", "minLength": 1}, "pset": {"$ref": "#/$defs/pset"}, "members": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/member"}}}},
+    "durableLinks": {"type": "object", "additionalProperties": false, "required": ["preserve_raw_intake", "related_epics", "related_features", "related_specs", "related_adrs", "related_scenarios"], "properties": {"preserve_raw_intake": {"type": "boolean"}, "related_epics": {"$ref": "#/$defs/strings"}, "related_features": {"$ref": "#/$defs/strings"}, "related_specs": {"$ref": "#/$defs/strings"}, "related_adrs": {"$ref": "#/$defs/strings"}, "related_scenarios": {"$ref": "#/$defs/strings"}}},
+    "feature": {"type": "object", "additionalProperties": false, "required": ["action"], "properties": {"action": {"enum": ["create", "link", "update", "not_applicable"]}, "epic_path": {"type": "string"}, "title": {"type": "string"}, "slug": {"type": "string"}, "summary": {"type": "string"}, "reason": {"type": "string"}}}
+  }
+}

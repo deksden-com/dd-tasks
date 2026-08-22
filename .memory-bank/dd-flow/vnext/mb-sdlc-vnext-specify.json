@@ -9,7 +9,7 @@
         "default": {
           "actions": [
             {"handler": "specify.bootstrap"},
-            {"agent": {"prompt": "specify.md", "result_format": "markdown"}},
+            {"agent": {"prompt": "specify.md", "result_format": "json"}},
             {"handler": "specify.accept"}
           ],
           "transitions": {

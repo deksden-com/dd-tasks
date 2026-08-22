@@ -42,8 +42,8 @@ remain live and consume a slot for productive reviewer or CODE work.
 When the latest required reviewer results are complete, write the exact
 `decision.json` path from the packet. A reviewer may return `needs_changes`,
 but that is evidence, not the stage outcome. Classify every material finding,
-apply accepted corrections in this same orchestrator Work, update the PLAN and
-its dependent artifacts, and increment the revision when semantics changed.
+apply accepted corrections in this same orchestrator Work, update only the PLAN
+and its relevant aspect map, and increment the revision when semantics changed.
 Every reviewer finding has a stable id; preserve that id in the decision.
 Before reviewer results exist, delegated applicable aspects remain `pending`;
 the review result is the first place that may move them to `pass` or `watch`.
@@ -51,7 +51,9 @@ A completed reviewer result with `needs_changes` or `blocked` is evidence for
 the coordinator to classify and address in this one pass; only missing,
 malformed or unfinished reviewer evidence blocks the stage. Do not start a
 second review automatically. Finish once with `accepted` and a
-`correction` receipt. When no reasonable default exists, pause and later
+`correction` receipt. `code-work-batch.json` is derived by the CLI after
+validation: never edit it or list it as an agent-authored correction. When no
+reasonable default exists, pause and later
 resume this same PLAN-REVIEW Work; do not finish it as waiting. Use `blocked`
 only for a real terminal technical blocker. The CLI validates
 mechanical coherence, registers CODE atomically and generates the reports; it

@@ -10,15 +10,16 @@ switch, merge or delete branches/worktrees.
 
 For each PRT write `.memory-bank/protocol/<PRT>/plan.json` in the registered
 feature worktree (or direct workspace) conforming to
-`dd-flow/protocol-plan@2` and `<RUN>/03-plan/<PRT>/aspect-map.json` conforming
+`dd-flow/protocol-plan@3` and `<RUN>/03-plan/<PRT>/aspect-map.json` conforming
 to `dd-flow/plan-aspect-map@2`. Keep future behavior DRAFT/PLANNED; do not
 change application code or claim implementation evidence.
 
 Plan is traceable rather than a prose restatement: every plan item references
 the accepted `R-*` and/or `AC-*` identifiers it realizes; every acceptance
 entry references its original `AC-*` and the plan items that prove it. The CLI
-adds hashes for local source references deterministically at finish; never
-invent a hash.
+owns `schema_id`, `plan_id`, `protocol_id`, the initial `revision` and
+`source_refs`; keep them unchanged. PLAN-REVIEW alone increments revision after
+an accepted correction. Do not invent a hash or rewrite identity fields.
 
 Use a compact plan unless a named high-impact, irreversible, security, runtime
 or uncertainty trigger requires full depth. Classify every aspect. Ask the user
@@ -42,18 +43,19 @@ before reviewer dispatch and schedules unchanged groups in those waves.
 The next stage resolves the RUN-level `plan_review.mode` and either opens one
 grouped fresh-reviewer wave or deterministically skips it for `off`.
 
-Prepare `code-work-batch.json` with one `entry` CODE coordinator and its child
-Works. Each task must contain its implementation assignment, boundaries,
-invariants, checks and completion contract. Every CODE Work has non-empty
-`requirement_refs`, `read_paths`, `write_paths` and `verification`; it must be
-executable from that record alone, without undefined phase labels or unnamed
-documents. Give negative cases and migration/backfill proof their own explicit
-verification entry whenever an accepted requirement needs them. Finish with the
-exact command in the generated prompt.
+Do not create, edit, or describe `code-work-batch.json`. The CLI projects its
+CODE Works from validated plan items at finish. Make each item self-sufficient:
+give it concrete project-relative `required_read` and `write_scope` paths,
+checks, stop conditions, requirement references, and observable verification.
+Reads must already exist, except for a path written by an explicit predecessor;
+two items may share a write path only when their dependency graph orders them.
+Give negative cases and migration/backfill proof their own explicit verification
+entry whenever an accepted requirement needs them.
 
-PLAN finishes when the plan, aspect maps and proposed CODE batch validate. It
+PLAN finishes when the plan and aspect maps validate; the CLI then generates
+the CODE batch. It
 returns the exact `plan-review` start command. Do not start reviewers, mutate
-the proposed batch or start CODE from this stage.
+the generated batch or start CODE from this stage.
 
 Use project-relative references for project artifacts and `run://<RUN-ID>/…`
 for RUN artifacts. Do not put an absolute filesystem path in a semantic plan,
@@ -62,10 +64,10 @@ packet.
 
 Write artifacts only at the exact paths printed in the generated `<artifacts>`
 packet: `plan.json` belongs under the protocol directory in the registered
-RUN workspace; aspect map and CODE batch belong under the listed RUN stage
-workspace. A similarly named file elsewhere is not an input to PLAN finish.
+RUN workspace; the aspect map belongs under the listed RUN stage workspace. A
+similarly named file elsewhere is not an input to PLAN finish.
 
-The generated stage packet must include the complete `plan.json`,
-`aspect-map.json` and `code-work-batch.json` contracts, including a valid
-minimal example and exact paths. Do not search schemas, examples or CLI help to
-guess an output shape already owned by the stage contract.
+The generated stage packet includes the complete `plan.json` and
+`aspect-map.json` contracts, including a valid minimal example and exact paths.
+Do not search schemas, examples or CLI help to guess an output shape already
+owned by the stage contract.

@@ -38,15 +38,18 @@ as research evidence or in the PROTOCOLIZE handoff.
 
 ## Required specification
 
-Record all of the following in the supplied `specify.md` result document. Keep
-its headings so the handoff is scannable; concise bullets are enough.
+Record all of the following in the supplied `specify.json` result. `requirements`
+and `acceptance_criteria` are the structured semantic lists used by later
+stages. Put the remaining narrative in the four supplied Markdown strings
+under `sections`; the CLI renders the human-readable `specify.md` projection.
+Concise bullets inside those strings are enough.
 
 - user problem, desired goal and affected actors where applicable;
 - functional requirements, non-functional requirements and constraints, each
-  with a stable `R-001`-style identifier in `## Requirements`;
+  with a stable `R-001`-style identifier in `requirements`;
 - in-scope and intentionally out-of-scope behavior;
 - acceptance criteria, each with a stable `AC-001`-style identifier in
-  `## Acceptance criteria`, and one concrete acceptance scenario: initial state,
+  `acceptance_criteria`, and one concrete acceptance scenario: initial state,
   actor, steps and observable ready state;
 - automated and manual verification, fixture/world/cleanup needs, and whether
   an eval/experiment is needed rather than a deterministic scenario;
@@ -126,14 +129,13 @@ Do this in the following order and record it in the result.
    highest-impact user questions; or an explicit deferral/blocker. Never make
    separate reports per method.
 
-For every material user question, use `Q-001` IDs and include why it matters,
-two or three meaningful options, recommendation and rationale, and the
-scope/acceptance effect. Put them under `## Questions`; leave that section
-empty when no user answer is needed. If at least one question remains, pause
-this same SPECIFY stage with the exact `stage pause` command in the start
-packet. Ask the returned user message and stop the Turn. On the next Turn,
-resume this same Work before interpreting the answer. Finish as `specified`
-only after the section is empty.
+For every material user question, use `Q-001` IDs in the question packet and
+include why it matters, two or three meaningful options, recommendation and
+rationale, and the scope/acceptance effect. Do not put an unresolved question
+in `specify.json`. Pause this same SPECIFY stage with the exact `stage pause`
+command in the start packet, ask the returned user message and stop the Turn.
+On the next Turn, resume this same Work before interpreting the answer. Finish
+as `specified` only after every material question is settled.
 
 ## Design aspects, assessment and handoff
 

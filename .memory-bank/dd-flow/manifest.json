@@ -277,6 +277,7 @@
     "schemas/timeline-event.schema.json",
     "schemas/vnext-specify.schema.json",
     "schemas/vnext-protocolize-result.schema.json",
+    "schemas/vnext-protocol-plan.schema.json",
     "schemas/version-report.schema.json",
     "schemas/worktrunk-workspace.schema.json",
     "specify",

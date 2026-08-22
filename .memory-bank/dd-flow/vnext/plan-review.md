@@ -1,10 +1,5 @@
 # PLAN-REVIEW
 
-Beta43 runtime note: Work/Session usage is attributed by the linked session
-identity. A provider id may identify the parent Desktop thread and is metadata,
-not the transcript key. Reports preserve initial/final PLAN revision and
-checksums plus the one-pass correction receipt.
-
 Use the generated packet as the entire stage context. It gives the accepted
 PLAN revision, review groups, exact lifecycle commands and the compact
 `decision.json` contract. Do not rediscover CLI help, schemas, Git state or

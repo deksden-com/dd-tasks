@@ -12,8 +12,34 @@
     "sections": {"$ref": "#/$defs/sections"}
   },
   "$defs": {
-    "requirement": {"type": "object", "additionalProperties": false, "required": ["id", "statement"], "properties": {"id": {"type": "string", "pattern": "^R-[0-9]{3,}$"}, "statement": {"type": "string", "minLength": 1}}},
-    "acceptance": {"type": "object", "additionalProperties": false, "required": ["id", "statement"], "properties": {"id": {"type": "string", "pattern": "^AC-[0-9]{3,}$"}, "statement": {"type": "string", "minLength": 1}}},
-    "sections": {"type": "object", "additionalProperties": false, "required": ["problem_and_scope", "acceptance_and_verification", "gaps_defaults_and_project_facts", "assessment_and_protocolize_handoff"], "properties": {"problem_and_scope": {"type": "string", "minLength": 1}, "acceptance_and_verification": {"type": "string", "minLength": 1}, "gaps_defaults_and_project_facts": {"type": "string", "minLength": 1}, "assessment_and_protocolize_handoff": {"type": "string", "minLength": 1}}}
+    "requirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "statement"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^R-[0-9]{3,}$"},
+        "statement": {"type": "string", "minLength": 1}
+      }
+    },
+    "acceptance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "statement"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^AC-[0-9]{3,}$"},
+        "statement": {"type": "string", "minLength": 1}
+      }
+    },
+    "sections": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["problem_and_scope", "acceptance_and_verification", "gaps_defaults_and_project_facts", "assessment_and_protocolize_handoff"],
+      "properties": {
+        "problem_and_scope": {"type": "string", "minLength": 1},
+        "acceptance_and_verification": {"type": "string", "minLength": 1},
+        "gaps_defaults_and_project_facts": {"type": "string", "minLength": 1},
+        "assessment_and_protocolize_handoff": {"type": "string", "minLength": 1}
+      }
+    }
   }
 }

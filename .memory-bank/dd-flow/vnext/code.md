@@ -28,9 +28,13 @@ Work. A failed focused check stays in that same Work for correction.
 
 When delegation is useful, launch the registered ready child Work in a fresh
 session and make its first command the supplied `work start`; the PreToolUse
-hook records the real Session automatically. Close disposable workers after
-they settle. After every completion, use the returned graph to dispatch newly
-ready Works.
+hook records the real Session automatically. Silence is not a terminal state:
+do not interrupt, replace or relaunch a child merely because it has not emitted
+output. Wait until the harness reports its turn completed, failed, cancelled or
+needing attention. Long `work finish` checks report progress on stderr. Close a
+disposable worker only after its Work is accepted or explicitly failed or
+cancelled and its turn has settled. After every accepted completion, use the
+returned graph to dispatch newly ready Works.
 
 Finish CODE only after the graph has fanned in. `stage finish` checks obligation
 coverage, runs the project aggregate gate and renders the deterministic report.

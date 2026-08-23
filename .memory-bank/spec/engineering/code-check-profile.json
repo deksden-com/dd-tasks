@@ -3,5 +3,13 @@
   "commands": [
     "pnpm quality",
     "pnpm docs:check"
-  ]
+  ],
+  "aliases": {
+    "@check/db-migrate-local": "pnpm db:migrate -- --target local --run-id {run_id}",
+    "@check/db-check-local": "pnpm db:check -- --target local --run-id {run_id}"
+  },
+  "require_alias_for": {
+    "pnpm db:migrate": "@check/db-migrate-local",
+    "pnpm db:check": "@check/db-check-local"
+  }
 }

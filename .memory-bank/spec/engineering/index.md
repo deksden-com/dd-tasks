@@ -2,8 +2,8 @@
 file: '.memory-bank/spec/engineering/index.md'
 description: 'Подтверждённый engineering/test contour checkpoint-02-core и private preview runtime.'
 purpose: 'Фиксирует canonical commands, test ownership, container smoke и границы локального доказательства.'
-version: '0.7.0'
-date: '2026-08-12'
+version: '0.8.0'
+date: '2026-08-23'
 status: 'ACTIVE'
 c4_level: 'documentation'
 index_type: 'shallow'
@@ -11,6 +11,8 @@ coverage_depth: 1
 parent: '.memory-bank/spec/index.md'
 content_state: 'implemented_core'
 canonical_template: '.memory-bank/mbb/coding-standards-guide.md'
+children:
+  - .memory-bank/spec/engineering/coding-standards.md
 implementation_files:
   - package.json
   - apps/api/vitest.unit.config.ts
@@ -31,6 +33,9 @@ test_files:
   - apps/web/tests/browser/preview.spec.ts
 tags: [dd-tasks, engineering, checkpoint-02, preview, quality, playwright, container]
 history:
+  - version: '0.8.0'
+    date: '2026-08-23'
+    changes: 'Added one project-specific coding/testing/documentation standard hub for PLAN-selected fresh CODE worker context.'
   - version: '0.7.0'
     date: '2026-08-12'
     changes: 'Добавлен project-facing summary канонического SPC-006 для Memory Bank 3.1.0; flow/runtime contracts и package-owned quality facts разделены.'
@@ -49,6 +54,11 @@ history:
 ---
 
 # Инженерный слой
+
+[Project coding standards](coding-standards.md) are the compact default
+orientation for PLAN and fresh CODE workers. PLAN still selects exact owning
+source, representative tests and task-applicable feature/spec/ADR/scenario
+documents; this index is not permission for a broad project scan.
 
 ## Active flow contract
 

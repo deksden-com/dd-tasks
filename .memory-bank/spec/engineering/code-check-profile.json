@@ -1,0 +1,7 @@
+{
+  "schema_id": "dd-flow/code-check-profile@1",
+  "commands": [
+    "pnpm quality",
+    "pnpm docs:check"
+  ]
+}

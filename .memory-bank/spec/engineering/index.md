@@ -13,6 +13,7 @@ content_state: 'implemented_core'
 canonical_template: '.memory-bank/mbb/coding-standards-guide.md'
 children:
   - .memory-bank/spec/engineering/coding-standards.md
+  - .memory-bank/spec/engineering/code-check-profile.json
 implementation_files:
   - package.json
   - apps/api/vitest.unit.config.ts
@@ -59,6 +60,10 @@ history:
 orientation for PLAN and fresh CODE workers. PLAN still selects exact owning
 source, representative tests and task-applicable feature/spec/ADR/scenario
 documents; this index is not permission for a broad project scan.
+
+[`code-check-profile.json`](code-check-profile.json) is the deterministic
+project-wide CODE fan-in gate. Focused checks remain owned by each PLAN item;
+the profile is evaluated once after all CODE and repair Works settle.
 
 ## Active flow contract
 

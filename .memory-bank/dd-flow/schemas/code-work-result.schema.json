@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dd-flow/code-work-result@1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "summary", "changed_paths", "deviations", "blockers"],
+  "properties": {
+    "schema_id": {"const": "dd-flow/code-work-result@1"},
+    "summary": {"type": "string", "minLength": 1},
+    "changed_paths": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "deviations": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "blockers": {"type": "array", "items": {"type": "string", "minLength": 1}}
+  }
+}

@@ -11,6 +11,12 @@ a fresh session, examine only its assigned aspects, cite plan/project evidence,
 return the supplied JSON verdict and never mutate the plan, CODE batch or
 product files. Do not create nested subagents.
 
+The orchestrator never runs a reviewer's `start_command` itself. It first
+creates a fresh child session; that child uses the exact returned
+`start_command` as its first tool call. A rejection before the child starts is
+not review evidence and must not be "fixed" by claiming the Work in the
+orchestrator session.
+
 For compatible non-high-risk aspects, prefer one grouped wave; split only real
 trust, irreversible or hard-dependency boundaries. Review findings are inputs,
 not votes: accept evidence-backed material findings and reject unsupported or

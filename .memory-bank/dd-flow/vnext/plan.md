@@ -3,8 +3,12 @@
 When `.memory-bank/spec/engineering/code-check-profile.json` exists, treat it
 as the executable check contract. Use its `@check/...` aliases wherever they
 are defined; do not shorten guarded commands or omit their target/profile and
-RUN binding. PLAN finish resolves aliases and rejects a raw command covered by
-`require_alias_for`, before CODE Work is registered.
+RUN binding. `verification.checks` contains executable commands only: either a
+declared alias or an exact command from the profile's `commands` list. Every
+entry is sent to the shell during CODE. Put behavioral assertions, migration
+postconditions and negative-case expectations in `expected_evidence`, never
+in `checks`. PLAN finish resolves aliases and rejects an undeclared raw command
+or a raw command covered by `require_alias_for`, before CODE Work is registered.
 
 The generated prompt is the complete stage input. Read the accepted SPECIFY and
 PROTOCOLIZE artifacts named in it, then perform proportional grounding.

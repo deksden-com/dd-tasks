@@ -62,8 +62,11 @@ source, representative tests and task-applicable feature/spec/ADR/scenario
 documents; this index is not permission for a broad project scan.
 
 [`code-check-profile.json`](code-check-profile.json) is the deterministic
-project-wide CODE fan-in gate. Focused checks remain owned by each PLAN item;
-the profile is evaluated once after all CODE and repair Works settle.
+project-wide CODE fan-in gate and the allowlist for focused PLAN checks. A
+PLAN item's `verification.checks` may contain only its `@check/...` aliases or
+an exact command from `commands`; semantic assertions belong in
+`expected_evidence` and are never shell commands. The profile is evaluated once
+after all CODE and repair Works settle.
 
 ## Active flow contract
 

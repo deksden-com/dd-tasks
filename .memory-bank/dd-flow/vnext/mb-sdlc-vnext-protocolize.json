@@ -68,7 +68,19 @@
             {"agent": {"prompt": "code.md", "result_format": "implementation"}},
             {"handler": "code.accept"}
           ],
-          "transitions": {"verified": "terminal.done", "blocked": "terminal.blocked", "failed": "terminal.failed", "cancelled": "terminal.cancelled"}
+          "transitions": {"verified": "code-review.default", "blocked": "terminal.blocked", "failed": "terminal.failed", "cancelled": "terminal.cancelled"}
+        }
+      }
+    },
+    "code-review": {
+      "entries": {
+        "default": {
+          "actions": [
+            {"handler": "code-review.prepare"},
+            {"agent": {"prompt": "code-review.md", "result_format": "files"}},
+            {"handler": "code-review.accept"}
+          ],
+          "transitions": {"off": "terminal.done", "accepted": "terminal.done", "blocked": "terminal.blocked", "failed": "terminal.failed", "cancelled": "terminal.cancelled"}
         }
       }
     }

@@ -47,12 +47,16 @@ not a user question and not a terminal CODE result. Use the exact `stage block`
 command in the coordinator packet, repair the cause, run its returned
 `unblock_command`, and continue this same CODE stage.
 
-Finish CODE only after the graph has fanned in. `stage finish` checks obligation
-coverage, runs the project aggregate gate and renders the deterministic report.
+Finish CODE only after the graph has fanned in. Before `stage finish`, write the
+small `code-verification.json` requested in the stage-start packet: it is the
+orchestrator's evidence-based confirmation that the accepted requirements and
+current-gate acceptance criteria are actually satisfied. `stage finish` checks
+obligation coverage, validates that semantic conclusion, runs the project
+aggregate gate and renders the deterministic report.
 If that gate fails, create the returned repair Work from the failed receipt and
 the relevant completed origin Works. The repair packet contains the original
 context plus the failure delta; do not make an untracked root-session fix.
 
-For this beta, a passing aggregate gate ends the flow at `code_completed`.
-A future optional code-review is a distinct stage; do not invent or claim it
-before that stage exists.
+When the frozen RUN configuration enables it, a passing aggregate gate moves
+to the separate optional `code-review` stage. CODE verification is mandatory;
+CODE-REVIEW is independent quality scrutiny and must never replace it.

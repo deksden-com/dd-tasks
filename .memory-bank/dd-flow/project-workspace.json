@@ -4,7 +4,6 @@
     "route": "feature_worktree",
     "integration_branch": "main",
     "feature_branch_template": "feature/run-<RUN>-<slug>",
-    "provision_stage": "protocolize_start",
-    "next_stage_session": "new_session"
+    "provision_stage": "protocolize_start"
   }
 }

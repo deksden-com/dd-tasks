@@ -16,8 +16,8 @@ trust, irreversible or hard-dependency boundaries. Review findings are inputs,
 not votes: accept evidence-backed material findings and reject unsupported or
 non-material preferences.
 
-PLAN performs semantic grouping only. PLAN-REVIEW measures live capacity
-immediately before it dispatches reviewers. Execute those groups in
+PLAN performs semantic grouping using the one-shot capacity already stored for
+this RUN. PLAN-REVIEW does not regroup or re-probe. Execute those groups in
 `ceil(group_count / capacity)` waves: start up to the measured capacity
 concurrently, then start the unchanged queued Works only after the prior wave
 returns. Never create extra reviewers to fill unused slots or replacements for

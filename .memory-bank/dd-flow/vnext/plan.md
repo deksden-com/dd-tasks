@@ -44,8 +44,10 @@ high-risk and hard-dependency boundaries first, then use the fewest groups
 that retain independent review value. One grouped reviewer wave is preferable
 when compatible aspects allow it. Put two or three compatible aspects in a
 group; do not create one group per aspect merely for convenience. PLAN must
-not guess the number of physical waves. PLAN-REVIEW measures live fresh-session capacity immediately
-before reviewer dispatch and schedules unchanged groups in those waves.
+use the already-measured RUN capacity in its stage packet to target one wave.
+More waves are allowed only for a real trust, irreversible, high-risk or
+hard-dependency boundary; record that short reason in the map. PLAN-REVIEW
+executes these unchanged groups and does not regroup them.
 
 The next stage resolves the RUN-level `plan_review.mode` and either opens one
 grouped fresh-reviewer wave or deterministically skips it for `off`.

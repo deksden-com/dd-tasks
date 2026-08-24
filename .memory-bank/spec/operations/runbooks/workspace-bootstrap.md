@@ -49,8 +49,7 @@ history:
 - policy: `../workspace-bootstrap-policy.md`;
 - canonical entrypoint: `bash .memory-bank/spec/operations/scripts/bootstrap-workspace.sh`;
 - optional local service definition: `docker-compose.yml`;
-- implementation receipt: `<run-home>/03-code/workspace-bootstrap-implementation-receipt.md`;
-- readiness receipt: `<run-home>/03-code/workspace-bootstrap-readiness-receipt.md`;
+- readiness receipt: `<run-home>/05-code/workspace-readiness.json`; it is created once by deterministic CODE bootstrap and reused only for the same workspace and frozen command.
 - current plan producer: `PRT-001-checkpoint-01-foundation`;
 - receipt is not valid until script exists, current workspace identity is read back, public inputs are compared and the canonical entrypoint passes for the concrete checkout.
 

@@ -49,7 +49,7 @@ bash .memory-bank/spec/operations/scripts/bootstrap-workspace.sh
 - no secrets: foundation использует только публично объявленные local/test defaults; production credentials и произвольные `.env*` не копируются;
 - no destructive migration: reset/drop выполняется отдельной явной командой и только после safety guard local/test;
 - no external mutation: не выполняются deploy, publish, release, remote Git или protected provider operations;
-- receipt: implementation-stage результат записан в `<run-home>/03-code/workspace-bootstrap-implementation-receipt.md`, а readiness revalidation — в `<run-home>/03-code/workspace-bootstrap-readiness-receipt.md`;
+- receipt: CODE writes the deterministic readiness receipt to `<run-home>/05-code/workspace-readiness.json`; PROTOCOLIZE only creates the checkout and copies policy-allowed ignored files;
 - readiness check: package manager/toolchain, dependency install, local database availability и tracked generated inputs должны быть подтверждены value-free evidence.
 
 ## Reuse and invalidation

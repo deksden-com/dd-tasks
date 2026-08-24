@@ -1,0 +1,10 @@
+{
+  "schema_id": "dd-flow/project-execution@1",
+  "stage_session_mode": "new_session",
+  "plan_review_mode": "auto",
+  "stop_target": "code_completed",
+  "code_bootstrap": {
+    "command": "pnpm bootstrap",
+    "policy_ref": ".memory-bank/spec/operations/workspace-bootstrap-policy.md"
+  }
+}

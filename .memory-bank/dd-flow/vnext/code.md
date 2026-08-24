@@ -22,6 +22,12 @@ belong there; the stable project root is only the `dd-flow` lifecycle identity.
 CODE refuses to open if that route receipt, worktree, branch or base commit no
 longer matches the route frozen at PROTOCOLIZE.
 
+Before the packet is returned, `dd-flow` executes the project-owned bootstrap
+command frozen in the RUN execution profile and writes a readiness receipt in
+`05-code`. PROTOCOLIZE only creates the checkout and transfers the explicitly
+allowed local files; it never installs dependencies or starts the application.
+Trust a passing readiness receipt and do not independently repeat bootstrap.
+
 Implement only the packet's task and preserve its invariants. `work finish`
 validates the result and runs the packet's focused checks before accepting the
 Work. A failed focused check stays in that same Work for correction.
@@ -46,3 +52,7 @@ coverage, runs the project aggregate gate and renders the deterministic report.
 If that gate fails, create the returned repair Work from the failed receipt and
 the relevant completed origin Works. The repair packet contains the original
 context plus the failure delta; do not make an untracked root-session fix.
+
+For this beta, a passing aggregate gate ends the flow at `code_completed`.
+A future optional code-review is a distinct stage; do not invent or claim it
+before that stage exists.

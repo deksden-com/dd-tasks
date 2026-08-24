@@ -42,8 +42,9 @@ independent review is unnecessary. Do not launch reviewers in PLAN.
 Optimize review grouping semantically: preserve real trust, irreversible,
 high-risk and hard-dependency boundaries first, then use the fewest groups
 that retain independent review value. One grouped reviewer wave is preferable
-when compatible aspects allow it, but PLAN must not guess the number of
-physical waves. PLAN-REVIEW measures live fresh-session capacity immediately
+when compatible aspects allow it. Put two or three compatible aspects in a
+group; do not create one group per aspect merely for convenience. PLAN must
+not guess the number of physical waves. PLAN-REVIEW measures live fresh-session capacity immediately
 before reviewer dispatch and schedules unchanged groups in those waves.
 
 The next stage resolves the RUN-level `plan_review.mode` and either opens one

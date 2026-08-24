@@ -36,6 +36,11 @@ disposable worker only after its Work is accepted or explicitly failed or
 cancelled and its turn has settled. After every accepted completion, use the
 returned graph to dispatch newly ready Works.
 
+A repairable engine, harness or environment failure is an external blocker,
+not a user question and not a terminal CODE result. Use the exact `stage block`
+command in the coordinator packet, repair the cause, run its returned
+`unblock_command`, and continue this same CODE stage.
+
 Finish CODE only after the graph has fanned in. `stage finish` checks obligation
 coverage, runs the project aggregate gate and renders the deterministic report.
 If that gate fails, create the returned repair Work from the failed receipt and

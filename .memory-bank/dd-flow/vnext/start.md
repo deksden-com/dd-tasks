@@ -41,10 +41,13 @@ RUN, root Work, stage workspace, trusted session binding and bounded prompt.
    it.
 3. Treat returned `worker_prompt_markdown` as the complete SPECIFY task. After
    a successful `specified` outcome, follow the returned `next` directive:
-   `same_session` continues in this session; `new_session` stops so the
-   controller can start `protocolize` in a fresh session. This is the frozen
-   `stage_session_mode` from `dd-flow/project-execution.json`, not an agent
-   choice and not part of the workspace-routing policy.
+   `same_session` (the default) continues the root coordinator in this
+   session for the whole flow. `new_session` stops only when the project
+   explicitly requests a Controller-managed handoff to a fresh coordinator
+   session. This is the frozen `stage_session_mode` from
+   `dd-flow/project-execution.json`, not an agent choice and not part of the
+   workspace-routing policy. Fresh sessions for delegated workers and
+   reviewers are controlled by their Work launch policy, independently.
 
 The bootstrap checkout is intentionally only the stable project identity while
 SPECIFY resolves the problem space. If the project selects `feature_worktree`,

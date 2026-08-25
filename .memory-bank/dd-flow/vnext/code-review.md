@@ -23,6 +23,11 @@ default; it may be deferred only through a named durable DEF with an allowed
 reason, owner/trigger and evidence. P3 is an observation or a reasoned
 rejection, never an automatic DEF.
 
+Each worker assesses every aspect assigned to its group exactly once. Finding
+identifiers use the group-specific prefix supplied by `work start`; this keeps
+independent reviewer evidence unambiguous when the coordinator combines the
+wave.
+
 After repairs the coordinator closes each accepted finding against evidence and
 the final diff. Do not repeat the entire review after a bounded repair. A new
 review is warranted only when the repair expands the reviewed surface or opens

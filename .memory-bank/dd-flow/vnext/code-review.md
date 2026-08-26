@@ -32,6 +32,12 @@ identifiers use the group-specific prefix supplied by `work start`; this keeps
 independent reviewer evidence unambiguous when the coordinator combines the
 wave.
 
+For any changed mutation guarded by authorization, membership, ownership or a
+lifecycle state, inspect the write boundary itself. A separate prior read is
+not sufficient evidence: the write must retain the required predicate or share
+an atomic transaction/lock with the guard. Treat a stale-authority write as a
+material finding, not as a stylistic concern.
+
 After repairs the coordinator closes each accepted finding against evidence and
 the final diff. Do not repeat the entire review after a bounded repair. A new
 review is warranted only when the repair expands the reviewed surface or opens

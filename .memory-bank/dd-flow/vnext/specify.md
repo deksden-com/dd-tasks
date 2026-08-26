@@ -75,6 +75,15 @@ override. Where the requested outcome would need such an exception and the
 user has not stated it, retain the policy as a constraint or ask the smallest
 material question; never invent a feature-specific exception as a default.
 
+Name the actor, entity and state transition from an authoritative project fact
+or the user's explicit request. Do not silently move a state from its real
+owner to a convenient nearby entity: for example, “a task in an archived
+project” is not “an archived task” unless tasks themselves actually have an
+archive lifecycle. The same entity/state vocabulary must be used in `R-*`,
+`AC-*`, scenarios and the PROTOCOLIZE handoff. If the authoritative source and
+the requested wording conflict in a material way, ask or record the constraint;
+do not invent the missing lifecycle.
+
 ## Canonical requirements-gap pass
 
 Do this in the following order and record it in the result.

@@ -65,6 +65,13 @@ two items may share a write path only when their dependency graph orders them.
 Give negative cases and migration/backfill proof their own explicit verification
 entry whenever an accepted requirement needs them.
 
+For every conditional mutation that depends on current authorization, ownership,
+membership or lifecycle state, plan the check and write as one atomic database
+boundary: one conditional statement or one transaction with the necessary lock
+and predicates. A prior read followed by an unconditional write is not proof
+that permission or state was still valid at mutation time. Include a negative
+or concurrency proof when that boundary can change concurrently.
+
 PLAN finishes when the plan and aspect maps validate; the CLI then generates
 the CODE batch. It
 returns the exact `plan-review` start command. Do not start reviewers, mutate

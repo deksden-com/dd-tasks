@@ -64,6 +64,12 @@ never as blanket duplication. Every member must own at least one `AC-*`.
 The primary acceptance is a concise member contract, not a duplicate PLAN.
 The CLI writes the exact accepted statements into the PRT/PSET documents.
 
+Preserve the accepted actor/entity/state vocabulary exactly. In particular, do
+not turn a project-owned lifecycle or permission into a task-owned lifecycle
+just because the task is the mutation target. If such a mismatch is exposed,
+pause this same Work as a material semantic conflict instead of materializing
+a PRT whose literal acceptance cannot be proven.
+
 If PROTOCOLIZE itself exposes a material user decision with no reasonable
 default, pause this same PROTOCOLIZE Work, ask the question returned by the
 CLI, resume it with the raw answer, and then complete the delivery decision.

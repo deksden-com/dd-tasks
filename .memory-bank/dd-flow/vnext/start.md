@@ -23,22 +23,22 @@ RUN, root Work, stage workspace, trusted session binding and bounded prompt.
 ## Actions
 
 1. Choose a short stable slug from the discussed task.
-2. Make `stage start` the first practical command. Pass the raw material user
-   discussion once on standard input: the original request plus already given
-   answers and constraints. Do not add your solution, questions, plan or
-   inferred requirements. The CLI stores the bytes unchanged in the new RUN.
+2. Make `stage start` the first technical action and run it as one standalone
+   Bash command. The Controller/adapter prepares the raw material user
+   discussion as a durable intake file: the original request plus already
+   given answers and constraints. Do not add a solution, questions, plan or
+   inferred requirements. The CLI stores those bytes unchanged in the new RUN.
 
    ```bash
-   cat <<'USER_INTAKE' | dd-flow stage start --bootstrap --stage specify \
+   DD_FLOW_HOME="<runtime-home>" dd-flow stage start --bootstrap --stage specify \
      --project-root "<project-root>" \
-     --subject "<slug>" --intake-stdin --json
-   <raw material user discussion>
-   USER_INTAKE
+     --subject "<slug>" --intake-file "<prepared-intake-file>" --json
    ```
 
-   If a caller has already supplied a durable raw-input file, pass that exact
-   file with `--intake-file` instead; do not read, edit, normalize or replace
-   it.
+   Do not prepend a skill read, Git command or `cat`; do not use `&&`, `;`, a
+   pipe, background execution or a subshell. A compound lifecycle command is
+   rejected and the hook returns the exact standalone retry for this same
+   Session. Do not open a new Session to repair a hook mismatch.
 3. Treat returned `worker_prompt_markdown` as the complete SPECIFY task. After
    a successful `specified` outcome, follow the returned `next` directive:
    `same_session` (the default) continues the root coordinator in this
@@ -76,4 +76,6 @@ command, or an explicit terminal/user gate. A normal worker never searches CLI
 help or flow files to reconstruct either command.
 
 The installed PreToolUse hook binds this real worker session automatically. Do
-not pass or discover a session id.
+not pass or discover a session id. Every successor `stage start` and every
+`work start` is likewise the first technical action of its worker Turn and one
+standalone Bash command.

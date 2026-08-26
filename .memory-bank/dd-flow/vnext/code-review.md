@@ -16,7 +16,11 @@ direct evidence; a concrete impact; and the minimum required outcome. Do not
 turn style preferences, cosmetics, or untargeted refactoring into findings.
 
 The coordinator delegates the registered aspect groups to fresh read-only
-workers. Workers neither edit the product nor create child workers. The
+workers and never claims a reviewer Work itself. Workers neither edit the
+product nor create child workers. A reviewer may read the complete bounded
+CODE evidence directory returned by stage start, the accepted PLAN and the
+changed product files needed for its assigned aspects; it does not have to
+guess a minimal evidence-file list. The
 coordinator classifies findings and creates bounded repair Work only where it
 is justified. P0 and P1 must be repaired. A bounded safe P2 is repaired by
 default; it may be deferred only through a named durable DEF with an allowed

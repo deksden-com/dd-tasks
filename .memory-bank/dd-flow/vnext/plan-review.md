@@ -23,11 +23,13 @@ not votes: accept evidence-backed material findings and reject unsupported or
 non-material preferences.
 
 PLAN performs semantic grouping using the one-shot capacity already stored for
-this RUN. PLAN-REVIEW does not regroup or re-probe. Execute those groups in
-`ceil(group_count / capacity)` waves: start up to the measured capacity
-concurrently, then start the unchanged queued Works only after the prior wave
-returns. Never create extra reviewers to fill unused slots or replacements for
-a launch rejected before it starts.
+this RUN. PLAN-REVIEW does not regroup or re-probe. Execute the ready portion
+of the Work graph in waves: launch up to the measured capacity, wait for that
+wave to settle, then query the unchanged graph for newly ready Works. A hard
+`depends_on` always wins over the one-wave preference. Never start a blocked
+Work, create extra reviewers to fill unused slots, or replace a launch rejected
+before it starts. Whether a hard dependency was semantically warranted is a
+review-quality question; execution must still respect it.
 
 Capacity, when needed, is described only by the generated lifecycle command
 packet. It is a one-shot measurement, not productive Work: launch the one
@@ -57,7 +59,8 @@ validation: never edit it or list it as an agent-authored correction. When no
 reasonable default exists, pause and later
 resume this same PLAN-REVIEW Work; do not finish it as waiting. Use `blocked`
 only for a real terminal technical blocker. The CLI validates
-mechanical coherence, registers CODE atomically and generates the reports; it
+mechanical coherence, rejects completion while any selected reviewer Work is
+unsettled, registers CODE atomically and generates the reports; it
 does not claim to prove semantic correctness.
 
 If the start response is `review_off`, no model review occurs. Follow its CODE

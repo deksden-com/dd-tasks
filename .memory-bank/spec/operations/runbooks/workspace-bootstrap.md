@@ -51,6 +51,8 @@ history:
 - optional local service definition: `docker-compose.yml`;
 - readiness receipt: `<run-home>/05-code/workspace-readiness.json`; it is created once by deterministic CODE bootstrap and reused only for the same workspace and frozen command.
 - current plan producer: `PRT-001-checkpoint-01-foundation`;
+- `dd-flow` CODE gate supplies an opaque checkout suffix through `DD_FLOW_LOCAL_DATABASE_SUFFIX`. With a RUN id, local/test database commands use a dedicated database for that checkout; do not set or reuse this variable manually for preview or shared work.
+- If the project-owned loopback PostgreSQL service is already healthy on `POSTGRES_PORT` (default `55433`), bootstrap reuses it. Only a missing service is started with Compose; a worktree must not create a competing container for that port or volume.
 - receipt is not valid until script exists, current workspace identity is read back, public inputs are compared and the canonical entrypoint passes for the concrete checkout.
 
 ## Preconditions

@@ -1,4 +1,8 @@
-import { createSqlClient, getDatabaseUrl } from "./client.js";
+import {
+  createSqlClient,
+  getDatabaseUrl,
+  getFlowScopedLocalDatabaseUrl,
+} from "./client.js";
 import { type SeedOptions, seedDemoData } from "./fixtures.js";
 import {
   applyMigrations,
@@ -15,7 +19,10 @@ import {
 const command = process.argv[2] ?? "help";
 const commandArgs = process.argv.slice(3);
 const parsed = parseCommandArgs(commandArgs);
-const databaseUrl = getDatabaseUrl();
+const databaseUrl = getFlowScopedLocalDatabaseUrl(
+  getDatabaseUrl(),
+  parsed.runId,
+);
 
 function emit(value: Record<string, unknown>): void {
   console.log(JSON.stringify(value));
@@ -109,6 +116,7 @@ function previewSeedOptions(
 
 async function migrate(): Promise<void> {
   const classification = requireSafeTarget("migrate");
+  await ensureLocalFlowDatabase(classification);
   const sql = createSqlClient(databaseUrl);
   try {
     const applied = await applyMigrations(sql);
@@ -166,6 +174,7 @@ async function check(): Promise<void> {
 
 async function reset(): Promise<void> {
   const classification = requireSafeTarget("reset");
+  await ensureLocalFlowDatabase(classification);
   const sql = createSqlClient(databaseUrl);
   try {
     const applied = await resetAndMigrate(sql);
@@ -182,6 +191,33 @@ async function reset(): Promise<void> {
     });
   } finally {
     await sql.end({ timeout: 5 });
+  }
+}
+
+/** Create the isolated local/test database before a mutating flow command. */
+async function ensureLocalFlowDatabase(
+  classification: TargetClassification,
+): Promise<void> {
+  if (!parsed.runId || !process.env.DD_FLOW_LOCAL_DATABASE_SUFFIX) return;
+  if (classification.profile !== "local" && classification.profile !== "test")
+    return;
+  if (
+    !classification.databaseName ||
+    !/^[a-z0-9_]+$/.test(classification.databaseName)
+  )
+    return;
+
+  const adminUrl = new URL(databaseUrl);
+  adminUrl.pathname = "/postgres";
+  const admin = createSqlClient(adminUrl.toString());
+  try {
+    const rows = await admin<{ present: number }[]>`
+      SELECT 1 AS present FROM pg_database WHERE datname = ${classification.databaseName}
+    `;
+    if (!rows[0])
+      await admin.unsafe(`CREATE DATABASE "${classification.databaseName}"`);
+  } finally {
+    await admin.end({ timeout: 5 });
   }
 }
 

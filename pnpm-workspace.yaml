@@ -1,2 +1,7 @@
 packages:
   - apps/*
+
+# Native esbuild is required by the Vite/Vitest toolchain. Declare the one
+# approved install script so headless pnpm bootstrap produces usable binaries.
+onlyBuiltDependencies:
+  - esbuild

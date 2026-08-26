@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { getFlowScopedLocalDatabaseUrl } from "../src/db/client.js";
 import { previewBindingFor } from "../src/db/runtime-profile.js";
 import {
   classifyMutationTarget,
@@ -6,6 +7,23 @@ import {
 } from "../src/db/target-guard.js";
 
 describe("foundation reset target guard", () => {
+  it("isolates a flow-owned local database without changing preview", () => {
+    expect(
+      getFlowScopedLocalDatabaseUrl(
+        "postgresql://dd_tasks@127.0.0.1/dd_tasks_foundation_local",
+        "RUN-001-task-priority",
+        "a1b2c3d4e5f6",
+      ),
+    ).toContain("/dd_tasks_foundation_local_a1b2c3d4e5f6");
+    expect(
+      getFlowScopedLocalDatabaseUrl(
+        "postgresql://dd_tasks@postgres/dd_tasks_preview_checkpoint",
+        "RUN-001-task-priority",
+        "a1b2c3d4e5f6",
+      ),
+    ).toContain("/dd_tasks_preview_checkpoint");
+  });
+
   it.each([
     [
       "missing target",

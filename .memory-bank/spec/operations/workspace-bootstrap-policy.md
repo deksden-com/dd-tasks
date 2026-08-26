@@ -45,12 +45,13 @@ bash .memory-bank/spec/operations/scripts/bootstrap-workspace.sh
 ## Обязательные свойства
 
 - idempotent: повторный запуск не удаляет пользовательские данные и использует frozen lockfile после его появления;
-- local-only: допускается поднять изолированный локальный PostgreSQL через Docker Compose;
+- local-only: использует готовый healthy loopback PostgreSQL contour либо поднимает его через Docker Compose; feature worktrees не создают конкурирующие Compose-контуры для одного project-owned local port/volume;
 - no secrets: foundation использует только публично объявленные local/test defaults; production credentials и произвольные `.env*` не копируются;
 - no destructive migration: reset/drop выполняется отдельной явной командой и только после safety guard local/test;
 - no external mutation: не выполняются deploy, publish, release, remote Git или protected provider operations;
 - receipt: CODE writes the deterministic readiness receipt to `<run-home>/05-code/workspace-readiness.json`; PROTOCOLIZE only creates the checkout and copies policy-allowed ignored files;
-- readiness check: package manager/toolchain, dependency install, local database availability и tracked generated inputs должны быть подтверждены value-free evidence.
+- readiness check: package manager/toolchain, dependency install, local database availability, approved native executables (`esbuild`, `biome`) и tracked generated inputs должны быть подтверждены value-free evidence.
+- CODE-owned local database: когда `dd-flow` передаёт `DD_FLOW_LOCAL_DATABASE_SUFFIX`, project database commands создают и используют отдельную local/test БД для exact checkout. Это не меняет обычный developer target и не применяется к preview.
 
 ## Reuse and invalidation
 

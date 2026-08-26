@@ -20,10 +20,11 @@ Read the project Memory Bank entry points, project policy, MBB indexes and the
 active dd-flow catalog. Also read `common/runtime-contract.md` so later work
 uses one RUN state, generated stages and the explicit ownership boundaries.
 
-Use this entrypoint only when no practical task is selected. When a user asks
-to create, change or plan a concrete task, do not run a standalone priming
-ritual first: after any harness-required Goal, route through the active
-user-level flow entry. In this beta that entry is `vnext/start.md`; its
+Use this entrypoint before a user explicitly formalizes practical work. A
+concrete request, a clarification, an approval of a direction or a discussion
+of constraints is still discussion: do not create runtime state or start a
+flow from it. In this beta the only ordinary user-level entry is the explicit
+formalization trigger described below; it opens `vnext/start.md` and its
 `stage start --bootstrap --stage specify` command returns the bounded stage
 instructions that matter for the task.
 
@@ -36,6 +37,11 @@ or an equivalent request, start the active user-level entry
 `vnext/start.md`. It starts SPECIFY-first work; it does **not** create a
 `PRT-*` before the problem space is specified. Do not return to `protocol.md`
 for that new-work trigger in this beta.
+
+Do not infer that trigger from task details, a proposed solution, an answer to
+a question, “ок”, “давай” without the formalization object, or a request to
+discuss/estimate/explore. In those cases remain in normal conversation and
+wait for the user to explicitly ask for a protocol/formalization.
 
 For that recognized trigger, `stage start` is the first practical command:
 do not re-read flow, CLI, Git or runtime material first. Choose a short slug

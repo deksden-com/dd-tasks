@@ -1,6 +1,6 @@
 {
   "schema_id": "dd-flow/compatibility@1",
-  "memory_bank_version": "3.2.0-vnext-plan-review-beta.104",
+  "memory_bank_version": "3.2.0-vnext-plan-review-beta.105",
   "dd_flow_cli": {
     "package_name": "@deksden-com/dd-flow-cli",
     "min_version": "0.8.0-beta.103",

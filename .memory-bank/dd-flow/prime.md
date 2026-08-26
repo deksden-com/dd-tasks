@@ -44,16 +44,13 @@ discuss/estimate/explore. In those cases remain in normal conversation and
 wait for the user to explicitly ask for a protocol/formalization.
 
 For that recognized trigger, `stage start` is the first practical command:
-do not re-read flow, CLI, Git or runtime material first. Choose a short slug
-and pipe only the material user discussion already present in this session
-(request, answers and constraints; no agent inference) to:
-
-```bash
-cat <<'USER_INTAKE' | dd-flow stage start --bootstrap --stage specify \
-  --project-root "<project-root>" --subject "<slug>" --intake-stdin --json
-<raw material user discussion>
-USER_INTAKE
-```
+do not re-read flow, CLI, Git or runtime material first. Use the exact
+standalone command and prepared raw-intake path supplied by the Controller or
+adapter. The adapter owns byte-preserving capture of the already discussed
+user request, answers and constraints; it must not add an agent solution,
+questions, plan or inferred requirement. When the adapter supplies a
+non-default runtime, preserve its exact `DD_FLOW_HOME=...` prefix. Never
+invent another runtime directory and never send intake through a shell pipe.
 
 Treat the returned `worker_prompt_markdown` as the complete task from then on.
 

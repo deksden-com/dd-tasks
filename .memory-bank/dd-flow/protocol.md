@@ -16,8 +16,8 @@ Flow origin policy: `project_local`.
 вызывай help/status/version/permissions и не создавай protocol/RUN отдельно:
 
 ```bash
-dd-flow stage start --bootstrap --stage specify --project-root <root> \
-  --subject <label> --intake-file <path> --json
+DD_FLOW_HOME="<runtime-home>" dd-flow stage start --bootstrap --stage specify --project-root <root> \
+  --subject <label> --intake-file <prepared-intake-path> --json
 ```
 
 Ответ команды содержит единственный требуемый stage prompt, Git/runtime/

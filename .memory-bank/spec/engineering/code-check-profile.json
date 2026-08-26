@@ -1,6 +1,10 @@
 {
-  "schema_id": "dd-flow/code-check-profile@1",
+  "schema_id": "dd-flow/code-check-profile@2",
   "commands": [
+    "pnpm quality",
+    "pnpm docs:check"
+  ],
+  "aggregate_commands": [
     "pnpm quality",
     "pnpm docs:check"
   ],

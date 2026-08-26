@@ -27,6 +27,11 @@ default; it may be deferred only through a named durable DEF with an allowed
 reason, owner/trigger and evidence. P3 is an observation or a reasoned
 rejection, never an automatic DEF.
 
+The first Finish freezes the compact decision and creates exactly one repair
+Work when fixes are accepted. After that Work completes, invoke the same
+Finish command again: the CLI reruns the aggregate CODE gate and closes the
+stage. Do not repeat the independent review wave.
+
 Each worker assesses every aspect assigned to its group exactly once. Finding
 identifiers use the group-specific prefix supplied by `work start`; this keeps
 independent reviewer evidence unambiguous when the coordinator combines the

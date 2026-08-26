@@ -1,13 +1,14 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "dd-flow/code-work-result@1",
+  "$id": "dd-flow/code-work-result@2",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_id", "summary", "changed_paths", "deviations", "blockers"],
+  "required": ["schema_id", "summary", "changed_paths", "evidence", "deviations", "blockers"],
   "properties": {
-    "schema_id": {"const": "dd-flow/code-work-result@1"},
+    "schema_id": {"const": "dd-flow/code-work-result@2"},
     "summary": {"type": "string", "minLength": 1},
     "changed_paths": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "evidence": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["criterion_id", "refs"], "properties": {"criterion_id": {"type": "string", "minLength": 1}, "refs": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}}}},
     "deviations": {"type": "array", "items": {"type": "string", "minLength": 1}},
     "blockers": {"type": "array", "items": {"type": "string", "minLength": 1}}
   }

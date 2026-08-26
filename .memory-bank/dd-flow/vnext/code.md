@@ -53,6 +53,10 @@ orchestrator's evidence-based confirmation that the accepted requirements and
 current-gate acceptance criteria are actually satisfied. `stage finish` checks
 obligation coverage, validates that semantic conclusion, runs the project
 aggregate gate and renders the deterministic report.
+The semantic file records only verdict, summary, unresolved items and
+deviations. CODE Work reports evidence against acceptance ids; executable
+checks produce immutable receipts with a workspace fingerprint and hashes of
+the exact artifacts declared by PLAN.
 If that gate fails, create the returned repair Work from the failed receipt and
 the relevant completed origin Works. The repair packet contains the original
 context plus the failure delta; do not make an untracked root-session fix.

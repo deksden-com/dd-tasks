@@ -1,179 +1,142 @@
 ---
 file: '.memory-bank/dd-flow/common/flow-runs.md'
-description: 'SPC-004 RUN state, timeline, generated stages and archive contract.'
-purpose: 'Read before any practical dd-flow stage.'
-version: '1.1.0'
-date: '2026-08-12'
-status: 'DRAFT'
+description: 'vNext RUN, Work, Session and filesystem materialization contract.'
+purpose: 'Read before implementing or operating a vNext flow stage.'
+version: '2.0.0-beta.1'
+date: '2026-08-27'
+status: 'BETA'
 c4_level: 'documentation'
 parent: 'README.md'
 related_files:
+  - ../../spec/engineering/SPC-009-vnext-identity-materialization-and-runtime-state.md
   - runtime-contract.md
   - runtime-cli.md
   - ../schemas/flow-run.schema.json
-  - ../schemas/stage-prompt.schema.json
-tags: [dd-flow, run, stage, timeline, spc-004]
+tags: [dd-flow, run, work, session, materialization, vnext]
 ---
 
 # Flow runs
 
-`RUN-*` is the mechanical execution envelope for one concrete flow. It links
-runtime facts to a semantic `PRT-*`, `EXP-*` or other subject; it never replaces
-that durable owner.
+`RUN-*` is one materialized invocation of a flow. SQLite owns current mechanical
+state. `run.json` is its compact portable projection and `timeline.jsonl` is
+append-only history. A RUN has exactly one root `Work`; completion requires that
+root and every descendant Work to be terminal at a legal flow exit.
 
-## Canonical home
+`Stage` is a static instruction node, not a running object. The flow graph lists
+legal forward transitions. A runtime stage visit is internal engine state;
+`run.json` exposes derived `active_stages` and `next_actions`, never one global
+`current_stage`. A question, blocker or correction pauses and resumes the same
+stage. It does not create a backward transition or a second attempt.
 
-New runs use the project-scoped dd-flow home:
+## Filesystem
 
 ```text
-~/.dd-flow/projects/<PRJ-ID-slug>/runs/<RUN-ID-slug>/
+<DD_FLOW_HOME>/projects/<PRJ>/runs/<RUN>/
   run.json
   engine-binding.json
   timeline.jsonl
+  intake/
+    discussion.md
+    questions.jsonl
+    answers.jsonl
   01-specify/
-  02-plan/
-  03-code/
-  04-merge/
+  02-protocolize/
+  03-plan/
+  04-plan-review/
+  05-code/
+  06-code-review/
+  07-merge/
+  works/<WRK>/
+    context.json
+    prompt.md
+    result.json
+    checks/RCP-001/{receipt.json,stdout.log,stderr.log,artifacts/}
 ```
 
-SQLite is authoritative for mechanical runtime state. `run.json` is the sole
-current portable JSON projection: it stores protocol/project identity, stage
-status, lifecycle timestamps, attempt links, plan progress, workers,
-session/usage coverage, workspace aliases and generated artifact links. It does
-not duplicate semantic plan documents, full prompts, reports or event history.
+Stage-owned semantic artifacts stay in the stage root. Work belongs to the RUN,
+not to a stage, and gets `works/<WRK>/` only when it owns a prompt/result packet.
+The root coordinator does not receive an empty duplicate directory.
 
-`timeline.jsonl` is an always-on append-only stream written by the CLI. Each
-event contains a timestamp, event name, run id and only safe structured fields
-such as stage, attempt, session, job and status. Secrets, transcripts, full
-tool output and token payloads are forbidden.
+The first execution writes directly to the current stage/Work root. Only an
+explicit retry archives the failed material under adjacent
+`attempts/ATT-NNN/`. Agents always write to the current root; an attempt archive
+is read-only history. Pause/resume is not a retry.
 
-There is no second current locator payload. A locator database, if used by the CLI,
-is rebuildable and cannot become a second payload authority.
+## Work and Session
 
-## Executor binding
+`Work` is an engine-managed unit with one parent, zero or more hard
+`depends_on` edges, state, task, optional result schema and optional Session
+links. A parent cannot finish while a child is active. Dependencies stay inside
+one RUN and cycles fail closed. `informs` remains semantic context and does not
+block scheduling.
 
-`engine-binding.json` is a router-owned immutable sidecar, not RUN state. It
-binds package/version, snapshot path and content checksum to the engine that
-created the RUN. For every command that names that RUN, the router resolves the
-binding before project or upgrade compatibility and executes the exact healthy
-snapshot. This lets historical `flow-run@1` RUNs complete on their retained
-engine after project compatibility moves forward.
+`Session` is provider context. It has its own parent Session and may execute
+several Works sequentially. Work and Session hierarchies are separate tables;
+their link is explicit. Provider session and agent ids are opaque. There is no
+public Agent-Turn entity or user-supplied session id.
 
-New RUN allocation writes the binding before `run.json` becomes visible. A
-legacy RUN has no implicit fallback: recover it once with
-`dd-flow engine bind-run <RUN> --project-root <root> --engine-version <version>
---reason <text> --json`. The router probes `run status` through the requested
-snapshot before atomically writing the sidecar. A missing, changed or unhealthy
-bound snapshot fails closed. Reinstalling the same semantic engine version may
-not replace a snapshot referenced by an active binding.
+Ready Works whose normalized `write_scope` overlaps may not run concurrently.
+This is a scheduler collision guard, not an invented dependency. The engine
+returns both dependency and write-scope blockers with the currently ready Work
+commands.
 
-## Stage layout
+## Lifecycle commands
 
-Each active stage has one current root and optional archived attempts:
+`stage start` is the first standalone command of a stage. Its response is the
+complete trusted stage packet: paths, project facts, exact schemas, exact finish
+or pause commands, and the next legal directive. Agents do not rediscover CLI
+help or deterministic facts.
 
-```text
-<run-home>/02-plan/
-  stage-prompt.md
-  stage-input.json
-  stage-report.json
-  stage-report.md
-  stage-report.html
-  aspect-map.json             # PLAN semantic coverage only
-  workers/<JOB-ID>/*           # only for an actual delegated job
-  try-001/
-  evidence/
-```
+Every delegated Work starts in its assigned Session with standalone
+`work start`; the hook binds the observed Session and agent. It finishes through
+`work finish`, which validates the result and runs declared Work checks. A
+failed check leaves the Work running and returns the retained `RCP-*` evidence.
 
-The exact numeric directory is resolved from the RUN. `@stage` means the
-current stage root. `@stage/try-NNN` is archive-only, read-only and never a
-write target.
+Stage and Work finish may return `action_required` with one bounded repair
+instruction. The same finish command is retried after that repair; already
+accepted work is not repeated. HITL pause returns the exact resume command,
+including a non-default `DD_FLOW_HOME`, and the same stage consumes the answer.
 
-## Stage lifecycle
+## Identifiers and references
 
-The public worker lifecycle has exactly two stage actions:
+- `WRK-*` allocation is global in one `DD_FLOW_HOME`, matching its database key.
+- Requirements and acceptance criteria are local `R-*` and `AC-*` ids.
+- Plan item ids remain the existing `P1`, `P2`, … contract.
+- Check declarations are local `CHK-*` ids.
+- Review findings are local `FIND-NNN` inside one reviewer Work; the canonical
+  reference is `<WRK>/FIND-NNN`.
+- Check receipts are local `RCP-NNN`; the canonical reference is
+  `<WRK>/RCP-NNN` or `<RUN>/RCP-NNN` for an aggregate gate.
 
-```bash
-dd-flow stage start <RUN> --stage <stage> --json
-dd-flow stage finish <RUN> --stage <stage> --json
-```
+Persist RUN artifacts as `run://<RUN>/<relative-path>`. Persist project files as
+repository-relative POSIX paths. Absolute paths are immediate prompt data only.
+Resolution uses filesystem identity and containment. Case-insensitive global
+search is forbidden; an unresolved spelling returns the canonical suggestion.
 
-For a new ordinary task, its first flow command is bootstrap start:
+## Reports, checks and usage
 
-```bash
-dd-flow stage start --bootstrap --stage specify --project-root <root> \
-  --subject <label> --intake-file <path> --json
-```
+Stage JSON is the report source. One generic renderer always writes
+`stage-report.md` and standalone `stage-report.html`; the report contains its
+own concise `summary`. There is no RUN-local `summary.md`, trace Markdown,
+run-index, work.json, worker/JOB projection or variables sidecar.
 
-Start resolves all context in one response, atomically archives existing stage
-contents into the next `try-NNN`, creates the current root, performs exact
-target probes, binds the harness session and generates the eight-section
-prompt. The response returns `worker_prompt_markdown`; the saved
-`stage-prompt.md` is its identical audit projection from `stage-prompt.json`.
-The receipt also contains the authoritative Git/compatibility/permission/session
-facts, aliases and bounded sources to read. The worker does not redo them.
+PLAN declares checks as `CHK-*`; the engine executes them and retains `RCP-*`
+receipts with logs and requested artifacts. Reports cite actual receipts rather
+than model claims.
 
-Finish receives bounded semantic input. The CLI derives timestamps, duration,
-Git facts, session/usage coverage, changed-file delta, artifact paths and
-protocol transition from the validated outcome. It validates the semantic
-contract, renders the JSON, Markdown, HTML and summary outputs and seals the
-accepted attempt. A finish cannot accept an archive path, model-authored
-mechanical facts or a hand-authored transition payload.
+Usage is reconciled from all linked Sessions after they settle. It records
+provider/model/source/timestamps, input, cache-read, cache-write, uncached,
+reasoning, output and tool calls. Intermediate totals are explicitly
+provisional; final totals are computed on demand from trusted checkpoints.
 
-## PLAN state and artifacts
+## Snapshots and cleanup
 
-The only semantic plan is the protocol-owned file
-`.memory-bank/protocol/<PRT-ID>/plan.json`, validated by
-`../schemas/protocol-plan.schema.json`. Runtime progress and workers are
-mechanical SQLite state projected into `run.json.plan_progress` and
-`run.json.workers`; `timeline.jsonl` records lifecycle events. PLAN start
-returns `@plan` and `@aspect-map`, and PLAN finish validates all errors before
-accepting revision/SHA and generating receipts.
+Eval restore rewrites known database columns and structured JSON/JSONL fields;
+it never performs a repository-wide text replacement. Future prompts are
+generated from restored state. Checkout cleanup acts only on engine-owned
+records, verifies real paths and repository membership, rejects project roots
+and outside paths, and preserves dirty trees unless explicit force policy
+allows removal.
 
-`aspect-map.json` is the only semantic coverage artifact. Do not create runtime
-plan copies, `plan set`, `aspect-job-map.json`, `aspect-graph.json`,
-`subagent-decision.md`, `phase-summary.md`, manual trace files or a parallel
-PLAN report. The route is `local_compact` for tiny work and
-`single_wave_grouped` for compatible independent multi-aspect work; capacity
-changes only packing.
-
-## Stage prompt sections
-
-Every generated stage prompt contains, in order:
-
-1. `<stage_identity>`;
-2. `<authoritative_runtime_facts>`;
-3. `<preflight>`;
-4. `<task_intake>`;
-5. `<applicable_instructions>`;
-6. `<required_context>`;
-7. `<work_contract>`;
-8. `<completion_contract>`.
-
-The prompt is assembled from the installed project flow pack and runtime facts.
-Canonical prose remains project-owned; the CLI does not hardcode it.
-
-## Generated reports
-
-Successful finish always produces schema-valid `stage-report.json`, a
-deterministic `stage-report.md`, a deterministic standalone `stage-report.html`
-and a generated protocol `summary.md`. The renderer owns escaping, including
-safe embedding of JSON in HTML. There are no format or observability switches.
-
-The summary is curated durable meaning: goal, scope, decisions, acceptance,
-gates, blockers/DEF, links, current RUN and next action. It excludes raw
-intake, commands, hashes, session payloads, timing/token telemetry, errors and
-timeline contents.
-
-## Retry and validation rules
-
-Start archives a non-empty current root before creating a clean root. Finish
-rejects writes under `try-NNN`. Aliases are normalized, typed and contained
-within their declared roots; traversal and symlink escape fail closed.
-
-Permission checks touch only known stage/Memory Bank targets. Memory Bank link
-or lint validation runs after writes and only for the changed delta. A full
-repository lint is an explicit final gate, not a repeated permission preflight.
-
-For session/usage semantics and Worktrunk ownership, use
-[runtime-contract.md](runtime-contract.md). For command response details, use
-[runtime-cli.md](runtime-cli.md).
+The full rationale and cutover acceptance matrix live in
+[SPC-009](../../spec/engineering/SPC-009-vnext-identity-materialization-and-runtime-state.md).

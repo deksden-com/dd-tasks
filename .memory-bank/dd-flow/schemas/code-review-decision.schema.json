@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dd-flow/code-review-decision@2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "summary", "findings"],
+  "properties": {
+    "schema_id": {"const": "dd-flow/code-review-decision@2"},
+    "summary": {"type": "string", "minLength": 1},
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["finding_ref", "disposition", "reason"],
+        "properties": {
+          "finding_ref": {"type": "string", "pattern": "^WRK-[^/]+/FIND-[0-9]{3}$"},
+          "disposition": {"enum": ["fix", "defer", "reject", "duplicate"]},
+          "reason": {"type": "string", "minLength": 1},
+          "def_id": {"type": "string", "minLength": 1},
+          "duplicate_of": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  }
+}

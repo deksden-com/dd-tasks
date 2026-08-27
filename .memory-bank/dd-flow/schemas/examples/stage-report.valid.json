@@ -1,12 +1,13 @@
 {
-  "schema_id": "dd-flow/stage-report@1",
-  "run_id": "RUN-308-spc-004-canonical-runtime-contract",
+  "schema_id": "dd-flow/stage-report@2",
+  "run_id": "RUN-308-spc-009-runtime-state",
   "stage": "code",
   "generated_at": "2026-08-10T14:05:00Z",
   "verdict": "done",
-  "semantic": {"result": "done", "acceptance": ["reports are generated"], "changed_files": [".memory-bank/dd-flow"], "checks": ["schema"], "evidence": ["evidence/verification-passport.md"], "next_action": "ready_for_merge"},
-  "mechanical": {"started_at": "2026-08-10T14:00:00Z", "finished_at": "2026-08-10T14:05:00Z", "wall_clock_ms": 300000, "git": {"branch": "feature/prt-340-spc-004-canonical-runtime-contract"}, "session_coverage": {"status": "partial"}, "usage_coverage": {"status": "unavailable"}},
-  "artifacts": {"json": "stage-report.json", "markdown": "stage-report.md", "html": "stage-report.html", "summary": "../../protocol/PRT-340-spc-004-canonical-runtime-contract/summary.md"},
-  "validation": {"permission_scope": "known_targets_only", "memory_bank_scope": "changed_files_and_links_only", "status": "passed"},
+  "summary": "Implementation completed and all required checks passed.",
+  "semantic": {"result": "done", "acceptance": ["reports are generated"], "changed_files": [".memory-bank/dd-flow"], "checks": ["schema"], "evidence": ["evidence/verification-passport.md"], "next_action": "ready_for_code_review"},
+  "mechanical": {"started_at": "2026-08-10T14:00:00Z", "finished_at": "2026-08-10T14:05:00Z", "wall_clock_ms": 300000, "git": {"branch": "feature/prt-340-runtime-state"}},
+  "artifacts": {"json": "stage-report.json", "markdown": "stage-report.md", "html": "stage-report.html"},
+  "validation": {"status": "passed"},
   "breadcrumbs": []
 }

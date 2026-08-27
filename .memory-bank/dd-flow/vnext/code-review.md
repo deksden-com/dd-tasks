@@ -32,10 +32,10 @@ Work when fixes are accepted. After that Work completes, invoke the same
 Finish command again: the CLI reruns the aggregate CODE gate and closes the
 stage. Do not repeat the independent review wave.
 
-Each worker assesses every aspect assigned to its group exactly once. Finding
-identifiers use the group-specific prefix supplied by `work start`; this keeps
-independent reviewer evidence unambiguous when the coordinator combines the
-wave.
+Each worker assesses every aspect assigned to its group exactly once and
+numbers findings locally as `FIND-001`, `FIND-002`, … . The engine combines the
+reviewer Work id and local id into the canonical `<WRK>/FIND-NNN` reference
+used by decisions, duplicate links and repair Work.
 
 For any changed mutation guarded by authorization, membership, ownership or a
 lifecycle state, inspect the write boundary itself. A separate prior read is

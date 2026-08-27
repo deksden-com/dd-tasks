@@ -8,7 +8,7 @@
     "schema_id": {"const": "dd-flow/plan-review-decision@3"},
     "outcome": {"enum": ["accepted", "blocked", "failed", "cancelled"]},
     "summary": {"type": "string", "minLength": 1},
-    "finding_decisions": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["finding_id", "decision", "reason"], "properties": {"finding_id": {"type": "string", "minLength": 1}, "decision": {"enum": ["accepted_fix", "rejected", "deferred_as_DEF", "requires_user", "duplicate"]}, "reason": {"type": "string", "minLength": 1}}}},
+    "finding_decisions": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["finding_ref", "decision", "reason"], "properties": {"finding_ref": {"type": "string", "pattern": "^WRK-[^/]+/FIND-[0-9]{3}$"}, "decision": {"enum": ["accepted_fix", "rejected", "deferred_as_DEF", "requires_user", "duplicate"]}, "reason": {"type": "string", "minLength": 1}}}},
     "correction": {"type": "object", "additionalProperties": false, "required": ["status", "previous_plan_revision", "changed_paths", "summary"], "properties": {"status": {"enum": ["applied", "not_required"]}, "previous_plan_revision": {"type": "integer", "minimum": 1}, "changed_paths": {"type": "array", "items": {"type": "string", "minLength": 1}}, "summary": {"type": "string", "minLength": 1}}}
   }
 }

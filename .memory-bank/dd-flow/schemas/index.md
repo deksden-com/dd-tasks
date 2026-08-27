@@ -29,13 +29,17 @@ agent author mechanical facts.
 | Schema id | File | Owner |
 |---|---|---|
 | `dd-flow/flow-contract@6` | `../flow-contract.json` | canonical contract |
-| `dd-flow/flow-run@2` | `flow-run.schema.json` | current RUN state |
+| `dd-flow/flow-run@3` | `flow-run.schema.json` | compact current RUN projection |
 | `dd-flow/run-engine-binding@1` | `run-engine-binding.schema.json` | immutable executor binding beside a RUN |
 | `dd-flow/timeline-event@1` | `timeline-event.schema.json` | safe append-only event |
 | `dd-flow/stage-prompt@2` | `stage-prompt.schema.json` | generated context/prompt |
 | `dd-flow/stage-start-response@2` | `stage-start-response.schema.json` | start receipt with rendered prompt |
 | `dd-flow/stage-finish-input@1` | `stage-finish-input.schema.json` | semantic agent input |
-| `dd-flow/stage-report@1` | `stage-report.schema.json` | generated stage report |
+| `dd-flow/stage-report@2` | `stage-report.schema.json` | generated stage report with inline summary |
+| `dd-flow/plan-review-result@1` | `plan-review-result.schema.json` | reviewer-local PLAN findings |
+| `dd-flow/plan-review-decision@3` | `plan-review-decision.schema.json` | canonical PLAN finding decisions |
+| `dd-flow/code-review-result@1` | `code-review-result.schema.json` | reviewer-local CODE findings |
+| `dd-flow/code-review-decision@2` | `code-review-decision.schema.json` | canonical CODE finding decisions |
 | `dd-flow/plan-stage-report@5` | `plan-stage-report.schema.json` | generated PLAN receipt projection |
 | `dd-flow/protocol-plan@1` | `protocol-plan.schema.json` | canonical semantic protocol plan |
 | `dd-flow/protocol-summary@1` | `protocol-summary.schema.json` | generated durable summary |
@@ -48,7 +52,7 @@ agent author mechanical facts.
 The existing domain-specific `*-stage-report.schema.json` files remain
 semantic payload profiles for release, review and delivery contours. They are
 not alternative lifecycle outputs: a completed `stage finish` always emits
-the generic `dd-flow/stage-report@1` envelope and places any contour-specific
+the generic `dd-flow/stage-report@2` envelope and places any contour-specific
 data under its semantic payload.
 
 ## Rules

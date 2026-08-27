@@ -1,62 +1,21 @@
 {
-  "schema_id": "dd-flow/flow-run@2",
-  "run_id": "RUN-308-spc-004-canonical-runtime-contract",
-  "project": {
-    "id": "dd-memorybank",
-    "title": "dd-memorybank"
-  },
-  "subject": {
-    "id": "PRT-340-spc-004-canonical-runtime-contract",
-    "title": "Canonical SPC-004 runtime contract"
-  },
-  "protocol_id": "PRT-340-spc-004-canonical-runtime-contract",
-  "flow_kind": "protocol",
+  "schema_id": "dd-flow/flow-run@3",
+  "run_id": "RUN-308-spc-009-runtime-state",
+  "project": {"id": "PRJ-001-dd-memorybank", "title": "dd-memorybank"},
+  "subject": {"id": "PRT-340-runtime-state", "title": "vNext runtime state"},
+  "flow_kind": "mb_sdlc",
   "status": "running",
   "verdict": null,
   "started_at": "2026-08-10T12:55:00Z",
   "finished_at": null,
   "wall_clock_ms": null,
   "timing_status": "partial",
-  "workspace": {
-    "project_root": "/workspace/dd-memorybank",
-    "workspace_path": "/workspace/dd-memorybank.feature-prt-340-spc-004-canonical-runtime-contract",
-    "branch": "feature/prt-340-spc-004-canonical-runtime-contract",
-    "base": "main",
-    "manager": "official-worktrunk",
-    "bootstrap_status": "bootstrap_not_required"
-  },
-  "current_stage": "implementation",
-  "attempts": [
-    {
-      "stage": "implementation",
-      "attempt_number": 1,
-      "root": "02-implementation",
-      "archive": null,
-      "status": "running",
-      "started_at": "2026-08-10T12:55:00Z",
-      "finished_at": null
-    }
-  ],
-  "session_coverage": {
-    "status": "partial",
-    "expected": ["orchestrator"],
-    "observed": [],
-    "missing": ["orchestrator"],
-    "reason": "fixture demonstrates honest incomplete coverage"
-  },
-  "usage_coverage": {
-    "status": "unavailable",
-    "expected": ["input_tokens", "output_tokens", "cache_read_input_tokens", "cache_write_input_tokens"],
-    "observed": [],
-    "missing": ["input_tokens", "output_tokens", "cache_read_input_tokens", "cache_write_input_tokens"],
-    "reason": "fixture omits provider usage"
-  },
-  "artifacts": {
-    "stage_prompt": "02-implementation/stage-prompt.md",
-    "stage_report_json": "02-implementation/stage-report.json",
-    "stage_report_md": "02-implementation/stage-report.md",
-    "stage_report_html": "02-implementation/stage-report.html",
-    "summary": "summary.md"
-  },
+  "workspace": {"project_root": "/workspace/dd-memorybank", "workspace_path": "/workspace/dd-memorybank.feature-prt-340-runtime-state", "branch": "feature/prt-340-runtime-state", "base": "main"},
+  "root_work_id": "WRK-00042",
+  "active_stages": ["plan"],
+  "next_actions": ["complete_plan"],
+  "works": [{"work_id": "WRK-00042", "parent_work_id": null, "status": "running", "depends_on": [], "launch_policy": "reuse_allowed", "started_at": "2026-08-10T12:55:00Z", "completed_at": null}],
+  "sessions": [],
+  "variables": {"flow_flags": {"plan_review": "on"}},
   "timeline_path": "timeline.jsonl"
 }

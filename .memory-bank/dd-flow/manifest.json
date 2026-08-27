@@ -1,6 +1,6 @@
 {
   "schema_id": "dd-flow/project-flow-pack-manifest@2",
-  "pack_version": "3.2.0-vnext-plan-review-beta.110",
+  "pack_version": "3.2.0-vnext-plan-review-beta.111",
   "flow_origin_policy": "project_local_pack",
   "canon_root": "/Users/deksden/Documents/_Projects/dd-memorybank",
   "canon_memory_bank_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank",
@@ -165,6 +165,8 @@
     "review.md",
     "schemas/archived-flow-manifest.schema.json",
     "schemas/code-stage-report.schema.json",
+    "schemas/code-review-decision.schema.json",
+    "schemas/code-review-result.schema.json",
     "schemas/code-work-batch.schema.json",
     "schemas/code-work-result.schema.json",
     "schemas/compatibility-contexts.schema.json",

@@ -78,8 +78,9 @@ Never restart or return to SPECIFY for HITL.
 ## Durable context
 
 `durable_links` contains existing Memory Bank paths worth retaining as links:
-epics, features, specs, ADRs and scenarios. Set `preserve_raw_intake` only
-when the literal user wording is materially useful next to the first PRT.
+epics, features, specs, ADRs and scenarios. Keep `preserve_raw_intake=false`
+by default. Set it only when the verbatim wording has a concrete durable audit,
+legal or contractual value that the semantic SPECIFY artifact cannot retain.
 Never create placeholder docs. Creating or revising a spec, ADR or scenario
 requires its own positive trigger and explicit content; otherwise link the
 existing document or leave its list empty.

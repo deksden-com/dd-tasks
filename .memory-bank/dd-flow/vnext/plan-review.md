@@ -47,7 +47,8 @@ When the latest required reviewer results are complete, write the exact
 but that is evidence, not the stage outcome. Classify every material finding,
 apply accepted corrections in this same orchestrator Work, update only the PLAN
 and its relevant aspect map, and increment the revision when semantics changed.
-Every reviewer finding has a stable id; preserve that id in the decision.
+Every reviewer finding has a local `FIND-NNN` id. Use the canonical
+`<WRK>/FIND-NNN` reference returned by dd-flow in the coordinator decision.
 Before reviewer results exist, delegated applicable aspects remain `pending`;
 the review result is the first place that may move them to `pass` or `watch`.
 A completed reviewer result with `needs_changes` or `blocked` is evidence for

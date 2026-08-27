@@ -1,10 +1,10 @@
 {
   "schema_id": "dd-flow/compatibility@1",
-  "memory_bank_version": "3.2.0-vnext-plan-review-beta.110",
+  "memory_bank_version": "3.2.0-vnext-plan-review-beta.111",
   "dd_flow_cli": {
     "package_name": "@deksden-com/dd-flow-cli",
-    "min_version": "0.8.0-beta.107",
-    "recommended_version": "0.8.0-beta.107",
+    "min_version": "0.8.0-beta.108",
+    "recommended_version": "0.8.0-beta.108",
     "status_contract": "dd-flow/status-report@1",
     "version_contract": "dd-flow/version-report@1",
     "flow_contract": "dd-flow-canonical-2026-08"
@@ -19,9 +19,9 @@
   },
   "engine": {
     "package_name": "@deksden-com/dd-flow-cli",
-    "version_range": "0.8.0-beta.107",
-    "recommended_version": "0.8.0-beta.107",
-    "install_hint": "Use the locally installed 0.8.0-beta.107 engine snapshot for this beta run.",
+    "version_range": "0.8.0-beta.108",
+    "recommended_version": "0.8.0-beta.108",
+    "install_hint": "Use the locally installed 0.8.0-beta.108 engine snapshot for this beta run.",
     "old_engine_install_hint": "npx @deksden-com/dd-flow-cli@<version> engine install",
     "first_engine_installable_version": "0.4.0",
     "legacy_direct_cli_before": "0.4.0",

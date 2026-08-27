@@ -2,8 +2,8 @@
 file: '.memory-bank/dd-flow/common/runtime-contract.md'
 description: 'Canonical SPC-004/005/006 runtime, stage context, session, report and PLAN contract.'
 purpose: 'Single source for active dd-flow prompts and schemas after the breaking SPC-004 cutover.'
-version: '0.3.0'
-date: '2026-08-12'
+version: '0.4.0'
+date: '2026-08-27'
 status: 'DRAFT'
 c4_level: 'documentation'
 parent: '.memory-bank/dd-flow/README.md'
@@ -16,6 +16,10 @@ related_protocols:
   - .memory-bank/protocol/PRT-012-spc-004-v2-spc-005-runtime-cutover.md
   - .memory-bank/protocol/PRT-003-spc-005-targeted-files-validation.md
 tags: [dd-flow, spc-004, spc-005, runtime-contract, stages, reports, workspaces, plan]
+history:
+  - version: '0.4.0'
+    date: '2026-08-27'
+    changes: 'PLAN start now reports and materializes both partially filled semantic drafts with exact validation commands.'
 ---
 
 # Canonical SPC-004/005/006 runtime contract
@@ -125,6 +129,15 @@ worker state is stored in SQLite and projected to `run.json.workers`. Timeline
 events record item lifecycle. There is no runtime `protocols/<PRT>/plan.json`,
 SQLite semantic `plan_json`, `aspect-job-map.json`, `aspect-graph.json` or
 `dd-flow plan set` lifecycle step.
+
+PLAN start materializes both current semantic drafts before returning control:
+the protocol-owned `plan.json` and the RUN-owned `aspect-map.json`. It reports
+them as `materialized` and `partially_filled`, names every CLI-owned field and
+provides exact validation commands. The CLI fills identity, accepted source
+references and the aspect-catalog identifiers; the agent fills semantic plan,
+applicability, rationale and grouping. Missing draft semantics are never
+treated as accepted defaults, and the agent edits the materialized files in
+place rather than inventing a parallel input contract.
 
 The PLAN prompt chooses `local_compact` for tiny work and prefers
 `single_wave_grouped` for compatible independent multi-aspect read-only work.

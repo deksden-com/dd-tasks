@@ -17,11 +17,14 @@ For a feature route, all project reads and writes are in that named worktree;
 the stable project root is used only by lifecycle commands. Do not create,
 switch, merge or delete branches/worktrees.
 
-For each PRT write `.memory-bank/protocol/<PRT>/plan.json` in the registered
-feature worktree (or direct workspace) conforming to
-`dd-flow/protocol-plan@5` and `<RUN>/03-plan/<PRT>/aspect-map.json` conforming
-to `dd-flow/plan-aspect-map@3`. Keep future behavior DRAFT/PLANNED; do not
-change application code or claim implementation evidence.
+For each PRT the CLI has already materialized a partially filled
+`.memory-bank/protocol/<PRT>/plan.json` in the registered feature worktree (or
+direct workspace) and `<RUN>/03-plan/<PRT>/aspect-map.json`. Complete those
+exact files in place; do not create replacements. The packet identifies the
+fields already populated and owned by the CLI and the semantic fields still
+owned by PLAN. Empty or missing semantic values are intentional draft markers,
+not accepted defaults. Keep future behavior DRAFT/PLANNED; do not change
+application code or claim implementation evidence.
 
 Plan is traceable rather than a prose restatement: every plan item references
 the accepted `R-*` and/or `AC-*` identifiers it realizes; every acceptance
@@ -97,7 +100,14 @@ packet: `plan.json` belongs under the protocol directory in the registered
 RUN workspace; the aspect map belongs under the listed RUN stage workspace. A
 similarly named file elsewhere is not an input to PLAN finish.
 
+Keep the task runner's actual current working directory and use the absolute
+artifact paths returned by `stage start`. Do not try to select the provisioned
+worktree as a tool `workdir`; lifecycle commands still use their explicit
+project root, while project artifacts use the explicit write-workspace paths.
+
 The generated stage packet includes the complete `plan.json` and
-`aspect-map.json` contracts, including a valid minimal example and exact paths.
-Do not search schemas, examples or CLI help to guess an output shape already
-owned by the stage contract.
+`aspect-map.json` contracts, including a valid minimal example, exact paths and
+exact schema-validation commands. Run those commands after completing both
+drafts, then run the returned `stage finish` command. Do not search schemas,
+examples or CLI help to guess an output shape already owned by the stage
+contract.

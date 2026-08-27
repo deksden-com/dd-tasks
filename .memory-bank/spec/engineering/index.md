@@ -2,7 +2,7 @@
 file: '.memory-bank/spec/engineering/index.md'
 description: 'Подтверждённый engineering/test contour checkpoint-02-core и private preview runtime.'
 purpose: 'Фиксирует canonical commands, test ownership, container smoke и границы локального доказательства.'
-version: '0.9.0'
+version: '1.0.0'
 date: '2026-08-27'
 status: 'ACTIVE'
 c4_level: 'documentation'
@@ -17,6 +17,7 @@ children:
   - .memory-bank/spec/engineering/SPC-006-stage-bootstrap-and-context-packet.md
   - .memory-bank/spec/engineering/SPC-009-vnext-identity-materialization-and-runtime-state.md
   - .memory-bank/spec/engineering/SPC-010-agent-owned-verification-and-safe-hitl.md
+  - .memory-bank/spec/engineering/SPC-011-planned-verification-materialization.md
 implementation_files:
   - package.json
   - apps/api/vitest.unit.config.ts
@@ -37,6 +38,9 @@ test_files:
   - apps/web/tests/browser/preview.spec.ts
 tags: [dd-tasks, engineering, checkpoint-02, preview, quality, playwright, container]
 history:
+  - version: '1.0.0'
+    date: '2026-08-27'
+    changes: 'Added SPC-011: PLAN owns evidence selection and future checks are explicit provider-owned aliases materialized before consumption.'
   - version: '0.9.0'
     date: '2026-08-27'
     changes: 'Added SPC-009 as the coordinated beta target for Flow/RUN/Work identity, runtime-state ownership, portable references, canonical materialization, lifecycle, reports, snapshots and cleanup.'
@@ -99,6 +103,11 @@ schema/prompt-only partial cutover.
 adds the next beta contract: PLAN selects checks, planned checks are supplied
 by explicit Work, and a HITL-backed PROTOCOLIZE amendment changes only the
 effective downstream obligation while preserving SPECIFY as history.
+
+[SPC-011 planned verification materialization](SPC-011-planned-verification-materialization.md)
+narrows that contract into one executable rule: a future check is always an
+explicit `@check/...` alias with a provider Work and exact definition; the
+planner chooses evidence, while the CLI only validates, runs and receipts it.
 
 Canonical bootstrap — `pnpm bootstrap`; в non-interactive окружении script сам
 задаёт `CI=true`, не меняя интерактивный режим. Root gates:

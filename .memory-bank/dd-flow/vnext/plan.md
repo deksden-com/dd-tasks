@@ -19,7 +19,7 @@ switch, merge or delete branches/worktrees.
 
 For each PRT write `.memory-bank/protocol/<PRT>/plan.json` in the registered
 feature worktree (or direct workspace) conforming to
-`dd-flow/protocol-plan@4` and `<RUN>/03-plan/<PRT>/aspect-map.json` conforming
+`dd-flow/protocol-plan@5` and `<RUN>/03-plan/<PRT>/aspect-map.json` conforming
 to `dd-flow/plan-aspect-map@3`. Keep future behavior DRAFT/PLANNED; do not
 change application code or claim implementation evidence.
 
@@ -29,6 +29,17 @@ entry references its original `AC-*` and the plan items that prove it. The CLI
 owns `schema_id`, `plan_id`, `protocol_id`, the initial `revision` and
 `source_refs`; keep them unchanged. PLAN-REVIEW alone increments revision after
 an accepted correction. Do not invent a hash or rewrite identity fields.
+
+For each accepted requirement and criterion, choose the proof that is actually
+relevant in this project. Start with an existing focused test or a reusable
+project alias; when neither is enough, plan the new test/check as part of the
+delivery. A future check is never an anonymous shell line: make it a new
+`@check/...` alias in `checks[]`, give it a precise `definition`, and name the
+PLAN item that materializes it in `provided_by`. Every consumer must strictly
+depend on that provider; the provider's `write_scope` must explicitly include
+`.memory-bank/spec/engineering/code-check-profile.json`. A readiness check must already be available, because
+it runs before CODE Work begins. Do not call a test “too heavy” and drop it:
+choose its `run_at` deliberately, or state a real external/manual proof limit.
 
 Use a compact plan unless a named high-impact, irreversible, security, runtime
 or uncertainty trigger requires full depth. Classify every aspect. Ask the user

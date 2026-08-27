@@ -28,7 +28,10 @@ command frozen in the RUN execution profile and writes a readiness receipt in
 allowed local files; it never installs dependencies or starts the application.
 Trust a passing readiness receipt and do not independently repeat bootstrap.
 
-Implement only the packet's task and preserve its invariants. `work finish`
+Implement only the packet's task and preserve its invariants. A packet may
+name a `provided_checks` alias: create it exactly with the supplied definition
+alongside its corresponding test or script before finishing the Work. Do not
+replace it with a similar command. `work finish`
 validates the result and runs the packet's focused checks before accepting the
 Work. A failed focused check stays in that same Work for correction.
 
@@ -51,8 +54,11 @@ Finish CODE only after the graph has fanned in. Before `stage finish`, write the
 small `code-verification.json` requested in the stage-start packet: it is the
 orchestrator's evidence-based confirmation that the accepted requirements and
 current-gate acceptance criteria are actually satisfied. `stage finish` checks
-obligation coverage, validates that semantic conclusion, runs the project
-aggregate gate and renders the deterministic report.
+obligation coverage, validates that semantic conclusion, runs the PLAN-declared
+`code` checks and the project policy gate, and renders the deterministic
+report. `readiness` checks have already run at stage start; `merge`, `release`
+and `external` checks remain explicitly scheduled for their own gates and are
+never silently substituted here.
 The semantic file records only verdict, summary, unresolved items and
 deviations. CODE Work reports evidence against acceptance ids; executable
 checks produce immutable receipts with a workspace fingerprint and hashes of

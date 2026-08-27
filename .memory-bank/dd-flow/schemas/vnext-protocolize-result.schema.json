@@ -1,21 +1,23 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "dd-flow/vnext-protocolize-result@2",
+  "$id": "dd-flow/vnext-protocolize-result@3",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_id", "outcome", "scope_sizing_verdict", "delivery", "obligation_ownership", "durable_links", "feature"],
   "properties": {
-    "schema_id": {"const": "dd-flow/vnext-protocolize-result@2"},
+    "schema_id": {"const": "dd-flow/vnext-protocolize-result@3"},
     "outcome": {"const": "protocolized"},
     "scope_sizing_verdict": {"enum": ["single_executable_protocol", "single_compact_protocol", "specification_with_slices_required"]},
     "delivery": {"$ref": "#/$defs/delivery"},
     "obligation_ownership": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/ownership"}},
+    "obligation_amendments": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/amendment"}},
     "durable_links": {"$ref": "#/$defs/durableLinks"},
     "feature": {"$ref": "#/$defs/feature"}
   },
   "$defs": {
     "strings": {"type": "array", "items": {"type": "string", "minLength": 1}},
     "ownership": {"type": "object", "additionalProperties": false, "required": ["obligation_id", "member_keys"], "properties": {"obligation_id": {"type": "string", "pattern": "^(R|AC)-[0-9]{3,}$"}, "member_keys": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}}}},
+    "amendment": {"type": "object", "additionalProperties": false, "required": ["target_id", "replacement", "reason", "hitl_ref"], "properties": {"target_id": {"type": "string", "pattern": "^(R|AC)-[0-9]{3,}$"}, "replacement": {"type": "string", "minLength": 1}, "reason": {"type": "string", "minLength": 1}, "hitl_ref": {"type": "string", "pattern": "^HITL-[A-Za-z0-9._-]+$"}}},
     "primaryAcceptance": {"type": "object", "additionalProperties": false, "required": ["actor", "initial_state", "action", "expected_result", "verification", "proof_limits"], "properties": {"actor": {"type": "string", "minLength": 1}, "initial_state": {"type": "string"}, "action": {"type": "string", "minLength": 1}, "expected_result": {"type": "string", "minLength": 1}, "verification": {"type": "string", "minLength": 1}, "proof_limits": {"type": "string"}}},
     "member": {"type": "object", "additionalProperties": false, "required": ["key", "title", "slug", "goal", "role", "in_scope", "out_of_scope", "primary_acceptance", "blocked_by"], "properties": {"key": {"type": "string", "minLength": 1}, "title": {"type": "string", "minLength": 1}, "slug": {"type": "string", "minLength": 1}, "goal": {"type": "string", "minLength": 1}, "role": {"type": "string", "minLength": 1}, "in_scope": {"$ref": "#/$defs/strings"}, "out_of_scope": {"type": "array", "items": {"type": "string", "minLength": 1}}, "primary_acceptance": {"$ref": "#/$defs/primaryAcceptance"}, "blocked_by": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}}},
     "mode": {"type": "object", "additionalProperties": false, "required": ["mode", "graph", "relative_duration", "reason"], "properties": {"mode": {"enum": ["shared_serial_bundle", "isolated_parallel", "isolated_dependency_waves"]}, "graph": {"type": "string", "minLength": 1}, "relative_duration": {"type": "string", "minLength": 1}, "reason": {"type": "string", "minLength": 1}}},

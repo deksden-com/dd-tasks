@@ -8,7 +8,7 @@ status: 'ACTIVE'
 c4_level: 'documentation'
 parent: 'index.md'
 design_stage: vertical_slice
-depends_on: [testing_system_design_review, verification_evidence_review]
+informs: [testing_system_design_review, verification_evidence_review]
 tags: [dd-flow, mb-sdlc, aspect, verification, execution-efficiency]
 ---
 
@@ -25,8 +25,8 @@ from `testing_system_design_review` or `verification_evidence_review`.
 
 ## Grounding
 
-Read the accepted outputs for both hard predecessors: an accepted local row in
-`aspect-map.json` or a delegated report. Then read the current
+Use the testing and evidence outputs when they exist; they inform this review,
+but never delay an otherwise compatible reviewer group. Then read the current
 protocol/specification, plan draft and `plan.json` when present, task or
 verification matrix, `aspect-map.json`, derived dependency view, project check
 policy/command sources and any selected scenario, seed or eval artifacts whose

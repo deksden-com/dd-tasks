@@ -1,14 +1,13 @@
 # PLAN
 
-When `.memory-bank/spec/engineering/code-check-profile.json` exists, treat it
-as the executable check contract. Use its `@check/...` aliases wherever they
-are defined; do not shorten guarded commands or omit their target/profile and
-RUN binding. Each `verification.checks` entry declares a stable `CHK-*` id, an
-executable command, the gate where it runs, and optional exact required
-artifacts. Acceptance entries link to checks with `check_refs`; behavioral
-meaning and proof limits stay on acceptance instead of being duplicated in the
-command declaration. PLAN finish resolves aliases and rejects undeclared raw
-commands before CODE Work is registered.
+PLAN, not the CLI, selects verification. The project check profile supplies
+reusable `@check/...` aliases, aggregate gates and only those raw commands
+that must use an alias. Declare one top-level `checks[]` catalogue with stable
+`CHK-*` id, command, purpose, gate and availability; plan items and acceptance
+entries reference it with `check_refs`. Ordinary focused local commands may be
+declared directly. A `planned` check names the item that first materializes it;
+for a new `@check/...` alias also record its exact definition. PLAN finish
+checks only structural references, ordering and guarded-command policy.
 
 The generated prompt is the complete stage input. Read the accepted SPECIFY and
 PROTOCOLIZE artifacts named in it, then perform proportional grounding.
@@ -20,8 +19,8 @@ switch, merge or delete branches/worktrees.
 
 For each PRT write `.memory-bank/protocol/<PRT>/plan.json` in the registered
 feature worktree (or direct workspace) conforming to
-`dd-flow/protocol-plan@3` and `<RUN>/03-plan/<PRT>/aspect-map.json` conforming
-to `dd-flow/plan-aspect-map@2`. Keep future behavior DRAFT/PLANNED; do not
+`dd-flow/protocol-plan@4` and `<RUN>/03-plan/<PRT>/aspect-map.json` conforming
+to `dd-flow/plan-aspect-map@3`. Keep future behavior DRAFT/PLANNED; do not
 change application code or claim implementation evidence.
 
 Plan is traceable rather than a prose restatement: every plan item references

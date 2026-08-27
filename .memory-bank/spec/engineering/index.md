@@ -16,6 +16,7 @@ children:
   - .memory-bank/spec/engineering/code-check-profile.json
   - .memory-bank/spec/engineering/SPC-006-stage-bootstrap-and-context-packet.md
   - .memory-bank/spec/engineering/SPC-009-vnext-identity-materialization-and-runtime-state.md
+  - .memory-bank/spec/engineering/SPC-010-agent-owned-verification-and-safe-hitl.md
 implementation_files:
   - package.json
   - apps/api/vitest.unit.config.ts
@@ -66,12 +67,10 @@ orientation for PLAN and fresh CODE workers. PLAN still selects exact owning
 source, representative tests and task-applicable feature/spec/ADR/scenario
 documents; this index is not permission for a broad project scan.
 
-[`code-check-profile.json`](code-check-profile.json) is the deterministic
-project-wide CODE fan-in gate and the allowlist for focused PLAN checks. A
-PLAN item's `verification.checks` may contain only its `@check/...` aliases or
-an exact command from `commands`; semantic assertions belong in
-`expected_evidence` and are never shell commands. The profile is evaluated once
-after all CODE and repair Works settle.
+[`code-check-profile.json`](code-check-profile.json) defines reusable aliases,
+aggregate gates and the small set of guarded commands. PLAN owns its focused
+check selection: an item refers to the top-level `checks[]` catalogue through
+`check_refs`, and ordinary local commands need no allowlist entry.
 
 ## Active flow contract
 
@@ -95,6 +94,11 @@ reports, snapshots and cleanup share one ownership model.
 The existing `flow-contract.json` remains the executable pair contract until
 the flow pack and `dd-flow-cli` implement SPC-009 together. Do not publish a
 schema/prompt-only partial cutover.
+
+[SPC-010 agent-owned verification and safe HITL](SPC-010-agent-owned-verification-and-safe-hitl.md)
+adds the next beta contract: PLAN selects checks, planned checks are supplied
+by explicit Work, and a HITL-backed PROTOCOLIZE amendment changes only the
+effective downstream obligation while preserving SPECIFY as history.
 
 Canonical bootstrap — `pnpm bootstrap`; в non-interactive окружении script сам
 задаёт `CI=true`, не меняя интерактивный режим. Root gates:

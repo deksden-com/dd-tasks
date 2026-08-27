@@ -68,7 +68,11 @@ Preserve the accepted actor/entity/state vocabulary exactly. In particular, do
 not turn a project-owned lifecycle or permission into a task-owned lifecycle
 just because the task is the mutation target. If such a mismatch is exposed,
 pause this same Work as a material semantic conflict instead of materializing
-a PRT whose literal acceptance cannot be proven.
+a PRT whose literal acceptance cannot be proven. When the user's answer
+changes the wording of an already accepted obligation, retain SPECIFY as
+historical input and add exactly one `obligation_amendments` item: target id,
+replacement, reason and returned `HITL-*` reference. PLAN uses that effective
+wording; it never rewrites the original SPECIFY artifact.
 
 If PROTOCOLIZE itself exposes a material user decision with no reasonable
 default, pause this same PROTOCOLIZE Work, ask the question returned by the

@@ -2,8 +2,8 @@
 file: '.memory-bank/spec/engineering/index.md'
 description: 'Подтверждённый engineering/test contour checkpoint-02-core и private preview runtime.'
 purpose: 'Фиксирует canonical commands, test ownership, container smoke и границы локального доказательства.'
-version: '0.8.0'
-date: '2026-08-23'
+version: '0.9.0'
+date: '2026-08-27'
 status: 'ACTIVE'
 c4_level: 'documentation'
 index_type: 'shallow'
@@ -14,6 +14,8 @@ canonical_template: '.memory-bank/mbb/coding-standards-guide.md'
 children:
   - .memory-bank/spec/engineering/coding-standards.md
   - .memory-bank/spec/engineering/code-check-profile.json
+  - .memory-bank/spec/engineering/SPC-006-stage-bootstrap-and-context-packet.md
+  - .memory-bank/spec/engineering/SPC-009-vnext-identity-materialization-and-runtime-state.md
 implementation_files:
   - package.json
   - apps/api/vitest.unit.config.ts
@@ -34,6 +36,9 @@ test_files:
   - apps/web/tests/browser/preview.spec.ts
 tags: [dd-tasks, engineering, checkpoint-02, preview, quality, playwright, container]
 history:
+  - version: '0.9.0'
+    date: '2026-08-27'
+    changes: 'Added SPC-009 as the coordinated beta target for Flow/RUN/Work identity, runtime-state ownership, portable references, canonical materialization, lifecycle, reports, snapshots and cleanup.'
   - version: '0.8.0'
     date: '2026-08-23'
     changes: 'Added one project-specific coding/testing/documentation standard hub for PLAN-selected fresh CODE worker context.'
@@ -76,6 +81,20 @@ after all CODE and repair Works settle.
 `flow-contract@6` и совместимому `dd-flow-cli` 0.6.0; этот engineering layer
 сохраняет только применимое к проекту boundary и не заменяет project-owned
 quality/test commands ниже.
+
+## vNext beta target
+
+[SPC-009 identity, materialization and runtime state](SPC-009-vnext-identity-materialization-and-runtime-state.md)
+is the breaking coordinated target for the current beta contour. It corrects
+the proven vNext runtime without partially mutating the active machine
+contract: Work belongs to RUN rather than one stage; SQLite has one portable
+`run.json` projection; legacy `JOB`, `work.json`, `try-*` and single
+`RUN.current_stage` models are removed; identifiers, findings, checks, paths,
+reports, snapshots and cleanup share one ownership model.
+
+The existing `flow-contract.json` remains the executable pair contract until
+the flow pack and `dd-flow-cli` implement SPC-009 together. Do not publish a
+schema/prompt-only partial cutover.
 
 Canonical bootstrap — `pnpm bootstrap`; в non-interactive окружении script сам
 задаёт `CI=true`, не меняя интерактивный режим. Root gates:

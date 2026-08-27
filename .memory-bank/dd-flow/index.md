@@ -1,9 +1,9 @@
 ---
 file: '.memory-bank/dd-flow/index.md'
-description: 'Compact dd-flow catalog for session priming and flow routing.'
-purpose: 'Tell a fresh agent which prompt and predecessor gate apply.'
-version: '1.0.0'
-date: '2026-08-10'
+description: 'Compact dd-flow catalog for session priming, flow routing and the coordinated SPC-009 beta target.'
+purpose: 'Tell a fresh agent which prompt and predecessor gate apply and where the pending breaking runtime model is specified.'
+version: '1.1.0'
+date: '2026-08-27'
 status: 'DRAFT'
 c4_level: 'documentation'
 parent: '.memory-bank/dd-flow/README.md'
@@ -12,7 +12,12 @@ related_files:
   - common/runtime-contract.md
   - common/lifecycle-guards.md
   - flow-contract.json
-tags: [dd-flow, index, routing, lifecycle, spc-004]
+  - ../spec/engineering/SPC-009-vnext-identity-materialization-and-runtime-state.md
+tags: [dd-flow, index, routing, lifecycle, spc-004, spc-009]
+history:
+  - version: '1.1.0'
+    date: '2026-08-27'
+    changes: 'Added the SPC-009 beta-target boundary without presenting the not-yet-cut-over contract as current runtime behavior.'
 ---
 
 # dd-flow index
@@ -50,3 +55,11 @@ If a predecessor is missing, stop and name the missing artifact and gate. Do not
 use a lifecycle command from a previous contract as a workaround. Read
 [common/runtime-contract.md](common/runtime-contract.md) before changing the
 flow itself.
+
+## Pending breaking target
+
+Before changing entity IDs, RUN/Work paths, state projections, stage
+directories, findings, check receipts, snapshots or cleanup, read
+[SPC-009](../spec/engineering/SPC-009-vnext-identity-materialization-and-runtime-state.md).
+It is one coordinated flow-pack/engine/eval change. The current runtime
+invariants above remain executable until the matching beta pair is released.

@@ -1,9 +1,9 @@
 ---
 file: '.memory-bank/dd-flow/README.md'
-description: 'Canonical dd-flow prompt package and SPC-004/005/006 contract entry.'
-purpose: 'Route agents through the Memory Bank SDLC while keeping runtime ownership explicit.'
-version: '1.2.0'
-date: '2026-08-12'
+description: 'Canonical dd-flow prompt package, active runtime entry and discoverable SPC-009 beta redesign target.'
+purpose: 'Route agents through the Memory Bank SDLC while keeping current runtime ownership and the coordinated vNext cutover explicit.'
+version: '1.3.0'
+date: '2026-08-27'
 status: 'DRAFT'
 c4_level: 'documentation'
 parent: '.memory-bank/index.md'
@@ -13,7 +13,12 @@ related_files:
   - common/flow-runs.md
   - common/runtime-cli.md
   - schemas/index.md
-tags: [dd-flow, prompts, spc-004, spc-005, spc-006, navigation]
+  - ../spec/engineering/SPC-009-vnext-identity-materialization-and-runtime-state.md
+tags: [dd-flow, prompts, spc-004, spc-005, spc-006, spc-009, navigation]
+history:
+  - version: '1.3.0'
+    date: '2026-08-27'
+    changes: 'Linked the coordinated SPC-009 beta target and separated its breaking design from the still-executable current flow contract.'
 ---
 
 # dd-flow
@@ -26,6 +31,19 @@ The normative breaking contracts for the current flow pack are
 and [SPC-006](../spec/engineering/SPC-006-stage-bootstrap-and-context-packet.md),
 implemented in the canonical follow-up protocol
 `../protocol/PRT-341-spc-004-v2-spc-005-canonical-cutover.md`.
+
+## Coordinated vNext beta target
+
+[SPC-009](../spec/engineering/SPC-009-vnext-identity-materialization-and-runtime-state.md)
+is the next breaking target for identity, Work/RUN materialization, runtime
+state, paths, reports, snapshots and cleanup. It is documented before
+implementation so the flow pack, engine and eval contour can cut over as one
+compatible pair.
+
+Until that coordinated cutover, this README's current commands and
+`flow-contract.json` describe the executable beta pair. Do not cherry-pick one
+SPC-009 schema, directory name or status rule into the active contract: the
+target removes legacy projections and therefore requires the matching engine.
 
 ## Normal route
 

@@ -37,13 +37,22 @@ Work. A failed focused check stays in that same Work for correction.
 
 When delegation is useful, launch the registered ready child Work in a fresh
 session and make its first command the supplied `work start`; the PreToolUse
-hook records the real Session automatically. Silence is not a terminal state:
-do not interrupt, replace or relaunch a child merely because it has not emitted
-output. Wait until the harness reports its turn completed, failed, cancelled or
-needing attention. Long `work finish` checks report progress on stderr. Close a
+hook records the real Session automatically. Silence, an unchanged timestamp,
+and the absence of a new artifact are normal while a turn is active; they are
+not evidence that a worker is stuck. Do not interrupt, replace or relaunch it.
+Wait until the harness reports completion, failure, cancellation, need for
+attention, a process exit, or an explicit platform deadline failure. Long
+`work finish` checks report progress on stderr. Close a
 disposable worker only after its Work is accepted or explicitly failed or
 cancelled and its turn has settled. After every accepted completion, use the
 returned graph to dispatch newly ready Works.
+
+The packet is a contract. If an assigned result cannot be written because its
+path is absent from `write_scope`, finish must not report success or hide that
+fact in `deviations`. Fail the Work with the exact missing path so the
+coordinator can correct and retry the contract. A successful CODE Work has no
+unresolved blockers or deviations and materializes every assigned durable
+document update.
 
 A repairable engine, harness or environment failure is an external blocker,
 not a user question and not a terminal CODE result. Use the exact `stage block`
@@ -55,8 +64,9 @@ small `code-verification.json` requested in the stage-start packet: it is the
 orchestrator's evidence-based confirmation that the accepted requirements and
 current-gate acceptance criteria are actually satisfied. `stage finish` checks
 obligation coverage, validates that semantic conclusion, runs the PLAN-declared
-`code` checks and the project policy gate, and renders the deterministic
-report. `readiness` checks have already run at stage start; `merge`, `release`
+`code` and final `readiness` checks plus the project policy gate, and renders
+the deterministic report. Stage start runs only the project bootstrap;
+`readiness` means final acceptance readiness, not entry preparation. `merge`, `release`
 and `external` checks remain explicitly scheduled for their own gates and are
 never silently substituted here.
 The semantic file records only verdict, summary, unresolved items and
@@ -66,6 +76,8 @@ the exact artifacts declared by PLAN.
 If that gate fails, create the returned repair Work from the failed receipt and
 the relevant completed origin Works. The repair packet contains the original
 context plus the failure delta; do not make an untracked root-session fix.
+Do not repeat `stage finish` against the same workspace fingerprint: the CLI
+returns the retained failure until the repair changes the workspace.
 
 When the frozen RUN configuration enables it, a passing aggregate gate moves
 to the separate optional `code-review` stage. CODE verification is mandatory;

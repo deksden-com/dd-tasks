@@ -78,6 +78,13 @@ two items may share a write path only when their dependency graph orders them.
 Give negative cases and migration/backfill proof their own explicit verification
 entry whenever an accepted requirement needs them.
 
+Every durable `document_updates` entry has exactly one existing PLAN item id as
+its `owner` (`P1`, never `P1/P3`). Choose the item responsible for materializing
+and verifying the update; other items may inform or precede it, but shared
+ownership is not a valid substitute for one accountable Work. The CLI adds the
+owned document path to that Work's read and write scope and rejects an unknown
+or composite owner.
+
 For every conditional mutation that depends on current authorization, ownership,
 membership or lifecycle state, plan the check and write as one atomic database
 boundary: one conditional statement or one transaction with the necessary lock

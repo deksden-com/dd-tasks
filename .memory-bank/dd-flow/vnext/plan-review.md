@@ -1,5 +1,11 @@
 # PLAN-REVIEW
 
+A quiet reviewer remains active until the harness explicitly reports its turn
+completed, failed, cancelled, needing attention, a process exit, or a platform
+deadline failure. Silence, an unchanged timestamp, and absence of a result
+artifact are not evidence of a stuck worker. Wait; do not interrupt, replace,
+or relaunch it.
+
 Use the generated packet as the entire stage context. It gives the accepted
 PLAN revision, review groups, exact lifecycle commands and the compact
 `decision.json` contract. Do not rediscover CLI help, schemas, Git state or

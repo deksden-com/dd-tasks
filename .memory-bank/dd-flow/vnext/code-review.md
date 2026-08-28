@@ -27,9 +27,18 @@ default; it may be deferred only through a named durable DEF with an allowed
 reason, owner/trigger and evidence. P3 is an observation or a reasoned
 rejection, never an automatic DEF.
 
+A quiet reviewer remains active until the harness explicitly reports its turn
+completed, failed, cancelled, needing attention, a process exit, or a platform
+deadline failure. Silence, an unchanged timestamp, and absence of a new result
+file are not evidence of a stuck worker. Do not interrupt, replace, or relaunch
+such a reviewer; wait for an explicit terminal signal.
+
 The first Finish freezes the compact decision and creates exactly one repair
-Work when fixes are accepted. After that Work completes, invoke the same
-Finish command again: the CLI reruns the aggregate CODE gate and closes the
+Work when fixes are accepted. Its successful result must explicitly list every
+assigned canonical finding reference, contain no blocker or deviation, and
+materialize every assigned document update. After that Work completes, invoke
+the same Finish command again: the CLI reruns the same final CODE gate,
+including final `readiness` evidence such as browser checks, and closes the
 stage. Do not repeat the independent review wave.
 
 Each worker assesses every aspect assigned to its group exactly once and

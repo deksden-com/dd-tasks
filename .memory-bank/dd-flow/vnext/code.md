@@ -35,11 +35,12 @@ replace it with a similar command. `work finish`
 validates the result and runs the packet's focused checks before accepting the
 Work. A failed focused check stays in that same Work for correction.
 
-When exactly one Work is ready, execute it in the coordinator Session: do not
-create a child merely to serialize a dependency chain. Launch registered ready
-Works in fresh child sessions only when two or more independent Works can make
-real parallel progress; each child makes its first command the supplied
-`work start`, and the PreToolUse hook records the real Session automatically.
+The coordinator owns the graph and stage conclusion; every registered CODE
+Work runs in a fresh child session, including a serial dependency chain. Each
+child makes its first command the supplied `work start`, and the PreToolUse
+hook records the real Session automatically. This keeps the coordinator's
+context focused on dispatch, evidence and the final gate rather than on
+implementation detail.
 Silence, an unchanged timestamp,
 and the absence of a new artifact are normal while a turn is active; they are
 not evidence that a worker is stuck. Do not interrupt, replace or relaunch it.

@@ -68,6 +68,12 @@ input semantics has no safe default unless the user or an authoritative project
 source already establishes it; ask rather than inventing it. Never ask the user
 to design the implementation.
 
+Only an explicit user statement or an authoritative project source settles a
+product decision. Your own earlier recommendation, summary or proposed default
+in this conversation is not evidence that the user accepted it. Keep that
+choice proposed and ask when the distinction changes scope, behaviour or
+acceptance evidence.
+
 An explicit project policy remains binding unless the user explicitly asks to
 change that policy. Broad product wording (for example “treat these entities
 the same”) is not an implicit authorization, lifecycle or read-only-policy

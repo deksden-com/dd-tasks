@@ -1,8 +1,19 @@
 export type Workspace = { id: string; name: string; role: "owner" | "member" };
 export type Project = { id: string; name: string; archivedAt: string | null };
-export type Task = { id: string; title: string; description: string | null };
+export const TASK_PRIORITIES = ["low", "medium", "high"] as const;
+export type TaskPriority = (typeof TASK_PRIORITIES)[number];
+export type Task = {
+  id: string;
+  title: string;
+  description: string | null;
+  priority: TaskPriority;
+};
 export type RegistrationMode = "open" | "closed";
 export type RegistrationConfig = { registration_mode: RegistrationMode };
+
+export function isTaskPriority(value: unknown): value is TaskPriority {
+  return value === "low" || value === "medium" || value === "high";
+}
 
 export class ProductApiError extends Error {
   public constructor(
@@ -13,6 +24,63 @@ export class ProductApiError extends Error {
     super(message);
     this.name = "ProductApiError";
   }
+}
+
+export function parseTaskPriority(value: unknown): TaskPriority {
+  if (!isTaskPriority(value)) {
+    throw new ProductApiError(500, "INTERNAL_ERROR", "Unexpected server error");
+  }
+  return value;
+}
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value !== null && typeof value === "object"
+    ? (value as Record<string, unknown>)
+    : null;
+}
+
+function parseTask(value: unknown): Task {
+  const task = asRecord(value);
+  if (!task || typeof task.id !== "string" || typeof task.title !== "string") {
+    throw new ProductApiError(500, "INTERNAL_ERROR", "Unexpected server error");
+  }
+  return {
+    id: task.id,
+    title: task.title,
+    description: typeof task.description === "string" ? task.description : null,
+    priority: parseTaskPriority(task.priority),
+  };
+}
+
+function parseTaskPayload(value: unknown): { task: Task } {
+  const payload = asRecord(value);
+  if (!payload) {
+    throw new ProductApiError(500, "INTERNAL_ERROR", "Unexpected server error");
+  }
+  return { task: parseTask(payload.task) };
+}
+
+function parseTaskList(value: unknown): { project: Project; tasks: Task[] } {
+  const payload = asRecord(value);
+  const project = asRecord(payload?.project);
+  if (
+    !payload ||
+    !project ||
+    typeof project.id !== "string" ||
+    typeof project.name !== "string" ||
+    !Array.isArray(payload.tasks)
+  ) {
+    throw new ProductApiError(500, "INTERNAL_ERROR", "Unexpected server error");
+  }
+  return {
+    project: {
+      id: project.id,
+      name: project.name,
+      archivedAt:
+        typeof project.archivedAt === "string" ? project.archivedAt : null,
+    },
+    tasks: payload.tasks.map(parseTask),
+  };
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -78,30 +146,38 @@ export const productApi = {
       `/api/workspaces/${workspaceId}/projects/${projectId}/${archived ? "archive" : "restore"}`,
       { method: "POST" },
     ),
-  tasks: (workspaceId: string, projectId: string) =>
-    request<{ project: Project; tasks: Task[] }>(
-      `/api/workspaces/${workspaceId}/projects/${projectId}/tasks`,
+  tasks: async (workspaceId: string, projectId: string) =>
+    parseTaskList(
+      await request<unknown>(
+        `/api/workspaces/${workspaceId}/projects/${projectId}/tasks`,
+      ),
     ),
-  createTask: (
+  createTask: async (
     workspaceId: string,
     projectId: string,
     title: string,
     description: string,
+    priority: TaskPriority,
   ) =>
-    request<{ task: Task }>(
-      `/api/workspaces/${workspaceId}/projects/${projectId}/tasks`,
-      { method: "POST", body: json({ title, description }) },
+    parseTaskPayload(
+      await request<unknown>(
+        `/api/workspaces/${workspaceId}/projects/${projectId}/tasks`,
+        { method: "POST", body: json({ title, description, priority }) },
+      ),
     ),
-  updateTask: (
+  updateTask: async (
     workspaceId: string,
     projectId: string,
     taskId: string,
     title: string,
     description: string,
+    priority: TaskPriority,
   ) =>
-    request<{ task: Task }>(
-      `/api/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}`,
-      { method: "PATCH", body: json({ title, description }) },
+    parseTaskPayload(
+      await request<unknown>(
+        `/api/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}`,
+        { method: "PATCH", body: json({ title, description, priority }) },
+      ),
     ),
   deleteTask: (workspaceId: string, projectId: string, taskId: string) =>
     request<void>(

@@ -6,6 +6,8 @@ version: '0.1.0'
 date: '2026-08-15'
 status: 'ACTIVE'
 parent: '.memory-bank/epics/index.md'
+children:
+  - .memory-bank/epics/EP-001-task-management/features/FT-001-task-priority/index.md
 ---
 
 # EP-001 — Task management
@@ -13,3 +15,5 @@ parent: '.memory-bank/epics/index.md'
 Existing capabilities cover workspace-scoped projects, task CRUD and task
 detail editing. New user-visible task capabilities are recorded under
 `features/` when they have accepted behavior and a delivery protocol.
+
+- [FT-001-task-priority — Task priority](features/FT-001-task-priority/index.md)

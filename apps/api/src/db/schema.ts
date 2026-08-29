@@ -21,6 +21,8 @@ export type FoundationMetadata = typeof foundationMetadata.$inferSelect;
 
 export const membershipRole = pgEnum("membership_role", ["owner", "member"]);
 
+export const taskPriority = pgEnum("task_priority", ["low", "medium", "high"]);
+
 export const accounts = pgTable(
   "accounts",
   {
@@ -126,6 +128,7 @@ export const tasks = pgTable(
     projectId: text("project_id").notNull(),
     title: text("title").notNull(),
     description: text("description"),
+    priority: taskPriority("priority").notNull().default("medium"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),

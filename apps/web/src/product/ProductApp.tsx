@@ -7,13 +7,26 @@ import {
 } from "react";
 import { AuthScreen } from "./AuthScreen.js";
 import {
+  isTaskPriority,
   ProductApiError,
   type Project,
   productApi,
+  TASK_PRIORITIES,
   type Task,
+  type TaskPriority,
   type Workspace,
 } from "./api.js";
 import "./product.css";
+
+const TASK_PRIORITY_LABELS: Record<TaskPriority, string> = {
+  low: "Low",
+  medium: "Medium",
+  high: "High",
+};
+
+function taskPriorityLabel(priority: TaskPriority): string {
+  return TASK_PRIORITY_LABELS[priority];
+}
 
 type View =
   | { kind: "login" }
@@ -109,6 +122,40 @@ function ErrorNotice({ error }: { error: string | null }) {
       {error}
     </p>
   ) : null;
+}
+
+function TaskPrioritySelect({
+  id,
+  testId,
+  value,
+  disabled,
+  onChange,
+}: {
+  id: string;
+  testId: string;
+  value: TaskPriority;
+  disabled?: boolean;
+  onChange: (priority: TaskPriority) => void;
+}) {
+  return (
+    <select
+      id={id}
+      data-testid={testId}
+      name="task-priority"
+      disabled={disabled}
+      value={value}
+      onChange={(event) => {
+        const next = event.target.value;
+        if (isTaskPriority(next)) onChange(next);
+      }}
+    >
+      {TASK_PRIORITIES.map((token) => (
+        <option key={token} value={token}>
+          {TASK_PRIORITY_LABELS[token]}
+        </option>
+      ))}
+    </select>
+  );
 }
 
 function Shell({ children }: { children: ReactNode }) {
@@ -500,6 +547,7 @@ function TaskScreen({
   const [items, setItems] = useState<Task[] | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [priority, setPriority] = useState<TaskPriority>("medium");
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const load = useCallback(async () => {
@@ -554,9 +602,11 @@ function TaskScreen({
                   projectId,
                   title,
                   description,
+                  priority,
                 );
                 setTitle("");
                 setDescription("");
+                setPriority("medium");
                 setCreating(false);
                 await load();
               } catch (caught) {
@@ -589,6 +639,15 @@ function TaskScreen({
                 onChange={(event) => setDescription(event.target.value)}
               />
             </label>
+            <label htmlFor="task-priority">
+              Priority
+              <TaskPrioritySelect
+                id="task-priority"
+                testId="task-priority"
+                value={priority}
+                onChange={setPriority}
+              />
+            </label>
             <div className="form-actions">
               <button
                 className="primary-button"
@@ -604,6 +663,7 @@ function TaskScreen({
                   setCreating(false);
                   setTitle("");
                   setDescription("");
+                  setPriority("medium");
                 }}
               >
                 Cancel
@@ -618,7 +678,7 @@ function TaskScreen({
         )}
         <div className="section-label" aria-hidden="true">
           <span>Task</span>
-          <span>Open</span>
+          <span>Priority</span>
         </div>
         <div className="task-list">
           {items?.map((task) => (
@@ -631,6 +691,9 @@ function TaskScreen({
                 <span className="row-copy">
                   <strong>{task.title}</strong>
                   <small>{task.description || "No description"}</small>
+                </span>
+                <span className="task-priority">
+                  {taskPriorityLabel(task.priority)}
                 </span>
                 <span className="row-arrow" aria-hidden="true">
                   →
@@ -657,6 +720,7 @@ function TaskDetailScreen({
   const [task, setTask] = useState<Task | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [priority, setPriority] = useState<TaskPriority>("medium");
   const [loaded, setLoaded] = useState(false);
   const [busy, setBusy] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -670,6 +734,7 @@ function TaskDetailScreen({
       setTask(selected);
       setTitle(selected?.title ?? "");
       setDescription(selected?.description ?? "");
+      setPriority(selected?.priority ?? "medium");
       setError(selected ? null : "Task not found");
     } catch (caught) {
       setError(messageOf(caught));
@@ -681,7 +746,10 @@ function TaskDetailScreen({
     void load();
   }, [load]);
   const dirty = Boolean(
-    task && (title !== task.title || description !== (task.description ?? "")),
+    task &&
+      (title !== task.title ||
+        description !== (task.description ?? "") ||
+        priority !== task.priority),
   );
   useEffect(() => {
     if (!dirty) return;
@@ -719,10 +787,12 @@ function TaskDetailScreen({
                   taskId,
                   title,
                   description,
+                  priority,
                 );
                 setTask(updated.task);
                 setTitle(updated.task.title);
                 setDescription(updated.task.description ?? "");
+                setPriority(updated.task.priority);
                 setError(null);
               } catch (caught) {
                 setError(messageOf(caught));
@@ -755,6 +825,16 @@ function TaskDetailScreen({
                 disabled={Boolean(project?.archivedAt)}
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
+              />
+            </div>
+            <div className="detail-field priority-field">
+              <label htmlFor="task-detail-priority">Priority</label>
+              <TaskPrioritySelect
+                id="task-detail-priority"
+                testId="task-detail-priority"
+                value={priority}
+                disabled={Boolean(project?.archivedAt)}
+                onChange={setPriority}
               />
             </div>
             <div className="detail-toolbar">

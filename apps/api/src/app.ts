@@ -242,13 +242,18 @@ export function createApiApp(
     "/api/workspaces/:workspaceId/projects/:projectId/tasks",
     async (c) => {
       const actor = await account(c);
+      const input = await body(c);
       return c.json(
         {
           task: await core.createTask(
             actor.id,
             c.req.param("workspaceId"),
             c.req.param("projectId"),
-            await body(c),
+            {
+              title: input.title,
+              description: input.description,
+              priority: input.priority,
+            },
           ),
         },
         201,
@@ -259,13 +264,18 @@ export function createApiApp(
     "/api/workspaces/:workspaceId/projects/:projectId/tasks/:taskId",
     async (c) => {
       const actor = await account(c);
+      const input = await body(c);
       return c.json({
         task: await core.updateTask(
           actor.id,
           c.req.param("workspaceId"),
           c.req.param("projectId"),
           c.req.param("taskId"),
-          await body(c),
+          {
+            title: input.title,
+            description: input.description,
+            priority: input.priority,
+          },
         ),
       });
     },

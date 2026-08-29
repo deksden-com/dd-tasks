@@ -53,6 +53,20 @@ export type PublicErrorResponse = {
   requestId: string;
 };
 
+export const TASK_PRIORITIES = ["low", "medium", "high"] as const;
+export type TaskPriority = (typeof TASK_PRIORITIES)[number];
+
+export type TaskJson = {
+  id: string;
+  title: string;
+  description: string | null;
+  priority: TaskPriority;
+};
+
+export function isTaskPriority(value: unknown): value is TaskPriority {
+  return value === "low" || value === "medium" || value === "high";
+}
+
 export function publicErrorResponse(
   c: Context<ApiEnv>,
   status: 400 | 401 | 403 | 404 | 409 | 500 | 503,

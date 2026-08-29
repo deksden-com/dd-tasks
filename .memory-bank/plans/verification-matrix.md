@@ -1,15 +1,18 @@
 ---
 file: '.memory-bank/plans/verification-matrix.md'
-description: 'Canonical verification rows for accepted dd-tasks checkpoint capabilities.'
+description: 'Canonical verification rows for accepted dd-tasks checkpoint capabilities, including the PRT-007 Low/Medium/High task-priority extension of SCN-002.'
 purpose: 'Binds scenarios, fresh evidence and verification passports to bounded acceptance claims.'
-version: '1.0.0'
-date: '2026-08-05'
+version: '1.1.0'
+date: '2026-08-29'
 status: 'ACTIVE'
 acceptance_status: 'ACCEPTED_LOCAL'
 c4_level: 'project'
 parent: '.memory-bank/plans/index.md'
-tags: [dd-tasks, verification, SCN-001, SCN-002, SCN-003, local, preview]
+tags: [dd-tasks, verification, SCN-001, SCN-002, SCN-003, PRT-007, local, preview, priority]
 history:
+  - version: '1.1.0'
+    date: '2026-08-29'
+    changes: 'Added a local PRT-007/SCN-002 row for required Low/Medium/High task priority so the claim is not left as the frozen PRT-003 task-CRUD row.'
   - version: '1.0.0'
     date: '2026-08-05'
     changes: 'PRT-006 source-package row promoted after CODE/readiness gates; merge, immutable checkpoint delivery and live provider row remain explicit.'
@@ -52,6 +55,13 @@ recorded only after the named fresh evidence and verification passport exist.
 | `PRT-004 source package`: one built Hono process serves API and Vite SPA on one external port with internal PostgreSQL; guarded lifecycle, readiness and immutable revision/digest work under exact preview binding | `SCN-003-private-preview-runtime` | local `main@83c0ae6` contains feature `3cd3952` | `local-container` | `applicable` | `accepted_integrated_source_package` | `pass` | `merged_local_source` | `merge orchestrator` | RUN-300/04-merge fresh checkpoint and eval profiles; API/browser role matrix; wrong-binding rejection; readiness-before-init; retained-volume restart; exact eval cleanup/readback; `pnpm quality`; `pnpm docs:check`; `pnpm db:check`; secret/value and Git reachability readback | `.memory-bank/protocol/PRT-004-exe-preview-runtime/evidence/verification-passport.md` | Does not prove Exe.dev, provider identity/team/VM/share/transport/capacity, CI/CD, production availability, backup or public sharing. |
 | `PRT-004 live preview`: later Exe.dev rollout preserves requested share and exact source/artifact/data binding | `SCN-003-private-preview-runtime` | future deploy commit and provider readback | `external-provider` | `planned` | `not_run` | `not_run` | `pending_deploy_flow` | `deploy.md owner` | Fresh identity/team/authority/VM/share/transport/capacity preflight, source/artifact/readiness/browser proof and cleanup/readback | future PRT-004 deploy passport | Not executable in CODE; no provider mutation or live claim is allowed before the separate deploy flow. |
 | `PRT-006 preview access policy`: independent provider visibility and server-authoritative registration mode with fail-closed public/open boundary | `SCN-003-private-preview-runtime` | `main` after merge and exact checkpoint deploy | `source-package + external-provider` | applicable | accepted_source_package | pass | ready_for_merge_pending_delivery | `merge/deploy owner` | CODE/readiness gates, build-manifest handoff, source SCN-003 retained-volume and cleanup profiles, `/api/config`, public+open guard; provider `share show`, public URL without provider login gate, application login/session/workspace checks and exact superseded-runtime cleanup remain deploy evidence | PRT-006 readiness/deploy evidence | Source package does not prove provider visibility; public+open is prohibited; live claim requires the separate provider flow. |
+| `PRT-007-task-priority`: every task has a required closed Low/Medium/High priority with Medium defaults; the project task list shows that readable text; archived-project mutations stay rejected while the list remains readable; owner/member isolation is unchanged | `SCN-002-workspace-task-core` (same identity; extended local contour) | local exact checkout | `local` | `applicable` | `accepted_local` | `pass` | `accepted_local_pending_merge` | `PRT-007 docs` | SCN-002 API `apps/api/tests/core.integration.test.ts` and JSON contract `apps/api/tests/api-json-contract.test.ts`; serialized Chromium `apps/web/tests/browser/core.spec.ts`; product field wording in `.memory-bank/spec/product/index.md` | local SCN-002 extension; no separate PRT-007 passport | Extends SCN-002; does not replace the frozen PRT-003 task-CRUD row; does not prove sort/filter/board, CI, preview or production. |
+
+PRT-007 extension note: required Low/Medium/High task priority, Medium defaults,
+readable list labels, invalid-value rejection, archived-project read-only and
+owner/member isolation are a local SCN-002 contour extension. That claim is not
+covered by the frozen PRT-003 task-CRUD row above and does not create a new
+scenario id.
 
 Rows are promoted only after fresh readiness evidence. Merge and checkpoint
 fixation remain explicit closures; local acceptance must not be interpreted as

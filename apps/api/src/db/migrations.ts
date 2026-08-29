@@ -17,30 +17,38 @@ export async function listMigrationFiles(): Promise<string[]> {
   return files.filter((file) => file.endsWith(".sql")).sort();
 }
 
+export type ApplyMigrationsOptions = {
+  until?: string;
+};
+
 export async function applyMigrations(
   sql: Sql<Record<string, unknown>>,
+  options?: ApplyMigrationsOptions,
 ): Promise<string[]> {
   return sql.begin(async (transaction) => {
     await transaction`SELECT pg_advisory_xact_lock(42420302)`;
-    return applyMigrationsInTransaction(transaction);
+    return applyMigrationsInTransaction(transaction, options);
   });
 }
 
 export async function resetAndMigrate(
   sql: Sql<Record<string, unknown>>,
+  options?: ApplyMigrationsOptions,
 ): Promise<string[]> {
   return sql.begin(async (transaction) => {
     await transaction`SELECT pg_advisory_xact_lock(42420302)`;
     await transaction`DROP TABLE IF EXISTS tasks, projects, memberships, workspaces, sessions, accounts CASCADE`;
     await transaction`DROP TYPE IF EXISTS membership_role CASCADE`;
+    await transaction`DROP TYPE IF EXISTS task_priority CASCADE`;
     await transaction`DROP TABLE IF EXISTS foundation_metadata CASCADE`;
     await transaction`DROP TABLE IF EXISTS foundation_migrations CASCADE`;
-    return applyMigrationsInTransaction(transaction);
+    return applyMigrationsInTransaction(transaction, options);
   });
 }
 
 async function applyMigrationsInTransaction(
   transaction: TransactionSql<Record<string, unknown>>,
+  options?: ApplyMigrationsOptions,
 ): Promise<string[]> {
   await transaction`
     CREATE TABLE IF NOT EXISTS foundation_migrations (
@@ -58,8 +66,15 @@ async function applyMigrationsInTransaction(
     SELECT id, checksum FROM foundation_migrations ORDER BY id
   `;
   const applied = new Map(appliedRows.map((row) => [row.id, row.checksum]));
+  const files = await listMigrationFiles();
+  if (options?.until && !files.includes(options.until)) {
+    throw new Error(`Unknown migration: ${options.until}`);
+  }
+  const selected = options?.until
+    ? files.slice(0, files.indexOf(options.until) + 1)
+    : files;
 
-  for (const file of await listMigrationFiles()) {
+  for (const file of selected) {
     const content = await readFile(
       join(migrationsDirectory.pathname, file),
       "utf8",

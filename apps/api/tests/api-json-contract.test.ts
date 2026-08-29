@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { createApiApp } from "../src/app.js";
+import {
+  isTaskPriority,
+  TASK_PRIORITIES,
+  type TaskJson,
+} from "../src/contracts/http.js";
+import { createSqlClient } from "../src/db/client.js";
+import { DEMO_PASSWORD, seedDemoData } from "../src/db/fixtures.js";
+import { applyMigrations } from "../src/db/migrations.js";
+import { TEST_DATABASE_URL } from "./global-setup.js";
 
 const allowedHealthKeys = ["requestId", "service", "status"];
 const allowedErrorKeys = ["code", "message", "requestId"];
@@ -86,5 +95,93 @@ describe("foundation API JSON contract", () => {
     expect(response.headers.get("access-control-allow-credentials")).not.toBe(
       "true",
     );
+  });
+
+  it("includes task.priority as low, medium or high on list, create and update JSON", async () => {
+    const allowedTaskKeys = ["description", "id", "priority", "title"];
+    const sql = createSqlClient(TEST_DATABASE_URL);
+    const app = createApiApp({ environment: "test", sql });
+    const tasksPath =
+      "/api/workspaces/ws-alpha/projects/project-alpha-active/tasks";
+
+    const assertTaskJson = (task: unknown): TaskJson => {
+      expect(task).toEqual(
+        expect.objectContaining({
+          id: expect.any(String),
+          title: expect.any(String),
+        }),
+      );
+      const record = task as TaskJson;
+      expect(keysOf(record)).toEqual(allowedTaskKeys);
+      expect(TASK_PRIORITIES).toContain(record.priority);
+      expect(isTaskPriority(record.priority)).toBe(true);
+      return record;
+    };
+
+    try {
+      await applyMigrations(sql);
+      await seedDemoData(sql);
+
+      const login = await app.request("/api/auth/login", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          email: "member@example.test",
+          password: DEMO_PASSWORD,
+        }),
+      });
+      expect(login.status).toBe(200);
+      const cookie = login.headers.get("set-cookie")?.split(";", 1)[0];
+      if (!cookie) throw new Error("session cookie missing");
+
+      const listResponse = await app.request(tasksPath, {
+        headers: { cookie },
+      });
+      expect(listResponse.status).toBe(200);
+      assertJsonContentType(listResponse);
+      const listBody = await listResponse.json();
+      expect(Array.isArray(listBody.tasks)).toBe(true);
+      expect(listBody.tasks.length).toBeGreaterThan(0);
+      for (const task of listBody.tasks as unknown[]) {
+        assertTaskJson(task);
+      }
+
+      const createResponse = await app.request(tasksPath, {
+        method: "POST",
+        headers: { cookie, "content-type": "application/json" },
+        body: JSON.stringify({
+          title: "Contract high task",
+          priority: "high",
+        }),
+      });
+      expect(createResponse.status).toBe(201);
+      assertJsonContentType(createResponse);
+      const created = assertTaskJson((await createResponse.json()).task);
+      expect(created.priority).toBe("high");
+
+      const updateResponse = await app.request(`${tasksPath}/${created.id}`, {
+        method: "PATCH",
+        headers: { cookie, "content-type": "application/json" },
+        body: JSON.stringify({
+          title: "Contract low task",
+          priority: "low",
+        }),
+      });
+      expect(updateResponse.status).toBe(200);
+      assertJsonContentType(updateResponse);
+      const updated = assertTaskJson((await updateResponse.json()).task);
+      expect(updated.id).toBe(created.id);
+      expect(updated.priority).toBe("low");
+
+      expect([...TASK_PRIORITIES]).toEqual(["low", "medium", "high"]);
+      expect(isTaskPriority("High")).toBe(false);
+      expect(isTaskPriority("Medium")).toBe(false);
+      expect(isTaskPriority("Low")).toBe(false);
+      expect(isTaskPriority(null)).toBe(false);
+      expect(isTaskPriority("")).toBe(false);
+      expect(isTaskPriority("urgent")).toBe(false);
+    } finally {
+      await sql.end({ timeout: 5 });
+    }
   });
 });

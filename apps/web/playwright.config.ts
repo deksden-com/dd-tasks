@@ -23,7 +23,8 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: "PORT=8788 pnpm --filter @dd-tasks/api start",
+      command:
+        "PORT=8788 RUNTIME_RUN_ID=SCN002 pnpm --filter @dd-tasks/api start",
       url: "http://127.0.0.1:8788/api/health",
       reuseExistingServer: false,
       timeout: 120_000,

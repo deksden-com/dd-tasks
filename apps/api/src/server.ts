@@ -1,7 +1,11 @@
 import { relative, resolve } from "node:path";
 import { serve } from "@hono/node-server";
 import { createApiApp } from "./app.js";
-import { createSqlClient, getDatabaseUrl } from "./db/client.js";
+import {
+  createSqlClient,
+  getDatabaseUrl,
+  getFlowScopedLocalDatabaseUrl,
+} from "./db/client.js";
 import { previewBindingFor } from "./db/runtime-profile.js";
 import { classifyMutationTarget } from "./db/target-guard.js";
 import { createRuntimeConfig } from "./runtime.js";
@@ -21,8 +25,12 @@ const binding =
   previewProfile && runtime.runId
     ? previewBindingFor(previewProfile, runtime.runId)
     : null;
+const databaseUrl = getFlowScopedLocalDatabaseUrl(
+  getDatabaseUrl(),
+  runtime.runId,
+);
 const target = classifyMutationTarget({
-  databaseUrl: getDatabaseUrl(),
+  databaseUrl,
   profile,
   runId: runtime.runId,
   worldId: runtime.worldId ?? binding?.worldId,
@@ -34,7 +42,7 @@ const target = classifyMutationTarget({
   requireWorldBinding: profile?.startsWith("preview-") === true,
 });
 if (!target.safe) throw new Error(`Runtime target rejected: ${target.reason}`);
-const sql = createSqlClient(getDatabaseUrl());
+const sql = createSqlClient(databaseUrl);
 const app = createApiApp({ staticRoot, sql, runtime });
 
 serve({

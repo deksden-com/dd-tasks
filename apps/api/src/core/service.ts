@@ -6,6 +6,11 @@ import {
   verifyPassword,
 } from "../auth/password.js";
 import { createSessionToken, hashSessionToken } from "../auth/session.js";
+import {
+  isTaskPriority,
+  type TaskJson,
+  type TaskPriority,
+} from "../contracts/http.js";
 
 export type Role = "owner" | "member";
 export type Account = { id: string; email: string };
@@ -45,6 +50,26 @@ function validateDescription(value: unknown): string | null {
     throw new CoreError(400, "VALIDATION_ERROR", "Description is too long");
   }
   return value.trim() || null;
+}
+
+function parseCreatePriority(value: unknown): TaskPriority {
+  if (value === undefined) return "medium";
+  if (isTaskPriority(value)) return value;
+  throw new CoreError(
+    400,
+    "VALIDATION_ERROR",
+    "Priority must be low, medium or high",
+  );
+}
+
+function parseUpdatePriority(value: unknown): TaskPriority | undefined {
+  if (value === undefined) return undefined;
+  if (isTaskPriority(value)) return value;
+  throw new CoreError(
+    400,
+    "VALIDATION_ERROR",
+    "Priority must be low, medium or high",
+  );
 }
 
 export class CoreService {
@@ -262,10 +287,8 @@ export class CoreService {
     projectId: string,
   ) {
     const project = await this.project(accountId, workspaceId, projectId);
-    const tasks = await this.sql<
-      { id: string; title: string; description: string | null }[]
-    >`
-      SELECT id, title, description FROM tasks
+    const tasks = await this.sql<TaskJson[]>`
+      SELECT id, title, description, priority FROM tasks
       WHERE workspace_id = ${workspaceId} AND project_id = ${projectId}
       ORDER BY updated_at, id
     `;
@@ -287,23 +310,54 @@ export class CoreService {
     return project;
   }
 
+  private async throwIfTaskWriteBlocked(
+    accountId: string,
+    workspaceId: string,
+    projectId: string,
+  ): Promise<never> {
+    const project = await this.project(accountId, workspaceId, projectId);
+    if (project.archivedAt) {
+      throw new CoreError(
+        409,
+        "PROJECT_ARCHIVED",
+        "Archived projects are read-only",
+      );
+    }
+    throw new CoreError(404, "NOT_FOUND", "Not found");
+  }
+
   public async createTask(
     accountId: string,
     workspaceId: string,
     projectId: string,
-    input: { title?: unknown; description?: unknown },
+    input: { title?: unknown; description?: unknown; priority?: unknown },
   ) {
-    await this.requireActiveProject(accountId, workspaceId, projectId);
     const task = {
       id: randomUUID(),
       title: validateName(input.title, "Task title", 240),
       description: validateDescription(input.description),
+      priority: parseCreatePriority(input.priority),
     };
-    await this.sql`
-      INSERT INTO tasks (id, workspace_id, project_id, title, description)
-      VALUES (${task.id}, ${workspaceId}, ${projectId}, ${task.title}, ${task.description})
+    const rows = await this.sql<TaskJson[]>`
+      INSERT INTO tasks (id, workspace_id, project_id, title, description, priority)
+      SELECT ${task.id}, p.workspace_id, p.id, ${task.title}, ${task.description}, ${task.priority}
+      FROM projects p
+      INNER JOIN memberships m
+        ON m.workspace_id = p.workspace_id
+       AND m.account_id = ${accountId}
+      WHERE p.workspace_id = ${workspaceId}
+        AND p.id = ${projectId}
+        AND p.archived_at IS NULL
+      RETURNING id, title, description, priority
     `;
-    return task;
+    if (!rows[0]) {
+      return await this.throwIfTaskWriteBlocked(
+        accountId,
+        workspaceId,
+        projectId,
+      );
+    }
+    return rows[0];
   }
 
   public async updateTask(
@@ -311,19 +365,37 @@ export class CoreService {
     workspaceId: string,
     projectId: string,
     taskId: string,
-    input: { title?: unknown; description?: unknown },
+    input: { title?: unknown; description?: unknown; priority?: unknown },
   ) {
-    await this.requireActiveProject(accountId, workspaceId, projectId);
     const title = validateName(input.title, "Task title", 240);
     const description = validateDescription(input.description);
-    const rows = await this.sql<
-      { id: string; title: string; description: string | null }[]
-    >`
-      UPDATE tasks SET title = ${title}, description = ${description}, updated_at = now()
-      WHERE id = ${taskId} AND workspace_id = ${workspaceId} AND project_id = ${projectId}
-      RETURNING id, title, description
+    const priority = parseUpdatePriority(input.priority);
+    const rows = await this.sql<TaskJson[]>`
+      UPDATE tasks t
+      SET
+        title = ${title},
+        description = ${description},
+        priority = COALESCE(${priority ?? null}, t.priority),
+        updated_at = now()
+      FROM projects p
+      INNER JOIN memberships m
+        ON m.workspace_id = p.workspace_id
+       AND m.account_id = ${accountId}
+      WHERE t.id = ${taskId}
+        AND t.workspace_id = ${workspaceId}
+        AND t.project_id = ${projectId}
+        AND p.workspace_id = t.workspace_id
+        AND p.id = t.project_id
+        AND p.archived_at IS NULL
+      RETURNING t.id, t.title, t.description, t.priority
     `;
-    if (!rows[0]) throw new CoreError(404, "NOT_FOUND", "Not found");
+    if (!rows[0]) {
+      return await this.throwIfTaskWriteBlocked(
+        accountId,
+        workspaceId,
+        projectId,
+      );
+    }
     return rows[0];
   }
 

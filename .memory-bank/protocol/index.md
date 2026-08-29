@@ -14,6 +14,7 @@ children:
   - .memory-bank/protocol/PRT-004-exe-preview-runtime/index.md
   - .memory-bank/protocol/PRT-005-linear-workflow-ui/index.md
   - .memory-bank/protocol/PRT-006-preview-access-policy/index.md
+  - .memory-bank/protocol/PRT-007-task-priority/index.md
 tags: [protocol]
 history:
   - version: '1.5.0'
@@ -96,3 +97,5 @@ provider, runtime/home или чужой RUN evidence.
 - [DEF-MBU-RUNTIME-ACTIVE-STATE](../defs/DEF-MBU-RUNTIME-ACTIVE-STATE.md)
   запрещает объявлять runtime/home primary-data migration применённой без
   supported migration units и post-migration verification.
+
+- [PRT-007-task-priority — Task priority](PRT-007-task-priority/index.md)

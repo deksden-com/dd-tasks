@@ -1,0 +1,635 @@
+{
+  "schema_id": "dd-flow/protocol-plan@5",
+  "plan_id": "PLAN-007-task-priority",
+  "protocol_id": "PRT-007-task-priority",
+  "revision": 2,
+  "source_refs": [
+    {
+      "kind": "specify",
+      "id": "SPECIFY",
+      "path": "run://RUN-001-task-priority/01-specify/specify.json",
+      "requirement_ids": [
+        "AC-001",
+        "AC-002",
+        "AC-003",
+        "AC-004",
+        "AC-005",
+        "AC-006",
+        "AC-007",
+        "AC-008",
+        "R-001",
+        "R-002",
+        "R-003",
+        "R-004",
+        "R-005",
+        "R-006",
+        "R-007"
+      ],
+      "sha256": "5332caf2310173ecf06616b3bb2ed01b6aea09c7900df00ac5b8ded02452c04d"
+    },
+    {
+      "kind": "protocol",
+      "id": "PRT-007-task-priority",
+      "path": ".memory-bank/protocol/PRT-007-task-priority/summary.md",
+      "requirement_ids": [
+        "AC-001",
+        "AC-002",
+        "AC-003",
+        "AC-004",
+        "AC-005",
+        "AC-006",
+        "AC-007",
+        "AC-008",
+        "R-001",
+        "R-002",
+        "R-003",
+        "R-004",
+        "R-005",
+        "R-006",
+        "R-007"
+      ]
+    }
+  ],
+  "title": "Task priority",
+  "summary": "Add a required Low/Medium/High task priority with Medium defaults, keep owner/member and archive gates, and show the human-readable label on the project task list.",
+  "goal": {
+    "outcome": "Every task has exactly one Low, Medium or High priority, actors can set it on create and edit in an active project, and the project task list shows that readable label.",
+    "constraints": [
+      "Reuse CoreService, existing task routes, and owner/member plus archived-project gates.",
+      "Store a closed machine vocabulary and map it to the display labels Low, Medium and High in one local UI mapping.",
+      "Create and update remain one atomic database boundary with membership and active-project predicates.",
+      "Keep existing title and description behavior and safe non-member 404."
+    ],
+    "non_goals": [
+      "Sorting, filtering, search, boards, status workflow, custom vocabularies, notifications, bulk changes.",
+      "Changing who may mutate tasks or how project archive works.",
+      "Cloning Linear issue states."
+    ]
+  },
+  "assessment": {
+    "scope_breadth": {
+      "level": "narrow",
+      "surfaces": [
+        "task persistence",
+        "task API",
+        "project task list and task forms"
+      ],
+      "reason": "One attribute on the existing task entity plus list/create/edit visibility."
+    },
+    "solution_novelty": {
+      "level": "established",
+      "surfaces": [
+        "CoreService task CRUD",
+        "Drizzle forward-only migrations",
+        "product UI task list"
+      ],
+      "reason": "Extends the delivered checkpoint-02 task path with an existing enum/column and labelled-control pattern."
+    },
+    "solution_uncertainty": {
+      "level": "low",
+      "surfaces": [
+        "closed Low/Medium/High vocabulary",
+        "Medium default"
+      ],
+      "reason": "SPECIFY already settled the vocabulary, defaults, actors and archive/isolation constraints."
+    },
+    "failure_impact": {
+      "level": "low",
+      "surfaces": [
+        "task records",
+        "task list text"
+      ],
+      "reason": "Reversible local data default; no new permission model or cross-workspace disclosure."
+    },
+    "selected_depth": "compact_plan",
+    "depth_trigger": "none"
+  },
+  "decisions": [
+    {
+      "id": "D1",
+      "decision": "Persist priority as the closed machine values low, medium and high, and display exactly one local mapping to Low, Medium and High.",
+      "rationale": "Coding standards require machine values separate from human labels; SPECIFY requires understandable list text and forbids color-only meaning.",
+      "affected_surfaces": [
+        "apps/api/src/db/schema.ts",
+        "apps/web/src/product/ProductApp.tsx"
+      ]
+    },
+    {
+      "id": "D2",
+      "decision": "Task create and update, including priority, are a single SQL INSERT or UPDATE whose write predicate includes workspace membership and projects.archived_at IS NULL at write time. A prior SELECT followed by an unconditional write is not accepted.",
+      "rationale": "PLAN-REVIEW found the previous 'transaction or conditional write' wording could still be implemented as the existing requireActiveProject-then-INSERT TOCTOU path.",
+      "affected_surfaces": [
+        "apps/api/src/core/service.ts"
+      ]
+    },
+    {
+      "id": "D3",
+      "decision": "On create, a missing priority key becomes medium; null or empty string is a public validation error. On update, a missing priority key preserves the stored value. The JSON wire tokens are only low, medium and high; display labels Low/Medium/High are never accepted on the wire. Invalid tokens are rejected with no write. Migration backfill of 0001-era rows without the column becomes medium.",
+      "rationale": "Copying the create default onto PATCH would clobber High during a title-only edit and break R-003/R-007. Seed inserts after 0002 cannot prove AC-006 upgrade.",
+      "affected_surfaces": [
+        "apps/api/src/core/service.ts",
+        "apps/api/drizzle/0002_task_priority.sql",
+        "apps/web/src/product/api.ts"
+      ]
+    },
+    {
+      "id": "D4",
+      "decision": "Persist the closed set as CREATE TYPE / pgEnum task_priority, matching membership_role, and drop that type in reset. Do not use a CHECK-only alternative.",
+      "rationale": "PLAN-REVIEW found 'enum or check' would create a second closed-set mechanism and make the planned type drop meaningless.",
+      "affected_surfaces": [
+        "apps/api/drizzle/0002_task_priority.sql",
+        "apps/api/src/db/schema.ts",
+        "apps/api/src/db/migrations.ts"
+      ]
+    }
+  ],
+  "document_updates": [
+    {
+      "path": ".memory-bank/spec/product/index.md",
+      "action": "update",
+      "owner": "P5",
+      "reason": "Record the required task priority field, display labels and unchanged archive/isolation rules."
+    },
+    {
+      "path": ".memory-bank/scenarios/SCN-002-workspace-task-core.md",
+      "action": "update",
+      "owner": "P5",
+      "reason": "Extend the existing local task CRUD acceptance contour with priority list/create/edit, Medium defaults, invalid rejection and archived-project read-only."
+    },
+    {
+      "path": ".memory-bank/epics/EP-001-task-management/features/FT-001-task-priority/index.md",
+      "action": "update",
+      "owner": "P5",
+      "reason": "Point the PROTOCOLIZE feature record at the implemented acceptance evidence after CODE."
+    },
+    {
+      "path": ".memory-bank/plans/verification-matrix.md",
+      "action": "update",
+      "owner": "P5",
+      "reason": "Add or extend a local SCN-002/PRT-007 row so priority acceptance is not left as the frozen PRT-003 task-CRUD claim."
+    }
+  ],
+  "checks": [
+    {
+      "id": "CHK-DB-MIGRATE",
+      "command": "@check/db-migrate-local",
+      "purpose": "Apply the forward-only priority migration on the local target.",
+      "run_at": "work",
+      "availability": "available"
+    },
+    {
+      "id": "CHK-DB-CHECK",
+      "command": "@check/db-check-local",
+      "purpose": "Confirm local schema, migration ledger and seed marker after the priority column exists.",
+      "run_at": "readiness",
+      "availability": "available"
+    },
+    {
+      "id": "CHK-API-INT",
+      "command": "@check/api-integration",
+      "purpose": "Prove 0001-then-0002 upgrade backfill, omitted-create Medium, omitted-update preserve, wire tokens, invalid rejection, archived-project gate and isolation against PostgreSQL.",
+      "run_at": "work",
+      "availability": "available"
+    },
+    {
+      "id": "CHK-API-CONTRACT",
+      "command": "@check/api-contract",
+      "purpose": "Prove list/create/update JSON includes task.priority as low, medium or high.",
+      "run_at": "work",
+      "availability": "available"
+    },
+    {
+      "id": "CHK-WEB-UNIT",
+      "command": "@check/web-unit",
+      "purpose": "Prove the task list renders Low/Medium/High text and create/edit POST only low, medium or high.",
+      "run_at": "work",
+      "availability": "available"
+    },
+    {
+      "id": "CHK-WEB-BUILD",
+      "command": "@check/web-build",
+      "purpose": "Prove the web app still builds with the new task field.",
+      "run_at": "code",
+      "availability": "available"
+    },
+    {
+      "id": "CHK-BROWSER",
+      "command": "pnpm test:browser",
+      "purpose": "Prove member-visible list labels, labelled priority control, keyboard focus, 390px no-overflow on the changed task list, High create, omitted-create Medium, Low edit of a created task, archived read-only and isolation in Chromium after SCN-002 reset/seed.",
+      "run_at": "readiness",
+      "availability": "available"
+    },
+    {
+      "id": "CHK-QUALITY",
+      "command": "pnpm quality",
+      "purpose": "Run the project aggregate quality gate after the slice is complete.",
+      "run_at": "readiness",
+      "availability": "available"
+    },
+    {
+      "id": "CHK-DOCS",
+      "command": "pnpm docs:check",
+      "purpose": "Prove Memory Bank document updates stay consistent.",
+      "run_at": "work",
+      "availability": "available"
+    }
+  ],
+  "items": [
+    {
+      "id": "P1",
+      "title": "Persist required task priority with Medium backfill",
+      "summary": "Add a forward-only migration and schema so every task row has low, medium or high, and existing rows become medium.",
+      "details": "Add the next drizzle SQL migration after 0001_checkpoint_02_core.sql. Create TYPE task_priority AS ENUM ('low','medium','high') matching membership_role, add a NOT NULL priority column defaulting to medium, backfill existing rows, and drop the type in resetAndMigrate. Update schema.ts and seed inserts so new worlds write a priority. In core.integration.test.ts add an upgrade assertion: apply 0000-0001, insert a task without a priority column, apply 0002, assert the row is medium. Seeded task-alpha-one is not that proof. Do not edit applied migrations.",
+      "depends_on": [],
+      "requirement_refs": ["R-001", "R-004", "AC-006"],
+      "semantic_spine": {
+        "user_outcome": "Persisted tasks, including pre-priority rows, have a Medium default that the list can later show.",
+        "component_responsibility": "PostgreSQL and the migration ledger own the durable closed set and backfill.",
+        "must_preserve": [
+          "Forward-only checksummed migrations",
+          "tasks(workspace_id, project_id) composite scope"
+        ],
+        "non_goals": ["UI labels", "sort/filter"],
+        "acceptance_contribution": "Makes AC-006 prove 0001-era rows become Medium after 0002, not merely that seed writes Medium."
+      },
+      "execution_context": {
+        "required_read": [
+          "apps/api/drizzle/0001_checkpoint_02_core.sql",
+          "apps/api/src/db/schema.ts",
+          "apps/api/src/db/migrations.ts",
+          "apps/api/src/db/fixtures.ts",
+          "apps/api/tests/core.integration.test.ts"
+        ],
+        "discovery_boundary": [
+          "Existing drizzle files and task table only; do not redesign accounts or projects."
+        ],
+        "write_scope": [
+          "apps/api/drizzle/0002_task_priority.sql",
+          "apps/api/src/db/schema.ts",
+          "apps/api/src/db/migrations.ts",
+          "apps/api/src/db/fixtures.ts",
+          "apps/api/tests/core.integration.test.ts"
+        ],
+        "stop_conditions": [
+          "Stop if an applied migration must be edited or if priority cannot be a required closed column with Medium backfill."
+        ]
+      },
+      "verification": {
+        "check_refs": ["CHK-DB-MIGRATE", "CHK-API-INT"]
+      }
+    },
+    {
+      "id": "P2",
+      "title": "Expose priority on task create, update and list through CoreService",
+      "summary": "Accept, default, reject and return priority on existing task routes while keeping archive and isolation gates.",
+      "details": "Extend list/create/update in CoreService and existing Hono task routes so every task JSON includes priority as low, medium or high. Create: missing key → medium; null/empty/display-label/other token → public VALIDATION_ERROR and no write. Update: missing key preserves stored priority; a title-only PATCH of a High task must remain High. Present invalid tokens reject with no write. The INSERT/UPDATE itself must include membership and projects.archived_at IS NULL; do not SELECT then unconditionally write. Preserve PROJECT_ARCHIVED and safe 404. CHK-API-INT covers closed-set, omitted-create, omitted-update preserve, and 0001-then-0002 backfill. CHK-API-CONTRACT asserts task.priority on list/create/update. Do not add a new validator module for three literals.",
+      "depends_on": ["P1"],
+      "requirement_refs": [
+        "R-001",
+        "R-003",
+        "R-004",
+        "R-005",
+        "R-006",
+        "R-007",
+        "AC-002",
+        "AC-003",
+        "AC-004",
+        "AC-005",
+        "AC-006",
+        "AC-007",
+        "AC-008"
+      ],
+      "semantic_spine": {
+        "user_outcome": "A workspace member can assign or default priority, see it in API list data, and is rejected on invalid or archived-project writes.",
+        "component_responsibility": "CoreService remains the authorization and mutation authority for tasks.",
+        "must_preserve": [
+          "Owner/member isolation and safe 404",
+          "Archived project read-only mutations",
+          "Existing title and description behavior"
+        ],
+        "non_goals": ["New endpoints", "New roles"],
+        "acceptance_contribution": "Proves AC-002 to AC-008 at the API boundary."
+      },
+      "execution_context": {
+        "required_read": [
+          "apps/api/src/core/service.ts",
+          "apps/api/src/app.ts",
+          "apps/api/src/contracts/http.ts",
+          "apps/api/tests/core.integration.test.ts",
+          "apps/api/tests/api-json-contract.test.ts",
+          "apps/api/src/db/schema.ts"
+        ],
+        "discovery_boundary": [
+          "Task routes and CoreService only; do not change auth session or project lifecycle APIs."
+        ],
+        "write_scope": [
+          "apps/api/src/core/service.ts",
+          "apps/api/src/app.ts",
+          "apps/api/src/contracts/http.ts",
+          "apps/api/tests/core.integration.test.ts",
+          "apps/api/tests/api-json-contract.test.ts"
+        ],
+        "stop_conditions": [
+          "Stop if proving priority requires a new role, a new route family, or relaxing archived-project or isolation gates."
+        ]
+      },
+      "verification": {
+        "check_refs": ["CHK-API-INT", "CHK-API-CONTRACT"]
+      }
+    },
+    {
+      "id": "P3",
+      "title": "Show and set readable priority on the project task list and task forms",
+      "summary": "Display Low/Medium/High as text on every list row and let members choose priority on create and edit.",
+      "details": "Extend the Task type and product API client. List rows show Low/Medium/High as real text via one local map from low/medium/high. Create and detail use a labelled control whose values posted on the wire are only low, medium or high. Associated label, visible keyboard focus, and no horizontal overflow at desktop and 390px are required on the changed task list and control. Reuse loading/empty/error/archived states. Extend ProductApp unit tests to assert posted tokens, not display labels.",
+      "depends_on": ["P2"],
+      "requirement_refs": ["R-002", "R-003", "AC-001", "AC-002", "AC-003", "AC-004"],
+      "semantic_spine": {
+        "user_outcome": "A member sees Low, Medium or High on each task row and can choose it when creating or editing.",
+        "component_responsibility": "The product UI is a thin client of the server-authoritative task payload.",
+        "must_preserve": [
+          "Existing task deep links and title/description editing",
+          "Meaning without color alone",
+          "No new Tailwind/shadcn stack for one field"
+        ],
+        "non_goals": ["Sort or filter by priority", "Board columns"],
+        "acceptance_contribution": "Makes AC-001 through AC-004 visible in the list and forms."
+      },
+      "execution_context": {
+        "required_read": [
+          "apps/web/src/product/api.ts",
+          "apps/web/src/product/ProductApp.tsx",
+          "apps/web/src/product/product.css",
+          "apps/web/src/product/ProductApp.test.tsx",
+          ".memory-bank/spec/engineering/coding-standards.md"
+        ],
+        "discovery_boundary": [
+          "Product task list, composer and detail only; do not restyle workspaces or foundation screens."
+        ],
+        "write_scope": [
+          "apps/web/src/product/api.ts",
+          "apps/web/src/product/ProductApp.tsx",
+          "apps/web/src/product/product.css",
+          "apps/web/src/product/ProductApp.test.tsx"
+        ],
+        "stop_conditions": [
+          "Stop if the list cannot show a text label without a new design system or a new navigation model."
+        ]
+      },
+      "verification": {
+        "check_refs": ["CHK-WEB-UNIT", "CHK-WEB-BUILD"]
+      }
+    },
+    {
+      "id": "P4",
+      "title": "Extend SCN-002 browser proof for priority",
+      "summary": "Add Chromium coverage for list labels, labelled/focus/390px seeds, High create, omitted-create Medium, Low edit of a created task, archived read-only and non-member isolation.",
+      "details": "Extend apps/web/tests/browser/core.spec.ts on the SCN-002 reset/seed world. Assert list text, associated labels, keyboard focus and 390px no-overflow on the changed task list, not only /login. Cover High create, omitted-create Medium, and Medium-to-Low on a task created in the spec—not task-alpha-one, which remains the seeded Medium row for list presence only. Do not treat seed Medium as AC-006 upgrade proof. Invalid tokens stay an API-only AC-005 proof. Keep outsider isolation and archived read-only.",
+      "depends_on": ["P3"],
+      "requirement_refs": [
+        "AC-001",
+        "AC-002",
+        "AC-003",
+        "AC-004",
+        "AC-007",
+        "AC-008"
+      ],
+      "semantic_spine": {
+        "user_outcome": "The accepted member journey is observable in the browser on the local exact checkout.",
+        "component_responsibility": "Playwright SCN-002 contour owns end-to-end proof.",
+        "must_preserve": [
+          "Existing owner lifecycle and isolation coverage",
+          "Reset/seed world SCN002"
+        ],
+        "non_goals": ["Live preview or production proof"],
+        "acceptance_contribution": "Closes AC-001 through AC-004, AC-007 and AC-008 in the browser; AC-005 and AC-006 stay API/migration proofs."
+      },
+      "execution_context": {
+        "required_read": [
+          "apps/web/tests/browser/core.spec.ts",
+          "apps/web/playwright.config.ts",
+          ".memory-bank/scenarios/SCN-002-workspace-task-core.md",
+          "apps/api/src/db/fixtures.ts"
+        ],
+        "discovery_boundary": [
+          "Existing core browser spec and SCN-002 fixtures only."
+        ],
+        "write_scope": [
+          "apps/web/tests/browser/core.spec.ts"
+        ],
+        "stop_conditions": [
+          "Stop if browser proof would need a new world, a new actor, or a non-deterministic eval."
+        ]
+      },
+      "verification": {
+        "check_refs": ["CHK-BROWSER"]
+      }
+    },
+    {
+      "id": "P5",
+      "title": "Update product spec, SCN-002 and feature record",
+      "summary": "Write the accepted priority field, labels, defaults and unchanged gates into durable Memory Bank documents.",
+      "details": "After browser proof exists, update the product spec task entity, extend SCN-002 with the priority contour, refresh FT-001-task-priority evidence links, and add a local PRT-007/SCN-002 row or explicit extension note on verification-matrix.md. Do not create a new scenario or ADR. CHK-DOCS proves required-file/frontmatter consistency including verification-matrix.md; item completion also requires the owned files to mention the closed Low/Medium/High field.",
+      "depends_on": ["P4"],
+      "requirement_refs": ["R-001", "R-002", "R-006", "R-007", "AC-001"],
+      "semantic_spine": {
+        "user_outcome": "A later agent can find the accepted priority behavior without this RUN transcript.",
+        "component_responsibility": "Memory Bank product, scenario and feature records own durable wording.",
+        "must_preserve": [
+          "Owner/member and archived-project vocabulary",
+          "Existing SCN-002 identity"
+        ],
+        "non_goals": ["New ADR", "New scenario id"],
+        "acceptance_contribution": "Keeps AC-001 and the product field wording aligned with the implemented list."
+      },
+      "execution_context": {
+        "required_read": [
+          ".memory-bank/spec/product/index.md",
+          ".memory-bank/scenarios/SCN-002-workspace-task-core.md",
+          ".memory-bank/epics/EP-001-task-management/features/FT-001-task-priority/index.md",
+          ".memory-bank/protocol/PRT-007-task-priority/summary.md",
+          ".memory-bank/plans/verification-matrix.md"
+        ],
+        "discovery_boundary": [
+          "Named product, scenario, feature and verification-matrix documents only."
+        ],
+        "write_scope": [
+          ".memory-bank/spec/product/index.md",
+          ".memory-bank/scenarios/SCN-002-workspace-task-core.md",
+          ".memory-bank/epics/EP-001-task-management/features/FT-001-task-priority/index.md",
+          ".memory-bank/plans/verification-matrix.md"
+        ],
+        "stop_conditions": [
+          "Stop if documentation would need a new scenario identity or a policy exception."
+        ]
+      },
+      "verification": {
+        "check_refs": ["CHK-DOCS"]
+      }
+    }
+  ],
+  "acceptance": [
+    {
+      "criterion_id": "AC-001",
+      "plan_item_ids": ["P3", "P4"],
+      "changed_surfaces": [
+        "apps/web/src/product/ProductApp.tsx",
+        "apps/web/tests/browser/core.spec.ts"
+      ],
+      "path": "Open an active project's task list, tab to the priority control, and read each row's priority text at desktop and 390px.",
+      "environment": "Local test/browser after SCN-002 reset/seed.",
+      "fixtures": ["SCN-002 owner/member world", "task-alpha-one"],
+      "cleanup": "Existing local/test reset.",
+      "check_refs": ["CHK-WEB-UNIT", "CHK-BROWSER"],
+      "expected_evidence": [
+        "Each visible row shows Low, Medium or High as readable text.",
+        "The priority control has an associated label and visible keyboard focus.",
+        "The changed task list does not overflow horizontally at desktop or 390px."
+      ],
+      "proof_limits": [
+        "Local exact checkout only; no production."
+      ],
+      "gate": "readiness"
+    },
+    {
+      "criterion_id": "AC-002",
+      "plan_item_ids": ["P2", "P3", "P4"],
+      "changed_surfaces": [
+        "apps/api/src/core/service.ts",
+        "apps/web/src/product/ProductApp.tsx"
+      ],
+      "path": "Member creates a task choosing High and returns to the list.",
+      "environment": "Local API integration and Chromium.",
+      "fixtures": ["SCN-002 member or owner on an active project"],
+      "cleanup": "Existing local/test reset.",
+      "check_refs": ["CHK-API-INT", "CHK-BROWSER"],
+      "expected_evidence": [
+        "The new list row shows High."
+      ],
+      "proof_limits": [
+        "Local exact checkout only."
+      ],
+      "gate": "readiness"
+    },
+    {
+      "criterion_id": "AC-003",
+      "plan_item_ids": ["P2", "P3", "P4"],
+      "changed_surfaces": [
+        "apps/api/src/core/service.ts",
+        "apps/web/src/product/ProductApp.tsx"
+      ],
+      "path": "Member creates a task without choosing priority.",
+      "environment": "Local API integration and Chromium.",
+      "fixtures": ["SCN-002 active project"],
+      "cleanup": "Existing local/test reset.",
+      "check_refs": ["CHK-API-INT", "CHK-BROWSER"],
+      "expected_evidence": [
+        "The new list row shows Medium."
+      ],
+      "proof_limits": [
+        "Local exact checkout only."
+      ],
+      "gate": "readiness"
+    },
+    {
+      "criterion_id": "AC-004",
+      "plan_item_ids": ["P2", "P3", "P4"],
+      "changed_surfaces": [
+        "apps/api/src/core/service.ts",
+        "apps/web/src/product/ProductApp.tsx"
+      ],
+      "path": "Member changes a created Medium task to Low and returns to the list.",
+      "environment": "Local API integration and Chromium.",
+      "fixtures": ["a task created in the spec, not the 0001-upgrade row"],
+      "cleanup": "Existing local/test reset.",
+      "check_refs": ["CHK-API-INT", "CHK-BROWSER"],
+      "expected_evidence": [
+        "The list row shows Low after the change."
+      ],
+      "proof_limits": [
+        "Local exact checkout only."
+      ],
+      "gate": "readiness"
+    },
+    {
+      "criterion_id": "AC-005",
+      "plan_item_ids": ["P2"],
+      "changed_surfaces": [
+        "apps/api/src/core/service.ts",
+        "apps/api/tests/core.integration.test.ts"
+      ],
+      "path": "Submit a priority other than low, medium or high against an existing task.",
+      "environment": "Local API integration.",
+      "fixtures": ["SCN-002 active project task"],
+      "cleanup": "Existing local/test reset.",
+      "check_refs": ["CHK-API-INT"],
+      "expected_evidence": [
+        "Public validation error; stored priority unchanged."
+      ],
+      "proof_limits": [
+        "UI may not be able to send an invalid value; API remains the proof of rejection."
+      ],
+      "gate": "work"
+    },
+    {
+      "criterion_id": "AC-006",
+      "plan_item_ids": ["P1", "P2"],
+      "changed_surfaces": [
+        "apps/api/drizzle/0002_task_priority.sql",
+        "apps/api/tests/core.integration.test.ts"
+      ],
+      "path": "Apply 0000-0001, insert a task without a priority column, apply 0002, then read the row.",
+      "environment": "Local API integration against PostgreSQL.",
+      "fixtures": ["a 0001-era task row created in the upgrade test, not SCN-002 seed"],
+      "cleanup": "Existing local/test reset.",
+      "check_refs": ["CHK-API-INT"],
+      "expected_evidence": [
+        "The upgraded row is medium after 0002."
+      ],
+      "proof_limits": [
+        "Reset/seed of task-alpha-one is not this proof. Browser list Medium after seed is not upgrade evidence."
+      ],
+      "gate": "readiness"
+    },
+    {
+      "criterion_id": "AC-007",
+      "plan_item_ids": ["P2", "P4"],
+      "changed_surfaces": [
+        "apps/api/src/core/service.ts",
+        "apps/web/tests/browser/core.spec.ts"
+      ],
+      "path": "Archive the project, read the list, then attempt a priority change.",
+      "environment": "Local API integration and Chromium.",
+      "fixtures": ["SCN-002 owner and an active project that can be archived"],
+      "cleanup": "Existing local/test reset.",
+      "check_refs": ["CHK-API-INT", "CHK-BROWSER"],
+      "expected_evidence": [
+        "List still shows priority text; mutation is rejected as archived-project read-only."
+      ],
+      "proof_limits": [
+        "Does not introduce a task-owned archive lifecycle."
+      ],
+      "gate": "readiness"
+    },
+    {
+      "criterion_id": "AC-008",
+      "plan_item_ids": ["P2", "P4"],
+      "changed_surfaces": [
+        "apps/api/src/core/service.ts",
+        "apps/web/tests/browser/core.spec.ts"
+      ],
+      "path": "Call protected task routes as a non-member and as a cross-workspace actor.",
+      "environment": "Local API integration; browser negative path already in SCN-002.",
+      "fixtures": ["outsider account", "ws-alpha vs ws-beta"],
+      "cleanup": "Existing local/test reset.",
+      "check_refs": ["CHK-API-INT", "CHK-BROWSER"],
+      "expected_evidence": [
+        "Safe 404; priority text is not disclosed."
+      ],
+      "proof_limits": [
+        "Local exact checkout only."
+      ],
+      "gate": "readiness"
+    }
+  ]
+}

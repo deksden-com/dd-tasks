@@ -58,12 +58,14 @@ export const FIXTURES = {
       workspaceId: "ws-alpha",
       projectId: "project-alpha-active",
       title: "Write the first task",
+      priority: "medium",
     },
     beta: {
       id: "task-beta-one",
       workspaceId: "ws-beta",
       projectId: "project-beta-active",
       title: "Keep beta isolated",
+      priority: "medium",
     },
   },
 } as const;
@@ -135,10 +137,10 @@ export async function seedDemoData(
       ON CONFLICT (workspace_id, id) DO UPDATE SET name = EXCLUDED.name, archived_at = EXCLUDED.archived_at, updated_at = now()
     `;
     await tx`
-      INSERT INTO tasks (id, workspace_id, project_id, title, description) VALUES
-        ('task-alpha-one', 'ws-alpha', 'project-alpha-active', 'Write the first task', 'A deterministic demo task'),
-        ('task-beta-one', 'ws-beta', 'project-beta-active', 'Keep beta isolated', NULL)
-      ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title, description = EXCLUDED.description, updated_at = now()
+      INSERT INTO tasks (id, workspace_id, project_id, title, description, priority) VALUES
+        ('task-alpha-one', 'ws-alpha', 'project-alpha-active', 'Write the first task', 'A deterministic demo task', 'medium'),
+        ('task-beta-one', 'ws-beta', 'project-beta-active', 'Keep beta isolated', NULL, 'medium')
+      ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title, description = EXCLUDED.description, priority = EXCLUDED.priority, updated_at = now()
     `;
     await tx`
       INSERT INTO foundation_metadata (key, value)

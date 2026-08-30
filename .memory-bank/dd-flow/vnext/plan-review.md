@@ -55,6 +55,12 @@ apply accepted corrections in this same orchestrator Work, update only the PLAN
 and its relevant aspect map, and increment the revision when semantics changed.
 Every reviewer finding has a local `FIND-NNN` id. Use the canonical
 `<WRK>/FIND-NNN` reference returned by dd-flow in the coordinator decision.
+For every durable document linked by the protocol that can describe the changed
+user behaviour—especially a related acceptance scenario—verify that PLAN either
+assigns one document update or explicitly records why it is unaffected. A
+changed scenario goal, steps, observable ready state or proof with no owned
+update is a material finding: add the update and its single CODE Work owner in
+this same correction. Do not treat a structural `docs:check` as semantic proof.
 Before reviewer results exist, delegated applicable aspects remain `pending`;
 the review result is the first place that may move them to `pass` or `watch`.
 A completed reviewer result with `needs_changes` or `blocked` is evidence for

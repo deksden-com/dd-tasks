@@ -92,6 +92,14 @@ ownership is not a valid substitute for one accountable Work. The CLI adds the
 owned document path to that Work's read and write scope and rejects an unknown
 or composite owner.
 
+Before finishing, classify every durable document linked by the protocol that
+could express the changed user behaviour—especially a related acceptance
+scenario. If its goal, steps, observable ready state or required evidence
+changes, add its `update` to `document_updates` with one owner. If it is truly
+unaffected, record the path and reason in `decisions`; do not silently omit it.
+`pnpm docs:check` verifies document structure, not whether a changed acceptance
+contract still tells the truth.
+
 For every conditional mutation that depends on current authorization, ownership,
 membership or lifecycle state, plan the check and write as one atomic database
 boundary: one conditional statement or one transaction with the necessary lock

@@ -53,10 +53,11 @@ returned graph to dispatch newly ready Works.
 
 The packet is a contract. If an assigned result cannot be written because its
 path is absent from `write_scope`, finish must not report success or hide that
-fact in `deviations`. Fail the Work with the exact missing path so the
-coordinator can correct and retry the contract. A successful CODE Work has no
-unresolved blockers or deviations and materializes every assigned durable
-document update.
+fact in `deviations`. Record the exact missing path and retained receipt through
+the supplied Work failure command so the coordinator can correct and retry the
+contract. This is a contractual scope failure, not a claim that the project
+check itself is an external outage. A successful CODE Work has no unresolved
+blockers or deviations and materializes every assigned durable document update.
 
 A repairable engine, harness or environment failure is an external blocker,
 not a user question and not a terminal CODE result. Use the exact `stage block`

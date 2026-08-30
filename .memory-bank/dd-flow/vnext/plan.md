@@ -44,6 +44,13 @@ depend on that provider; the provider's `write_scope` must explicitly include
 it runs before CODE Work begins. Do not call a test “too heavy” and drop it:
 choose its `run_at` deliberately, or state a real external/manual proof limit.
 
+A focused check belongs to the Work that owns every source path it may need to
+repair. A project aggregate command from the engineering check profile (for
+example `pnpm quality`) must use `run_at: "code"` or `"readiness"`, never
+`"work"`: it runs after the CODE graph fans in, and a failed receipt then
+creates a bounded repair Work with the actual affected paths. Do not attach an
+aggregate gate to the final leaf merely because it happens to run last.
+
 Use a compact plan unless a named high-impact, irreversible, security, runtime
 or uncertainty trigger requires full depth. Classify every aspect. Ask the user
 only when no safe project-compatible default exists.

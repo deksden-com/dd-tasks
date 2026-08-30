@@ -30,10 +30,13 @@ Use the response from:
 dd-flow stage start <RUN> --stage code --json
 ```
 
-Write only to `@stage` and the plan item's declared canonical write scope.
-Keep `@stage/try-NNN` read-only. Implement semantic plan items within their
-recorded scopes, keep mutable progress in the runtime projection, and keep
-companion runtime/scanner code outside this repository.
+`@stage` is the hard artifact boundary; keep `@stage/try-NNN` read-only.
+The project workspace selected by the packet is the hard source boundary.
+The plan item's `planned_write_areas` are only soft coordination hints: change
+any project-local file inside that workspace when the semantic task requires
+it, then report the actual changed path as coordination drift if it was not
+predicted. Keep mutable progress in the runtime projection, and keep companion
+runtime/scanner code outside this repository.
 
 The agent supplies semantic decisions only in `@stage/stage-input.json`, with
 result, acceptance, changed files, checks, evidence, reviewer findings, DEF

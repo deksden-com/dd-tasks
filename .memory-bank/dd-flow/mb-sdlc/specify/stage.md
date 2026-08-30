@@ -18,7 +18,7 @@ tags: [dd-flow, specify, stage, requirements, spc-006]
 # SPECIFY stage
 
 The generated stage packet is authoritative for Git, runtime, permissions,
-aliases, session binding, write scope and completion command. Do not repeat
+aliases, session binding, planned coordination areas and completion command. Do not repeat
 those checks or inspect CLI help/status/version. Its embedded packet is the
 bounded context for this stage; do not reopen its sources unless new semantic
 evidence makes one specific source necessary.

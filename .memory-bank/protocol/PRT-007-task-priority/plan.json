@@ -1,5 +1,5 @@
 {
-  "schema_id": "dd-flow/protocol-plan@5",
+  "schema_id": "dd-flow/protocol-plan@6",
   "plan_id": "PLAN-007-task-priority",
   "protocol_id": "PRT-007-task-priority",
   "revision": 2,
@@ -263,7 +263,7 @@
         "discovery_boundary": [
           "Existing drizzle files and task table only; do not redesign accounts or projects."
         ],
-        "write_scope": [
+        "planned_write_areas": [
           "apps/api/drizzle/0002_task_priority.sql",
           "apps/api/src/db/schema.ts",
           "apps/api/src/db/migrations.ts",
@@ -322,7 +322,7 @@
         "discovery_boundary": [
           "Task routes and CoreService only; do not change auth session or project lifecycle APIs."
         ],
-        "write_scope": [
+        "planned_write_areas": [
           "apps/api/src/core/service.ts",
           "apps/api/src/app.ts",
           "apps/api/src/contracts/http.ts",
@@ -366,7 +366,7 @@
         "discovery_boundary": [
           "Product task list, composer and detail only; do not restyle workspaces or foundation screens."
         ],
-        "write_scope": [
+        "planned_write_areas": [
           "apps/web/src/product/api.ts",
           "apps/web/src/product/ProductApp.tsx",
           "apps/web/src/product/product.css",
@@ -414,7 +414,7 @@
         "discovery_boundary": [
           "Existing core browser spec and SCN-002 fixtures only."
         ],
-        "write_scope": [
+        "planned_write_areas": [
           "apps/web/tests/browser/core.spec.ts"
         ],
         "stop_conditions": [
@@ -453,7 +453,7 @@
         "discovery_boundary": [
           "Named product, scenario, feature and verification-matrix documents only."
         ],
-        "write_scope": [
+        "planned_write_areas": [
           ".memory-bank/spec/product/index.md",
           ".memory-bank/scenarios/SCN-002-workspace-task-core.md",
           ".memory-bank/epics/EP-001-task-management/features/FT-001-task-priority/index.md",

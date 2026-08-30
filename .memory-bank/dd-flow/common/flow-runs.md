@@ -75,10 +75,12 @@ several Works sequentially. Work and Session hierarchies are separate tables;
 their link is explicit. Provider session and agent ids are opaque. There is no
 public Agent-Turn entity or user-supplied session id.
 
-Ready Works whose normalized `write_scope` overlaps may not run concurrently.
-This is a scheduler collision guard, not an invented dependency. The engine
-returns both dependency and write-scope blockers with the currently ready Work
-commands.
+`planned_write_areas` are optional, soft coordination hints. They let the
+scheduler serialize two *currently running* Works likely to touch the same
+area; they never make PLAN invalid and never restrict a worker's necessary
+project-local edit. A hard `depends_on` remains the only execution dependency.
+The engine reports both dependency blockers and temporary coordination
+collisions with the currently ready Work commands.
 
 ## Lifecycle commands
 

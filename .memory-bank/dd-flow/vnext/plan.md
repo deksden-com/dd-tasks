@@ -39,7 +39,7 @@ project alias; when neither is enough, plan the new test/check as part of the
 delivery. A future check is never an anonymous shell line: make it a new
 `@check/...` alias in `checks[]`, give it a precise `definition`, and name the
 PLAN item that materializes it in `provided_by`. Every consumer must strictly
-depend on that provider; the provider's `write_scope` must explicitly include
+depend on that provider; the provider's `planned_write_areas` should normally mention
 `.memory-bank/spec/engineering/code-check-profile.json`. A readiness check must already be available, because
 it runs before CODE Work begins. Do not call a test “too heavy” and drop it:
 choose its `run_at` deliberately, or state a real external/manual proof limit.
@@ -78,10 +78,14 @@ grouped fresh-reviewer wave or deterministically skips it for `off`.
 
 Do not create, edit, or describe `code-work-batch.json`. The CLI projects its
 CODE Works from validated plan items at finish. Make each item self-sufficient:
-give it concrete project-relative `required_read` and `write_scope` paths,
+give it concrete project-relative `required_read` paths and, when useful for
+parallel coordination, stable `planned_write_areas` hints,
 checks, stop conditions, requirement references, and observable verification.
-Reads must already exist, except for a path written by an explicit predecessor;
-two items may share a write path only when their dependency graph orders them.
+Every `required_read` path must already exist when its Work starts; use an
+accepted predecessor result rather than predicting a future input from an area
+hint.
+overlapping planned areas are allowed: the runtime serializes active overlap;
+add `depends_on` only when one Work truly needs the other Work's result.
 Give negative cases and migration/backfill proof their own explicit verification
 entry whenever an accepted requirement needs them.
 
@@ -89,7 +93,7 @@ Every durable `document_updates` entry has exactly one existing PLAN item id as
 its `owner` (`P1`, never `P1/P3`). Choose the item responsible for materializing
 and verifying the update; other items may inform or precede it, but shared
 ownership is not a valid substitute for one accountable Work. The CLI adds the
-owned document path to that Work's read and write scope and rejects an unknown
+owned document path to that Work's planned coordination areas and rejects an unknown
 or composite owner.
 
 Before finishing, classify every durable document linked by the protocol that

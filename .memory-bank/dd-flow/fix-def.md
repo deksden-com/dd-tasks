@@ -81,7 +81,7 @@ For each group, state the likely protocol shape:
 - one coherent group -> likely one `PRT-*`;
 - several independent groups -> likely one `PSET-*` with member `PRT-*`;
 - user-decision-only group -> likely `protocol.md` creates a protocol that may stop in `specify` or `waiting_for_user`;
-- stale/duplicate cleanup group -> likely audit/review or a small protocol, depending on write scope.
+- stale/duplicate cleanup group -> likely audit/review or a small protocol, depending on planned coordination areas.
 
 Do not create the protocol. `protocol.md` owns materialization.
 

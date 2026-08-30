@@ -46,12 +46,18 @@ execution_context:
   prompt_profile: documentation_contract | code_implementation | verification
   required_read: []
   discovery_boundary: []
-  write_scope: []
+  planned_write_areas: []
   checks: []
 verification_contract:
   checks: []
   evidence: []
 ```
+
+`planned_write_areas` is optional and soft: use a stable file or directory
+only when it helps schedule concurrent Works. It does not own a path and never
+becomes a write allowlist. The frozen RUN workspace, accepted requirements,
+non-goals and stop conditions are the hard boundaries; `required_read` is
+mandatory starting material, not a complete read boundary.
 
 The plan owns intended work and proof design. It does not contain mutable
 status, progress, worker/session ids, timestamps, Git facts or actual evidence.

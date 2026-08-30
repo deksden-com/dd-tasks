@@ -132,7 +132,7 @@ group_manifest:
     - unit_id: <coverage unit>
       aspect_prompt: <one checked leaf path>
       read_scope: []
-      write_scope: []
+      planned_write_areas: []
       report_obligation:
         layout: grouped_sections | per_unit_file
         path: <group or unit report path>
@@ -206,9 +206,18 @@ dd-flow prompt render \
 
 Replace `--plan-item` with `--task-file "<RUN-home>/<stage>/.../worker-task.json"` for the generic route. The renderer validates either route before materializing the same launch prompt, stack and report artifacts. It does not launch the worker or infer task scope.
 
-The plan item supplies only task-specific `execution_context`: `prompt_profile`, `required_read`, `discovery_boundary`, `write_scope` and `checks`. It also carries the selected `semantic_spine`. The profile supplies stable worker rules; RUN facts supply the concrete workspace and report location. Do not duplicate common primer, Git or recovery prose in `execution_context`.
+The plan item supplies only task-specific `execution_context`: `prompt_profile`, `required_read`, `discovery_boundary`, `planned_write_areas` and `checks`. It also carries the selected `semantic_spine`. The profile supplies stable worker rules; RUN facts supply the concrete workspace and report location. Do not duplicate common primer, Git or recovery prose in `execution_context`.
 
-The renderer writes `launch-prompt.md`, `prompt-stack.json` and `render-report.json` under the selected RUN stage. `prompt-stack.json` identifies the static inputs and hashes so a later reviewer can reconstruct the instruction stack. Project sources remain paths to read, not copied content. A `required_read` or `discovery_boundary` source inside the selected RUN home uses checked `run://<relative-path>`; write scope remains project-local. Unsafe `.env`/outside-root paths, missing required reads, profile mismatch and stale workspace facts must fail before worker launch.
+The execution context has deliberately different strengths. `workspace_root`,
+accepted requirements, non-goals and stop conditions are **hard**: the worker
+must not write outside the selected RUN workspace or override them.
+`required_read` is mandatory starting material, not a read allowlist.
+`discovery_boundary` and `planned_write_areas` are **soft**: they help a worker
+find relevant code and help concurrent workers avoid collisions. They neither
+grant nor deny permission to change a project-local file. A necessary edit
+outside a planned area is completed and reported as coordination drift.
+
+The renderer writes `launch-prompt.md`, `prompt-stack.json` and `render-report.json` under the selected RUN stage. `prompt-stack.json` identifies the static inputs and hashes so a later reviewer can reconstruct the instruction stack. Project sources remain paths to read, not copied content. A `required_read` or `discovery_boundary` source inside the selected RUN home uses checked `run://<relative-path>`; the RUN workspace boundary remains hard while planned write areas remain advisory. Unsafe `.env`/outside-root paths, missing required reads, profile mismatch and stale workspace facts must fail before worker launch.
 
 For a dependency-aware review, the generic manifest's optional `handoff`
 contains only accepted hard-predecessor output paths and their verdicts, the

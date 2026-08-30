@@ -43,11 +43,11 @@ Flow origin policy: `project_local`.
 
 | Decision | Route | Rule |
 | --- | --- | --- |
-| `self_check_allowed` | `self_check` | Fix selection, overlap/write-scope check, status/closure reconciliation и post-fix verification planning. |
+| `self_check_allowed` | `self_check` | Fix selection, planned-area overlap check, status/closure reconciliation и post-fix verification planning. |
 | `group_allowed` | scheduling batch only | Независимые DEF workers с непересекающимися worktrees можно запускать одной pool wave; это не grouped mutation packet/report. |
 | `keep_separate` | `focused_subagent` | Writers, mutation/apply, overlapping files, shared indexes, critical/operational access и hard fix/verify chains. |
 
-Существующее grouping DEF по write scope остаётся execution-planning
+Существующее grouping DEF по planned coordination areas остаётся execution-planning
 механикой; оно не объединяет writer responsibilities, reports или verdicts.
 `requires_output_of` — hard edge, поэтому fix/verification ждёт принятого
 predecessor report или changed-files handoff. `related_to`/`informed_by` — soft

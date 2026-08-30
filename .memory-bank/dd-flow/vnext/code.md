@@ -13,7 +13,8 @@ artificial coordinator Work.
 
 The stage-start response contains the current graph. Launch only ready Works,
 up to the measured RUN capacity. Each worker receives its complete accepted
-requirements, semantic responsibility, selected project context, write scope,
+requirements, semantic responsibility, selected project context, planned
+coordination areas,
 verification commands and stop conditions from `work start`; do not make a
 fresh worker reconstruct PLAN or broadly prime the whole Memory Bank.
 
@@ -51,13 +52,15 @@ disposable worker only after its Work is accepted or explicitly failed or
 cancelled and its turn has settled. After every accepted completion, use the
 returned graph to dispatch newly ready Works.
 
-The packet is a contract. If an assigned result cannot be written because its
-path is absent from `write_scope`, finish must not report success or hide that
-fact in `deviations`. Record the exact missing path and retained receipt through
-the supplied Work failure command so the coordinator can correct and retry the
-contract. This is a contractual scope failure, not a claim that the project
-check itself is an external outage. A successful CODE Work has no unresolved
-blockers or deviations and materializes every assigned durable document update.
+The packet separates hard boundaries from planning hints. The immutable RUN
+`workspace_root`, accepted requirements, non-goals and stop conditions are
+hard. `required_read` is mandatory starting material, but not a read allowlist.
+`discovery_boundary` and `planned_write_areas` are soft coordination hints:
+they help find code and avoid concurrent collisions, but never grant or deny a
+necessary project-local edit. If a necessary changed path was not predicted,
+complete the Work and report it as `coordination.drift`; do not fail or hide it.
+A successful CODE Work still has no unresolved blockers or deviations and
+materializes every assigned durable document update.
 
 A repairable engine, harness or environment failure is an external blocker,
 not a user question and not a terminal CODE result. Use the exact `stage block`

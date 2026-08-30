@@ -77,14 +77,14 @@ gate. Этот pass может завершиться без вопросов (`
 
 `PSET-*` остаётся human-readable coordination layer: topology не создаёт runtime entity, scheduler, очередь или новую lifecycle stage. Она объясняет, как уже созданные executable member protocols безопаснее исполнить и передать в существующий Git/merge contour.
 
-Сначала построй dependency graph из `blocked_by_protocols`, ожидаемого overlap write scope, общих контрактов и repository boundaries. В таблицу включай только feasible modes; рядом с таблицей кратко назови исключённые режимы и причину. Не выдумывай точные часы: укажи qualitative relative duration от самого быстрого feasible `baseline` и реальную причину overhead (критический путь, повторный bootstrap, merge/CI gates или ожидаемый conflict/rework).
+Сначала построй dependency graph из `blocked_by_protocols`, ожидаемого overlap planned coordination areas, общих контрактов и repository boundaries. В таблицу включай только feasible modes; рядом с таблицей кратко назови исключённые режимы и причину. Не выдумывай точные часы: укажи qualitative relative duration от самого быстрого feasible `baseline` и реальную причину overhead (критический путь, повторный bootstrap, merge/CI gates или ожидаемый conflict/rework).
 
 Поддерживаемые режимы:
 
 | Mode | Execution model | Когда применим |
 | --- | --- | --- |
-| `shared_serial_bundle` | Один feature branch/worktree; members идут в dependency order; каждый сохраняет `ready_for_merge`; один final bundle merge и cleanup | Связанная цепочка, общий контракт или заметный overlap write scope |
-| `isolated_parallel` | Независимые worktrees и параллельные members с их обычной интеграцией | Нет unresolved dependencies, write scopes раздельны, а итоговая интеграция не требует одного change bundle |
+| `shared_serial_bundle` | Один feature branch/worktree; members идут в dependency order; каждый сохраняет `ready_for_merge`; один final bundle merge и cleanup | Связанная цепочка, общий контракт или заметный overlap planned coordination areas |
+| `isolated_parallel` | Независимые worktrees и параллельные members с их обычной интеграцией | Нет unresolved dependencies, planned coordination areas раздельны, а итоговая интеграция не требует одного change bundle |
 | `isolated_dependency_waves` | Раздельные worktrees, но members запускаются только топологическими волнами | Есть безопасные параллельные волны с отдельными mutation scopes |
 
 Выбери режим и запиши в frontmatter/section PSET минимум:
@@ -98,7 +98,7 @@ execution_topology:
 
 Затем добавь текстовый execution graph и компактную таблицу feasible modes: mode, graph, relative duration и reason. Для `shared_serial_bundle` назови owner worktree/branch, запрети independent member merge/cleanup и явно укажи, что один existing `merge bundle` claim/complete закрывает всех ready members только после готовности всего selected bundle. Если member затрагивает отдельный Git repository, используй один companion branch/worktree для всего PSET в этом repository; один Git worktree не может охватывать несколько repositories.
 
-Перед первым `code` revalidate topology. Измени решение явно, а не молча, только если обнаружены material dependency, write-scope collision, cross-repository blocker или external gate. `blocked_by_protocols` остаётся единственным mandatory dependency mechanism для v1; topology не заменяет его.
+Перед первым `code` revalidate topology. Измени решение явно, а не молча, только если обнаружены material dependency, active planned-area collision, cross-repository blocker или external gate. `blocked_by_protocols` остаётся единственным mandatory dependency mechanism для v1; topology не заменяет его.
 
 В каждом member protocol frontmatter укажи:
 

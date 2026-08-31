@@ -2,7 +2,7 @@
 file: '.memory-bank/dd-flow/vnext/protocolize.md'
 description: 'Materialize delivery documents from an accepted vNext SPECIFY result.'
 purpose: 'Create one executable PRT or a PSET with member PRTs before PLAN.'
-status: 'BETA'
+status: 'ACTIVE'
 ---
 
 # vNext PROTOCOLIZE

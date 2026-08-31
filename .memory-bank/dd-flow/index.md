@@ -1,10 +1,10 @@
 ---
 file: '.memory-bank/dd-flow/index.md'
-description: 'Compact dd-flow catalog for session priming, flow routing and the coordinated SPC-009 beta target.'
-purpose: 'Tell a fresh agent which prompt and predecessor gate apply and where the pending breaking runtime model is specified.'
-version: '1.1.0'
-date: '2026-08-27'
-status: 'DRAFT'
+description: 'Compact dd-flow catalog for session priming and stable SPECIFY-first flow routing.'
+purpose: 'Tell a fresh agent which prompt, predecessor gate and runtime invariant apply.'
+version: '2.0.0'
+date: '2026-08-31'
+status: 'ACTIVE'
 c4_level: 'documentation'
 parent: '.memory-bank/dd-flow/README.md'
 related_files:
@@ -15,6 +15,9 @@ related_files:
   - ../spec/engineering/SPC-009-vnext-identity-materialization-and-runtime-state.md
 tags: [dd-flow, index, routing, lifecycle, spc-004, spc-009]
 history:
+  - version: '2.0.0'
+    date: '2026-08-31'
+    changes: 'Made the coordinated SPC-009 runtime and SPECIFY-through-CODE-REVIEW route the active stable contract.'
   - version: '1.1.0'
     date: '2026-08-27'
     changes: 'Added the SPC-009 beta-target boundary without presenting the not-yet-cut-over contract as current runtime behavior.'
@@ -30,6 +33,7 @@ history:
 | Plan | `vnext/plan.md` | accepted PROTOCOLIZE | verified implementation graph and CODE handoff |
 | Review plan | `vnext/plan-review.md` | accepted PLAN | accepted correction or CODE opening |
 | Implement | `vnext/code.md` | accepted or skipped PLAN-REVIEW | registered CODE Work graph |
+| Review implementation | `vnext/code-review.md` | verified CODE | independent findings, repairs and accepted CODE result |
 | Continue a legacy protocol | `protocol-implement.md` | selected non-terminal `PRT-*` | legacy next-safe-stage route |
 | SPECIFY worker | `vnext/specify.md` | vNext RUN started | self-contained result or blocking user questions |
 | Merge | `merge.md` / `merge-start.md` | ready for merge | claimed integration and closure |
@@ -56,10 +60,10 @@ use a lifecycle command from a previous contract as a workaround. Read
 [common/runtime-contract.md](common/runtime-contract.md) before changing the
 flow itself.
 
-## Pending breaking target
+## Runtime model
 
 Before changing entity IDs, RUN/Work paths, state projections, stage
 directories, findings, check receipts, snapshots or cleanup, read
 [SPC-009](../spec/engineering/SPC-009-vnext-identity-materialization-and-runtime-state.md).
-It is one coordinated flow-pack/engine/eval change. The current runtime
-invariants above remain executable until the matching beta pair is released.
+These rules are one coordinated flow-pack/engine contract and must change
+together.

@@ -2,8 +2,8 @@
 file: '.memory-bank/index.md'
 description: 'Рабочий вход в Банк памяти проекта dd-tasks.'
 purpose: 'Фиксирует подтверждённое состояние проекта на текущем Git-снимке.'
-version: '1.6.0'
-date: '2026-08-12'
+version: '1.8.0'
+date: '2026-08-31'
 status: 'ACTIVE'
 c4_level: 'project'
 parent: null
@@ -15,10 +15,13 @@ children:
   - .memory-bank/scenarios/index.md
   - .memory-bank/protocol/index.md
   - .memory-bank/defs/index.md
-memory_bank_version: '3.2.0'
+memory_bank_version: '4.0.0'
 initialization_status: 'initialized_published'
 tags: [dd-tasks, memory-bank]
 history:
+  - version: '1.8.0'
+    date: '2026-08-31'
+    changes: 'Canonical Memory Bank 4.0.0 and stable dd-flow CLI 0.8.0 replace the accepted beta pair; SPECIFY through CODE-REVIEW, unified RUN/Work/Session materialization and planned verification are now the project current contract.'
   - version: '1.7.0'
     date: '2026-08-13'
     changes: 'Canonical Memory Bank 3.2.0 и curated flow pack provenance обновлены до source commit 2a1aaec; target-driven engine routing, explicit storage migration safety, immutable RUN bindings и schema registry contracts синхронизированы; runtime/home migration применена через RUN-310.'
@@ -77,9 +80,9 @@ history:
 
 # Банк памяти dd-tasks
 
-Канонический релиз Банка памяти: `3.2.0`. Curated project flow pack
+Канонический релиз Банка памяти: `4.0.0`. Curated project flow pack
 происходит из canonical commit
-`2a1aaec84ee7d62b9f5a6549de5d1f0cb88082c0`;
+`39728d7091691ad32e94d7b79b3656821c63ccc2`;
 canonical-only entrypoints запускаются только из canonical checkout.
 
 dd-tasks — небольшой командный трекер задач. После нулевого checkpoint и
@@ -96,8 +99,8 @@ deterministic local acceptance.
 - [Индекс именованных отложений](defs/index.md)
 - [Канон MBB](mbb/index.md)
 - [Активный dd-flow pack](dd-flow/README.md): `flow-contract@6`, CLI/engine
-  `0.7.0`, target-driven engine routing, explicit storage migration safety,
-  immutable RUN bindings и schema registry contracts.
+  `0.8.0`, SPECIFY-first SDLC through CODE-REVIEW, unified RUN/Work/Session
+  materialization, planned verification and immutable runtime bindings.
 - [SPC-006 stage bootstrap/context packet](spec/engineering/SPC-006-stage-bootstrap-and-context-packet.md)
   — project-facing engineering contract retained in the 3.2 flow release.
 

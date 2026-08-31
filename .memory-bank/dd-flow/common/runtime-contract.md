@@ -11,6 +11,9 @@ related_specs:
   - .memory-bank/spec/engineering/SPC-004-flow-runtime-observability-workspaces-and-lint-throughput.md
   - .memory-bank/spec/engineering/SPC-005-single-source-plan-and-fast-plan-stage.md
   - .memory-bank/spec/engineering/SPC-006-stage-bootstrap-and-context-packet.md
+  - .memory-bank/spec/engineering/SPC-009-vnext-identity-materialization-and-runtime-state.md
+  - .memory-bank/spec/engineering/SPC-010-agent-owned-verification-and-safe-hitl.md
+  - .memory-bank/spec/engineering/SPC-011-planned-verification-materialization.md
   - .memory-bank/protocol/PRT-341-spc-004-v2-spc-005-canonical-cutover.md
 related_protocols:
   - .memory-bank/protocol/PRT-012-spc-004-v2-spc-005-runtime-cutover.md
@@ -22,10 +25,10 @@ history:
     changes: 'PLAN start now reports and materializes both partially filled semantic drafts with exact validation commands.'
 ---
 
-# Canonical SPC-004/005/006 runtime contract
+# Canonical runtime contract
 
-This document is the active Memory Bank contract for SPC-004 v0.2, SPC-005 and
-SPC-006.
+This document is the active Memory Bank contract for SPC-004 v0.2, SPC-005,
+SPC-006, SPC-009, SPC-010 and SPC-011.
 The source specifications are
 `.memory-bank/spec/engineering/SPC-004-flow-runtime-observability-workspaces-and-lint-throughput.md`;
 `.memory-bank/spec/engineering/SPC-005-single-source-plan-and-fast-plan-stage.md`.

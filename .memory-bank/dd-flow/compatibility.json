@@ -1,27 +1,27 @@
 {
   "schema_id": "dd-flow/compatibility@1",
-  "memory_bank_version": "3.2.0-vnext-plan-review-beta.131",
+  "memory_bank_version": "4.0.0",
   "dd_flow_cli": {
     "package_name": "@deksden-com/dd-flow-cli",
-    "min_version": "0.8.0-beta.138",
-    "recommended_version": "0.8.0-beta.138",
+    "min_version": "0.8.0",
+    "recommended_version": "0.8.0",
     "status_contract": "dd-flow/status-report@1",
     "version_contract": "dd-flow/version-report@1",
     "flow_contract": "dd-flow-canonical-2026-08"
   },
   "router": {
     "package_name": "@deksden-com/dd-flow-cli",
-    "min_version": "0.8.0-beta.63",
-    "recommended_version": "0.8.0-beta.63",
+    "min_version": "0.8.0",
+    "recommended_version": "0.8.0",
     "routing_model": "routed_engine_dispatch",
     "engine_store": "~/.dd-flow/engines",
-    "notes": "The global router selects an installed compatible engine; 0.7.0 implements target-driven engine routing, explicit storage migration safety, immutable RUN engine bindings and the SPC-004/SPC-005/SPC-006 runtime contract."
+    "notes": "The global router selects an installed compatible engine; 0.8.0 implements the stable SPECIFY-through-CODE-REVIEW runtime and SPC-004/SPC-005/SPC-006/SPC-009/SPC-010/SPC-011 contracts."
   },
   "engine": {
     "package_name": "@deksden-com/dd-flow-cli",
-    "version_range": "0.8.0-beta.138",
-    "recommended_version": "0.8.0-beta.138",
-    "install_hint": "Use the locally installed 0.8.0-beta.138 engine snapshot for this beta run.",
+    "version_range": ">=0.8.0 <0.9.0",
+    "recommended_version": "0.8.0",
+    "install_hint": "npm install -g @deksden-com/dd-flow-cli@0.8.0",
     "old_engine_install_hint": "npx @deksden-com/dd-flow-cli@<version> engine install",
     "first_engine_installable_version": "0.4.0",
     "legacy_direct_cli_before": "0.4.0",
@@ -64,8 +64,8 @@
   },
   "migrations": {
     "mode": "mb-upgrade-only",
-    "from_previous": "3.1.0",
-    "to_this": "3.2.0",
+    "from_previous": "3.2.0",
+    "to_this": "4.0.0",
     "adjacent_only": true,
     "normal_commands_may_migrate": false
   },

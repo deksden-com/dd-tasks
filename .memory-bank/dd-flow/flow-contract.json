@@ -6,9 +6,12 @@
   "status": "active",
   "source": ".memory-bank/dd-flow/common/runtime-contract.md",
   "specifications": [
-    {"id": "SPC-004", "version": "0.2.0", "sha256": "c151193f2cbffa7a27daaa08b9b5c0f5626cb6cad642601b05e9ad5a2155664f"},
+    {"id": "SPC-004", "version": "0.2.0", "sha256": "08870cd2862dbb19bc24a399735881b2abef84d42c29317f0c2ba7b14823791b"},
     {"id": "SPC-005", "version": "0.1.0", "sha256": "02622b24f3656c5707f4d50e22a70a85df22c18b1e9c80c725e24be997cf8dd1"},
-    {"id": "SPC-006", "version": "0.1.0", "sha256": "4e70e5e7c243da28ac3acb31649cbc61d921c80925d65f6b0218c731f55bb8e8"}
+    {"id": "SPC-006", "version": "0.1.0", "sha256": "4e70e5e7c243da28ac3acb31649cbc61d921c80925d65f6b0218c731f55bb8e8"},
+    {"id": "SPC-009", "version": "1.0.0", "sha256": "a8671a488c7a3c819b5055628a0381ffaefe3d597d5f5ae8b0c4e8d7678d5dfc"},
+    {"id": "SPC-010", "version": "1.0.0", "sha256": "3af7101e0a1cc93eb01ffc59af054039e0b94b3d864f22b8fc161aa3d5a7c5ac"},
+    {"id": "SPC-011", "version": "1.0.0", "sha256": "902ba1f8476829d7a382bc08ffc3eb27cff574005dab28f9fb8f7a5c650560e4"}
   ],
   "stage_lifecycle": {
     "actions": ["stage_start", "stage_finish"],
@@ -93,6 +96,6 @@
     "source_of_truth": "canonical prompts and schemas",
     "runtime_owner": "dd-flow-cli",
     "lint_owner": "mb-lint",
-    "integrated_gate": "compatible releases plus clean specify-to-plan eval"
+    "integrated_gate": "compatible stable releases plus accepted focused stages through CODE-REVIEW"
   }
 }

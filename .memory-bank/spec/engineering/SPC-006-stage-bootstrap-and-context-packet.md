@@ -1,9 +1,9 @@
 ---
 file: '.memory-bank/spec/engineering/SPC-006-stage-bootstrap-and-context-packet.md'
 description: 'Project-facing summary of the canonical SPC-006 stage bootstrap, context-packet and sealed-finish contract.'
-purpose: 'Makes the 3.1 flow/runtime boundary discoverable without duplicating the canonical specification.'
-version: '0.1.0'
-date: '2026-08-12'
+purpose: 'Makes the canonical stage bootstrap and context-packet boundary discoverable without duplicating the canonical specification.'
+version: '0.2.0'
+date: '2026-08-31'
 status: 'ACTIVE'
 c4_level: 'documentation'
 parent: '.memory-bank/spec/engineering/index.md'
@@ -21,8 +21,8 @@ tags: [dd-tasks, engineering, dd-flow, spc-006, stage-bootstrap, context-packet]
 
 ## Source and scope
 
-This is a project-facing summary of canonical SPC-006 v0.1.0 from the
-3.1.0 Memory Bank release. The canonical specification remains authoritative;
+This is a project-facing summary of canonical SPC-006 within the
+4.0.0 Memory Bank release. The canonical specification remains authoritative;
 the active project implementation surface is the curated `.memory-bank/dd-flow/`
 pack and the compatible `dd-flow-cli` runtime.
 
@@ -44,14 +44,13 @@ pack and the compatible `dd-flow-cli` runtime.
 ## Project boundary
 
 SPC-006 changes the Memory Bank/flow runtime contract, not dd-tasks product
-behavior or `package.json` (`0.1.0`). Static Memory Bank synchronization does
-not prove runtime/home migration; that remains the active operations DEF and
+behavior. Runtime/home migration remains a separate guarded operation and
 requires a supported CLI migration route plus post-migration verification.
 
 ## Verification surface
 
 The active contract is discoverable through `flow-contract@6`, the stage-prompt
-and stage-start-response schemas, and the canonical `dd-flow-cli` 0.6.0
+and stage-start-response schemas, and the canonical `dd-flow-cli` 0.8.0
 compatibility record. A clean initial specify-to-plan eval remains a release
 gate owned by the coordinated canonical/CLI release, not by this project
 documentation file alone.

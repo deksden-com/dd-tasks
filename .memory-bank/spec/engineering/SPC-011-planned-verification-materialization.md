@@ -2,10 +2,10 @@
 file: '.memory-bank/spec/engineering/SPC-011-planned-verification-materialization.md'
 description: 'Контракт единого каталога проверок, Work-поставщика и детерминированных квитанций.'
 purpose: 'Фиксирует единый контракт выбора, материализации и исполнения проверок в vNext.'
-version: '0.1.0'
-date: '2026-08-27'
+version: '1.0.0'
+date: '2026-08-31'
 status: 'ACTIVE'
-tags: [vnext, beta, plan, verification, code]
+tags: [vnext, plan, verification, code]
 ---
 
 # SPC-011 — планируемые проверки и их материализация
@@ -60,7 +60,7 @@ CLI проецирует валидный план в `code-work-batch@5` и
   классификатор стоимости;
 - не допускается anonymous planned shell command;
 - агент не создаёт рукописные receipts или отчёты;
-- beta-контур не поддерживает старый schema fallback.
+- основной контракт не поддерживает старый schema fallback.
 
 ## Оценка
 

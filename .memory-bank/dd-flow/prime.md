@@ -23,7 +23,7 @@ uses one RUN state, generated stages and the explicit ownership boundaries.
 Use this entrypoint before a user explicitly formalizes practical work. A
 concrete request, a clarification, an approval of a direction or a discussion
 of constraints is still discussion: do not create runtime state or start a
-flow from it. In this beta the only ordinary user-level entry is the explicit
+flow from it. The ordinary user-level entry is the explicit
 formalization trigger described below; it opens `vnext/start.md` and its
 `stage start --bootstrap --stage specify` command returns the bounded stage
 instructions that matter for the task.
@@ -36,7 +36,7 @@ When a later user says “оформи протокол”, “создай пр
 or an equivalent request, start the active user-level entry
 `vnext/start.md`. It starts SPECIFY-first work; it does **not** create a
 `PRT-*` before the problem space is specified. Do not return to `protocol.md`
-for that new-work trigger in this beta.
+for that new-work trigger.
 
 Do not infer that trigger from task details, a proposed solution, an answer to
 a question, “ок”, “давай” without the formalization object, or a request to

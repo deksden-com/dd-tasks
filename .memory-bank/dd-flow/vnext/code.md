@@ -1,7 +1,7 @@
 ---
 file: '.memory-bank/dd-flow/vnext/code.md'
 description: 'vNext CODE entry after an accepted or explicitly-off PLAN-REVIEW.'
-status: 'BETA'
+status: 'ACTIVE'
 ---
 
 # vNext CODE

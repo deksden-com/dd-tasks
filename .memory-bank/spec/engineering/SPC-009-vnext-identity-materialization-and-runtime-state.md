@@ -1,10 +1,10 @@
 ---
 file: '.memory-bank/spec/engineering/SPC-009-vnext-identity-materialization-and-runtime-state.md'
-description: 'Breaking vNext beta contract for coherent Flow/RUN/Work identity, mechanical state ownership, portable references, filesystem materialization, lifecycle, reports, snapshots and cleanup.'
-purpose: 'Use before changing the beta flow pack, dd-flow-cli runtime or dd-eval fixtures so every implementation decision follows one top-down execution and storage model.'
-version: '0.1.0'
-date: '2026-08-27'
-status: 'DRAFT'
+description: 'Canonical breaking contract for coherent Flow/RUN/Work identity, mechanical state ownership, portable references, filesystem materialization, lifecycle, reports, snapshots and cleanup.'
+purpose: 'Use before changing the flow pack, dd-flow-cli runtime or dd-eval fixtures so every implementation decision follows one top-down execution and storage model.'
+version: '1.0.0'
+date: '2026-08-31'
+status: 'ACTIVE'
 c4_level: 'documentation'
 spec_id: 'SPC-009'
 parent: '.memory-bank/spec/engineering/index.md'
@@ -16,14 +16,17 @@ related_files:
   - '.memory-bank/dd-flow/common/workspace-layout.md'
   - '.memory-bank/dd-flow/flow-contract.json'
 implementation_repositories:
-  - repository: 'dd-tasks beta flow pack'
-    owns: 'Target specification, Flow/stage catalog, prompts, schemas, deterministic report templates and project-facing beta fixtures.'
-  - repository: 'dd-flow-cli beta'
+  - repository: 'dd-memorybank'
+    owns: 'Target specification, Flow/stage catalog, prompts, schemas and deterministic report templates.'
+  - repository: 'dd-flow-cli'
     owns: 'SQLite authority, lifecycle enforcement, ID allocation, path/reference resolution, materialization, projections, snapshots, cleanup and deterministic renderers.'
   - repository: 'dd-eval'
-    owns: 'Checkpoint regeneration, artifact collection, judge inputs and regression assertions after the coordinated beta cutover.'
-tags: [spec, vnext, identity, materialization, run, work, stage, paths, state, sqlite, reports, snapshots, cleanup, beta]
+    owns: 'Portable stage entries, artifact collection, judge inputs and regression assertions.'
+tags: [spec, vnext, identity, materialization, run, work, stage, paths, state, sqlite, reports, snapshots, cleanup]
 history:
+  - version: '1.0.0'
+    date: '2026-08-31'
+    changes: 'Promoted the accepted coordinated beta implementation to the stable Memory Bank 4.0.0 and dd-flow CLI 0.8.0 contract.'
   - version: '0.1.0'
     date: '2026-08-27'
     changes: 'Defined one top-down beta contract that removes legacy JOB/work projections, places Work under RUN, scopes IDs and references, centralizes stage/path materialization, separates semantic and mechanical authority, and specifies a breaking coordinated rollout.'

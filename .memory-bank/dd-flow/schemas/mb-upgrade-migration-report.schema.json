@@ -70,12 +70,14 @@
     },
     "backup": {
       "type": "object",
-      "required": ["status", "path", "created_at", "rollback_route"],
+      "required": ["status", "path", "created_at", "rollback_route", "size_bytes", "sha256"],
       "additionalProperties": true,
       "properties": {
         "status": { "enum": ["present", "planned", "missing"] },
         "path": { "type": ["string", "null"] },
         "created_at": { "type": ["string", "null"] },
+        "size_bytes": { "type": ["integer", "null"], "minimum": 1 },
+        "sha256": { "type": ["string", "null"], "pattern": "^[a-f0-9]{64}$" },
         "rollback_route": { "type": "string", "minLength": 1 }
       }
     },

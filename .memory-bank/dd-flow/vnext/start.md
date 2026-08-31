@@ -4,13 +4,13 @@ description: 'User-level entry to the vNext SPECIFY-first flow.'
 purpose: 'Materialize the active user discussion and start the deterministic SPECIFY flow.'
 version: '0.2.0'
 date: '2026-08-14'
-status: 'DRAFT'
+status: 'ACTIVE'
 c4_level: 'prompt'
 parent: '.memory-bank/dd-flow/index.md'
 related_files:
   - mb-sdlc-vnext-protocolize.json
   - specify.md
-tags: [dd-flow, vnext, start, specify, beta]
+tags: [dd-flow, vnext, start, specify]
 ---
 
 # Start vNext SPECIFY

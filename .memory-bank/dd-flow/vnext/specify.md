@@ -4,7 +4,7 @@ description: 'Canonical-specify semantic work adapted to the vNext SPECIFY → P
 purpose: 'Produce a portable problem-space contract before any executable protocol is created.'
 version: '0.5.0'
 date: '2026-08-14'
-status: 'DRAFT'
+status: 'ACTIVE'
 c4_level: 'prompt'
 parent: '.memory-bank/dd-flow/index.md'
 related_files:
@@ -14,7 +14,7 @@ related_files:
   - ../mb-sdlc/specify/discovery.md
   - ../mb-sdlc/specify/gap-analysis/index.md
   - ../mb-sdlc/specify/design-aspects/index.md
-tags: [dd-flow, vnext, specify, requirements, beta]
+tags: [dd-flow, vnext, specify, requirements]
 ---
 
 # vNext SPECIFY

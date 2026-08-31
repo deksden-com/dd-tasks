@@ -4,10 +4,10 @@ description: 'Bounded SPECIFY packet rendered directly into a RUN stage prompt.'
 purpose: 'Give the worker the necessary priming, project grounding and semantic contract once.'
 version: '0.1.0'
 date: '2026-08-14'
-status: 'DRAFT'
+status: 'ACTIVE'
 c4_level: 'prompt'
 parent: '.memory-bank/dd-flow/mb-sdlc/specify/stage.md'
-tags: [dd-flow, specify, stage-packet, beta]
+tags: [dd-flow, specify, stage-packet]
 ---
 
 # SPECIFY: bounded work packet

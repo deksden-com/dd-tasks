@@ -2,9 +2,9 @@
 file: '.memory-bank/dd-flow/common/flow-runs.md'
 description: 'vNext RUN, Work, Session and filesystem materialization contract.'
 purpose: 'Read before implementing or operating a vNext flow stage.'
-version: '2.0.0-beta.1'
+version: '2.0.0'
 date: '2026-08-27'
-status: 'BETA'
+status: 'ACTIVE'
 c4_level: 'documentation'
 parent: 'README.md'
 related_files:

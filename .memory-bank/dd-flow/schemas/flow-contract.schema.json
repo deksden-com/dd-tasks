@@ -34,12 +34,13 @@
     "specifications": {
       "type": "array",
       "minItems": 3,
+      "uniqueItems": true,
       "items": {
         "type": "object",
         "additionalProperties": false,
         "required": ["id", "version", "sha256"],
         "properties": {
-          "id": {"enum": ["SPC-004", "SPC-005", "SPC-006"]},
+          "id": {"enum": ["SPC-004", "SPC-005", "SPC-006", "SPC-009", "SPC-010", "SPC-011"]},
           "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
           "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
         }
@@ -114,7 +115,7 @@
       "required": ["finish_outputs", "model_input", "mechanical_facts"],
       "properties": {
         "finish_outputs": {"const": ["stage-report.json", "stage-report.md", "stage-report.html", "summary.md"]},
-        "model_input": {"const": "semantic-only; status in stage-input.json"},
+        "model_input": {"const": "semantic-only; status in stage-input.json; mechanical facts are CLI-owned"},
         "mechanical_facts": {"const": "cli-owned"}
       }
     },
@@ -131,11 +132,14 @@
     "workspaceContract": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["manager", "command", "project_hooks", "fallbacks"],
+      "required": ["manager", "command", "project_hooks", "feature_route_stage", "service_checkout_root", "feature_branch_template", "fallbacks"],
       "properties": {
         "manager": {"const": "official-worktrunk"},
         "command": {"const": "wt switch --create <branch> --base <base> --format json"},
         "project_hooks": {"const": [".worktreeinclude", ".config/wt.toml"]},
+        "feature_route_stage": {"const": "protocolize_start"},
+        "service_checkout_root": {"const": "$DD_FLOW_HOME/projects/<PRJ-ID>/checkouts/worktrees/<RUN>/<repo>"},
+        "feature_branch_template": {"const": "feature/run-<RUN>-<slug>"},
         "fallbacks": {"const": "forbidden"}
       }
     },
@@ -177,7 +181,7 @@
         "source_of_truth": {"const": "canonical prompts and schemas"},
         "runtime_owner": {"const": "dd-flow-cli"},
         "lint_owner": {"const": "mb-lint"},
-        "integrated_gate": {"const": "compatible releases plus clean specify-to-plan eval"}
+        "integrated_gate": {"type": "string", "minLength": 1}
       }
     }
   }

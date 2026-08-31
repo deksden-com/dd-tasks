@@ -1,7 +1,7 @@
 ---
 file: '.memory-bank/dd-flow/vnext/code-review.md'
 description: 'vNext independent CODE-REVIEW after mandatory CODE verification.'
-status: 'BETA'
+status: 'ACTIVE'
 ---
 
 # vNext CODE-REVIEW

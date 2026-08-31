@@ -2,8 +2,8 @@
 file: '.memory-bank/spec/engineering/index.md'
 description: 'Подтверждённый engineering/test contour checkpoint-02-core и private preview runtime.'
 purpose: 'Фиксирует canonical commands, test ownership, container smoke и границы локального доказательства.'
-version: '1.0.0'
-date: '2026-08-27'
+version: '1.1.0'
+date: '2026-08-31'
 status: 'ACTIVE'
 c4_level: 'documentation'
 index_type: 'shallow'
@@ -38,6 +38,9 @@ test_files:
   - apps/web/tests/browser/preview.spec.ts
 tags: [dd-tasks, engineering, checkpoint-02, preview, quality, playwright, container]
 history:
+  - version: '1.1.0'
+    date: '2026-08-31'
+    changes: 'Promoted SPC-009/010/011 from the beta target to the active Memory Bank 4.0.0 and dd-flow CLI 0.8.0 project contract.'
   - version: '1.0.0'
     date: '2026-08-27'
     changes: 'Added SPC-011: PLAN owns evidence selection and future checks are explicit provider-owned aliases materialized before consumption.'
@@ -79,25 +82,23 @@ check selection: an item refers to the top-level `checks[]` catalogue through
 ## Active flow contract
 
 [SPC-006 stage bootstrap and context packet](SPC-006-stage-bootstrap-and-context-packet.md)
-— project-facing summary канонического контракта 3.1.0. Полная механика
+— project-facing summary базового bootstrap-контракта. Полная механика
 принадлежит активному [dd-flow runtime contract](../../dd-flow/common/runtime-contract.md),
-`flow-contract@6` и совместимому `dd-flow-cli` 0.6.0; этот engineering layer
+`flow-contract@6` и совместимому `dd-flow-cli` 0.8.0; этот engineering layer
 сохраняет только применимое к проекту boundary и не заменяет project-owned
 quality/test commands ниже.
 
-## vNext beta target
+## Active runtime contract
 
 [SPC-009 identity, materialization and runtime state](SPC-009-vnext-identity-materialization-and-runtime-state.md)
-is the breaking coordinated target for the current beta contour. It corrects
-the proven vNext runtime without partially mutating the active machine
-contract: Work belongs to RUN rather than one stage; SQLite has one portable
+is the active coordinated runtime contract. Work belongs to RUN rather than one
+stage; SQLite has one portable
 `run.json` projection; legacy `JOB`, `work.json`, `try-*` and single
 `RUN.current_stage` models are removed; identifiers, findings, checks, paths,
 reports, snapshots and cleanup share one ownership model.
 
-The existing `flow-contract.json` remains the executable pair contract until
-the flow pack and `dd-flow-cli` implement SPC-009 together. Do not publish a
-schema/prompt-only partial cutover.
+The current `flow-contract.json`, stable flow pack and `dd-flow-cli 0.8.0`
+implement this contract together.
 
 [SPC-010 agent-owned verification and safe HITL](SPC-010-agent-owned-verification-and-safe-hitl.md)
 adds the next beta contract: PLAN selects checks, planned checks are supplied

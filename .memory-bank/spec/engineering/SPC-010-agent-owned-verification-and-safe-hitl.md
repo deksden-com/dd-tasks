@@ -1,11 +1,11 @@
 ---
 file: '.memory-bank/spec/engineering/SPC-010-agent-owned-verification-and-safe-hitl.md'
 description: 'Контракт агентного выбора проверок, результатов review и безопасного HITL.'
-purpose: 'Records the beta vNext verification and HITL contract.'
-version: '0.1.0'
-date: '2026-08-27'
+purpose: 'Records the canonical verification and HITL contract.'
+version: '1.0.0'
+date: '2026-08-31'
 status: 'ACTIVE'
-tags: [vnext, beta, verification, hitl]
+tags: [vnext, verification, hitl]
 ---
 
 # SPC-010 — Agent-owned verification and safe HITL

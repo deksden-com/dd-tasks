@@ -2,7 +2,7 @@
 file: '.memory-bank/dd-flow/common/entity-ids.md'
 description: 'Canonical typed entity id rules for dd-flow projects, experiments, runs, protocols, specifications and findings.'
 purpose: 'Read before creating durable dd-flow entities or implementing CLI id resolution.'
-version: '0.4.0-beta.1'
+version: '0.4.0'
 date: '2026-08-06'
 status: 'ACTIVE'
 c4_level: 'documentation'
@@ -14,7 +14,7 @@ related_files:
   - ../.memory-bank/protocol/2026-05-31-entity-ids-project-workspaces.md
 tags: [dd-flow, ids, registry, aliases, cli]
 history:
-  - version: '0.4.0-beta.1'
+  - version: '0.4.0'
     date: '2026-08-27'
     changes: 'Aligned Work, finding and receipt namespaces with SPC-009.'
   - version: '0.3.0'

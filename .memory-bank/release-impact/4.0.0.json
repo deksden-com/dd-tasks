@@ -1,0 +1,25 @@
+{
+  "schema_id": "dd-flow/release-impact@1",
+  "from_version": "3.2.0",
+  "to_version": "4.0.0",
+  "minimum_upgrade_mode": "full_migration",
+  "domains": [
+    "canonical_layer",
+    "engineering",
+    "operations",
+    "plans",
+    "protocol_evidence"
+  ],
+  "path_migration": true,
+  "runtime_migration": true,
+  "required_checks": [
+    "mb-lint",
+    "git diff --check",
+    "all dd-flow-cli tests",
+    "flow and compatibility schema validation",
+    "SPECIFY through CODE-REVIEW focused eval acceptance",
+    "release-impact schema validation",
+    "linked CLI 0.8.0 registry/tag/artifact-commit reconciliation"
+  ],
+  "notes": "This major release promotes the accepted SPECIFY-first flow, unified RUN/Work/Session runtime, portable stage contexts, planned verification, CODE and CODE-REVIEW contracts. Active old-format RUNs are not migrated implicitly; complete or explicitly discard them before upgrade and install the coordinated dd-flow-cli 0.8.0 release."
+}

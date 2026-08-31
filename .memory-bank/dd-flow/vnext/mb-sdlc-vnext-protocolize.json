@@ -1,7 +1,7 @@
 {
   "schema_id": "dd-flow/vnext-flow@1",
   "id": "mb-sdlc-vnext-protocolize",
-  "version": 4,
+  "version": 5,
   "start": "specify.default",
   "stages": {
     "specify": {
@@ -68,7 +68,7 @@
             {"agent": {"prompt": "code.md", "result_format": "implementation"}},
             {"handler": "code.accept"}
           ],
-          "transitions": {"verified": "code-review.default", "blocked": "terminal.blocked", "failed": "terminal.failed", "cancelled": "terminal.cancelled"}
+          "transitions": {"verified": "code-review.default", "review_off": "merge.default", "blocked": "terminal.blocked", "failed": "terminal.failed", "cancelled": "terminal.cancelled"}
         }
       }
     },
@@ -80,7 +80,19 @@
             {"agent": {"prompt": "code-review.md", "result_format": "files"}},
             {"handler": "code-review.accept"}
           ],
-          "transitions": {"off": "terminal.done", "accepted": "terminal.done", "blocked": "terminal.blocked", "failed": "terminal.failed", "cancelled": "terminal.cancelled"}
+          "transitions": {"off": "merge.default", "accepted": "merge.default", "blocked": "terminal.blocked", "failed": "terminal.failed", "cancelled": "terminal.cancelled"}
+        }
+      }
+    },
+    "merge": {
+      "entries": {
+        "default": {
+          "actions": [
+            {"handler": "merge.prepare"},
+            {"agent": {"prompt": "merge.md", "result_format": "json"}},
+            {"handler": "merge.accept"}
+          ],
+          "transitions": {"merged": "terminal.done", "blocked": "terminal.blocked", "failed": "terminal.failed", "cancelled": "terminal.cancelled"}
         }
       }
     }

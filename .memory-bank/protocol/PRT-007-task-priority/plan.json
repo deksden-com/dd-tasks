@@ -173,6 +173,7 @@
     {
       "id": "CHK-DB-MIGRATE",
       "command": "@check/db-migrate-local",
+      "definition": "pnpm db:migrate -- --target local --run-id {run_id}",
       "purpose": "Apply the forward-only priority migration on the local target.",
       "run_at": "work",
       "availability": "available"
@@ -180,6 +181,7 @@
     {
       "id": "CHK-DB-CHECK",
       "command": "@check/db-check-local",
+      "definition": "pnpm db:check -- --target local --run-id {run_id}",
       "purpose": "Confirm local schema, migration ledger and seed marker after the priority column exists.",
       "run_at": "readiness",
       "availability": "available"
@@ -187,6 +189,7 @@
     {
       "id": "CHK-API-INT",
       "command": "@check/api-integration",
+      "definition": "pnpm --filter @dd-tasks/api test:integration",
       "purpose": "Prove 0001-then-0002 upgrade backfill, omitted-create Medium, omitted-update preserve, wire tokens, invalid rejection, archived-project gate and isolation against PostgreSQL.",
       "run_at": "work",
       "availability": "available"
@@ -194,6 +197,7 @@
     {
       "id": "CHK-API-CONTRACT",
       "command": "@check/api-contract",
+      "definition": "pnpm test:api-contract",
       "purpose": "Prove list/create/update JSON includes task.priority as low, medium or high.",
       "run_at": "work",
       "availability": "available"
@@ -201,6 +205,7 @@
     {
       "id": "CHK-WEB-UNIT",
       "command": "@check/web-unit",
+      "definition": "pnpm test:web",
       "purpose": "Prove the task list renders Low/Medium/High text and create/edit POST only low, medium or high.",
       "run_at": "work",
       "availability": "available"
@@ -208,6 +213,7 @@
     {
       "id": "CHK-WEB-BUILD",
       "command": "@check/web-build",
+      "definition": "pnpm build:web",
       "purpose": "Prove the web app still builds with the new task field.",
       "run_at": "code",
       "availability": "available"

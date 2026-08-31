@@ -2,7 +2,7 @@
 file: '.memory-bank/dd-flow/common/entity-ids.md'
 description: 'Canonical typed entity id rules for dd-flow projects, experiments, runs, protocols, specifications and findings.'
 purpose: 'Read before creating durable dd-flow entities or implementing CLI id resolution.'
-version: '0.4.0'
+version: '0.5.0'
 date: '2026-08-06'
 status: 'ACTIVE'
 c4_level: 'documentation'
@@ -14,6 +14,9 @@ related_files:
   - ../.memory-bank/protocol/2026-05-31-entity-ids-project-workspaces.md
 tags: [dd-flow, ids, registry, aliases, cli]
 history:
+  - version: '0.5.0'
+    date: '2026-08-31'
+    changes: 'Added global MRG request identity and its relation to child MERGE Work.'
   - version: '0.4.0'
     date: '2026-08-27'
     changes: 'Aligned Work, finding and receipt namespaces with SPC-009.'
@@ -54,6 +57,7 @@ PRT-001-flowboard-safe-ui-smoke
 SPC-001-subagent-grouping-and-pool-aware-routing
 DEF-001-runtime-state-outside-worktree
 CHK-001-flowboard-safe-ui-smoke
+MRG-001
 VP-001-live-acceptance
 ```
 
@@ -80,6 +84,8 @@ the entity namespace rather than one global counter:
 - `PRT-*`, `RUN-*` and file-backed `SPC-*` are allocated inside one stable project namespace;
 - `WRK-*` is allocated globally inside one `DD_FLOW_HOME`, because `work_id` is
   the runtime database primary key;
+- `MRG-*` is allocated globally inside one `DD_FLOW_HOME`; it identifies one
+  queued integration unit and points to exactly one child MERGE Work;
 - worktrees inherit the stable project's namespace and never create a new
   allocator;
 - nested findings and receipts use local `FIND-NNN` and `RCP-NNN` ids plus the

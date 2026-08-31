@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dd-flow/merge-result@1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "outcome", "summary", "conflict_resolution", "verification_summary", "residual_risks"],
+  "properties": {
+    "schema_id": {"const": "dd-flow/merge-result@1"},
+    "outcome": {"enum": ["completed", "blocked"]},
+    "summary": {"type": "string", "minLength": 1},
+    "conflict_resolution": {"type": "string"},
+    "verification_summary": {"type": "string", "minLength": 1},
+    "residual_risks": {"type": "array", "items": {"type": "string", "minLength": 1}}
+  }
+}

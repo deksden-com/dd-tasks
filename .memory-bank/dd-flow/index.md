@@ -2,7 +2,7 @@
 file: '.memory-bank/dd-flow/index.md'
 description: 'Compact dd-flow catalog for session priming and stable SPECIFY-first flow routing.'
 purpose: 'Tell a fresh agent which prompt, predecessor gate and runtime invariant apply.'
-version: '2.0.0'
+version: '2.1.0'
 date: '2026-08-31'
 status: 'ACTIVE'
 c4_level: 'documentation'
@@ -15,6 +15,9 @@ related_files:
   - ../spec/engineering/SPC-009-vnext-identity-materialization-and-runtime-state.md
 tags: [dd-flow, index, routing, lifecycle, spc-004, spc-009]
 history:
+  - version: '2.1.0'
+    date: '2026-08-31'
+    changes: 'Made vNext MERGE and its single MRG queue the terminal SDLC route.'
   - version: '2.0.0'
     date: '2026-08-31'
     changes: 'Made the coordinated SPC-009 runtime and SPECIFY-through-CODE-REVIEW route the active stable contract.'
@@ -34,9 +37,9 @@ history:
 | Review plan | `vnext/plan-review.md` | accepted PLAN | accepted correction or CODE opening |
 | Implement | `vnext/code.md` | accepted or skipped PLAN-REVIEW | registered CODE Work graph |
 | Review implementation | `vnext/code-review.md` | verified CODE | independent findings, repairs and accepted CODE result |
+| Integrate accepted work | `vnext/merge.md` | accepted CODE/CODE-REVIEW and queued `MRG-*` | checked local integration and terminal RUN |
 | Continue a legacy protocol | `protocol-implement.md` | selected non-terminal `PRT-*` | legacy next-safe-stage route |
 | SPECIFY worker | `vnext/specify.md` | vNext RUN started | self-contained result or blocking user questions |
-| Merge | `merge.md` / `merge-start.md` | ready for merge | claimed integration and closure |
 
 ## Runtime invariants
 

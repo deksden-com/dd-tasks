@@ -2,7 +2,7 @@
 file: '.memory-bank/dd-flow/common/flow-runs.md'
 description: 'vNext RUN, Work, Session and filesystem materialization contract.'
 purpose: 'Read before implementing or operating a vNext flow stage.'
-version: '2.0.0'
+version: '2.2.0'
 date: '2026-08-27'
 status: 'ACTIVE'
 c4_level: 'documentation'
@@ -13,6 +13,16 @@ related_files:
   - runtime-cli.md
   - ../schemas/flow-run.schema.json
 tags: [dd-flow, run, work, session, materialization, vnext]
+history:
+  - version: '2.2.0'
+    date: '2026-08-31'
+    changes: 'Added MRG queue ownership, integrated-tree receipts and terminal MERGE fan-in.'
+  - version: '2.1.0'
+    date: '2026-08-31'
+    changes: 'Defined canonical protocol-scoped check references for PSET/bundle execution.'
+  - version: '2.0.0'
+    date: '2026-08-27'
+    changes: 'Defined the vNext RUN, Work, Session, filesystem and receipt contract.'
 ---
 
 # Flow runs
@@ -104,11 +114,15 @@ including a non-default `DD_FLOW_HOME`, and the same stage consumes the answer.
 - `WRK-*` allocation is global in one `DD_FLOW_HOME`, matching its database key.
 - Requirements and acceptance criteria are local `R-*` and `AC-*` ids.
 - Plan item ids remain the existing `P1`, `P2`, … contract.
-- Check declarations are local `CHK-*` ids.
+- Check declarations are local `CHK-*` ids; persisted runtime references use
+  `<PRT-ID>/CHK-*` so PSET members cannot collide.
 - Review findings are local `FIND-NNN` inside one reviewer Work; the canonical
   reference is `<WRK>/FIND-NNN`.
 - Check receipts are local `RCP-NNN`; the canonical reference is
   `<WRK>/RCP-NNN` or `<RUN>/RCP-NNN` for an aggregate gate.
+- Merge requests are global `MRG-NNN`. The `MRG-*` row owns FIFO position,
+  dispatch lease and the durable project integration lane through its child
+  MERGE Work; Session identity never owns the lane.
 
 Persist RUN artifacts as `run://<RUN>/<relative-path>`. Persist project files as
 repository-relative POSIX paths. Absolute paths are immediate prompt data only.

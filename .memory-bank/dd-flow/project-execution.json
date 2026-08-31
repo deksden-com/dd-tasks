@@ -1,9 +1,12 @@
 {
-  "schema_id": "dd-flow/project-execution@1",
+  "schema_id": "dd-flow/project-execution@2",
   "stage_session_mode": "new_session",
   "plan_review_mode": "auto",
   "code_review_mode": "auto",
-  "stop_target": "code_review_completed",
+  "merge_mode": "same_session",
+  "merge_delivery": { "strategy": "local" },
+  "merge_cleanup": { "source": "retain" },
+  "stop_target": "merge_completed",
   "code_bootstrap": {
     "command": "pnpm bootstrap",
     "policy_ref": ".memory-bank/spec/operations/workspace-bootstrap-policy.md"

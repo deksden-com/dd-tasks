@@ -749,7 +749,10 @@ PLAN-REVIEW и CODE-REVIEW используют одинаковую identity mo
 4. Coordinator decision перечисляет каждый material `finding_ref` ровно один
    раз.
 5. Duplicate указывает другой canonical `finding_ref`; цепочки ацикличны.
-6. Repair/DEF сохраняют canonical refs и immutable reviewer evidence.
+6. Repair/DEF сохраняют canonical refs и immutable reviewer evidence. Для
+   каждого `fix` coordinator выбирает один или несколько причинных `CHK-*` из
+   принятого CODE handoff; именно их CLI кладёт в repair Work и повторно
+   запускает. Reviewer не обязан угадывать этот выбор.
 
 Review result не кодирует group key в ID и не требует межсессионного
 согласования счётчиков.
@@ -784,8 +787,10 @@ validation/check/review decision создаёт обязательный repair 
 стадию active. После завершения названных Works повтор той же команды завершает
 стадию. Повторный review не запускается.
 
-После первого принятого review decision semantic decision/result sealed;
-repair Work добавляет отдельные evidence и result. Вторая фаза не разрешает
+После первого **успешного** принятого review decision semantic decision/result
+sealed; создание repair Work и запись seal образуют одну логическую операцию:
+невалидный decision не блокирует его исправление. Repair Work добавляет
+отдельные evidence и result. Вторая фаза не разрешает
 молча переписать исходные reviewer findings или disposition.
 
 HITL pause возвращает готовый `user_message` и точную standalone resume-команду

@@ -33,8 +33,11 @@ deadline failure. Silence, an unchanged timestamp, and absence of a new result
 file are not evidence of a stuck worker. Do not interrupt, replace, or relaunch
 such a reviewer; wait for an explicit terminal signal.
 
-The first Finish freezes the compact decision and creates exactly one repair
-Work when fixes are accepted. Its successful result must explicitly list every
+Each `fix` decision explicitly selects the causal accepted `CHK-*` check or
+checks to rerun. This is the coordinator's repair obligation, not a requirement
+that every reviewer independently guesses a check id. The first successful
+Finish freezes the compact decision and creates exactly one repair Work when
+fixes are accepted. Its successful result must explicitly list every
 assigned canonical finding reference and contain no blocker or deviation. A
 finding that cites a deterministic `CHK-*` obligation receives that exact
 check in the repair packet and the repair must pass it; this is evidence, not

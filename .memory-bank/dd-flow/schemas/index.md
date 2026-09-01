@@ -39,7 +39,7 @@ agent author mechanical facts.
 | `dd-flow/plan-review-result@1` | `plan-review-result.schema.json` | reviewer-local PLAN findings |
 | `dd-flow/plan-review-decision@3` | `plan-review-decision.schema.json` | canonical PLAN finding decisions |
 | `dd-flow/code-review-result@1` | `code-review-result.schema.json` | reviewer-local CODE findings |
-| `dd-flow/code-review-decision@2` | `code-review-decision.schema.json` | canonical CODE finding decisions |
+| `dd-flow/code-review-decision@3` | `code-review-decision.schema.json` | canonical CODE finding decisions and repair checks |
 | `dd-flow/plan-stage-report@5` | `plan-stage-report.schema.json` | generated PLAN receipt projection |
 | `dd-flow/protocol-plan@1` | `protocol-plan.schema.json` | canonical semantic protocol plan |
 | `dd-flow/protocol-summary@1` | `protocol-summary.schema.json` | generated durable summary |

@@ -34,7 +34,12 @@ Trust a passing readiness receipt and do not independently repeat bootstrap.
 Implement only the packet's task and preserve its invariants. A packet may
 name a `provided_checks` alias: create it exactly with the supplied definition
 alongside its corresponding test or script before finishing the Work. Do not
-replace it with a similar command. `work finish`
+replace it with a similar command. The check profile's schema and policy gates
+are frozen PLAN input: do not downgrade its schema, rename its fields, remove
+mandatory gates, or rewrite existing aliases. A provider Work may make only
+the declared alias materialization. If the profile itself is incompatible with
+the returned CLI, stop and report the engine/flow-pair blocker; never modify
+the project contract to fit an ambient CLI. `work finish`
 validates the result and runs the packet's focused checks before accepting the
 Work. A failed focused check stays in that same Work for correction.
 

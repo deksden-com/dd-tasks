@@ -36,6 +36,13 @@ problem (for example a matching feature/spec, scenario, ADR, policy or prior
 protocol). Do not read the whole bank by default. Record every selected source
 as research evidence or in the PROTOCOLIZE handoff.
 
+Establish observed current behaviour before describing the requested change.
+When an existing capability, entity, policy or scenario already covers part of
+the request, preserve it as evidence and state only the remaining product
+delta. Do not turn existing behaviour into a second implementation obligation.
+This is a problem-space constraint, not an instruction to choose files or
+architecture.
+
 ## Required specification
 
 Record all of the following in the supplied `specify.json` result. `requirements`

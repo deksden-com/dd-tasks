@@ -15,6 +15,12 @@ acceptance criterion, invariant, engineering rule or declared proof limit;
 direct evidence; a concrete impact; and the minimum required outcome. Do not
 turn style preferences, cosmetics, or untargeted refactoring into findings.
 
+Inspect whether the delivered change extends the established owner or creates
+a competing source of truth: duplicate route, service, state owner, schema,
+client model, component or proof path. Report it only when the duplicate can
+diverge, bypass a rule or make future behaviour ambiguous; do not request
+cosmetic consolidation.
+
 The coordinator delegates the registered aspect groups to fresh read-only
 workers and never claims a reviewer Work itself. Workers neither edit the
 product nor create child workers. A reviewer may read the complete bounded

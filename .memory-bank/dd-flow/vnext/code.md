@@ -43,6 +43,12 @@ the project contract to fit an ambient CLI. `work finish`
 validates the result and runs the packet's focused checks before accepting the
 Work. A failed focused check stays in that same Work for correction.
 
+Extend or reuse the existing owner named in `required_read`; do not introduce
+a parallel route, service, model, schema, component or test merely to finish
+quickly. If grounded project truth disproves the accepted plan's reuse path,
+record the concrete contradiction as a blocker for the coordinator instead of
+silently inventing a second implementation.
+
 The coordinator owns the graph and stage conclusion; every registered CODE
 Work runs in a fresh child session, including a serial dependency chain. Each
 child makes its first command the supplied `work start`, and the PreToolUse

@@ -87,6 +87,14 @@ checks, stop conditions, requirement references, and observable verification.
 Every `required_read` path must already exist when its Work starts; use an
 accepted predecessor result rather than predicting a future input from an area
 hint.
+
+For each changed behaviour, identify the existing owner that the Work will
+reuse or extend: route, service, model, schema, component, command, test or
+document. Put its concrete paths in `required_read` and describe the extension
+in normal item `details`. A new parallel owner is allowed only when the existing
+surface is demonstrably unsuitable; record that reason in an ordinary plan
+decision. Do not add a second representation, API, state owner or test path
+merely to avoid understanding the existing one.
 overlapping planned areas are allowed: the runtime serializes active overlap;
 add `depends_on` only when one Work truly needs the other Work's result.
 Give negative cases and migration/backfill proof their own explicit verification

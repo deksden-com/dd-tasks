@@ -35,9 +35,12 @@ such a reviewer; wait for an explicit terminal signal.
 
 The first Finish freezes the compact decision and creates exactly one repair
 Work when fixes are accepted. Its successful result must explicitly list every
-assigned canonical finding reference, contain no blocker or deviation, and
-materialize every assigned document update. After that Work completes, invoke
-the same Finish command again: the CLI reruns the same final CODE gate,
+assigned canonical finding reference and contain no blocker or deviation. A
+finding that cites a deterministic `CHK-*` obligation receives that exact
+check in the repair packet and the repair must pass it; this is evidence, not
+a JSON assertion. A review repair must not edit accepted PLAN artifacts,
+`code-work-batch.json` or the review decision to make a finding disappear.
+After that Work completes, invoke the same Finish command again: the CLI reruns the same final CODE gate,
 including final `readiness` evidence such as browser checks, and closes the
 stage. Do not repeat the independent review wave.
 

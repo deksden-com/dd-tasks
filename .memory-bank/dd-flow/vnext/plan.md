@@ -45,7 +45,10 @@ it runs before CODE Work begins. Do not call a test “too heavy” and drop it:
 choose its `run_at` deliberately, or state a real external/manual proof limit.
 
 A focused check belongs to the Work that owns every source path it may need to
-repair. A project aggregate command from the engineering check profile (for
+repair. A criterion-level `check_ref` is projected into every Work named by
+that criterion's `plan_item_ids`, even when it is not repeated in the item's
+own `verification`; this is how final `code` and `readiness` proof survives
+the PLAN-to-CODE handoff. A project aggregate command from the engineering check profile (for
 example `pnpm quality`) must use `run_at: "code"` or `"readiness"`, never
 `"work"`: it runs after the CODE graph fans in, and a failed receipt then
 creates a bounded repair Work with the actual affected paths. Do not attach an

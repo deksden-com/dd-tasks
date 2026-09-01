@@ -15,7 +15,9 @@ The stage-start response contains the current graph. Launch only ready Works,
 up to the measured RUN capacity. Each worker receives its complete accepted
 requirements, semantic responsibility, selected project context, planned
 coordination areas,
-verification commands and stop conditions from `work start`; do not make a
+verification commands and stop conditions from `work start`. The packet
+contains both item-local checks and checks selected by any acceptance criterion
+owned by that Work; do not make a
 fresh worker reconstruct PLAN or broadly prime the whole Memory Bank.
 
 The packet names the immutable `workspace_root`. All source reads and writes

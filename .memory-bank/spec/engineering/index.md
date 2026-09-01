@@ -75,9 +75,14 @@ source, representative tests and task-applicable feature/spec/ADR/scenario
 documents; this index is not permission for a broad project scan.
 
 [`code-check-profile.json`](code-check-profile.json) defines reusable aliases,
-aggregate gates and the small set of guarded commands. PLAN owns its focused
-check selection: an item refers to the top-level `checks[]` catalogue through
-`check_refs`, and ordinary local commands need no allowlist entry.
+mandatory aggregate gates and the small set of guarded commands. PLAN owns its
+focused check selection: an item refers to the top-level `checks[]` catalogue
+through `check_refs`, and ordinary local commands need no allowlist entry. The
+profile's schema, existing aliases and `mandatory_by_gate` are frozen PLAN
+input. CODE may materialize only an explicitly planned future alias; it never
+rewrites the profile to accommodate an ambient CLI. `work finish` validates the
+current profile before it accepts a CODE result, so an incompatible engine/flow
+pair is surfaced as a blocker rather than silently weakening the gate.
 
 ## Active flow contract
 

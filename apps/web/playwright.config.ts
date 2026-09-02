@@ -1,5 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const apiPort = Number(process.env.DD_FLOW_PORT_API ?? 8788);
+const webPort = Number(process.env.DD_FLOW_PORT_WEB ?? 4174);
+
 export default defineConfig({
   testDir: "tests/browser",
   testIgnore: "**/preview.spec.ts",
@@ -12,7 +15,7 @@ export default defineConfig({
     ["json", { outputFile: "test-results/browser-results.json" }],
   ],
   use: {
-    baseURL: "http://127.0.0.1:4174",
+    baseURL: `http://127.0.0.1:${webPort}`,
     trace: "retain-on-failure",
   },
   projects: [
@@ -24,15 +27,15 @@ export default defineConfig({
   webServer: [
     {
       command:
-        "PORT=8788 RUNTIME_RUN_ID=SCN002 pnpm --filter @dd-tasks/api start",
-      url: "http://127.0.0.1:8788/api/health",
+        `PORT=${apiPort} RUNTIME_RUN_ID=SCN002 pnpm --filter @dd-tasks/api start`,
+      url: `http://127.0.0.1:${apiPort}/api/health`,
       reuseExistingServer: false,
       timeout: 120_000,
     },
     {
       command:
-        "API_PORT=8788 pnpm --filter @dd-tasks/web exec vite --host 127.0.0.1 --port 4174",
-      url: "http://127.0.0.1:4174/login",
+        `API_PORT=${apiPort} pnpm --filter @dd-tasks/web exec vite --host 127.0.0.1 --port ${webPort}`,
+      url: `http://127.0.0.1:${webPort}/login`,
       reuseExistingServer: false,
       timeout: 120_000,
     },

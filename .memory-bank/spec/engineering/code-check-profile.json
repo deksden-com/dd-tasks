@@ -1,5 +1,5 @@
 {
-  "schema_id": "dd-flow/code-check-profile@5",
+  "schema_id": "dd-flow/code-check-profile@6",
   "aliases": {
     "@check/api-contract": "pnpm test:api-contract",
     "@check/api-unit": "pnpm --filter @dd-tasks/api test:unit",
@@ -9,7 +9,8 @@
     "@check/db-migrate-local": "pnpm db:migrate -- --target local --run-id {run_id}",
     "@check/db-check-local": "pnpm db:check -- --target local --run-id {run_id}",
     "@check/quality": "pnpm quality",
-    "@check/docs": "pnpm docs:check"
+    "@check/docs": "pnpm docs:check",
+    "@check/browser": "pnpm test:browser"
   },
   "require_alias_for": {
     "pnpm db:migrate": "@check/db-migrate-local",
@@ -18,5 +19,8 @@
   "mandatory_by_gate": {
     "code": ["@check/quality", "@check/docs"],
     "merge": ["@check/quality", "@check/docs"]
+  },
+  "ports_by_alias": {
+    "@check/browser": ["api", "web"]
   }
 }

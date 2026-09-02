@@ -102,7 +102,7 @@ stage; SQLite has one portable
 `RUN.current_stage` models are removed; identifiers, findings, checks, paths,
 reports, snapshots and cleanup share one ownership model.
 
-The current `flow-contract.json`, stable flow pack and `dd-flow-cli 0.8.0`
+The current `flow-contract.json`, active flow pack and `dd-flow-cli 0.9.0-beta.2`
 implement this contract together.
 
 [SPC-010 agent-owned verification and safe HITL](SPC-010-agent-owned-verification-and-safe-hitl.md)

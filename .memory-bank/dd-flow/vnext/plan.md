@@ -8,6 +8,9 @@ entries reference it with `check_refs`. Ordinary focused local commands may be
 declared directly. A `planned` check names the item that first materializes it;
 for a new `@check/...` alias also record its exact definition. PLAN finish
 checks only structural references, ordering and guarded-command policy.
+Every semantic `@check/...` entry also stores the exact accepted profile
+command in `definition`; the CLI executes the current profile only after
+proving that definition has not drifted.
 
 The generated prompt is the complete stage input. Read the accepted SPECIFY and
 PROTOCOLIZE artifacts named in it, then perform proportional grounding.
@@ -39,20 +42,42 @@ project alias; when neither is enough, plan the new test/check as part of the
 delivery. A future check is never an anonymous shell line: make it a new
 `@check/...` alias in `checks[]`, give it a precise `definition`, and name the
 PLAN item that materializes it in `provided_by`. Every consumer must strictly
-depend on that provider; the provider's `planned_write_areas` should normally mention
-`.memory-bank/spec/engineering/code-check-profile.json`. A readiness check must already be available, because
-it runs before CODE Work begins. Do not call a test “too heavy” and drop it:
-choose its `run_at` deliberately, or state a real external/manual proof limit.
+depend on that provider; the provider's `planned_write_areas` should normally
+mention `.memory-bank/spec/engineering/code-check-profile.json`. Workspace
+bootstrap before CODE is not a check catalogue entry. `readiness` is final
+acceptance verification after CODE fan-in and may be planned when its provider
+precedes that fan-in. Do not call a test “too heavy” and drop it: choose its
+`run_at` deliberately, or state a real external/manual proof limit.
+
+Use `run_at` literally: `work` proves one Work contribution; `code` proves the
+combined feature workspace; `readiness` proves the completed acceptance path;
+`merge` proves the actual integrated target; `release` belongs to RELEASE;
+`external` records a non-shell proof boundary. A receipt from an earlier gate
+does not silently satisfy a later one.
+
+Do not copy every project `mandatory_by_gate` alias into `checks[]`. The CLI
+combines those current policy floors with PLAN's semantic checks into one
+visible effective gate in every relevant stage packet and report. Add an alias
+to `checks[]` only when PLAN selected it to prove a concrete `R-*` or `AC-*`;
+exact duplicate semantic/policy inputs execute once and retain both refs. For
+every real source/target integration unit ensure the resulting effective merge
+gate is non-empty. Every merge-level acceptance criterion still needs a
+semantic PLAN check; a generic project floor is not its explanation. Omit a
+merge gate only when delivery creates no new integrated tree, and record the
+concrete strategy-backed reason in `decisions`.
 
 A focused check belongs to the Work that owns every source path it may need to
-repair. A criterion-level `check_ref` is projected into every Work named by
-that criterion's `plan_item_ids`, even when it is not repeated in the item's
-own `verification`; this is how final `code` and `readiness` proof survives
-the PLAN-to-CODE handoff. A project aggregate command from the engineering check profile (for
+repair. A project aggregate command from the engineering check profile (for
 example `pnpm quality`) must use `run_at: "code"` or `"readiness"`, never
 `"work"`: it runs after the CODE graph fans in, and a failed receipt then
 creates a bounded repair Work with the actual affected paths. Do not attach an
 aggregate gate to the final leaf merely because it happens to run last.
+
+Each command or alias must own its required setup, fixtures, managed services
+and cleanup. Required durable outputs go to `DD_FLOW_EVIDENCE_DIR` through
+`required_artifacts`. A verification command must not update snapshots,
+generated source, formatting or any other tracked/non-ignored project file;
+such creation or repair belongs to a Work before the check runs.
 
 Use a compact plan unless a named high-impact, irreversible, security, runtime
 or uncertainty trigger requires full depth. Classify every aspect. Ask the user
@@ -87,14 +112,6 @@ checks, stop conditions, requirement references, and observable verification.
 Every `required_read` path must already exist when its Work starts; use an
 accepted predecessor result rather than predicting a future input from an area
 hint.
-
-For each changed behaviour, identify the existing owner that the Work will
-reuse or extend: route, service, model, schema, component, command, test or
-document. Put its concrete paths in `required_read` and describe the extension
-in normal item `details`. A new parallel owner is allowed only when the existing
-surface is demonstrably unsuitable; record that reason in an ordinary plan
-decision. Do not add a second representation, API, state owner or test path
-merely to avoid understanding the existing one.
 overlapping planned areas are allowed: the runtime serializes active overlap;
 add `depends_on` only when one Work truly needs the other Work's result.
 Give negative cases and migration/backfill proof their own explicit verification

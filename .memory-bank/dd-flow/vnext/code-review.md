@@ -15,12 +15,6 @@ acceptance criterion, invariant, engineering rule or declared proof limit;
 direct evidence; a concrete impact; and the minimum required outcome. Do not
 turn style preferences, cosmetics, or untargeted refactoring into findings.
 
-Inspect whether the delivered change extends the established owner or creates
-a competing source of truth: duplicate route, service, state owner, schema,
-client model, component or proof path. Report it only when the duplicate can
-diverge, bypass a rule or make future behaviour ambiguous; do not request
-cosmetic consolidation.
-
 The coordinator delegates the registered aspect groups to fresh read-only
 workers and never claims a reviewer Work itself. Workers neither edit the
 product nor create child workers. A reviewer may read the complete bounded
@@ -39,17 +33,11 @@ deadline failure. Silence, an unchanged timestamp, and absence of a new result
 file are not evidence of a stuck worker. Do not interrupt, replace, or relaunch
 such a reviewer; wait for an explicit terminal signal.
 
-Each `fix` decision explicitly selects the causal accepted `CHK-*` check or
-checks to rerun. This is the coordinator's repair obligation, not a requirement
-that every reviewer independently guesses a check id. The first successful
-Finish freezes the compact decision and creates exactly one repair Work when
-fixes are accepted. Its successful result must explicitly list every
-assigned canonical finding reference and contain no blocker or deviation. A
-finding that cites a deterministic `CHK-*` obligation receives that exact
-check in the repair packet and the repair must pass it; this is evidence, not
-a JSON assertion. A review repair must not edit accepted PLAN artifacts,
-`code-work-batch.json` or the review decision to make a finding disappear.
-After that Work completes, invoke the same Finish command again: the CLI reruns the same final CODE gate,
+The first Finish freezes the compact decision and creates exactly one repair
+Work when fixes are accepted. Its successful result must explicitly list every
+assigned canonical finding reference, contain no blocker or deviation, and
+materialize every assigned document update. After that Work completes, invoke
+the same Finish command again: the CLI reruns the same final CODE gate,
 including final `readiness` evidence such as browser checks, and closes the
 stage. Do not repeat the independent review wave.
 

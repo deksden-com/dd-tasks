@@ -74,11 +74,6 @@ historical input and add exactly one `obligation_amendments` item: target id,
 replacement, reason and returned `HITL-*` reference. PLAN uses that effective
 wording; it never rewrites the original SPECIFY artifact.
 
-Allocate only the accepted delta. Existing behaviour established by SPECIFY is
-a preservation constraint or acceptance dependency, never a duplicate PRT. If
-an outcome is already satisfied, record the evidence and stop for the smallest
-valid delivery decision rather than inventing a parallel implementation slice.
-
 If PROTOCOLIZE itself exposes a material user decision with no reasonable
 default, pause this same PROTOCOLIZE Work, ask the question returned by the
 CLI, resume it with the raw answer, and then complete the delivery decision.

@@ -15,9 +15,7 @@ The stage-start response contains the current graph. Launch only ready Works,
 up to the measured RUN capacity. Each worker receives its complete accepted
 requirements, semantic responsibility, selected project context, planned
 coordination areas,
-verification commands and stop conditions from `work start`. The packet
-contains both item-local checks and checks selected by any acceptance criterion
-owned by that Work; do not make a
+verification commands and stop conditions from `work start`; do not make a
 fresh worker reconstruct PLAN or broadly prime the whole Memory Bank.
 
 The packet names the immutable `workspace_root`. All source reads and writes
@@ -26,28 +24,19 @@ CODE refuses to open if that route receipt, worktree, branch or base commit no
 longer matches the route frozen at PROTOCOLIZE.
 
 Before the packet is returned, `dd-flow` executes the project-owned bootstrap
-command frozen in the RUN execution profile and writes a readiness receipt in
-`05-code`. PROTOCOLIZE only creates the checkout and transfers the explicitly
-allowed local files; it never installs dependencies or starts the application.
-Trust a passing readiness receipt and do not independently repeat bootstrap.
+command frozen in the RUN execution profile and writes a workspace-bootstrap
+receipt in `05-code`. This is operational preparation, not the planned
+`run_at: readiness` acceptance gate. PROTOCOLIZE only creates the checkout and
+transfers the explicitly allowed local files; it never installs dependencies
+or starts the application. Trust a passing bootstrap receipt and do not
+independently repeat it.
 
 Implement only the packet's task and preserve its invariants. A packet may
 name a `provided_checks` alias: create it exactly with the supplied definition
 alongside its corresponding test or script before finishing the Work. Do not
-replace it with a similar command. The check profile's schema and policy gates
-are frozen PLAN input: do not downgrade its schema, rename its fields, remove
-mandatory gates, or rewrite existing aliases. A provider Work may make only
-the declared alias materialization. If the profile itself is incompatible with
-the returned CLI, stop and report the engine/flow-pair blocker; never modify
-the project contract to fit an ambient CLI. `work finish`
+replace it with a similar command. `work finish`
 validates the result and runs the packet's focused checks before accepting the
 Work. A failed focused check stays in that same Work for correction.
-
-Extend or reuse the existing owner named in `required_read`; do not introduce
-a parallel route, service, model, schema, component or test merely to finish
-quickly. If grounded project truth disproves the accepted plan's reuse path,
-record the concrete contradiction as a blocker for the coordinator instead of
-silently inventing a second implementation.
 
 The coordinator owns the graph and stage conclusion; every registered CODE
 Work runs in a fresh child session, including a serial dependency chain. Each
@@ -86,7 +75,12 @@ orchestrator's evidence-based confirmation that the accepted requirements and
 current-gate acceptance criteria are actually satisfied. `stage finish` checks
 obligation coverage, validates that semantic conclusion, runs the PLAN-declared
 `code` and final `readiness` checks plus the project policy gate, and renders
-the deterministic report. Stage start runs only the project bootstrap;
+the deterministic report. The order is strict: all `code` checks first, then
+all `readiness` checks. Project-mandatory aliases are present in the visible
+effective gate composed by the CLI from the accepted PLAN catalogue and the
+current project profile; PLAN does not copy policy floors by ritual. The
+packet and report expose every policy declaration and profile hash. Stage
+start runs only the project bootstrap;
 `readiness` means final acceptance readiness, not entry preparation. `merge`, `release`
 and `external` checks remain explicitly scheduled for their own gates and are
 never silently substituted here.
@@ -99,6 +93,8 @@ the relevant completed origin Works. The repair packet contains the original
 context plus the failure delta; do not make an untracked root-session fix.
 Do not repeat `stage finish` against the same workspace fingerprint: the CLI
 returns the retained failure until the repair changes the workspace.
+After a repair changes the fingerprint, every check in the affected final gate
+runs again in a new verification epoch; do not reuse a former pass by judgment.
 
 When the frozen RUN configuration enables it, a passing aggregate gate moves
 to the separate optional `code-review` stage. CODE verification is mandatory;

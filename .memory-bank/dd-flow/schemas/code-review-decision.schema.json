@@ -1,11 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "dd-flow/code-review-decision@3",
+  "$id": "dd-flow/code-review-decision@2",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_id", "summary", "findings"],
   "properties": {
-    "schema_id": {"const": "dd-flow/code-review-decision@3"},
+    "schema_id": {"const": "dd-flow/code-review-decision@2"},
     "summary": {"type": "string", "minLength": 1},
     "findings": {
       "type": "array",
@@ -17,11 +17,9 @@
           "finding_ref": {"type": "string", "pattern": "^WRK-[^/]+/FIND-[0-9]{3}$"},
           "disposition": {"enum": ["fix", "defer", "reject", "duplicate"]},
           "reason": {"type": "string", "minLength": 1},
-          "check_refs": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^CHK-[A-Za-z0-9-]+$"}},
           "def_id": {"type": "string", "minLength": 1},
           "duplicate_of": {"type": "string", "minLength": 1}
-        },
-        "allOf": [{"if": {"properties": {"disposition": {"const": "fix"}}}, "then": {"required": ["check_refs"]}}]
+        }
       }
     }
   }

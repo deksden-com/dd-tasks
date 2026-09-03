@@ -88,6 +88,11 @@ The semantic file records only verdict, summary, unresolved items and
 deviations. CODE Work reports evidence against acceptance ids; executable
 checks produce immutable receipts with a workspace fingerprint and hashes of
 the exact artifacts declared by PLAN.
+If the coordinator itself finds an unresolved accepted obligation, record it
+in `unresolved` and call `stage finish` once. The CLI materializes a semantic
+repair Work from that immutable verification file and the completed CODE
+context; run it, update the verification to `passed`, then finish again. Do
+not leave CODE running with a prose-only `needs_repair` conclusion.
 If that gate fails, create the returned repair Work from the failed receipt and
 the relevant completed origin Works. The repair packet contains the original
 context plus the failure delta; do not make an untracked root-session fix.

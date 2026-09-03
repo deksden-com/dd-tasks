@@ -5,10 +5,10 @@
   "canon_root": "/Users/deksden/Documents/_Projects/dd-memorybank",
   "canon_memory_bank_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank",
   "canon_flow_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank/dd-flow",
-  "source_commit": "bf2d897e2ee1763bf9a571380b858a7a154b9fa2",
+  "source_commit": "38604732fe4118d5cea2d325ce23d140210a3d20",
   "canon_version_at_source_commit": "4.0.1",
   "flow_contract": "dd-flow-canonical-2026-08",
-  "installed_at": "2026-09-02T00:00:00Z",
+  "installed_at": "2026-09-03T08:00:00Z",
   "included_files": [
     "README.md",
     "code",

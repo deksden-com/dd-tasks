@@ -2,8 +2,8 @@
 file: '.memory-bank/dd-flow/common/subagents.md'
 description: 'Canonical proportional routing and worker lifecycle contract for SPC-005.'
 purpose: 'Choose local, grouped or focused coverage from semantic triggers and keep runtime worker state single-sourced.'
-version: '2.0.0'
-date: '2026-08-10'
+version: '2.1.0'
+date: '2026-09-04'
 status: 'DRAFT'
 c4_level: 'runtime'
 parent: '.memory-bank/dd-flow/README.md'
@@ -12,6 +12,10 @@ related_files:
   - ../mb-sdlc/plan-aspects/index.md
   - ../schemas/protocol-plan.schema.json
 tags: [dd-flow, subagents, routing, workers, spc-005]
+history:
+  - version: '2.1.0'
+    date: '2026-09-04'
+    changes: 'Moved capacity qualification outside flow and required productive jobs to use harness-native depth-one children with all-settled sibling handling.'
 ---
 
 # Subagent routing
@@ -31,8 +35,8 @@ The semantic plan selects one of these execution routes:
 
 | Route | Meaning | Capacity |
 | --- | --- | --- |
-| `local_compact` | one tiny/short-scope unit stays with the orchestrator | no probe |
-| `single_wave_grouped` | compatible independent read-only units share one wave | one bounded probe only when worthwhile |
+| `local_compact` | one tiny/short-scope unit stays with the orchestrator | no capacity required |
+| `single_wave_grouped` | compatible independent read-only units share one wave | qualified profile capacity |
 | `multi_wave_grouped` | grouped units require the minimum number of waves | bounded packing |
 | `focused_subagent` | a mandatory independent boundary gets one worker | focused capacity |
 
@@ -55,9 +59,8 @@ aspects or available slots alone.
 5. Promote remaining independent read-only units only when the parallel-speed
    benefit is positive. Group at most three compatible units and preserve one
    verdict/evidence section per unit.
-6. Use reliable current free slots. If they are unknown and the work is
-   substantive, run one bounded capacity probe before final packing. Tiny
-   local work never probes.
+6. Use the qualified capacity supplied by controller/harness tooling for the
+   selected profile. Qualification happens outside RUN and never creates Work.
 7. Pack the eligible units into one wave when capacity allows; otherwise use
    the minimum batches/waves. Capacity cannot alter applicability, semantics,
    dependencies or separation.
@@ -126,21 +129,29 @@ siblings and create one recovery attempt for the affected unit only. A second
 recovery is not allowed; unresolved work becomes a blocker/DEF with the exact
 next gate.
 
-## Capacity and degraded behavior
+## Capacity qualification and degraded behavior
 
 Zero capacity returns opportunistic units to local compact work. A required
 independent unit that cannot run is blocked or explicitly degraded; do not
 pretend a local check is an independent worker verdict. Unknown capacity is
-reported as unknown, never fabricated as one slot. Probe cost and availability
-are runtime evidence, not model-authored fields.
+reported as unknown, never fabricated as one slot.
 
-When a bounded capacity probe is required, launch at most 15 independent leaf
-probe sessions. Probe `NN` performs no tool call, file read, child launch or
-`dd-flow` call, waits 60 seconds, and returns exactly `AGENT-NN`. The controller
-waits for all probes or 180 seconds from the first launch, terminates unfinished
-probes, then closes/deletes every completed probe session that the harness
-permits before recording capacity or launching productive work. Creation
-requests, queued tasks and incomplete probes are not capacity.
+Capacity is qualified outside dd-flow by creating one technical harness root
+and counting unique direct native child Session IDs that it successfully
+starts. Later failure or cancellation does not subtract a started child; an
+attempt without a child ID does not count. Qualification creates no Work,
+invokes no `dd-flow`, reads no project files and uses the same native child
+primitive, profile and workspace strategy as productive delegation. Its
+detailed receipt stays in harness/eval evidence; flow receives only the
+qualified integer used to bound batches.
+
+Every productive delegated job is one native depth-one child of the current
+Stage coordinator, never an independent root Session created by an external
+runner. The child first executes its exact `work start` command, and the
+lifecycle hook binds native child and parent identities. The child does not
+create grandchildren. A launch refused before child identity leaves the Work
+ready for a later batch; one failed child does not cancel or duplicate healthy
+siblings.
 
 Every delegated session is disposable unless its packet explicitly says it is
 long-lived. After its report is accepted or it is terminally rejected, the
@@ -154,3 +165,11 @@ The orchestrator verifies route choice, packet completeness, report status,
 coverage rows, consumed predecessor outputs and runtime worker/session facts.
 The semantic plan and aspect map remain the authoring surfaces; all mechanical
 progress and lifecycle receipts are CLI-generated projections.
+
+Before a harness profile is accepted for productive delegation, run two focused
+live checks outside the canonical chain: a bounded qualification attempt that
+counts direct native child IDs, and a productive PLAN-REVIEW/CODE/CODE-REVIEW
+smoke using the same native primitive. The latter proves trusted Work binding,
+depth one, shared workspace, all-settled siblings, usage reconciliation and a
+clean terminal child tree. A successful native launch and the later quality or
+terminal result of that child remain separate observations.

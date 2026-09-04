@@ -34,8 +34,11 @@ file are not evidence of a stuck worker. Do not interrupt, replace, or relaunch
 such a reviewer; wait for an explicit terminal signal.
 
 The first Finish freezes the compact decision and creates exactly one repair
-Work when fixes are accepted. Its successful result must explicitly list every
-assigned canonical finding reference, contain no blocker or deviation, and
+Work when fixes are accepted. The repair receives each complete finding—problem,
+impact, obligations, required outcome, evidence, decision reason and causal
+checks. Its successful result must include exactly one resolution per assigned
+canonical finding reference, explain how the required outcome was achieved,
+cite its evidence, contain no blocker or deviation, and
 materialize every assigned document update. After that Work completes, invoke
 the same Finish command again: the CLI reruns the same final CODE gate,
 including final `readiness` evidence such as browser checks, and closes the
@@ -52,7 +55,8 @@ not sufficient evidence: the write must retain the required predicate or share
 an atomic transaction/lock with the guard. Treat a stale-authority write as a
 material finding, not as a stylistic concern.
 
-After repairs the coordinator closes each accepted finding against evidence and
-the final diff. Do not repeat the entire review after a bounded repair. A new
+After repairs the coordinator compares the original problem and required
+outcome with the submitted resolution, its evidence and the final diff before
+closing each accepted finding. Do not repeat the entire review after a bounded repair. A new
 review is warranted only when the repair expands the reviewed surface or opens
 a new security, trust, data, or concurrency boundary, or when the user asks.

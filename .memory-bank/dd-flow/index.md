@@ -2,8 +2,8 @@
 file: '.memory-bank/dd-flow/index.md'
 description: 'Compact dd-flow catalog for session priming and stable SPECIFY-first flow routing.'
 purpose: 'Tell a fresh agent which prompt, predecessor gate and runtime invariant apply.'
-version: '2.1.0'
-date: '2026-08-31'
+version: '2.2.0'
+date: '2026-09-04'
 status: 'ACTIVE'
 c4_level: 'documentation'
 parent: '.memory-bank/dd-flow/README.md'
@@ -15,6 +15,9 @@ related_files:
   - ../spec/engineering/SPC-009-vnext-identity-materialization-and-runtime-state.md
 tags: [dd-flow, index, routing, lifecycle, spc-004, spc-009]
 history:
+  - version: '2.2.0'
+    date: '2026-09-04'
+    changes: 'Required delegated Work to run as native depth-one children of the Stage coordinator using externally qualified harness capacity.'
   - version: '2.1.0'
     date: '2026-08-31'
     changes: 'Made vNext MERGE and its single MRG queue the terminal SDLC route.'
@@ -49,6 +52,9 @@ history:
   root and archive-only `try-NNN` directories.
 - The only stage lifecycle actions are `stage start` and `stage finish`.
 - Successful finish always generates JSON, Markdown, HTML and summary views.
+- Delegated Work runs as a native depth-one child of the current Stage
+  coordinator. Capacity is qualified by controller/harness tooling outside the
+  RUN; dd-flow only packs ready Works against the supplied value.
 - `run.json`, stage reports and generated summary are runtime evidence; durable
   decisions belong in Memory Bank truth layers.
 - If project policy selects `feature_worktree`, `PROTOCOLIZE start` creates and

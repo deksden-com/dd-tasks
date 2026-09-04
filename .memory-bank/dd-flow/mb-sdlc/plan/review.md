@@ -2,8 +2,8 @@
 file: '.memory-bank/dd-flow/mb-sdlc/plan/review.md'
 description: 'Canonical PLAN review and aspect-routing prompt for SPC-005.'
 purpose: 'Select proportional coverage, preserve semantic dependencies and produce one accepted aspect map.'
-version: '2.1.0'
-date: '2026-08-10'
+version: '2.2.0'
+date: '2026-09-04'
 status: 'DRAFT'
 c4_level: 'prompt'
 parent: '../README.md'
@@ -15,6 +15,9 @@ related_files:
   - ../plan-aspects/index.md
 tags: [dd-flow, plan, review, routing, spc-005]
 history:
+  - version: '2.2.0'
+    date: '2026-09-04'
+    changes: 'Replaced the flow-owned timed probe with externally qualified native-child capacity shared by productive delegation.'
   - version: '2.1.0'
     date: '2026-08-12'
     changes: 'Added semantic acceptance checks for actionable plan-item implementation guidance.'
@@ -70,28 +73,26 @@ the orchestrator currently owns routing; it is not the default execution route
 or proof of a completed local review.
 
 1. Read bounded intake and identify substantive semantic units and consumers.
-2. Choose `local_compact` when there is one unit or one short source scope. Do
-   not probe capacity for this route.
+2. Choose `local_compact` when there is one unit or one short source scope. It
+   does not require subagent capacity.
 3. For multiple units, record only hard dependencies where a successor names
    the exact accepted predecessor output it consumes.
 4. Keep trust/security boundaries, incompatible snapshots, mutation conflicts
    and hard dependencies focused when independent evidence is required.
 5. Treat remaining read-only units as grouped candidates. Prefer
    `single_wave_grouped` when a real parallel-speed benefit exists.
-6. Use known free capacity, or one bounded probe only for sufficiently
-   substantive multi-aspect work. Capacity changes packing/batches only.
+6. Use capacity qualified for the selected harness profile by controller
+   tooling outside this RUN. Capacity changes packing/batches only.
 7. Pack compatible units in groups of at most three and preserve separation
    rules. Prefer one wave; use the minimum number of waves when capacity limits
    it.
 8. Accept every unit separately. Recover only a rejected unit; accepted
    siblings remain accepted.
 
-If a substantive delegated route has unknown capacity, use one bounded probe:
-launch at most 15 independent leaf probes, each returning exactly `AGENT-NN`
-after a 60-second wait without tools or child launches. Wait for completion of
-all probes or 180 seconds total, terminate unfinished probes, and count only
-exact-token completions. Persist that count once as the RUN-level capacity
-observation; do not treat launch requests or queued probes as slots.
+If a substantive delegated route has unknown capacity, report the missing
+harness qualification to the controller. Do not test the harness from PLAN,
+create probe Work or fabricate one slot. Productive reviewer jobs use the same
+native depth-one child mechanism that produced the qualified value.
 
 Compatibility families in `plan-aspects/index.md` are preferences, not an
 allowlist. A group must be read-only, use one immutable or read-equivalent
@@ -136,7 +137,7 @@ Before handing CODE the plan, verify:
 - guidance transfers facts and decisions but does not capture chain-of-thought,
   private transcripts or a second plan;
 - dependencies are acyclic and name consumed outputs;
-- tiny work has no capacity probe and suitable multi-aspect work has a grouped
+- tiny work requires no capacity and suitable multi-aspect work has a grouped
   one-wave route;
 - every catalog aspect has applicability, coverage and a verdict;
 - no active instruction asks for duplicate plans, manual reports or mechanical

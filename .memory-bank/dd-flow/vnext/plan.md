@@ -137,7 +137,12 @@ membership or lifecycle state, plan the check and write as one atomic database
 boundary: one conditional statement or one transaction with the necessary lock
 and predicates. A prior read followed by an unconditional write is not proof
 that permission or state was still valid at mutation time. Include a negative
-or concurrency proof when that boundary can change concurrently.
+or concurrency proof when that boundary can change concurrently. Preserve
+universal and exclusive quantifiers and every accepted exception unchanged;
+do not narrow an accepted boundary to the easiest example. The strength of a
+planned proof must match the failure mechanism: a sequential negative test does
+not prove a concurrency race. `proof_limits` bounds what evidence claims; it
+cannot waive an accepted requirement or replace a required proof.
 
 PLAN finishes when the plan and aspect maps validate; the CLI then generates
 the CODE batch. It

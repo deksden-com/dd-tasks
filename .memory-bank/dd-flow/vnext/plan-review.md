@@ -28,6 +28,12 @@ trust, irreversible or hard-dependency boundaries. Review findings are inputs,
 not votes: accept evidence-backed material findings and reject unsupported or
 non-material preferences.
 
+Challenge semantic preservation explicitly: universal/exclusive quantifiers
+and accepted exceptions must survive intact from SPECIFY into every owning plan
+item. Check that each proof exercises its named failure mechanism; sequential
+negative evidence is not concurrency evidence, and a proof limit cannot erase
+an accepted obligation.
+
 PLAN performs semantic grouping using the one-shot capacity already stored for
 this RUN. PLAN-REVIEW does not regroup or re-probe. Execute the ready portion
 of the Work graph in waves: launch up to the measured capacity, wait for that

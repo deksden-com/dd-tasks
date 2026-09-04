@@ -136,6 +136,14 @@ Do this in the following order and record it in the result.
    actor-visible flow at all, such as an isolated internal configuration
    change. `light` means only the narrow relevant checklist, not a reduced full
    project.
+
+Treat universal and exclusive wording—`only`, `any`, `all`, `never`, the
+whole set—and every stated exception as part of the requirement, not prose to
+smooth away. Any exception to authorization, read-only behavior or lifecycle
+rules changes a trust boundary: apply a light misuse-case pass and, where
+conditions combine, a decision table. Specify both allowed and disallowed
+behavior at the external input boundary, including unknown input and the rule
+that rejected input must not cause a partial write.
 4. **One ledger and resolution gate.** Consolidate research and selected
    method findings in the same `Gap-method pass`: gaps, requirement updates
    and happy/alternate/error coverage. Resolve in order: current user statement or

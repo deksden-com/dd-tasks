@@ -63,6 +63,13 @@ stage. It does not create a backward transition or a second attempt.
     checks/RCP-001/{receipt.json,stdout.log,stderr.log,artifacts/}
 ```
 
+`DD_FLOW_HOME` — техническое хранилище движка; оно не является проектом и не
+является feature worktree. У RUN есть три разные абсолютные координаты:
+`project_root` — стабильная идентичность проекта, `workspace_root` — текущая
+рабочая копия (в том числе feature worktree), `run_root` — каталог артефактов
+внутри `DD_FLOW_HOME`. Команды жизненного цикла всегда получают `project_root`,
+а все файловые артефакты RUN разрешаются от зарегистрированного `run_root`.
+
 Stage-owned semantic artifacts stay in the stage root. Work belongs to the RUN,
 not to a stage, and gets `works/<WRK>/` only when it owns a prompt/result packet.
 The root coordinator does not receive an empty duplicate directory.

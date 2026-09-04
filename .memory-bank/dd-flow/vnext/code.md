@@ -38,6 +38,14 @@ replace it with a similar command. `work finish`
 validates the result and runs the packet's focused checks before accepting the
 Work. A failed focused check stays in that same Work for correction.
 
+For every mutation that depends on membership, ownership, authorization or a
+parent lifecycle state, verify the decision boundary itself: retain the needed
+predicate in the write statement, or make the guard and write one explicit
+transaction with the needed lock. A prior read may explain an error, but it
+never proves that a later write is still permitted. Apply this equally to
+create, update, delete and parent-state mutations; do not implement a narrower
+atomicity guarantee than the accepted PLAN promises.
+
 The coordinator owns the graph and stage conclusion; every registered CODE
 Work runs in a fresh child session, including a serial dependency chain. Each
 child makes its first command the supplied `work start`, and the PreToolUse

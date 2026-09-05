@@ -60,6 +60,10 @@ if [[ -z "$esbuild_bin" ]]; then
 fi
 "$esbuild_bin" --version >/dev/null
 pnpm exec biome --version >/dev/null
+# Vitest loads Vite/Rollup, including its platform-native optional dependency.
+# A working biome/esbuild binary alone does not prove this toolchain is intact.
+pnpm exec vitest --version >/dev/null
+node --input-type=module -e 'const { createRequire } = await import("node:module"); const require = createRequire(import.meta.url); const fromVitest = createRequire(require.resolve("vitest/package.json")); const fromVite = createRequire(fromVitest.resolve("vite/package.json")); const rollup = fromVite("rollup"); const bundle = await rollup.rollup({ input: "virtual:bootstrap", plugins: [{ name: "bootstrap", resolveId: id => id, load: () => "export const ready = true;" }] }); await bundle.generate({ format: "es" }); await bundle.close();'
 
 if ! command -v docker >/dev/null 2>&1; then
   printf 'bootstrap blocked: Docker is required for the local PostgreSQL contour\n' >&2

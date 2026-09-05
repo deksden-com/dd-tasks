@@ -1,10 +1,10 @@
 {
   "schema_id": "dd-flow/compatibility@1",
-  "memory_bank_version": "4.0.2",
+  "memory_bank_version": "4.0.4",
   "dd_flow_cli": {
     "package_name": "@deksden-com/dd-flow-cli",
-    "min_version": "0.9.0-beta.4",
-    "recommended_version": "0.9.0-beta.10",
+    "min_version": "0.9.0-beta.13",
+    "recommended_version": "0.9.0-beta.14",
     "status_contract": "dd-flow/status-report@1",
     "version_contract": "dd-flow/version-report@1",
     "flow_contract": "dd-flow-canonical-2026-08"
@@ -12,16 +12,16 @@
   "router": {
     "package_name": "@deksden-com/dd-flow-cli",
     "min_version": "0.9.0-beta.4",
-    "recommended_version": "0.9.0-beta.10",
+    "recommended_version": "0.9.0-beta.14",
     "routing_model": "routed_engine_dispatch",
     "engine_store": "~/.dd-flow/engines",
-    "notes": "The global router selects an installed compatible engine; 0.9.0-beta.10 preserves semantic boundaries and evidence-backed finding closure through the current SPECIFY-through-MERGE runtime."
+    "notes": "The global router selects an installed compatible engine. Engine beta.13 is the first code-work-result@3 consumer; beta.14 adds owner-aware recovery and shared managed workspace preparation."
   },
   "engine": {
     "package_name": "@deksden-com/dd-flow-cli",
-    "version_range": ">=0.9.0-beta.4 <0.10.0",
-    "recommended_version": "0.9.0-beta.10",
-    "install_hint": "npm install -g @deksden-com/dd-flow-cli@0.9.0-beta.10",
+    "version_range": ">=0.9.0-beta.13 <0.10.0",
+    "recommended_version": "0.9.0-beta.14",
+    "install_hint": "npm install -g @deksden-com/dd-flow-cli@0.9.0-beta.14",
     "old_engine_install_hint": "npx @deksden-com/dd-flow-cli@<version> engine install",
     "first_engine_installable_version": "0.4.0",
     "legacy_direct_cli_before": "0.4.0",
@@ -34,7 +34,11 @@
     "storage_mutation": "explicit_migration_apply_only",
     "run_creation": "after_storage_readiness",
     "post_sync_routing": "marker_free_project_current",
-    "contexts": ["project_current", "upgrade_target", "effective_execution"],
+    "contexts": [
+      "project_current",
+      "upgrade_target",
+      "effective_execution"
+    ],
     "order": [
       "pin_target_canon",
       "verify_target_router",
@@ -58,14 +62,16 @@
     "version_contract": "dd-flow/version-report@1"
   },
   "global_dashboard": {
-    "supported_project_summary_contracts": ["dd-flow/project-summary@1"],
+    "supported_project_summary_contracts": [
+      "dd-flow/project-summary@1"
+    ],
     "unsupported_project_visibility": true,
     "summary_version_groups": true
   },
   "migrations": {
     "mode": "mb-upgrade-only",
-    "from_previous": "4.0.1",
-    "to_this": "4.0.2",
+    "from_previous": "4.0.3",
+    "to_this": "4.0.4",
     "adjacent_only": true,
     "normal_commands_may_migrate": false
   },

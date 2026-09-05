@@ -1,14 +1,14 @@
 {
   "schema_id": "dd-flow/project-flow-pack-manifest@2",
-  "pack_version": "4.0.2",
+  "pack_version": "4.0.4",
   "flow_origin_policy": "project_local_pack",
   "canon_root": "/Users/deksden/Documents/_Projects/dd-memorybank",
   "canon_memory_bank_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank",
   "canon_flow_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank/dd-flow",
-  "source_commit": "fccdb9fe7359f2ba321eebace328fd18557dcd25",
-  "canon_version_at_source_commit": "4.0.2",
+  "source_commit": "c8cae271f844fd3b3c7492f164e13a60eaba4839",
+  "canon_version_at_source_commit": "4.0.4",
   "flow_contract": "dd-flow-canonical-2026-08",
-  "installed_at": "2026-09-03T08:00:00Z",
+  "installed_at": "2026-09-05T08:50:44.766Z",
   "included_files": [
     "README.md",
     "code",
@@ -317,5 +317,5 @@
   "generated_allow_patterns": [
     ".generated/**"
   ],
-  "notes": "Curated project-local flow pack synchronized with canonical Memory Bank 4.0.1 at bf2d897; canonical-only flows, evals and experiments remain canonical/source-only."
+  "notes": "Curated project-local flow pack 4.0.4. Applied the complete canonical dd-flow delta since fccdb9f: compatibility and code-work-result/code-work-batch schemas. Project-specific overlays and canonical-only exclusions preserved."
 }

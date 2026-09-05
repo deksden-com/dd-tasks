@@ -15,6 +15,12 @@ acceptance criterion, invariant, engineering rule or declared proof limit;
 direct evidence; a concrete impact; and the minimum required outcome. Do not
 turn style preferences, cosmetics, or untargeted refactoring into findings.
 
+Inspect affected public test entrypoints and their setup, not only successful
+focused receipts. Check which tests they select and who creates/cleans their
+database, seed and services with the declared cwd/env. Reliance on prior test
+leftovers is a material verification defect. Reviewers receive empty context;
+a different session identifier alone does not prove independent review.
+
 The coordinator delegates the registered aspect groups to fresh read-only
 workers and never claims a reviewer Work itself. Workers neither edit the
 product nor create child workers. A reviewer may read the complete bounded

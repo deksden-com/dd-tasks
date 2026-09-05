@@ -57,7 +57,10 @@ and the absence of a new artifact are normal while a turn is active; they are
 not evidence that a worker is stuck. Do not interrupt, replace or relaunch it.
 Wait until the harness reports completion, failure, cancellation, need for
 attention, a process exit, or an explicit platform deadline failure. Long
-`work finish` checks report progress on stderr. Close a
+`work finish` checks report progress on stderr. A repair Work also receives
+the causal checks that must pass before it is accepted, even when their normal
+gate is later (`code` or `readiness`); the CLI executes those repair checks
+once and retains their receipts. Close a
 disposable worker only after its Work is accepted or explicitly failed or
 cancelled and its turn has settled. After every accepted completion, use the
 returned graph to dispatch newly ready Works.
@@ -104,6 +107,10 @@ not leave CODE running with a prose-only `needs_repair` conclusion.
 If that gate fails, create the returned repair Work from the failed receipt and
 the relevant completed origin Works. The repair packet contains the original
 context plus the failure delta; do not make an untracked root-session fix.
+If retained evidence shows the failure was environmental and that environment
+has been restored, use the exact returned `stage finish ... --retry-check ...
+--reason ...` command. It creates a new receipt on the unchanged tree; do not
+manufacture a source edit merely to bypass the final-gate guard.
 Do not repeat `stage finish` against the same workspace fingerprint: the CLI
 returns the retained failure until the repair changes the workspace.
 After a repair changes the fingerprint, every check in the affected final gate

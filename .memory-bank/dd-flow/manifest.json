@@ -5,10 +5,10 @@
   "canon_root": "/Users/deksden/Documents/_Projects/dd-memorybank",
   "canon_memory_bank_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank",
   "canon_flow_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank/dd-flow",
-  "source_commit": "c8cae271f844fd3b3c7492f164e13a60eaba4839",
+  "source_commit": "ced59c19d0a4062146a1dc4ccb977e10284a2fe4",
   "canon_version_at_source_commit": "4.0.4",
   "flow_contract": "dd-flow-canonical-2026-08",
-  "installed_at": "2026-09-05T08:50:44.766Z",
+  "installed_at": "2026-09-06T00:00:00.000Z",
   "included_files": [
     "README.md",
     "code",
@@ -317,5 +317,5 @@
   "generated_allow_patterns": [
     ".generated/**"
   ],
-  "notes": "Curated project-local flow pack 4.0.4. Applied the complete canonical dd-flow delta since fccdb9f: compatibility and code-work-result/code-work-batch schemas. Project-specific overlays and canonical-only exclusions preserved."
+  "notes": "Curated project-local flow pack 4.0.4. Applied the complete canonical dd-flow delta since c8cae271: PLAN/PLAN-REVIEW/CODE/CODE-REVIEW/MERGE instructions, including clean-environment verification, causal repair checks and environment retry. Project-specific overlays and canonical-only exclusions preserved."
 }

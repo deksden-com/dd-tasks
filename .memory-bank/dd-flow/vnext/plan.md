@@ -79,6 +79,13 @@ and cleanup. Required durable outputs go to `DD_FLOW_EVIDENCE_DIR` through
 generated source, formatting or any other tracked/non-ignored project file;
 such creation or repair belongs to a Work before the check runs.
 
+For each public test entrypoint affected by the change, establish how it works
+in a clean checkout: database/schema/seed ownership, required services, cwd and
+environment, and cleanup. Inspect the actual selection of tests: a successful
+focused command does not prove that the public unit/contract command has valid
+setup. If setup is missing, assign its implementation to a PLAN item; do not
+assume another test or a previous run has prepared the environment.
+
 Use a compact plan unless a named high-impact, irreversible, security, runtime
 or uncertainty trigger requires full depth. Classify every aspect. Ask the user
 only when no safe project-compatible default exists.

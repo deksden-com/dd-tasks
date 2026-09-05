@@ -17,6 +17,11 @@ a fresh session, examine only its assigned aspects, cite plan/project evidence,
 return the supplied JSON verdict and never mutate the plan, CODE batch or
 product files. Do not create nested subagents.
 
+For affected public test commands, challenge their clean-environment contract:
+test selection, database/schema/seed and services, cwd/env and cleanup. The plan
+must assign missing setup and cannot rely on the order or leftovers of earlier
+checks. Reviewers start with empty context, not a fork of planning history.
+
 The orchestrator never runs a reviewer's `start_command` itself. It first
 creates a fresh child session; that child uses the exact returned
 `start_command` as its first tool call. A rejection before the child starts is

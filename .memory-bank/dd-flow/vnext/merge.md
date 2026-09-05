@@ -2,10 +2,13 @@
 file: '.memory-bank/dd-flow/vnext/merge.md'
 description: 'Каноническая методика vNext MERGE.'
 purpose: 'Использовать через полный пакет dd-flow stage start --stage merge.'
-version: '1.3.0'
-date: '2026-09-04'
+version: '1.4.0'
+date: '2026-09-05'
 status: 'ACTIVE'
 history:
+  - version: '1.4.0'
+    date: '2026-09-05'
+    changes: 'Aligned source-repair and environment-retry evidence with the executable MERGE gate.'
   - version: '1.3.0'
     date: '2026-09-04'
     changes: 'Defined frozen full integration gate and checks-before-commit ordering.'
@@ -30,15 +33,24 @@ history:
    `merge apply`.
 5. Записать компактный смысловой `merge-result@1` по данной форме.
 6. Выполнить точную команду `stage finish` и дождаться прогресса.
-7. При падении проверки исправить причину в том же MERGE Work и повторить
-finish. Не создавать repair Work и не запускать повторное review.
+7. При падении проверки прочитать только возвращённые receipt/logs и
+   классифицировать причину. Продуктовый дефект исходной функциональности
+   исправляется точной командой source repair: она создаёт CODE → независимое
+   CODE-REVIEW → replacement MERGE. Не исправлять продукт в integration
+   workspace и не повторять этот MRG. Восстановление среды без изменения
+   продукта остаётся в текущем MERGE: выполнить возвращённую команду повтора
+   упавшей проверки и затем повторить finish. Повтор использует новый receipt
+   той же проверки; старый failed receipt не затирается и не требует фиктивной
+   правки исходников.
 
 `merge apply` переносит source в integration workspace **без коммита**. Перед
 созданием integration commit CLI выполняет замороженный при постановке в очередь
 полный gate: обязательные проверки проекта и все доступные проверки принятого
 CODE (work, code, readiness и merge) уже на объединённом дереве. Если какая-либо
 проверка не проходит, коммит не создаётся: агент читает только возвращённые
-receipts, исправляет интеграционное дерево в том же Work и повторяет `finish`.
+receipts и выбирает один из двух маршрутов выше. CLI не классифицирует смысл
+ошибки по тексту и не считает восстановление среды доказательством успеха:
+требуется новый успешный receipt на неизменённом integration tree.
 Состав gate хранится в `07-merge/merge-gate.json`; он не пересчитывается по
 изменённым файлам и не меняется между повторами.
 

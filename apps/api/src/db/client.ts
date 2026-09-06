@@ -19,6 +19,7 @@ export function getFlowScopedLocalDatabaseUrl(
   runId: string | null = null,
   suffix = process.env.DD_FLOW_LOCAL_DATABASE_SUFFIX,
 ): string {
+  if (process.env.DD_TASKS_TEST_WORLD) return value;
   if (!runId || !suffix || !/^[a-f0-9]{8,64}$/.test(suffix)) return value;
   const url = new URL(value);
   const name = decodeURIComponent(url.pathname.slice(1));

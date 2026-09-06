@@ -1,7 +1,14 @@
 import { spawn } from "node:child_process";
+import { randomUUID } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { createRequire } from "node:module";
+import net from "node:net";
 import { join, resolve } from "node:path";
+import { runtimePorts } from "./runtime-ports.mjs";
 
+const postgres = createRequire(
+  new URL("../apps/api/package.json", import.meta.url),
+)("postgres");
 const workspaceRoot = process.cwd();
 const runId = valueAfter("--run-id") ?? process.env.RUN_ID ?? "";
 const runIdPattern = /^RUN-[0-9]{8}-[0-9]{3}__SCN-001$/;
@@ -21,11 +28,30 @@ const runToken = runId
   .replace(/^RUN-/, "")
   .replace(/__SCN-001$/, "")
   .toLowerCase();
-const databaseName = `dd_tasks_foundation_local_${runToken.replaceAll("-", "_")}_scn001`;
+const invocation = randomUUID().replaceAll("-", "");
+const databaseName = `dd_tasks_foundation_local_${invocation}`;
+const owner = `dd-tasks:foundation:${invocation}`;
 const schemaName = `foundation_${runToken.replaceAll("-", "_")}_scn001`;
-const baseDatabase = "dd_tasks_foundation_local";
-const apiUrl = "http://127.0.0.1:8787";
-const scenarioRoot = resolve(workspaceRoot, ".scenario-runs", runId);
+const baseDatabase = "postgres";
+process.env.DD_FLOW_PORT_API ??= await availablePort();
+process.env.DD_FLOW_PORT_WEB ??= await availablePort();
+const ports = runtimePorts();
+const apiUrl = ports.apiUrl;
+const databaseUrl = new URL(
+  process.env.DD_TASKS_TEST_ADMIN_URL ??
+    "postgresql://dd_tasks:dd_tasks_local@127.0.0.1:55433/postgres",
+);
+assert(
+  ["127.0.0.1", "localhost", "[::1]"].includes(databaseUrl.hostname),
+  "Foundation database must be loopback",
+);
+databaseUrl.pathname = `/${databaseName}`;
+const scenarioRoot = resolve(
+  workspaceRoot,
+  ".scenario-runs",
+  runId,
+  invocation,
+);
 const durableEvidencePath = process.env.DD_FLOW_EVIDENCE_PATH
   ? resolve(workspaceRoot, process.env.DD_FLOW_EVIDENCE_PATH)
   : join(scenarioRoot, "phase-05-collect", "foundation-scenario-run.json");
@@ -35,6 +61,17 @@ let ownedApiProcess = null;
 let databaseCreated = false;
 let overallStatus = "passed";
 let overallReason = "all phases passed";
+let cancelled = false;
+const activeCommands = new Set();
+const cancel = () => {
+  cancelled = true;
+  overallStatus = "failed";
+  overallReason = "scenario cancelled";
+  for (const child of activeCommands) signalGroup(child, "SIGTERM");
+  if (ownedApiProcess) signalGroup(ownedApiProcess, "SIGTERM");
+};
+process.on("SIGTERM", cancel);
+process.on("SIGINT", cancel);
 
 await mkdir(scenarioRoot, { recursive: true });
 await writeJson("run.json", {
@@ -76,6 +113,11 @@ try {
       throw new Error("derived local database creation failed");
     }
     databaseCreated = true;
+    const marked = await psql(
+      baseDatabase,
+      `COMMENT ON DATABASE "${databaseName}" IS '${owner}'`,
+    );
+    assert(marked.status === 0, "database ownership marker failed");
     result.status = "passed";
     result.world = {
       world_id: `foundation-local-${runToken}-scn001`,
@@ -89,6 +131,7 @@ try {
 
   if (phasePassed("phase-01-world")) {
     await phase("phase-02-migrate-schema", async (result) => {
+      await assertDatabaseOwner();
       const migration = await readFile(
         join(workspaceRoot, "apps/api/drizzle/0000_foundation.sql"),
         "utf8",
@@ -183,6 +226,7 @@ try {
 
   if (phasePassed("phase-03-api-contract")) {
     await phase("phase-04-browser", async (result) => {
+      await stopOwnedApi();
       const browser = await runCommand(
         "pnpm",
         [
@@ -195,7 +239,14 @@ try {
         ],
         {
           cwd: workspaceRoot,
-          env: { ...process.env, CI: "" },
+          env: {
+            ...process.env,
+            CI: "",
+            DD_TASKS_BROWSER_RESULTS: join(
+              scenarioRoot,
+              "browser-results.json",
+            ),
+          },
           timeoutMs: 180_000,
         },
       );
@@ -209,10 +260,7 @@ try {
       if (browser.status !== 0) {
         throw new Error("managed localhost Playwright proof failed");
       }
-      const browserResultPath = join(
-        workspaceRoot,
-        "apps/web/test-results/browser-results.json",
-      );
+      const browserResultPath = join(scenarioRoot, "browser-results.json");
       let browserSummary = { path: browserResultPath, available: false };
       try {
         const raw = JSON.parse(await readFile(browserResultPath, "utf8"));
@@ -228,7 +276,7 @@ try {
       result.status = "passed";
       result.evidence = {
         contour: "managed_localhost",
-        base_url: "http://127.0.0.1:4173",
+        base_url: ports.webUrl,
         file_url_used: false,
         command:
           "pnpm --filter @dd-tasks/web test:browser -- --project chromium",
@@ -352,6 +400,7 @@ await phase("phase-06-cleanup", async (result) => {
     });
     return;
   }
+  await assertDatabaseOwner();
   const dropped = await psql(
     baseDatabase,
     `DROP DATABASE IF EXISTS "${databaseName}" WITH (FORCE)`,
@@ -446,6 +495,8 @@ async function phase(phaseId, callback) {
   };
   phases.push(item);
   try {
+    if (cancelled && phaseId !== "phase-06-cleanup")
+      throw new Error("scenario cancelled");
     await callback(item);
     if (item.status === "running") item.status = "passed";
   } catch (error) {
@@ -473,41 +524,41 @@ function sqlString(value) {
   return value.replaceAll("'", "''");
 }
 
-async function psql(database, sql) {
-  return runCommand(
-    "docker",
-    [
-      "compose",
-      "exec",
-      "-T",
-      "postgres",
-      "psql",
-      "-U",
-      "dd_tasks",
-      "-d",
-      database,
-      "-v",
-      "ON_ERROR_STOP=1",
-      "-At",
-      "-F",
-      "|",
-      "-c",
-      sql,
-    ],
-    { cwd: workspaceRoot, timeoutMs: 60_000 },
-  );
+async function psql(database, statement) {
+  const url = new URL(databaseUrl);
+  url.pathname = `/${database}`;
+  const client = postgres(url.toString(), { max: 1, connect_timeout: 10 });
+  try {
+    const rows = await client.unsafe(statement);
+    return {
+      status: 0,
+      stdout: rows.map((row) => Object.values(row).join("|")).join("\n"),
+      stderr: "",
+    };
+  } catch (error) {
+    return { status: 1, stdout: "", stderr: redact(error.message) };
+  } finally {
+    await client.end({ timeout: 5 });
+  }
 }
 
 async function ensureApi() {
   try {
     const response = await fetch(`${apiUrl}/api/health`);
-    if (response.ok) return { owned: false, reused: true };
-  } catch {
-    // Start the project-owned process below.
+    if (response.ok) throw new Error("API port is already occupied");
+  } catch (error) {
+    if (error.message === "API port is already occupied") throw error;
   }
   ownedApiProcess = spawn("pnpm", ["--filter", "@dd-tasks/api", "start"], {
     cwd: workspaceRoot,
-    env: { ...process.env, PORT: "8787", NODE_ENV: "development" },
+    env: {
+      ...process.env,
+      DATABASE_URL: databaseUrl.toString(),
+      PORT: String(ports.api),
+      NODE_ENV: "development",
+      RUNTIME_PROFILE: "local",
+    },
+    detached: true,
     stdio: ["ignore", "pipe", "pipe"],
   });
   const deadline = Date.now() + 30_000;
@@ -515,7 +566,14 @@ async function ensureApi() {
     if (ownedApiProcess.exitCode !== null) break;
     try {
       const response = await fetch(`${apiUrl}/api/health`);
-      if (response.ok) return { owned: true, reused: false };
+      if (response.ok)
+        return {
+          owned: true,
+          reused: false,
+          api_url: apiUrl,
+          database: databaseName,
+          pid: ownedApiProcess.pid,
+        };
     } catch {
       // Keep polling the owned process.
     }
@@ -528,7 +586,7 @@ async function stopOwnedApi() {
   const processToStop = ownedApiProcess;
   ownedApiProcess = null;
   if (!processToStop || processToStop.exitCode !== null) return;
-  processToStop.kill("SIGTERM");
+  signalGroup(processToStop, "SIGTERM");
   await new Promise((resolvePromise) => {
     const timer = setTimeout(resolvePromise, 2_000);
     processToStop.once("exit", () => {
@@ -536,7 +594,7 @@ async function stopOwnedApi() {
       resolvePromise();
     });
   });
-  if (processToStop.exitCode === null) processToStop.kill("SIGKILL");
+  if (processToStop.exitCode === null) signalGroup(processToStop, "SIGKILL");
 }
 
 async function fetchJson(url, options = {}) {
@@ -548,19 +606,21 @@ async function fetchJson(url, options = {}) {
 function runCommand(command, args, options = {}) {
   return new Promise((resolvePromise) => {
     const child = spawn(command, args, {
+      detached: true,
       cwd: options.cwd ?? workspaceRoot,
       env: options.env ?? process.env,
       stdio: [options.input ? "pipe" : "ignore", "pipe", "pipe"],
     });
+    activeCommands.add(child);
     let stdout = "";
     let stderr = "";
     let settled = false;
     let timedOut = false;
     const timeout = setTimeout(() => {
       timedOut = true;
-      child.kill("SIGTERM");
+      signalGroup(child, "SIGTERM");
       setTimeout(() => {
-        if (child.exitCode === null) child.kill("SIGKILL");
+        signalGroup(child, "SIGKILL");
       }, 2_000).unref();
     }, options.timeoutMs ?? 120_000);
     child.stdout.on("data", (chunk) => {
@@ -572,12 +632,14 @@ function runCommand(command, args, options = {}) {
     child.on("error", (error) => {
       if (settled) return;
       settled = true;
+      activeCommands.delete(child);
       clearTimeout(timeout);
       resolvePromise({ status: 1, stdout, stderr: error.message });
     });
     child.on("close", (status, signal) => {
       if (settled) return;
       settled = true;
+      activeCommands.delete(child);
       clearTimeout(timeout);
       resolvePromise({
         status: timedOut ? 124 : (status ?? 1),
@@ -604,4 +666,37 @@ async function writeJson(relativePath, value) {
 async function writeJsonAt(path, value) {
   await mkdir(resolve(path, ".."), { recursive: true });
   await writeFile(path, `${JSON.stringify(value, null, 2)}\n`, "utf8");
+}
+
+async function assertDatabaseOwner() {
+  const result = await psql(
+    baseDatabase,
+    `SELECT shobj_description(oid, 'pg_database') FROM pg_database WHERE datname = '${databaseName}'`,
+  );
+  assert(
+    result.status === 0 && result.stdout.trim() === owner,
+    "Database ownership is not confirmed; mutation refused",
+  );
+}
+
+async function availablePort() {
+  const server = net.createServer();
+  await new Promise((resolve, reject) => {
+    server.once("error", reject);
+    server.listen(0, "127.0.0.1", resolve);
+  });
+  const port = server.address().port;
+  await new Promise((resolve, reject) =>
+    server.close((error) => (error ? reject(error) : resolve())),
+  );
+  return String(port);
+}
+
+function signalGroup(child, signal) {
+  if (!child?.pid) return;
+  try {
+    process.kill(-child.pid, signal);
+  } catch (error) {
+    if (error.code !== "ESRCH") throw error;
+  }
 }

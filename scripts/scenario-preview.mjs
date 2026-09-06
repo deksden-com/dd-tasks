@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import { createHash, randomBytes } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
+import { runtimePorts } from "./runtime-ports.mjs";
 
 const workspaceRoot = process.cwd();
 const profile = valueAfter("--profile");
@@ -46,7 +47,7 @@ const environment = {
   PREVIEW_POSTGRES_PASSWORD: passwords.postgres,
   PREVIEW_IMAGE_NAME:
     process.env.PREVIEW_IMAGE_NAME ?? `dd-tasks-preview:${binding.slug}`,
-  PREVIEW_PORT: process.env.PREVIEW_PORT ?? "4173",
+  PREVIEW_PORT: String(runtimePorts().preview),
   PREVIEW_PROXY_VISIBILITY: "private",
   PREVIEW_REGISTRATION_MODE: "closed",
 };

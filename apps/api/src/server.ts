@@ -6,7 +6,10 @@ import { previewBindingFor } from "./db/runtime-profile.js";
 import { classifyMutationTarget } from "./db/target-guard.js";
 import { createRuntimeConfig } from "./runtime.js";
 
-const port = Number.parseInt(process.env.PORT ?? "8787", 10);
+const port = Number.parseInt(
+  process.env.DD_FLOW_PORT_API ?? process.env.PORT ?? "8787",
+  10,
+);
 const hostname = process.env.HOST ?? "0.0.0.0";
 const staticRoot = process.env.WEB_DIST_DIR
   ? relative(process.cwd(), resolve(process.env.WEB_DIST_DIR))

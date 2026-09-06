@@ -1,5 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
+import { runtimePorts } from "../../scripts/runtime-ports.mjs";
+
 export default defineConfig({
   testDir: "tests/browser",
   testMatch: "preview.spec.ts",
@@ -17,7 +19,7 @@ export default defineConfig({
     ],
   ],
   use: {
-    baseURL: process.env.PREVIEW_BASE_URL ?? "http://127.0.0.1:4173",
+    baseURL: process.env.PREVIEW_BASE_URL ?? runtimePorts().previewUrl,
     trace: "off",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],

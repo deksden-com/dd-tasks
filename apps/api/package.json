@@ -12,10 +12,10 @@
     "db:check": "tsx src/db/commands.ts check",
     "db:reset": "tsx src/db/commands.ts reset",
     "db:seed": "tsx src/db/commands.ts seed",
-    "test": "vitest run --config vitest.config.ts",
-    "test:contract": "vitest run --config vitest.config.ts tests/api-json-contract.test.ts",
+    "test": "tsx scripts/test-world.ts integration vitest run --config vitest.config.ts",
+    "test:contract": "tsx scripts/test-world.ts integration vitest run --config vitest.config.ts tests/api-json-contract.test.ts",
     "test:unit": "vitest run --config vitest.unit.config.ts",
-    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:integration": "tsx scripts/test-world.ts integration vitest run --config vitest.integration.config.ts",
     "format": "biome check --write .",
     "lint": "biome lint ."
   },

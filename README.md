@@ -108,3 +108,37 @@ assigned only after their scope passes the applicable flow and verification.
 - Root commands must provide a deterministic path to format, lint, typecheck,
   test, build, reset data, and run end-to-end scenarios once those capabilities
   exist.
+
+## Isolated test invocations
+
+`pnpm test`, `pnpm test:integration`, `pnpm test:api-contract`, and
+`pnpm test:browser` provision a fresh PostgreSQL database for every invocation.
+Run PostgreSQL first. The launcher uses the local development database server;
+`DD_TASKS_TEST_ADMIN_URL` can select a loopback `postgres` administrative database.
+Never pass a shared database as a test target or call Vitest database setup directly.
+
+The launcher passes one exact database URL and ownership token to setup, migrations,
+seeding, servers, and workers. Reset and drop verify the database ownership marker.
+Receipts under `.test-worlds/<invocation>/receipt.json` retain the migration digest,
+database name, ports, and cleanup result without credentials. `SIGINT` or `SIGTERM`
+stops the owned process group and drops only that invocation's database. An abrupt
+host crash or `SIGKILL` can leave a world behind; a running receipt is not proof of
+cleanup and must not authorize deleting another invocation's database.
+
+Browser acceptance builds production assets in its own invocation directory and
+uses matching API/Web endpoints for startup, proxying, readiness, and tests.
+Flow-provided `DD_FLOW_PORT_API` and `DD_FLOW_PORT_WEB` take precedence; ordinary
+local commands choose available ports. Occupied ports cause failure rather than
+reusing an existing server. Browser traces and results are also invocation-local.
+
+`pnpm test:world` exercises two concurrent worlds with different migration digests,
+cancels one, and checks that the other world retains its database and data. Upgrade
+fixtures can use `pnpm --filter @dd-tasks/api exec tsx scripts/test-world.ts upgrade
+<command> <args>` with their own `MIGRATIONS_DIR`; they follow the same ownership and
+cleanup contract. Historical evaluated workspaces are not migration targets.
+
+`pnpm qualify:keyboard` separately records native select keyboard behavior for the
+current Chromium/OS. An unsupported result is reported as skipped with a JSON
+qualification artifact. Functional persistence tests should select semantic option
+values rather than assume a fixed number of ArrowDown presses; those tests do not
+prove keyboard accessibility. The product's keyboard focus checks remain separate.

@@ -12,6 +12,7 @@
       "!.memory-bank",
       "!.tasks",
       "!.scenario-runs",
+      "!.test-worlds",
       "!.mb-lint.json"
     ]
   },

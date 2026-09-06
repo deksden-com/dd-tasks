@@ -17,7 +17,7 @@
     "test:api-contract": "pnpm --filter @dd-tasks/api test:contract",
     "test:web": "pnpm --filter @dd-tasks/web test",
     "build:web": "pnpm --filter @dd-tasks/web build",
-    "test:browser": "pnpm db:reset -- --target local --run-id SCN002 && pnpm db:seed -- --target local --run-id SCN002 && pnpm --filter @dd-tasks/web test:browser",
+    "test:browser": "pnpm --filter @dd-tasks/web test:browser",
     "preview:build": "node scripts/preview-build.mjs",
     "preview:smoke": "node scripts/scenario-preview.mjs --claim built-integration",
     "scenario:preview": "node scripts/scenario-preview.mjs",
@@ -26,11 +26,14 @@
     "lint": "biome lint .",
     "typecheck": "pnpm --filter @dd-tasks/api typecheck && pnpm --filter @dd-tasks/web typecheck",
     "test:unit": "pnpm --filter @dd-tasks/api test:unit && pnpm --filter @dd-tasks/web test:unit",
+    "qualify:keyboard": "pnpm --filter @dd-tasks/web exec playwright test --config playwright.keyboard.config.ts",
+    "test:world": "pnpm --filter @dd-tasks/api exec tsx scripts/test-world-isolation.ts",
     "test:integration": "pnpm --filter @dd-tasks/api test:integration",
     "build": "pnpm --recursive --if-present build",
     "quality": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test:unit && pnpm test:integration && pnpm build && node scripts/value-absence-check.mjs package.json vitest.config.ts apps/api/src/contracts/http.ts apps/api/src/db/target-guard.ts apps/web/src/foundation/api.ts apps/web/src/foundation/foundation-contract.ts apps/web/src/App.tsx",
     "scenario:foundation": "node scripts/scenario-foundation.mjs",
-    "docs:check": "node scripts/docs-check.mjs"
+    "docs:check": "node scripts/docs-check.mjs",
+    "test": "pnpm --filter @dd-tasks/api test && pnpm test:web"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.0.0",

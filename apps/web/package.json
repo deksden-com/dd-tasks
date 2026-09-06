@@ -9,7 +9,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --config vitest.config.ts",
     "test:unit": "vitest run --config vitest.config.ts src --passWithNoTests",
-    "test:browser": "playwright test --config playwright.config.ts",
+    "test:browser": "pnpm --filter @dd-tasks/api exec tsx scripts/test-world.ts browser pnpm --filter @dd-tasks/web exec playwright test --config playwright.config.ts",
     "format": "biome check --write .",
     "lint": "biome lint ."
   },

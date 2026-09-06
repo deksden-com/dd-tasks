@@ -2,7 +2,7 @@
 file: '.memory-bank/dd-flow/common/droid-harness.md'
 description: 'Factory Droid adapter contract for native Work delegation and observable execution.'
 purpose: 'Read when configuring or qualifying droid-cli; preserves the common flow contract while stating provider-specific identity, cancellation and usage requirements.'
-version: '0.1.0'
+version: '0.2.0'
 date: '2026-09-06'
 status: 'DRAFT'
 c4_level: 'runtime'
@@ -14,6 +14,9 @@ related_files:
   - ../../spec/engineering/SPC-012-deterministic-merge-stage-and-server.md
 tags: [dd-flow, droid, harness, factory, subagents]
 history:
+  - version: '0.2.0'
+    date: '2026-09-06'
+    changes: 'Made native Task delegation and terminal lifecycle ownership explicit after an E2E reconciliation failure.'
   - version: '0.1.0'
     date: '2026-09-06'
     changes: 'Added Droid integration requirements and explicit qualification limits after native transport and child probes.'
@@ -57,6 +60,27 @@ is the exact standalone `work start` command, then the authoritative Work
 packet from [worker-session](worker-session.md). It does not replace that
 packet with Factory-specific development instructions.
 
+## Delegation and terminal ownership
+
+A root Session owns its already-bound coordinator Work and executes it in that
+same Session. It may return control at a `work_fanout` boundary; the runner
+dispatches declared ready Work and sends the root its next exact instruction.
+A Task label, worker definition, prompt text, native child edge or reported
+result never creates, adopts or transfers a Work.
+
+A productive Task is valid only for a separately declared child Work after
+the controller has supplied its exact `work start` command. If it is absent,
+the child reports an incomplete packet and performs no lifecycle or productive
+mutation. A child finishes or fails only its own bound Work. It cannot finish
+or pause its parent Stage, a coordinator Work, or a sibling.
+
+Every terminal `stage finish`, `stage pause`, `work finish` and `work fail`
+requires a fresh trusted `PreToolUse` receipt and must match the physical
+Session recorded on the running WorkSession. The CLI rejects a different
+native child with `lifecycle_caller_mismatch` before semantic artifacts, Work,
+Stage or HITL state change. A rejected receipt is diagnostic evidence; a later
+legitimate attempt needs a new receipt.
+
 ## Physical identity and hooks
 
 Public identity is `{harness_id: "droid-cli", session_id: <native Session ID>}`.
@@ -76,6 +100,12 @@ lifecycle command. Hooks must remain serviceable while a prompt is running.
 An empty `SubagentStop` result or `SessionEnd` is not successful Work evidence.
 Native terminal outcome and engine acceptance are separate observations;
 one failed child must not cancel or duplicate healthy siblings.
+
+When reconciling a fan-out, preserve terminal children from an earlier Stage
+as history. Reconcile only the current Stage's observed wave against its
+declared Work graph. An unknown terminal child is a retained inconsistency for
+the originating Stage, not a reason to launch it again, settle a later Work,
+or blame a root that correctly stopped for runner dispatch.
 
 ## Operations, cancellation and resume
 

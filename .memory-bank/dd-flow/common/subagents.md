@@ -2,7 +2,7 @@
 file: '.memory-bank/dd-flow/common/subagents.md'
 description: 'Canonical proportional routing and worker lifecycle contract for SPC-005.'
 purpose: 'Choose local, grouped or focused coverage from semantic triggers and keep runtime worker state single-sourced.'
-version: '2.1.1'
+version: '2.2.0'
 date: '2026-09-06'
 status: 'DRAFT'
 c4_level: 'runtime'
@@ -14,6 +14,9 @@ related_files:
   - ../schemas/protocol-plan.schema.json
 tags: [dd-flow, subagents, routing, workers, spc-005]
 history:
+  - version: '2.2.0'
+    date: '2026-09-06'
+    changes: 'Required an exact controller-issued Work start packet and physical owner match for terminal worker lifecycle commands.'
   - version: '2.1.1'
     date: '2026-09-06'
     changes: 'Linked the provider-specific Droid integration contract without changing common lifecycle semantics.'
@@ -126,6 +129,14 @@ section per unit. A focused packet uses exactly one leaf.
 Register the job and trusted session before launch. Runtime updates job status
 and timeline; the worker returns semantic findings only. Do not ask the worker
 for timestamps, hashes, Git facts, usage or session identity.
+
+The coordinator retains its own bound Work. A provider child is not a Work
+until it runs the controller-issued exact `work start` command and gains a
+running WorkSession. A worker may complete or fail only that Work. Terminal
+stage and Work commands require a fresh trusted hook receipt from the physical
+Session bound to the target Work; a child cannot use a coordinator or sibling
+ID to change their lifecycle. At a `work_fanout` boundary the coordinator
+stops and lets the controller dispatch declared ready Work before it continues.
 
 ## Dependencies and recovery
 

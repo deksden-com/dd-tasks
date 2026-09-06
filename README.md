@@ -142,3 +142,9 @@ current Chromium/OS. An unsupported result is reported as skipped with a JSON
 qualification artifact. Functional persistence tests should select semantic option
 values rather than assume a fixed number of ArrowDown presses; those tests do not
 prove keyboard accessibility. The product's keyboard focus checks remain separate.
+
+Preview scenarios acquire a machine-local exclusive lease for their compose project
+before Docker access. A duplicate run-id/profile fails before mutation, including
+from another checkout. A crash or unconfirmed cleanup retains the lease in the
+OS temporary directory; inspect the recorded owner and exact Docker world before
+removing that lease. `node --test scripts/preview-lease.test.mjs` checks exclusion.

@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import { createHash, randomBytes } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
+import { acquirePreviewLease } from "./preview-lease.mjs";
 import { runtimePorts } from "./runtime-ports.mjs";
 
 const workspaceRoot = process.cwd();
@@ -22,6 +23,7 @@ if (!allowedProfiles.has(profile) || !isSafeToken(runId)) {
 }
 
 const binding = previewBinding(profile, runId);
+const releasePreviewLease = await acquirePreviewLease(binding.composeProject);
 const passwords = {
   owner: `owner_${randomBytes(12).toString("base64url")}`,
   member: `member_${randomBytes(12).toString("base64url")}`,
@@ -55,6 +57,7 @@ const scenarioRoot = resolve(workspaceRoot, ".scenario-runs", runId);
 const profileRoot = resolve(scenarioRoot, profile);
 const phases = [];
 let startAttempted = false;
+let cleanupConfirmed = true;
 let overallStatus = "passed";
 let overallReason = "all source-package phases passed";
 let buildManifest = null;
@@ -352,6 +355,7 @@ try {
     if (cleanup.status !== 0 || !removed.absent) {
       overallStatus = "failed";
       overallReason = "exact preview cleanup/readback failed";
+      cleanupConfirmed = false;
     }
   }
 }
@@ -444,6 +448,7 @@ await writeJson("run.json", {
   proof_id: finalEvidence.proof_id,
   binding: safeBinding(binding),
 });
+if (cleanupConfirmed) await releasePreviewLease();
 console.log(JSON.stringify(finalEvidence, null, 2));
 process.exitCode = overallStatus === "passed" ? 0 : 1;
 

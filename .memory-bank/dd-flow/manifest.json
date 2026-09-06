@@ -1,12 +1,12 @@
 {
   "schema_id": "dd-flow/project-flow-pack-manifest@2",
-  "pack_version": "4.0.4",
+  "pack_version": "4.0.5",
   "flow_origin_policy": "project_local_pack",
   "canon_root": "/Users/deksden/Documents/_Projects/dd-memorybank",
   "canon_memory_bank_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank",
   "canon_flow_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank/dd-flow",
-  "source_commit": "ced59c19d0a4062146a1dc4ccb977e10284a2fe4",
-  "canon_version_at_source_commit": "4.0.4",
+  "source_commit": "272579e9035b88772a0f017c9bec09f877c17552",
+  "canon_version_at_source_commit": "4.0.5",
   "flow_contract": "dd-flow-canonical-2026-08",
   "installed_at": "2026-09-06T00:00:00.000Z",
   "included_files": [
@@ -20,6 +20,7 @@
     "common/context-discovery.md",
     "common/debugging.md",
     "common/delivery-flows.md",
+    "common/droid-harness.md",
     "common/entity-ids.md",
     "common/flow-flags.md",
     "common/flow-origin.md",

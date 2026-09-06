@@ -2,17 +2,21 @@
 file: '.memory-bank/dd-flow/common/subagents.md'
 description: 'Canonical proportional routing and worker lifecycle contract for SPC-005.'
 purpose: 'Choose local, grouped or focused coverage from semantic triggers and keep runtime worker state single-sourced.'
-version: '2.1.0'
-date: '2026-09-04'
+version: '2.1.1'
+date: '2026-09-06'
 status: 'DRAFT'
 c4_level: 'runtime'
 parent: '.memory-bank/dd-flow/README.md'
 related_files:
   - worker-session.md
+  - droid-harness.md
   - ../mb-sdlc/plan-aspects/index.md
   - ../schemas/protocol-plan.schema.json
 tags: [dd-flow, subagents, routing, workers, spc-005]
 history:
+  - version: '2.1.1'
+    date: '2026-09-06'
+    changes: 'Linked the provider-specific Droid integration contract without changing common lifecycle semantics.'
   - version: '2.1.0'
     date: '2026-09-04'
     changes: 'Moved capacity qualification outside flow and required productive jobs to use harness-native depth-one children with all-settled sibling handling.'
@@ -24,6 +28,10 @@ This file owns routing and worker lifecycle. `worker-session.md` owns the
 packet vocabulary; `mb-sdlc/plan-aspects/index.md` owns aspect applicability
 and compatibility preferences. Runtime state belongs to the CLI's SQLite
 source and its `run.json`/timeline projections.
+
+Provider qualification details for Factory Droid are in
+[droid-harness.md](droid-harness.md); the routing and acceptance rules here
+remain authoritative.
 
 ## Initial state and routes
 

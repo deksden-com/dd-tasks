@@ -7,6 +7,17 @@ import {
 } from "../src/db/target-guard.js";
 
 describe("foundation reset target guard", () => {
+  it("preserves this invocation's test world under a Flow-owned check", () => {
+    expect(process.env.DD_TASKS_TEST_WORLD).toMatch(/^[a-f0-9]{32}$/);
+    const url = process.env.DATABASE_URL;
+    expect(url).toContain(
+      `/dd_tasks_foundation_test_${process.env.DD_TASKS_TEST_WORLD}`,
+    );
+    expect(
+      getFlowScopedLocalDatabaseUrl(url, "RUN-001-test-world", "a1b2c3d4e5f6"),
+    ).toBe(url);
+  });
+
   it("isolates a flow-owned local database without changing preview", () => {
     expect(
       getFlowScopedLocalDatabaseUrl(

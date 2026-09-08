@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { readdir, readFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import type { Sql, TransactionSql } from "postgres";
+import { assertTestWorld } from "./test-world.js";
 
 export type QuerySql =
   | Sql<Record<string, unknown>>
@@ -25,6 +26,7 @@ export async function applyMigrations(
   sql: Sql<Record<string, unknown>>,
   options?: ApplyMigrationsOptions,
 ): Promise<string[]> {
+  await assertTestWorld(sql);
   return sql.begin(async (transaction) => {
     await transaction`SELECT pg_advisory_xact_lock(42420302)`;
     return applyMigrationsInTransaction(transaction, options);
@@ -35,6 +37,7 @@ export async function resetAndMigrate(
   sql: Sql<Record<string, unknown>>,
   options?: ApplyMigrationsOptions,
 ): Promise<string[]> {
+  await assertTestWorld(sql);
   return sql.begin(async (transaction) => {
     await transaction`SELECT pg_advisory_xact_lock(42420302)`;
     await transaction`DROP TABLE IF EXISTS tasks, projects, memberships, workspaces, sessions, accounts CASCADE`;

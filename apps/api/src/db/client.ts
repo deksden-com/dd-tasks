@@ -22,6 +22,8 @@ export function getFlowScopedLocalDatabaseUrl(
   if (!runId || !suffix || !/^[a-f0-9]{8,64}$/.test(suffix)) return value;
   const url = new URL(value);
   const name = decodeURIComponent(url.pathname.slice(1));
+  if (name === `dd_tasks_foundation_test_${process.env.DD_TASKS_TEST_WORLD}`)
+    return value;
   if (
     !/^dd_tasks_foundation_(?:local|test)(?:_[a-z0-9][a-z0-9_-]*)?$/.test(name)
   )

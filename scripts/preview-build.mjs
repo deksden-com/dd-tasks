@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { join, relative, resolve } from "node:path";
+import { runtimePorts } from "./runtime-ports.mjs";
 
 const workspaceRoot = process.cwd();
 const profile = valueAfter("--profile");
@@ -145,7 +146,7 @@ const manifest = {
     database: binding.databaseName,
     volume: binding.volume,
     database_host: "postgres",
-    external_port: Number(process.env.PREVIEW_PORT ?? "4173"),
+    external_port: Number(String(runtimePorts().preview)),
   },
   access_policy: accessPolicy,
   no_secret_values: true,

@@ -86,7 +86,9 @@ async function fetchJson(
 }
 
 test.describe("SCN-002 workspace task core", () => {
-  test("owner completes project lifecycle and task CRUD", async ({ page }) => {
+  test("owner completes project lifecycle and task CRUD", async ({
+    page,
+  }, testInfo) => {
     const consoleErrors: string[] = [];
     page.on("console", (message) => {
       if (message.type() === "error") consoleErrors.push(message.text());
@@ -135,6 +137,9 @@ test.describe("SCN-002 workspace task core", () => {
     const createdTaskRow = taskRow(page, createdTaskTitle);
     await expect(createdTaskRow).toBeVisible();
     await createdTaskRow.locator(".task-link").click();
+    await expect(page.getByTestId("task-detail-title")).toHaveValue(
+      createdTaskTitle,
+    );
     await page.getByTestId("task-detail-title").fill(renamedTaskTitle);
     await page.getByRole("button", { name: "Save changes" }).click();
     await expect(page.getByTestId("task-detail-title")).toHaveValue(
@@ -153,7 +158,7 @@ test.describe("SCN-002 workspace task core", () => {
     await expect(lifecycleRow).toContainText("Open tasks");
     expect(consoleErrors).toEqual([]);
     await page.screenshot({
-      path: "test-results/scn-002-owner.png",
+      path: testInfo.outputPath("scn-002-owner.png"),
       fullPage: true,
     });
   });

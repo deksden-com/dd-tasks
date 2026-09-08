@@ -259,6 +259,7 @@ async function sourceFiles(root) {
           ".memory-bank",
           ".tasks",
           ".scenario-runs",
+          ".test-worlds",
           "node_modules",
           "dist",
           "coverage",

@@ -1,6 +1,7 @@
 .git
 .tasks
 .scenario-runs
+.test-worlds
 node_modules
 **/node_modules
 **/dist

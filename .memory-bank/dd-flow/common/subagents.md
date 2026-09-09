@@ -2,7 +2,7 @@
 file: '.memory-bank/dd-flow/common/subagents.md'
 description: 'Canonical proportional routing and worker lifecycle contract for SPC-005.'
 purpose: 'Choose local, grouped or focused coverage from semantic triggers and keep runtime worker state single-sourced.'
-version: '2.2.0'
+version: '2.3.0'
 date: '2026-09-06'
 status: 'DRAFT'
 c4_level: 'runtime'
@@ -14,6 +14,9 @@ related_files:
   - ../schemas/protocol-plan.schema.json
 tags: [dd-flow, subagents, routing, workers, spc-005]
 history:
+  - version: '2.3.0'
+    date: '2026-09-07'
+    changes: 'Made native and external delegation explicit policy choices; external roots use durable work launch while trusted work start remains the only claim.'
   - version: '2.2.0'
     date: '2026-09-06'
     changes: 'Required an exact controller-issued Work start packet and physical owner match for terminal worker lifecycle commands.'
@@ -126,17 +129,25 @@ launch prompt plus runtime-owned packet/report paths. It does not launch a
 worker or infer scope. A grouped packet uses one wrapper and one explicit leaf
 section per unit. A focused packet uses exactly one leaf.
 
-Register the job and trusted session before launch. Runtime updates job status
-and timeline; the worker returns semantic findings only. Do not ask the worker
-for timestamps, hashes, Git facts, usage or session identity.
+Register the job before launch. Runtime updates job status and timeline; the
+worker returns semantic findings only. Do not ask the worker for timestamps,
+hashes, Git facts, usage or session identity.
 
-The coordinator retains its own bound Work. A provider child is not a Work
-until it runs the controller-issued exact `work start` command and gains a
-running WorkSession. A worker may complete or fail only that Work. Terminal
-stage and Work commands require a fresh trusted hook receipt from the physical
-Session bound to the target Work; a child cannot use a coordinator or sibling
-ID to change their lifecycle. At a `work_fanout` boundary the coordinator
-stops and lets the controller dispatch declared ready Work before it continues.
+The frozen RUN execution policy selects `native` or `external` for each
+delegated Work. Equal profile values never change that topology: explicit
+`external` remains an external provider root. A native worker uses the
+qualified direct-child primitive. An external worker is created only by the
+runtime's exact `dd-flow work launch <WORK-ID> [--stage <name>]` command; its
+receipt is a durable launch handle, not a Work claim.
+
+The coordinator retains its own bound Work. A provider child or external root
+is not a Work until it runs the controller-issued exact `work start` command
+and gains a running WorkSession through a trusted hook. A worker may complete
+or fail only that Work. Terminal stage and Work commands require a fresh
+trusted hook receipt from the physical Session bound to the target Work; a
+child cannot use a coordinator or sibling ID to change their lifecycle. At a
+`work_fanout` boundary the coordinator stops and lets the controller dispatch
+declared ready Work before it continues.
 
 ## Dependencies and recovery
 
@@ -155,21 +166,28 @@ independent unit that cannot run is blocked or explicitly degraded; do not
 pretend a local check is an independent worker verdict. Unknown capacity is
 reported as unknown, never fabricated as one slot.
 
-Capacity is qualified outside dd-flow by creating one technical harness root
-and counting unique direct native child Session IDs that it successfully
+Native capacity is qualified outside dd-flow by creating one technical harness
+root and counting unique direct native child Session IDs that it successfully
 starts. Later failure or cancellation does not subtract a started child; an
 attempt without a child ID does not count. Qualification creates no Work,
 invokes no `dd-flow`, reads no project files and uses the same native child
 primitive, profile and workspace strategy as productive delegation. Its
 detailed receipt stays in harness/eval evidence; flow receives only the
-qualified integer used to bound batches.
+qualified integer used to bound native batches.
 
-Every productive delegated job is one native depth-one child of the current
-Stage coordinator, never an independent root Session created by an external
-runner. The child first executes its exact `work start` command, and the
-lifecycle hook binds native child and parent identities. The child does not
-create grandchildren. A launch refused before child identity leaves the Work
-ready for a later batch; one failed child does not cancel or duplicate healthy
+External concurrency is not native capacity. The frozen policy supplies its
+positive `max_parallel`; runtime admission separately reserves coordinator and
+worker resources so a same-harness coordinator cannot deadlock while waiting
+for its external worker. Lack of an external admission slot leaves Work ready;
+it does not turn an external request into native delegation.
+
+Every native productive delegated job is one depth-one child of the current
+Stage coordinator. Every external productive delegated job is a runtime-owned
+provider root logically linked to its parent Work, but it has no invented
+provider parent. Both first execute the exact `work start` command, and the
+lifecycle hook binds the physical identity. A worker does not create
+grandchildren. A launch refused before a Session identity leaves the Work ready
+for a later batch; one failed worker does not cancel or duplicate healthy
 siblings.
 
 Every delegated session is disposable unless its packet explicitly says it is

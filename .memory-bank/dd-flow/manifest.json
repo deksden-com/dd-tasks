@@ -1,14 +1,14 @@
 {
   "schema_id": "dd-flow/project-flow-pack-manifest@2",
-  "pack_version": "4.0.6",
+  "pack_version": "4.1.0",
   "flow_origin_policy": "project_local_pack",
   "canon_root": "/Users/deksden/Documents/_Projects/dd-memorybank",
   "canon_memory_bank_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank",
   "canon_flow_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank/dd-flow",
-  "source_commit": "2aafb30d23e3f646b736b7ead25438cab97b16bf",
-  "canon_version_at_source_commit": "4.0.6",
+  "source_commit": "ef349bf47cba1c987468e51d73a0dbadbd48dc1f",
+  "canon_version_at_source_commit": "4.1.0",
   "flow_contract": "dd-flow-canonical-2026-08",
-  "installed_at": "2026-09-06T00:00:00.000Z",
+  "installed_at": "2026-09-09T15:46:06.000Z",
   "included_files": [
     "README.md",
     "code",

@@ -11,8 +11,12 @@ already registered the accepted CODE Work graph and has rebound the RUN's root
 orchestrator Work to this stage-start Session. CODE does not create an
 artificial coordinator Work.
 
-The stage-start response contains the current graph. Launch only ready Works,
-up to the measured RUN capacity. Each worker receives its complete accepted
+The stage-start response contains the current graph and frozen delegation
+policy. Launch only ready Works within qualified native capacity or explicit
+external concurrency and runtime admission. Use the packet's native mechanism
+or exact external `work launch`; both require trusted `work start`. At a managed
+`work_fanout` boundary, end the coordinator turn and let the CLI controller
+dispatch rather than launching a duplicate wave. Each worker receives its complete accepted
 requirements, semantic responsibility, selected project context, planned
 coordination areas,
 verification commands and stop conditions from `work start`; do not make a

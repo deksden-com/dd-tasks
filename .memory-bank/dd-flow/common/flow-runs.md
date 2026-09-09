@@ -2,8 +2,8 @@
 file: '.memory-bank/dd-flow/common/flow-runs.md'
 description: 'vNext RUN, Work, Session and filesystem materialization contract.'
 purpose: 'Read before implementing or operating a vNext flow stage.'
-version: '2.2.0'
-date: '2026-08-27'
+version: '2.3.0'
+date: '2026-09-09'
 status: 'ACTIVE'
 c4_level: 'documentation'
 parent: 'README.md'
@@ -14,6 +14,9 @@ related_files:
   - ../schemas/flow-run.schema.json
 tags: [dd-flow, run, work, session, materialization, vnext]
 history:
+  - version: '2.3.0'
+    date: '2026-09-09'
+    changes: 'Added frozen execution ownership and separated operator control from HITL and semantic lifecycle state.'
   - version: '2.2.0'
     date: '2026-08-31'
     changes: 'Added MRG queue ownership, integrated-tree receipts and terminal MERGE fan-in.'
@@ -100,6 +103,19 @@ The engine reports both dependency blockers and temporary coordination
 collisions with the currently ready Work commands.
 
 ## Lifecycle commands
+
+The RUN freezes resolved coordinator and worker profiles and explicit
+native/external delegation. Logical Work parentage does not invent native
+Session parentage for external roots. Managed execution belongs to one CLI
+controller even after its client exits; eval supplies experiment context and
+observes receipts rather than maintaining a second dispatch loop.
+
+Operator `run control` is distinct from HITL stage pause. Its durable admission
+barrier forbids new productive turns; permitted in-flight finish and safe-point
+acknowledgement do not themselves prove settlement. Pause/stop/resume retain
+RUN/Work identity, reconcile unknown outcomes and never replay completed Work.
+Resume does not answer HITL. Terminal scope cancellation cannot be undone by
+ordinary resume; partial physical/native drain remains explicitly pending.
 
 `stage start` is the first standalone command of a stage. Its response is the
 complete trusted stage packet: paths, project facts, exact schemas, exact finish

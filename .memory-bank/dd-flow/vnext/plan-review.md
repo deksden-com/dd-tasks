@@ -12,7 +12,10 @@ PLAN revision, review groups, exact lifecycle commands and the compact
 earlier stage prompts.
 
 This stage independently challenges the plan before CODE opens. The current
-orchestrator dispatches the returned reviewer Works. Each reviewer must run in
+execution owner dispatches the returned reviewer Works according to frozen
+native/external policy. At a managed `work_fanout` boundary the coordinator
+ends its turn and the CLI controller owns dispatch; do not launch twice.
+Each reviewer must run in
 a fresh session, examine only its assigned aspects, cite plan/project evidence,
 return the supplied JSON verdict and never mutate the plan, CODE batch or
 product files. Do not create nested subagents.
@@ -23,8 +26,9 @@ must assign missing setup and cannot rely on the order or leftovers of earlier
 checks. Reviewers start with empty context, not a fork of planning history.
 
 The orchestrator never runs a reviewer's `start_command` itself. It first
-creates a fresh child session; that child uses the exact returned
-`start_command` as its first tool call. A rejection before the child starts is
+uses the packet's native child mechanism or exact external `work launch`
+command. The assigned fresh Session uses the exact returned `start_command`
+as its first tool call. A rejection before the worker starts is
 not review evidence and must not be "fixed" by claiming the Work in the
 orchestrator session.
 
@@ -39,25 +43,21 @@ item. Check that each proof exercises its named failure mechanism; sequential
 negative evidence is not concurrency evidence, and a proof limit cannot erase
 an accepted obligation.
 
-PLAN performs semantic grouping using the one-shot capacity already stored for
-this RUN. PLAN-REVIEW does not regroup or re-probe. Execute the ready portion
-of the Work graph in waves: launch up to the measured capacity, wait for that
+PLAN performs semantic grouping using the effective limit in its packet:
+qualified native capacity or explicit external concurrency. PLAN-REVIEW does
+not regroup or re-probe. Execute the ready portion of the Work graph in waves:
+launch within that limit and current runtime admission, wait for that
 wave to settle, then query the unchanged graph for newly ready Works. A hard
 `depends_on` always wins over the one-wave preference. Never start a blocked
 Work, create extra reviewers to fill unused slots, or replace a launch rejected
 before it starts. Whether a hard dependency was semantically warranted is a
 review-quality question; execution must still respect it.
 
-Capacity, when needed, is described only by the generated lifecycle command
-packet. It is a one-shot measurement, not productive Work: launch the one
-batch of 15 probes concurrently once, count only launches that actually start,
-and never retry, replace, or try to reach fifteen successes. Rejected launches
-are expected evidence of the limit. Follow the returned cleanup deadline, then
-record the one observed number. Do not improvise another probe. The probes
-exist only to measure capacity: after the observation window, cancel every
-probe that has not finished and close/delete every finished probe session that
-the harness permits. Do this before launching a reviewer. No probe agent may
-remain live and consume a slot for productive reviewer or CODE work.
+Capacity qualification is performed outside RUN by controller tooling. Never
+launch probes from PLAN-REVIEW or fabricate a native slot. Missing required
+native qualification is a controller blocker, not permission to switch to
+external delegation. An explicit external route uses its frozen positive
+`max_parallel` and runtime budget, not native capacity.
 
 When the latest required reviewer results are complete, write the exact
 `decision.json` path from the packet. A reviewer may return `needs_changes`,

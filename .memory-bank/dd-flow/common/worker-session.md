@@ -2,8 +2,8 @@
 file: '.memory-bank/dd-flow/common/worker-session.md'
 description: 'Shared session primer for worker, verifier, scout and aspect-review subagents.'
 purpose: 'Read before specialized worker prompts so focused subagents use explicit task packets, light project priming and source-backed reports instead of hidden orchestrator context.'
-version: '0.5.1'
-date: '2026-08-09'
+version: '0.6.0'
+date: '2026-09-09'
 status: 'ACTIVE'
 c4_level: 'documentation'
 parent: '.memory-bank/dd-flow/README.md'
@@ -16,6 +16,9 @@ related_files:
   - .memory-bank/dd-flow/mb-sdlc/plan-aspects/aspect-worker.md
 tags: [dd-flow, subagents, workers, priming, task-packet]
 history:
+  - version: '0.6.0'
+    date: '2026-09-09'
+    changes: 'Aligned native/external capacity, bounded qualification and operator safe-point behavior with shared runtime ownership.'
   - version: '0.5.1'
     date: '2026-08-09'
     changes: 'Allowed dependency handoff to consume an accepted local aspect-map output or delegated report without promoting the predecessor.'
@@ -107,13 +110,26 @@ unit or `grouped_subagent` for a compatible subset.
 `requires_output_of` names the exact accepted predecessor output needed to
 start the packet. Related subject matter needs no edge. `group_id` identifies
 units sharing one job, `wave_id` is semantic dependency depth, and `batch_id`
-is only the capacity slice. Capacity comes from the current
-`available_subagent_slots`; zero is valid and unknown capacity is never
-replaced by one.
+is only the capacity slice. Native capacity comes from the qualified
+`available_subagent_slots`; zero is valid and unknown is never replaced by one.
+External concurrency comes from the frozen execution policy and runtime
+admission, not from native slots. Follow the runtime-issued launch/start
+packet; changing the profile file cannot alter an active Work's owner.
 
-For a probe, use an empty worker that reads no project sources, performs no
-priming/project tools, holds an accepted slot for 60 seconds and returns one
-short token. It does not receive a normal task packet or write flow artifacts.
+Capacity probes run outside the productive RUN through controller tooling.
+A probe child performs a bounded finite task without project reads, priming,
+project tools or artificial sleep. It does not receive a productive Work packet
+or write flow artifacts; native identity and cleanup evidence belong to runtime.
+
+## Operator interruption
+
+An operator pause/stop is separate from a semantic question or failure. On a
+pause request, preserve permitted in-flight results, use an exact safe-point
+acknowledgement only when issued by runtime, then end the turn. Do not launch
+children, wait in a sleep loop, replay a tool with unknown outcome or remove a
+dispatch fence. An acknowledgement is not evidence of physical settlement.
+Only controller reconciliation permits continuation of the retained Work;
+operator resume does not answer HITL or clear a product blocker.
 
 ## Grouped Packet Variant
 

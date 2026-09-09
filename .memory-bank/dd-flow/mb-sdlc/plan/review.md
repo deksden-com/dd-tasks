@@ -2,8 +2,8 @@
 file: '.memory-bank/dd-flow/mb-sdlc/plan/review.md'
 description: 'Canonical PLAN review and aspect-routing prompt for SPC-005.'
 purpose: 'Select proportional coverage, preserve semantic dependencies and produce one accepted aspect map.'
-version: '2.2.0'
-date: '2026-09-04'
+version: '2.3.0'
+date: '2026-09-09'
 status: 'DRAFT'
 c4_level: 'prompt'
 parent: '../README.md'
@@ -15,6 +15,9 @@ related_files:
   - ../plan-aspects/index.md
 tags: [dd-flow, plan, review, routing, spc-005]
 history:
+  - version: '2.3.0'
+    date: '2026-09-09'
+    changes: 'Made reviewer launch and capacity follow the frozen native or external execution policy.'
   - version: '2.2.0'
     date: '2026-09-04'
     changes: 'Replaced the flow-owned timed probe with externally qualified native-child capacity shared by productive delegation.'
@@ -81,18 +84,23 @@ or proof of a completed local review.
    and hard dependencies focused when independent evidence is required.
 5. Treat remaining read-only units as grouped candidates. Prefer
    `single_wave_grouped` when a real parallel-speed benefit exists.
-6. Use capacity qualified for the selected harness profile by controller
-   tooling outside this RUN. Capacity changes packing/batches only.
+6. Use the frozen delegation policy: native capacity is qualified for the
+   selected harness profile outside this RUN; external concurrency comes from
+   the resolved policy and runtime budget. Limits change packing/batches only.
 7. Pack compatible units in groups of at most three and preserve separation
    rules. Prefer one wave; use the minimum number of waves when capacity limits
    it.
 8. Accept every unit separately. Recover only a rejected unit; accepted
    siblings remain accepted.
 
-If a substantive delegated route has unknown capacity, report the missing
+If a substantive native route has unknown capacity, report the missing
 harness qualification to the controller. Do not test the harness from PLAN,
-create probe Work or fabricate one slot. Productive reviewer jobs use the same
-native depth-one child mechanism that produced the qualified value.
+create probe Work or fabricate one slot. Native reviewers use the qualified
+depth-one child mechanism. External reviewers use the exact runtime-issued
+`work launch` command for ready Work, bounded by external policy, not by the
+native capacity value. Both follow `common/subagents.md` and claim Work through
+the exact trusted `work start` packet. Do not launch another worker after a
+controller-owned `work_fanout` handoff.
 
 Compatibility families in `plan-aspects/index.md` are preferences, not an
 allowlist. A group must be read-only, use one immutable or read-equivalent

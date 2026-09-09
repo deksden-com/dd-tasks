@@ -2,8 +2,8 @@
 file: '.memory-bank/dd-flow/common/runtime-cli.md'
 description: 'SPC-004/005/006 mechanical CLI contract for project, RUN, PLAN and merge.'
 purpose: 'Keep prompts semantic and let the CLI own runtime facts and transitions.'
-version: '1.2.0'
-date: '2026-08-12'
+version: '1.3.0'
+date: '2026-09-09'
 status: 'DRAFT'
 c4_level: 'runtime'
 parent: '.memory-bank/dd-flow/README.md'
@@ -32,8 +32,53 @@ target checks inside `stage start`/`stage finish`. The normal agent path does
 not call global help, status, a separate permission command or a full lint
 before semantic work. `project_root` remains the stable repository identity;
 `workspace_path` is the concrete feature checkout. Incompatible versions or a
-missing flow-pack manifest fail closed or are returned as an explicit degraded
-state.
+missing flow-pack manifest fail closed before productive dispatch. Do not
+substitute an older controller, adapter checkout or context format.
+
+## Shared runtime installation and execution
+
+The selected published CLI engine bundles the six harness adapters, lifecycle
+hooks and managed controller. Ordinary flow execution does not require a
+`dd-eval` checkout. Native harness runtimes and authentication remain explicit
+operator prerequisites; an installed adapter alone is not proof of access or
+capability. Resolve the engine required by the canon compatibility manifest
+and verify its installed identity before creating the RUN.
+
+Agent profiles are operator configuration, distinct from semantic prompt
+profiles. RUN preparation validates and freezes reachable coordinator/worker
+profiles and native/external routing. Changing a profile file afterwards does
+not change a running Session. External workers launch through CLI; native
+workers use the qualified native mechanism. Both claim the exact Work through
+the trusted start packet in `common/subagents.md`.
+
+Attached entry uses the current coordinator Session. Managed entry uses
+`run drive launch` with an exact context file/hash and request identity; the
+detached CLI controller owns continuation after the calling client exits.
+Observe with `run drive status`; do not start a second dispatcher on client
+disconnect. Context hashes and frozen profiles remain authoritative through
+recovery. Incompatible same-session MERGE profiles are preflight conflicts,
+not permission to switch silently to a server Session.
+
+## Operator control
+
+These are operator/controller commands, not worker preflight:
+
+```bash
+dd-flow run control pause --run <RUN-ID> --project-root <root> --request-id <id> --json
+dd-flow run control stop --run <RUN-ID> --project-root <root> --request-id <id> --json
+dd-flow run control status --run <RUN-ID> --project-root <root> --json
+dd-flow run control resume --run <RUN-ID> --project-root <root> --request-id <new-id> --from <control-id> --json
+```
+
+Retain the same request id when reconciling an uncertain response. Status
+distinguishes accepted intent, pending drain and confirmed settlement; `ok`
+alone does not mean every physical process or native child stopped. Explicit
+force/escalation is an operator decision, not an automatic timeout response.
+Resume consumes the exact control receipt and reconciles unknown side effects
+before productive dispatch. It neither answers HITL nor retries completed Work.
+Experiment-wide scope control additionally owns Judges and probes; its retained
+registry identity must not be replaced by the client's current environment.
+Permanent scope cancellation is not a recoverable pause.
 
 ## RUN allocation and lookup
 

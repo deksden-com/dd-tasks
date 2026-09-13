@@ -47,12 +47,12 @@ mention `.memory-bank/spec/engineering/code-check-profile.json`. Workspace
 bootstrap before CODE is not a check catalogue entry. `readiness` is final
 acceptance verification after CODE fan-in and may be planned when its provider
 precedes that fan-in. Do not call a test “too heavy” and drop it: choose its
-`run_at` deliberately, or state a real external/manual proof limit.
+`run_at` deliberately. If autonomous evidence cannot be produced, report an explicit blocker; never introduce a human verification gate.
 
 Use `run_at` literally: `work` proves one Work contribution; `code` proves the
 combined feature workspace; `readiness` proves the completed acceptance path;
-`merge` proves the actual integrated target; `release` belongs to RELEASE;
-`external` records a non-shell proof boundary. A receipt from an earlier gate
+`merge` proves the actual integrated target; `release` belongs to RELEASE.
+Only executable autonomous checks are supported. A receipt from an earlier gate
 does not silently satisfy a later one.
 
 Do not copy every project `mandatory_by_gate` alias into `checks[]`. The CLI

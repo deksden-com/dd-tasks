@@ -18,10 +18,10 @@ Applies to every deliverable result.
 
 Grounding sources: plan stage report, verification matrix, scenarios, check output, stage reports, evidence/passports and final user claims.
 
-Plan review: identify required checks, acceptance scenario, evidence level, manual gates and skipped checks.
+Plan review: identify required autonomous checks, acceptance scenario, evidence level and skipped checks.
 
 Readiness review: verify checks are fresh, outputs are read, evidence matches claims and skipped work is DEF/not-applicable rather than silence.
 
-Blocking findings: green claim with no check, stale evidence, manual gate skipped without DEF, evidence proves narrower scope than claimed.
+Blocking findings: green claim with no executable check, stale evidence, a human/external proof presented as a flow gate, evidence proves narrower scope than claimed.
 
-Acceptable DEF: unavailable external/beta/prod/manual gate with next gate, owner and consequence.
+Acceptable DEF: unavailable environment or future deploy gate with next automated gate, owner and consequence. A DEF never substitutes for a current flow check.

@@ -1,14 +1,14 @@
 {
   "schema_id": "dd-flow/project-flow-pack-manifest@2",
-  "pack_version": "4.1.0",
+  "pack_version": "4.1.1",
   "flow_origin_policy": "project_local_pack",
   "canon_root": "/Users/deksden/Documents/_Projects/dd-memorybank",
   "canon_memory_bank_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank",
   "canon_flow_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank/dd-flow",
-  "source_commit": "ef349bf47cba1c987468e51d73a0dbadbd48dc1f",
-  "canon_version_at_source_commit": "4.1.0",
+  "source_commit": "97f811d33c212ae3497020178b1ed825c7c3ebac",
+  "canon_version_at_source_commit": "4.1.1",
   "flow_contract": "dd-flow-canonical-2026-08",
-  "installed_at": "2026-09-09T15:46:06.000Z",
+  "installed_at": "2026-09-13T19:00:00.000Z",
   "included_files": [
     "README.md",
     "code",
@@ -318,5 +318,5 @@
   "generated_allow_patterns": [
     ".generated/**"
   ],
-  "notes": "Curated project-local flow pack 4.0.6. Synced Factory Droid lifecycle-owner contract and compatibility recommendation beta.19 from canonical commit 2aafb30d. Project-specific execution profile and canonical-only exclusions preserved."
+  "notes": "Project-local flow pack 4.1.1. Synced autonomous verification contract from canonical commit 97f811d; requires beta.55. Project-specific execution profile and canonical-only exclusions preserved."
 }

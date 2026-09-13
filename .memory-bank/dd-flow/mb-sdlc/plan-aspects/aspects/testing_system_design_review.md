@@ -24,4 +24,4 @@ Readiness review: confirm planned tests/checks were added or run; skipped levels
 
 Blocking findings: behavior change with no verification path, unsafe seed/fixture handling, required negative path omitted.
 
-Acceptable DEF: unavailable environment/eval/manual test with next gate and safety constraints.
+Acceptable DEF: unavailable environment or future eval with next automated gate and safety constraints.

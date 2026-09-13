@@ -80,6 +80,6 @@ parallelism or shared setup still preserves isolation and reproducibility.
 
 ## Acceptable DEF
 
-An unavailable external/manual timing comparison may be deferred only when it
+An unavailable automated timing comparison may be deferred only when it
 does not block the current correctness gate, has a next owner/gate and does
 not justify removing required evidence.

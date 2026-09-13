@@ -51,7 +51,7 @@ Concise bullets inside those strings are enough.
 - acceptance criteria, each with a stable `AC-001`-style identifier in
   `acceptance_criteria`, and one concrete acceptance scenario: initial state,
   actor, steps and observable ready state;
-- automated and manual verification, fixture/world/cleanup needs, and whether
+- autonomous verification, including agent-operated browser inspection, fixture/world/cleanup needs, and whether
   an eval/experiment is needed rather than a deterministic scenario;
 - durable assumptions, fixed and open `Q-*` questions;
 - project/policy facts that materially constrain accepted behavior;

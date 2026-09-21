@@ -2,8 +2,8 @@
 file: '.memory-bank/dd-flow/common/runtime-cli.md'
 description: 'SPC-004/005/006 mechanical CLI contract for project, RUN, PLAN and merge.'
 purpose: 'Keep prompts semantic and let the CLI own runtime facts and transitions.'
-version: '1.3.0'
-date: '2026-09-09'
+version: '1.3.1'
+date: '2026-09-21'
 status: 'DRAFT'
 c4_level: 'runtime'
 parent: '.memory-bank/dd-flow/README.md'
@@ -210,9 +210,18 @@ timestamps and has an explicit measured/unavailable status.
 
 ## Validation and aliases
 
-Known aliases are `@project`, `@workspace`, `@run`, `@stage`, `@protocol` and
-`@intake`. Each alias is typed, normalized and checked for containment before
-use. Traversal, symlink escape, wrong-root use and archive writes fail closed.
+CLI path-option aliases are `@project`, `@workspace` and `@run`, only when the
+corresponding root is bound. Quoted and escaped spellings have the same meaning.
+They are normalized and containment-checked before reading input. Other `@...`
+names in conceptual examples are not CLI aliases. Use the physical path supplied
+in the packet when writing a file with an editor; aliases are not filesystem paths.
+Traversal, symlink escape and unavailable roots fail closed.
+
+An aggregate CODE/CODE-REVIEW failure with `continuation.kind=repair_required`
+already has a registered repair Work covering its failed checks. End the coordinator
+turn; the controller launches a fresh child. Do not copy receipt IDs, create a
+duplicate repair, or start that Work in the coordinator. A failed gate is not a
+passed stage: after repair, semantic verification and the aggregate gate still apply.
 
 Permission probes are exact-target probes. Memory Bank validation occurs after
 writes and receives the changed-file/link delta. A full `mb-lint` invocation is

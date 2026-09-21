@@ -318,5 +318,5 @@
   "generated_allow_patterns": [
     ".generated/**"
   ],
-  "notes": "Project-local flow pack 4.1.1. Synced autonomous verification contract from canonical commit 97f811d; requires beta.55. Project-specific execution profile and canonical-only exclusions preserved."
+  "notes": "Project-local flow pack 4.1.1 based on canonical commit 97f811d. Selective Fix 044 synchronization from canon d1a6081: common/runtime-cli.md, common/runtime-contract.md, vnext/code.md, vnext/code-review.md, vnext/merge.md; requires CLI beta.89 for runtime-owned aggregate repair and reason-file recovery. Other flow files, project-specific execution profile and canonical-only exclusions preserved."
 }

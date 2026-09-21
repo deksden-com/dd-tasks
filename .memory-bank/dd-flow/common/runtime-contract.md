@@ -2,8 +2,8 @@
 file: '.memory-bank/dd-flow/common/runtime-contract.md'
 description: 'Canonical SPC-004/005/006 runtime, stage context, session, report and PLAN contract.'
 purpose: 'Single source for active dd-flow prompts and schemas after the breaking SPC-004 cutover.'
-version: '0.4.0'
-date: '2026-08-27'
+version: '0.4.1'
+date: '2026-09-21'
 status: 'DRAFT'
 c4_level: 'documentation'
 parent: '.memory-bank/dd-flow/README.md'
@@ -197,11 +197,11 @@ Raw request/questions/answers live under the RUN intake area. Memory Bank
 receives only durable requirements, decisions, constraints, acceptance,
 risks/DEF and links.
 
-The CLI may expose typed aliases `@project`, `@workspace`, `@run`, `@stage`,
-`@protocol`, `@plan`, `@aspect-map` and `@intake`. It must normalize and
-containment-check every alias,
-reject traversal/symlink escape and reject an alias used for the wrong kind of
-path.
+The CLI supports `@project`, `@workspace` and `@run` in declared path options
+with a bound root. Other symbolic locations in this document are conceptual,
+not accepted CLI path aliases. Resolve them from the packet's physical paths.
+Normalization and containment checks reject traversal, symlink escape and
+unavailable roots. File-writing tools always receive physical paths.
 
 Permission checks target only known stage files/directories and perform the
 required read/stat or create/write/rename/delete probe. Memory Bank validation

@@ -108,12 +108,14 @@ in `unresolved` and call `stage finish` once. The CLI materializes a semantic
 repair Work from that immutable verification file and the completed CODE
 context; run it, update the verification to `passed`, then finish again. Do
 not leave CODE running with a prose-only `needs_repair` conclusion.
-If that gate fails, create the returned repair Work from the failed receipt and
-the relevant completed origin Works. The repair packet contains the original
-context plus the failure delta; do not make an untracked root-session fix.
+If that gate fails with `continuation.kind=repair_required`, the CLI has already
+registered one repair covering all causal failures and selected completed origins.
+End the coordinator turn; the controller launches its fresh child. Do not copy
+receipt IDs, author a duplicate task, or make an untracked root-session fix.
 If retained evidence shows the failure was environmental and that environment
-has been restored, use the exact returned `stage finish ... --retry-check ...
---reason ...` command. It creates a new receipt on the unchanged tree; do not
+has been restored, write the requested JSON recovery evidence file containing
+only `reason`, then use its exact `command_after_input` with `--reason-file`.
+It creates a new receipt on the unchanged tree; do not
 manufacture a source edit merely to bypass the final-gate guard.
 Do not repeat `stage finish` against the same workspace fingerprint: the CLI
 returns the retained failure until the repair changes the workspace.

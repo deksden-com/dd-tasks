@@ -50,6 +50,12 @@ the same Finish command again: the CLI reruns the same final CODE gate,
 including final `readiness` evidence such as browser checks, and closes the
 stage. Do not repeat the independent review wave.
 
+If the final aggregate gate fails with `continuation.kind=repair_required`, its
+repair is already registered with all causal receipts. End the coordinator turn
+for fresh-child dispatch; do not reconstruct IDs or add another repair. After it
+completes, resubmit the accepted decision and rerun the gate. A completed repair
+is not by itself proof that the gate passed.
+
 Each worker assesses every aspect assigned to its group exactly once and
 numbers findings locally as `FIND-001`, `FIND-002`, … . The engine combines the
 reviewer Work id and local id into the canonical `<WRK>/FIND-NNN` reference

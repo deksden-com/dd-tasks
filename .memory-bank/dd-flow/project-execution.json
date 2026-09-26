@@ -1,9 +1,9 @@
 {
   "schema_id": "dd-flow/project-execution@2",
-  "stage_session_mode": "same_session",
-  "plan_review_mode": "auto",
-  "code_review_mode": "auto",
-  "merge_mode": "same_session",
+  "stage_session_mode": "new_session",
+  "plan_review_mode": "standard",
+  "code_review_mode": "standard",
+  "merge_mode": "server",
   "merge_delivery": { "strategy": "local" },
   "merge_cleanup": { "source": "retain" },
   "stop_target": "merge_completed",

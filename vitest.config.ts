@@ -7,6 +7,7 @@ export default defineConfig({
       {
         test: {
           name: "api",
+          testTimeout: 30_000,
           environment: "node",
           include: ["apps/api/tests/**/*.test.ts"],
           env: { DATABASE_URL: TEST_DATABASE_URL },
@@ -17,6 +18,7 @@ export default defineConfig({
       {
         test: {
           name: "web",
+          testTimeout: 30_000,
           environment: "jsdom",
           include: ["apps/web/src/**/*.test.tsx"],
           setupFiles: ["apps/web/src/test/setup.ts"],

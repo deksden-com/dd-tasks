@@ -2,13 +2,10 @@ import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { once } from "node:events";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
-import { createRequire } from "node:module";
 import os from "node:os";
 import path from "node:path";
 import postgres from "postgres";
 
-const require = createRequire(import.meta.url);
-const tsx = require.resolve("tsx/cli");
 const api = path.resolve(import.meta.dirname, "..");
 const root = path.resolve(api, "../..");
 const temp = await mkdtemp(path.join(os.tmpdir(), "dd-tasks-isolation-"));
@@ -25,11 +22,13 @@ async function launch(marker: string, checkout = root) {
   const child = spawn(
     process.execPath,
     [
-      tsx,
+      "--import",
+      "tsx",
       "scripts/test-world.ts",
       "integration",
       process.execPath,
-      tsx,
+      "--import",
+      "tsx",
       "tests/fixtures/test-world-probe.ts",
     ],
     {
@@ -71,6 +70,11 @@ async function launch(marker: string, checkout = root) {
     "receipt.json",
   );
   const receipt = JSON.parse(await readFile(receiptPath, "utf8"));
+  assert.equal(
+    receipt.pid,
+    child.pid,
+    "test-world must run in the observed child process",
+  );
   return { child, token: ready.token, receipt, receiptPath };
 }
 try {

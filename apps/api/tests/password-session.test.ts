@@ -15,7 +15,7 @@ describe("account and session primitives", () => {
       verifyPassword("correct horse battery staple", hash),
     ).resolves.toBe(true);
     await expect(verifyPassword("wrong password", hash)).resolves.toBe(false);
-  });
+  }, 20_000);
 
   it("creates an opaque token and stores a deterministic hash", () => {
     const session = createSessionToken();

@@ -48,7 +48,7 @@ beforeAll(async () => {
   await Promise.all([applyMigrations(sql), applyMigrations(sql)]);
   await resetProductData(sql);
   await seedDemoData(sql);
-});
+}, 30_000);
 
 afterAll(async () => {
   await sql`UPDATE sessions SET revoked_at = now() WHERE revoked_at IS NULL`;

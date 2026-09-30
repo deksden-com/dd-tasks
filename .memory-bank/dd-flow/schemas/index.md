@@ -36,6 +36,7 @@ agent author mechanical facts.
 | `dd-flow/stage-start-response@2` | `stage-start-response.schema.json` | start receipt with rendered prompt |
 | `dd-flow/stage-finish-input@1` | `stage-finish-input.schema.json` | semantic agent input |
 | `dd-flow/stage-report@2` | `stage-report.schema.json` | generated stage report with inline summary |
+| `dd-flow/verification-matrix@1` | `verification-matrix.schema.json` | derived accepted PLAN/receipt view, not semantic acceptance |
 | `dd-flow/plan-review-result@1` | `plan-review-result.schema.json` | reviewer-local PLAN findings |
 | `dd-flow/plan-review-decision@3` | `plan-review-decision.schema.json` | canonical PLAN finding decisions |
 | `dd-flow/code-review-result@1` | `code-review-result.schema.json` | reviewer-local CODE findings |

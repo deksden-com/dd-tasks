@@ -18,7 +18,7 @@
 - `.memory-bank/mbb/operations-release-guide.md`
 - `.memory-bank/mbb/spec-layer-guide.md`
 - `.memory-bank/mbb/scenario-docs-guide.md`
-- `.memory-bank/mbb/verification-matrix-guide.md`
+- `.memory-bank/dd-flow/common/verification-matrix.md` (Generated SDLC matrix: runtime ведёт technical facts; планируй содержательные проверки и document updates, не ручной дубль receipts)
 - `.memory-bank/mbb/named-deferrals-guide.md`
 - `.memory-bank/mbb/cross-references.md`
 

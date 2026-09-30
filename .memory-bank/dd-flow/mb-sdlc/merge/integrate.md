@@ -34,7 +34,7 @@
 - `.memory-bank/mbb/operations-release-guide.md`
 - `.memory-bank/mbb/scenario-docs-guide.md`
 - `.memory-bank/mbb/scenario-runner-guide.md`
-- `.memory-bank/mbb/verification-matrix-guide.md`
+- `.memory-bank/dd-flow/common/verification-matrix.md`
 - `.memory-bank/mbb/named-deferrals-guide.md`
 - `.memory-bank/mbb/cross-references.md`
 
@@ -243,13 +243,13 @@ Each row should include `status` and `evidence`. Evidence may be a command log, 
 - запусти сценарии, которые закрывают сделанные фичи;
 - сопоставь результаты сценариев с матрицей цели и ограничений;
 - собери доказательства (evidence) по каждому сценарию;
-- обнови матрицу проверки и протокол.
+- обнови содержательные решения протокола и assigned document updates; generated technical matrix обновляет runtime, ручной дубль не нужен.
 
 Если интеграционный gate включает UI, browser smoke или visual proof, перед проверкой выбери браузерный маршрут по `.memory-bank/dd-flow/common/browser-verification.md`: `cmux-browser`, если доступен cmux browser surface; иначе `agent-browser`, если доступен; иначе project-native e2e runner; иначе честно downgrade до HTTP/source smoke только если gate это допускает. В паспорте проверки укажи выбранный маршрут, probes доступности, URL, commit и ограничения evidence.
 
 Если для browser/HTTP smoke нужен локальный dev server, запускай его только как managed background process по `.memory-bank/dd-flow/common/browser-verification.md`: явный порт, лог, PID, bounded health-check и cleanup. Запрещено запускать `pnpm dev`, `npm run dev`, `vite`, `next dev` или аналогичный сервер foreground-командой в tool call.
 
-Если сценарный раннер, проверяющий агент или ручная проверка оставили материалы в `.tasks/`, `.scenario-runs/` или другом runtime-каталоге, перед итоговым докладом создай паспорт проверки (verification passport) в `protocol/<PRT-ID>/evidence/` или `evidence/`.
+Если сценарный раннер, проверяющий агент или ручная проверка оставили материалы только в `.tasks/`, `.scenario-runs/` или другом временном runtime-каталоге, до cleanup сохрани bounded proof bundle. Если qualified runtime уже удержал immutable evidence с bindings, отдельный ручной паспорт-дубль не нужен (см. `.memory-bank/dd-flow/common/verification-matrix.md`, Generated SDLC matrix). Иначе создай паспорт проверки в `protocol/<PRT-ID>/evidence/` или `evidence/` с сохраняемыми источниками.
 
 Если browser/UI evidence использует cmux, `agent-browser`, Playwright screenshots, DOM snapshots или текстовые dumps, до cleanup feature worktree сделай durable promotion: скопируй важные raw artifacts в `protocol/<PRT-ID>/evidence/` или внеси curated summary в паспорт проверки. Не оставляй verification passport, который ссылается только на `.tasks/...` внутри удаляемого worktree.
 
@@ -278,7 +278,7 @@ Each row should include `status` and `evidence`. Evidence may be a command log, 
 - ссылки на proof bundle или runtime artifacts, если они хранятся вне Банка памяти;
 - что доказано и что не доказано.
 
-Матрица проверки и протокол должны ссылаться на паспорт проверки, а не на `.tasks/...` или сырой runtime artifact.
+Матрица проверки и протокол ссылаются на сохраняемый immutable evidence bundle либо паспорт с содержательным контекстом, а не на `.tasks/...` или непроверенный сырой лог.
 
 Если бета-стенд (beta) или внешний контур недоступны, оформи `DEF-*`: что именно не проверено, почему, что это блокирует и какие следующие ворота (gate).
 

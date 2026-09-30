@@ -65,6 +65,8 @@ They may include support folders required by those entrypoints, such as `common/
 
 Stage-report-enabled project flows must be installed with their templates and schemas:
 
+- generated-matrix consumers include `common/verification-matrix.md` and `schemas/verification-matrix.schema.json`; operative rules come from this pack, not from a potentially older project MBB copy;
+
 - if `plan.md`, `code.md`, any real merge entrypoint, `mb-audit.md`, `mb-fix.md`, `release.md`, `deploy.md` or `publish.md` is installed, include `common/workspace-bootstrap.md` because those consumers may need to prove or explicitly waive checkout readiness before project tooling;
 - if `protocol.md` is installed, include `mb-sdlc/specify/stage-report-template.html` and `schemas/specification-stage-report.schema.json`;
 - if `plan.md` is installed, include `mb-sdlc/plan/stage-report-template.html`, `mb-sdlc/plan/reflection.md`, `mb-sdlc/plan/review.md`, `mb-sdlc/plan/implementation.md`, `mb-sdlc/plan/operations.md`, `mb-sdlc/plan/scenarios.md` and `schemas/plan-stage-report.schema.json`;

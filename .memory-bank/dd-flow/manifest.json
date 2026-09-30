@@ -5,7 +5,7 @@
   "canon_root": "/Users/deksden/Documents/_Projects/dd-memorybank",
   "canon_memory_bank_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank",
   "canon_flow_root": "/Users/deksden/Documents/_Projects/dd-memorybank/.memory-bank/dd-flow",
-  "source_commit": "15fde14019a5bc346b915b5b4f520398c099b63b",
+  "source_commit": "0cf38231406614cfeb0a96001ba0201de2316e47",
   "canon_version_at_source_commit": "4.1.2",
   "flow_contract": "dd-flow-canonical-2026-08",
   "installed_at": "2026-09-30T00:21:15.707Z",
@@ -328,7 +328,7 @@
   "generated_allow_patterns": [
     ".generated/**"
   ],
-  "notes": "Manifest-governed refresh of CP-186 flow pack to canonical 4.1.2 / 15fde14019a5bc346b915b5b4f520398c099b63b. Project-owned execution/workspace bytes preserved; fresh stage Sessions and server MERGE retained. Generated-matrix instruction SSOT and schema included. Existing active runtime support is explicitly declared. Product/source baseline is not advanced. Runtime qualification is a separate gate.",
+  "notes": "Manifest-governed refresh of CP-186 flow pack to canonical 4.1.2 / 0cf38231406614cfeb0a96001ba0201de2316e47. Project-owned execution/workspace bytes preserved; fresh stage Sessions and server MERGE retained. Generated-matrix instruction SSOT and schema included. Existing active runtime support is explicitly declared. Product/source baseline is not advanced. Runtime qualification is a separate gate.",
   "file_hashes": {
     "README.md": "a580434fa89a9d20f8ed0a334499520f669d0c68498e0c35c5dbb0b687699138",
     "code": "26e86f8b4d0b3a126ebacc0c0d7555a811a888132d41bb839508ad80fac3def2",
@@ -368,7 +368,7 @@
     "common/worker-session.md": "6f33be578d969e219af9405a0af6bcf2c387856ee13bd60319c41b5037413f66",
     "common/workspace-bootstrap.md": "fe6c069c70566aa93694d982e94145a7e99b3e2564db5e9530875ee186cb2e8d",
     "common/workspace-layout.md": "a7ff7a95392bf4e560f633526b4409240661bcdd50c2116f8d1794d6d77275d9",
-    "compatibility.json": "c5ef7a505685a0db5d33b4ec7148fd5324c98e153d764df03c7fda629a01cd65",
+    "compatibility.json": "48ec2e1ccd45f5c856251d33eb91e7d30d499393a319538655f14e82d369ec9f",
     "dashboard/global-dashboard-template.html": "fbbb1419eb11c11f60d58e66454618634e8ae4a6f108226dd1c80a86e813ee0a",
     "dashboard/project-dashboard-template.html": "c5d55457dab101433e45ef1dc9735b1e3f7a2af0e98c46567e6d791250db149c",
     "dashboard/protocol-page-template.html": "89aed26cbd087e05b10cf031de8c78d718e04ed1ba7182e1d616dc72e1fbd7a9",

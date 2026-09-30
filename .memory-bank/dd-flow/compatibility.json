@@ -11,7 +11,7 @@
   },
   "router": {
     "package_name": "@deksden-com/dd-flow-cli",
-    "min_version": "0.9.0-beta.122",
+    "min_version": "0.9.0-beta.4",
     "recommended_version": "0.9.0-beta.122",
     "routing_model": "routed_engine_dispatch",
     "engine_store": "~/.dd-flow/engines",

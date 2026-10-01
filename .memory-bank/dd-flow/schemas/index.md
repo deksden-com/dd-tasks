@@ -38,7 +38,7 @@ agent author mechanical facts.
 | `dd-flow/stage-report@2` | `stage-report.schema.json` | generated stage report with inline summary |
 | `dd-flow/verification-matrix@1` | `verification-matrix.schema.json` | derived accepted PLAN/receipt view, not semantic acceptance |
 | `dd-flow/plan-review-result@1` | `plan-review-result.schema.json` | reviewer-local PLAN findings |
-| `dd-flow/plan-review-decision@3` | `plan-review-decision.schema.json` | canonical PLAN finding decisions |
+| `dd-flow/plan-review-decision@4` | `plan-review-decision.schema.json` | canonical PLAN decisions, bound duplicate/DEF dispositions |
 | `dd-flow/code-review-result@1` | `code-review-result.schema.json` | reviewer-local CODE findings |
 | `dd-flow/code-review-decision@2` | `code-review-decision.schema.json` | canonical CODE finding decisions |
 | `dd-flow/plan-stage-report@5` | `plan-stage-report.schema.json` | generated PLAN receipt projection |

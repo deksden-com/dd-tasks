@@ -31,7 +31,10 @@ coordinator classifies findings and creates bounded repair Work only where it
 is justified. P0 and P1 must be repaired. A bounded safe P2 is repaired by
 default; it may be deferred only through a named durable DEF with an allowed
 reason, owner/trigger and evidence. P3 is an observation or a reasoned
-rejection, never an automatic DEF.
+rejection, never an automatic DEF. Each canonical finding has exactly one
+decision; duplicate links must be distinct, known and acyclic. A DEF identifier
+names one readable regular file in this project's `.memory-bank/defs`, not a
+path. The CLI retains its path/hash and rejects replacement during repair.
 
 A quiet reviewer remains active until the harness explicitly reports its turn
 completed, failed, cancelled, needing attention, a process exit, or a platform

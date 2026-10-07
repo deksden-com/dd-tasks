@@ -46,7 +46,7 @@
 
 - `.memory-bank/mbb/scenario-docs-guide.md`
 - `.memory-bank/mbb/scenario-runner-guide.md`
-- `.memory-bank/mbb/verification-matrix-guide.md`
+- `.memory-bank/dd-flow/common/verification-matrix.md` (Generated SDLC matrix: прочитай переданные runtime пути; generated IDs/hashes не редактируй и не дублируй; assigned source/document updates обязательны)
 
 Если задача затрагивает deploy, CI, миграции, секреты или окружения, прочитай:
 

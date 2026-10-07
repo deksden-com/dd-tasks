@@ -145,6 +145,8 @@ lint-candidate:
 
 ## Поднятие доказательств сценариев
 
+Если runtime передал generated matrix `dd-flow/verification-matrix@1`, соблюдай `.memory-bank/dd-flow/common/verification-matrix.md`, раздел Generated SDLC matrix. Сохраняемый frozen bundle с verified bindings заменяет механический дубль в ручной таблице/паспорте; он не отменяет semantic verdict, meaningful summaries, принятые scenario contracts или assigned `document_updates`. Прочитай точные пути из Stage/Work prompt; generated файлы не редактируй. Review findings записывай только в назначенный result.
+
 Если в `.tasks/` появились результаты сценариев, verifier-отчёты, proof summary, ссылки на `.scenario-runs/`, скриншоты, JSON-ответы, run ids или иные артефакты, которые подтверждают приемку, не оставляй их только в `.tasks/`.
 
 Разделяй четыре сущности:
@@ -202,8 +204,8 @@ Project Memory Bank хранит только curated долговечную и�
 - `redaction_status`;
 - `verified_by` / `verified_at`, если artifact доказывает acceptance or merge claim.
 
-Raw logs, payload snapshots, browser traces and screenshots are not durable truth by themselves. If an active Memory Bank document needs them, promote a verification passport or curated evidence summary and state retention assumptions for raw local artifacts.
+Raw logs, payload snapshots, browser traces and screenshots are not durable truth by themselves. Retain an immutable proof bundle with exact bindings or promote a passport/curated summary for missing semantic context; state retention assumptions. Qualified generated proof does not require a manual duplicate.
 
 Паспорт проверки должен содержать: `passport_id`, `proof_id` или `run_id`, `scenario_id`, branch/commit, среду, контур доказательства, verdict, ссылку на proof bundle или runtime artifacts, что именно проверено и чем этот запуск не является.
 
-Активный протокол, матрица или сценарий должны ссылаться на паспорт проверки, а не на `.tasks/...` или сырой runtime artifact.
+Активный протокол, матрица или сценарий ссылаются на сохраняемый immutable proof либо паспорт с необходимым контекстом, а не на `.tasks/...` или непроверенный сырой лог.

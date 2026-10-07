@@ -1,5 +1,9 @@
 # Merge Job: общий контракт интеграции claimed protocol or branch bundle
 
+Семантика scoped operational решений vNext определена в `common/git-ops.md`,
+раздел Frozen RUN operational decision; legacy job не подменяет свою strategy
+на vNext local integration и сохраняет required delivery evidence.
+
 Этот prompt выполняет фактический merge job для one-shot `merge.md`, branch bundle claim and long-lived `merge-start.md`.
 
 Все три claimed route проходят через этот файл и `.memory-bank/dd-flow/mb-sdlc/merge/integrate.md`; entrypoint не должен выполнять post-integration checks в обход общего job.

@@ -12,6 +12,7 @@
     "project": {"$ref": "#/definitions/identity"},
     "subject": {"$ref": "#/definitions/identity"},
     "flow_kind": {"type": "string", "minLength": 1},
+    "verification_matrix_contract": {"enum": ["dd-flow/verification-matrix@1"]},
     "status": {"enum": ["created", "running", "paused", "waiting_for_user", "done", "failed", "blocked", "cancelled", "discarded"]},
     "verdict": {"type": ["string", "null"]},
     "started_at": {"type": "string", "format": "date-time"},

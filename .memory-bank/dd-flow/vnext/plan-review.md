@@ -63,7 +63,11 @@ When the latest required reviewer results are complete, write the exact
 `decision.json` path from the packet. A reviewer may return `needs_changes`,
 but that is evidence, not the stage outcome. Classify every material finding,
 apply accepted corrections in this same orchestrator Work, update only the PLAN
-and its relevant aspect map, and increment the revision when semantics changed.
+and its relevant aspect map. Advance only each changed protocol PLAN's own
+revision; unchanged protocols keep their revision. An aspect-map-only correction
+does not require a fabricated PLAN change. Reviewer verdicts are not votes:
+reasoned rejected/duplicate findings with no authored delta use `not_required`.
+A real coordinator-only correction is permitted without inventing a finding.
 Every reviewer finding has a local `FIND-NNN` id. Use the canonical
 `<WRK>/FIND-NNN` reference returned by dd-flow in the coordinator decision.
 For every durable document linked by the protocol that can describe the changed
@@ -79,10 +83,19 @@ the coordinator to classify and address in this one pass; only missing,
 malformed or unfinished reviewer evidence blocks the stage. Do not start a
 second review automatically. Finish once with `accepted` and a
 `correction` receipt. `code-work-batch.json` is derived by the CLI after
-validation: never edit it or list it as an agent-authored correction. When no
+validation: never edit it or list it as an agent-authored correction.
+The new decision contract is `dd-flow/plan-review-decision@4`. A duplicate must
+name a distinct known canonical `duplicate_of` and terminate in a final decided
+finding without cycles. `deferred_as_DEF` names one readable project-local
+`DEF-*` file via `def_id`; its exact path/hash is retained as evidence. A deferred
+finding never removes accepted requirements or due checks. `requires_user`
+cannot be accepted: resolve it through the existing pause/resume contract first.
+List exactly the changed PLAN/aspect-map paths in `correction.changed_paths`,
+using workspace-relative PLAN paths and `RUN/<path>` for aspect maps.
+When no
 reasonable default exists, pause and later
-resume this same PLAN-REVIEW Work; do not finish it as waiting. Use `blocked`
-only for a real terminal technical blocker. The CLI validates
+resume this same PLAN-REVIEW Work; do not finish it as waiting. Use `failed`
+for a terminal technical failure, not for a resolvable user question. The CLI validates
 mechanical coherence, rejects completion while any selected reviewer Work is
 unsettled, registers CODE atomically and generates the reports; it
 does not claim to prove semantic correctness.

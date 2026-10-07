@@ -1,14 +1,14 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "dd-flow/plan-review-decision@3",
+  "$id": "dd-flow/plan-review-decision@4",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_id", "outcome", "summary", "finding_decisions", "correction"],
   "properties": {
-    "schema_id": {"const": "dd-flow/plan-review-decision@3"},
-    "outcome": {"enum": ["accepted", "blocked", "failed", "cancelled"]},
+    "schema_id": {"const": "dd-flow/plan-review-decision@4"},
+    "outcome": {"enum": ["accepted", "failed", "cancelled"]},
     "summary": {"type": "string", "minLength": 1},
-    "finding_decisions": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["finding_ref", "decision", "reason"], "properties": {"finding_ref": {"type": "string", "pattern": "^WRK-[^/]+/FIND-[0-9]{3}$"}, "decision": {"enum": ["accepted_fix", "rejected", "deferred_as_DEF", "requires_user", "duplicate"]}, "reason": {"type": "string", "minLength": 1}}}},
+    "finding_decisions": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["finding_ref", "decision", "reason"], "properties": {"finding_ref": {"type": "string", "pattern": "^WRK-[^/]+/FIND-[0-9]{3}$"}, "decision": {"enum": ["accepted_fix", "rejected", "deferred_as_DEF", "requires_user", "duplicate"]}, "reason": {"type": "string", "minLength": 1}, "duplicate_of": {"type": "string", "pattern": "^WRK-[^/]+/FIND-[0-9]{3}$"}, "def_id": {"type": "string", "pattern": "^DEF-[A-Za-z0-9][A-Za-z0-9_-]*$"}}}},
     "correction": {"type": "object", "additionalProperties": false, "required": ["status", "previous_plan_revision", "changed_paths", "summary"], "properties": {"status": {"enum": ["applied", "not_required"]}, "previous_plan_revision": {"type": "integer", "minimum": 1}, "changed_paths": {"type": "array", "items": {"type": "string", "minLength": 1}}, "summary": {"type": "string", "minLength": 1}}}
   }
 }

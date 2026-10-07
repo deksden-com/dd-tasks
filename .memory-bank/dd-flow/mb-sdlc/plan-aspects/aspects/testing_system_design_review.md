@@ -20,6 +20,8 @@ Grounding sources: test scripts, verification matrix, scenario docs, seed/fixtur
 
 Plan review: define test levels, stage commands, datasets/fixtures/seeds/worlds, cleanup, negative cases and scenario/eval links. State whether each planned proof is local contract, integration handoff, user scenario, evaluation or operational evidence, and what it does not prove.
 
+For data/schema changes, distinguish fresh-world checks, upgrade checks with existing records, and repeat reset/cleanup on the same world where that lifecycle is in scope. Inspect the actual fixture launcher and reset implementation: a launcher that allocates a new database every time cannot establish repeatability of the existing database. Name the failure mechanism and negative proof rather than treating any green fixture as sufficient. Small behavior changes still need appropriate testing; size alone is not a not-applicable reason.
+
 Readiness review: confirm planned tests/checks were added or run; skipped levels and data gaps are explicit; reject a green local proof that is used to close a broader semantic claim.
 
 Blocking findings: behavior change with no verification path, unsafe seed/fixture handling, required negative path omitted.

@@ -16,7 +16,7 @@
 
 - `.memory-bank/mbb/scenario-docs-guide.md`
 - `.memory-bank/mbb/scenario-runner-guide.md`
-- `.memory-bank/mbb/verification-matrix-guide.md`
+- `.memory-bank/dd-flow/common/verification-matrix.md`
 - `.memory-bank/mbb/seed-fixtures-guide.md`
 - `.memory-bank/mbb/evals-experiments-guide.md`, если acceptance или качество результата требуют agentic/metric assessment
 - `.memory-bank/mbb/client-surfaces.md`
@@ -53,7 +53,7 @@
 
 Если `route.delivery` выше `local`, сценарии должны указывать среду: preview, beta или production-like контур. Если `evidence.level` требует `verification_passport` или `rollout_evidence`, запланируй место паспорта проверки.
 
-Если сценарии или evidence являются gate, добавь их в CLI plan graph отдельными пунктами: scenario document/update, scenario run, evidence capture, verification passport. Не отмечай эти пункты `done` по мысленному прогону: `done` допустим только после согласованного документа или фактического выполнения соответствующего gate.
+Если сценарии или evidence являются gate, добавь содержательные действия в CLI plan graph: scenario document/update, scenario run, evidence capture. Qualified runtime формирует technical matrix и frozen proof; отдельный verification passport планируй только для отсутствующего смыслового контекста, не для копирования IDs/hashes. Принятые `document_updates` не удаляй. Не отмечай пункты `done` по мысленному прогону: только после согласованного документа или фактического gate.
 
 Для каждого planned proof укажи evidence level из `common/semantic-grounding.md` и границу: local contract не заменяет integration handoff, user scenario or operational proof.
 
@@ -117,9 +117,9 @@ Seed/profile/environment safety является частью gate. Не пла�
 - идеи, замечания и пробелы остаются рабочими заметками до закрытия фазы;
 - согласованные сценарные контракты переносятся в `scenarios/`;
 - ожидаемые доказательства и требования к proof фиксируются в сценарии или матрице проверки;
-- материалы выполненного сценария превращаются в паспорт проверки (verification passport) в `protocol/<PRT-ID>/evidence/` или `evidence/`.
+- материалы выполненного сценария сохраняются в immutable bundle либо паспорте с содержательным контекстом; правила Generated SDLC matrix в `.memory-bank/dd-flow/common/verification-matrix.md` не требуют ручного дубля frozen proof.
 
-Не оставляй в протоколе или сценарии ссылку на `.tasks/...` как на доказательство приемки. Если отчёт субагента важен, создай паспорт проверки или curated-сводку в папке протокола и ссылайся на неё.
+Не оставляй в протоколе или сценарии ссылку на `.tasks/...` как на доказательство приемки. Если отчёт субагента важен, сохрани immutable proof либо паспорт/curated summary для необходимого контекста и ссылайся на сохраняемый источник.
 
 ## Результат
 

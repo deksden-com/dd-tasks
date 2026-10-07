@@ -39,6 +39,30 @@ Git-preflight не является флагом и выполняется вс�
 
 ## Unified Git Operation Context
 
+### Frozen RUN operational decision (vNext)
+
+Различай три независимых факта: integration в configured target branch,
+remote publication и cleanup ресурсов. vNext `merge_delivery.strategy=local`
+с доказанным target integration commit может завершить локальную интеграцию;
+это не legacy `local_only` handoff, не push, tag, deploy или release.
+Dirty source/feature-only commit без target evidence не означает `merged`.
+
+Во всех Stage и Work используй общий operational block и указанный полный путь
+к retained `operational-contract.json`. Frozen settings определяют режим,
+но сами по себе не отменяют project-policy. Явное принятое scoped решение
+разрешает только указанные delivery/retention exceptions данного RUN;
+не запрашивай повторно уже принятый выбор. Без него defaults и реальные
+противоречия policy сохраняются: запроси недостающее разрешение штатно.
+Решение не отменяет branch protection, dirty/unmerged guards, immutable tags,
+auth и правила чужих ресурсов. Project policy не заменяй догадкой по профилю.
+
+`retain` сохраняет owned source для evidence/recovery, но не означает оставить
+живыми provider/process ресурсы. Reason/owner/review date нужны только если
+этого требует declared exception. Review date — повод пересмотреть решение,
+не автоматический TTL или разрешение удалить source. Новому logical execution
+нужна новая acceptance binding; relocation того же RUN не расширяет полномочий.
+Legacy strategy names/verdict requirements выше остаются неизменными.
+
 Перед любым mutating Git operation (`commit`, `tag`, `push`, `merge`, `rebase`, PR/queue handoff, branch/worktree cleanup or release Git fixation) собери один и тот же контекст. Это единый Git-контур для SDLC, delivery and Memory Bank operation flows.
 
 Если операция обращается к внешнему Git provider/remote authority, до mutation также выполни `.memory-bank/dd-flow/common/operational-access.md`. Разрешение должно дать ровно один operation-scoped binding для remote/organization/repository/branch operation, а safe readback должен подтвердить expected identity, authority and target. Missing session, zero/duplicate/ambiguous binding, mismatch, unobservable authority, stale approval or freshness drift block before mutation. Не выполняй auto-login, credential refresh, account/organization switch, remote rewrite or context switch.

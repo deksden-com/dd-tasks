@@ -65,6 +65,9 @@ Work, Git-операция, проверки, квитанции и отчёт �
 commit. Любое другое tracked/untracked изменение integration workspace
 по-прежнему блокирует старт либо входит в явный integration-fix commit.
 
+Полномочия scoped exceptions и precedence определены в
+`common/git-ops.md`, раздел Frozen RUN operational decision. Используй retained
+operational block; settings не заменяют отсутствующее разрешение.
 Профиль RUN заранее и неизменно задаёт `merge_mode`, локальную delivery
 strategy и cleanup policy. Агент их не выбирает. Первая поддерживаемая delivery
 strategy — `local`: CLI подтверждает, что configured target branch указывает на

@@ -32,7 +32,7 @@
 - `.memory-bank/dd-flow/common/flow-flags.md`
 - `.memory-bank/dd-flow/common/debugging.md`, если проверяешь исправление бага, падение проверки или связанный с отладкой (debugging-related) `DEF-*`
 - `.memory-bank/dd-flow/mb-sdlc/plan-aspects/index.md`, если task packet содержит `aspect_id`, aspect coverage, plan/readiness aspect map or subagent coverage decision
-- `.memory-bank/mbb/verification-matrix-guide.md`
+- `.memory-bank/dd-flow/common/verification-matrix.md`
 - `.memory-bank/mbb/scenario-docs-guide.md`
 - `.memory-bank/mbb/scenario-runner-guide.md`
 - `.memory-bank/mbb/seed-fixtures-guide.md`
@@ -115,7 +115,7 @@
 - Проверяй, что evidence доказывает именно заявленный gate.
 - Проверяй, что seed/fixture setup and cleanup доказаны, если сценарий зависит от данных.
 - Проверяй, что eval/experiment не подменяет deterministic acceptance scenario без явного решения протокола или verification matrix.
-- Если proof bundle, runtime artifact или сценарный отчёт лежит только в `.tasks/` или `.scenario-runs/`, отметь, нужен ли паспорт проверки (verification passport) и где его создать: `protocol/<PRT-ID>/evidence/`, `evidence/`, `scenarios/` или матрица проверки.
+- Если proof bundle или сценарный отчёт лежит только в временном `.tasks/`/`.scenario-runs/`, требуй его сохранения. Qualified generated matrix с exact frozen bindings не требует ручной строки/паспорта-дубля; отсутствие такого дубля не material finding. Проверь реальное покрытие, отрицательные/concurrency случаи, contour/proof limits и assigned document updates. Findings записывай только в назначенный reviewer result, generated input не редактируй.
 - Если проверяешь SDLC policy, проверь, что Git/stage/release/deploy/publish/verification/runbook contours не смешаны, `not_applicable` имеет причину, а meaningful unknowns оформлены как вопрос, `BLOCK-*` или `DEF-*`.
 - Если проверяешь исправление бага, проверь debugging trace: воспроизведение, причина, гипотезы, внешний поиск гипотез при нескольких неудачных попытках, тест или сценарий, который доказывает исправление.
 

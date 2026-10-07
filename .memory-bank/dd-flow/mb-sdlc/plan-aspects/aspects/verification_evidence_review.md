@@ -22,6 +22,8 @@ Plan review: identify required autonomous checks, acceptance scenario, evidence 
 
 Readiness review: verify checks are fresh, outputs are read, evidence matches claims and skipped work is DEF/not-applicable rather than silence.
 
+Match every proof to its actual initial state and lifecycle. Fresh installation does not prove upgrade with retained data, and a fresh fixture does not prove repeated reset of the same schema. Negative database evidence must exercise the named failure mechanism and state what remains unproved. Generated matrices and passed mechanical gates expose accepted declarations and receipts; they do not certify semantic completeness. Independent review must assess that sufficiency rather than inherit a claim that CODE was already semantically verified.
+
 Blocking findings: green claim with no executable check, stale evidence, a human/external proof presented as a flow gate, evidence proves narrower scope than claimed.
 
 Acceptable DEF: unavailable environment or future deploy gate with next automated gate, owner and consequence. A DEF never substitutes for a current flow check.

@@ -18,6 +18,12 @@ Applies to code/docs changes, feature worktree, merge queue, release/deploy/publ
 
 Grounding sources: project policy, `common/git-ops.md`, plan/code/merge reports, current branch, worktree status, merge queue status and retention policy.
 
+For vNext, read the shared Frozen RUN operational decision rule in
+`common/git-ops.md` and the retained operational block before reporting a policy
+conflict. An accepted scoped exception is not missing authorization; profile
+settings alone are not an exception. Keep target integration, publication and
+resource cleanup evidence separate.
+
 Plan review: identify Git route, integration branch, delivery/fixation strategy, branch cleanup policy and required evidence.
 
 Readiness review: compare actual branch/worktree to policy; ensure merge can produce commit/push/PR/queue evidence and no placeholder "merged" claim remains.

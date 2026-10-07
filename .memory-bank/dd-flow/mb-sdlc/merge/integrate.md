@@ -1,5 +1,9 @@
 # Integration checklist: интеграция, бета и итоговая приемка claimed job or bundle
 
+Для vNext scoped operational решений применяй precedence из
+`common/git-ops.md`, раздел Frozen RUN operational decision. Legacy claimed
+job сохраняет собственные strategy names и required delivery evidence.
+
 Этот файл не является самостоятельным пользовательским entrypoint-ом. Его вызывает `.memory-bank/dd-flow/mb-sdlc/merge/job.md` после того, как CLI уже claim-нул один merge job или branch bundle, текущая session зарегистрирована как `flow_kind: merge_job`, worker владеет merge lane lock, а included protocol runtime находится в `integration`.
 
 Если файл запущен напрямую из обычной planning/implementation/current-session без claimed queue job, остановись и передай пользователя к:

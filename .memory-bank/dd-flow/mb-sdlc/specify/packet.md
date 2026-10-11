@@ -28,11 +28,30 @@ create a worktree, plan, merge, or run checks for a later stage.
 
 ## Method
 
-1. Identify only decisions that project evidence and the request cannot settle.
+1. Separate current behavior, accepted task decisions and open target questions
+   using the evidence boundary below. Identify only decisions still unsettled.
 2. For each real gap, explain its user or scenario impact and give the smallest
    recommended answer when one is useful.
-3. Do not ask questions whose answer is already fixed by the supplied context.
+3. Do not re-ask accepted task decisions. Background implementation alone does
+   not fix target behavior that the intake explicitly leaves open.
 4. If no material gap remains, state that explicitly and finish `done`.
+
+## Evidence and decision boundaries
+
+- **Current behavior:** cite what code, README or earlier specifications do.
+  This is background, not automatic approval for the new feature.
+- **Accepted decisions:** identify the explicit user/protocol source and scope.
+  Recommendations and observed implementation are not accepted decisions.
+  Preserve genuinely binding obligations.
+- **Open questions:** retain material target choices not yet accepted, especially
+  those the intake explicitly declares undecided. Offer legacy behavior as
+  background or an option, never as an invented accepted constraint.
+
+Expose conflicts between existing rules and the requested change. An explicitly
+accepted scoped exception supersedes the general rule only within that scope;
+preserve the rule elsewhere. For example, legacy rejection of archive mutations
+does not settle priority editing in archives when that choice is explicitly open.
+Do not say it is “already fixed” or ask the user to override invented approval.
 
 ## Semantic output
 

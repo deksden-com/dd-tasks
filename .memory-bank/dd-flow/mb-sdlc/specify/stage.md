@@ -29,6 +29,10 @@ only for decisions that project evidence cannot settle; do not ask for
 architecture, implementation order, worktree, merge or other solution-space
 choices.
 
+Apply the evidence and decision boundaries in [the bounded packet](packet.md):
+keep current behavior, sourced accepted task decisions and open target questions
+separate. Legacy behavior alone cannot settle an explicitly open feature choice.
+
 Write semantic results only to the target named by `<work_contract>`. If
 blocking product questions remain, set `status: waiting_for_user` and preserve
 each question as a structured item in `questions` (`id`, `question`, `impact`,

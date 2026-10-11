@@ -53,6 +53,15 @@ preserve the rule elsewhere. For example, legacy rejection of archive mutations
 does not settle priority editing in archives when that choice is explicitly open.
 Do not say it is “already fixed” or ask the user to override invented approval.
 
+Recommendations for open choices are proposals, not obligations. Say “I recommend
+preserving the current behavior” rather than “the existing rule remains mandatory”.
+Words such as “mandatory”, “required” or “cannot change” need a cited binding
+source that explicitly applies to the proposed feature, not just legacy behavior.
+If that applicability is uncertain, expose it as an open question. A binding
+security, legal or accepted task constraint stays binding; do not silently waive
+it. Do not call the same target choice both open and mandatory in the question,
+recommendation, semantic result or next-stage handoff.
+
 ## Semantic output
 
 Edit the generated `@stage/stage-input.json` only. It is the valid layout:

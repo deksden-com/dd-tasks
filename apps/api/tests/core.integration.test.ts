@@ -220,7 +220,7 @@ describe("checkpoint-02 core API", () => {
     ).toBe(401);
   });
 
-  it("registers exactly once and rotates or expires server-side sessions", async () => {
+  it("registers exactly once regardless of email case", async () => {
     const register = await app.request("/api/auth/register", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -242,17 +242,22 @@ describe("checkpoint-02 core API", () => {
       }),
     });
     expect(duplicate.status).toBe(409);
+  });
 
+  it("rotates server-side sessions on login", async () => {
     const first = await login("owner@example.test");
     const second = await login("owner@example.test");
     expect((await jsonRequest("/api/auth/me", first)).status).toBe(401);
     expect((await jsonRequest("/api/auth/me", second)).status).toBe(200);
+  });
 
+  it("rejects an expired server-side session", async () => {
+    const session = await login("owner@example.test");
     await sql`
       UPDATE sessions SET expires_at = now() - interval '1 second'
       WHERE account_id = 'acct-owner' AND revoked_at IS NULL
     `;
-    expect((await jsonRequest("/api/auth/me", second)).status).toBe(401);
+    expect((await jsonRequest("/api/auth/me", session)).status).toBe(401);
   });
 
   it("prevents a task from pointing at a project in another workspace", async () => {

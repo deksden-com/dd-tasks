@@ -1,5 +1,6 @@
 import { defineConfig } from "vitest/config";
 import { TEST_DATABASE_URL } from "./tests/global-setup.js";
+import { integrationPolicy } from "./tests/integration-policy.js";
 
 export default defineConfig({
   test: {
@@ -7,6 +8,6 @@ export default defineConfig({
     include: ["tests/**/*.test.ts"],
     env: { DATABASE_URL: TEST_DATABASE_URL },
     globalSetup: ["tests/global-setup.ts"],
-    fileParallelism: false,
+    ...integrationPolicy,
   },
 });

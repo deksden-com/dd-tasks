@@ -12,6 +12,7 @@ import {
 import os from "node:os";
 import path from "node:path";
 import { performance } from "node:perf_hooks";
+import { observeGroupSettlement, signalOwnedGroup } from "./owned-process.mjs";
 import { binding, readProgress } from "./test-observation.mjs";
 
 const [command, ...args] = process.argv.slice(2);
@@ -24,6 +25,7 @@ const progressPath =
   process.env.DD_FLOW_CHECK_RUNNER_PROGRESS_PATH ??
   path.join(temp, "progress.jsonl");
 const reportPath = path.join(temp, "report.json");
+const startedAt = Date.now();
 const startup = Number(process.env.DD_FLOW_TEST_STARTUP_SILENCE_MS ?? 120000);
 const execution = Number(
   process.env.DD_FLOW_TEST_EXECUTION_SILENCE_MS ?? 600000,
@@ -60,6 +62,8 @@ let last = performance.now(),
   phase = "startup",
   failure,
   escalation;
+let leaderSettled = false;
+let cleanupFailure;
 const seen = new Set();
 const acceptedEvents = new Set([
   "setup_step_completed",
@@ -71,11 +75,9 @@ const acceptedEvents = new Set([
   "run_completed",
 ]);
 const kill = (signal) => {
-  try {
-    if (child.pid) process.kill(-child.pid, signal);
-  } catch (error) {
-    if (error.code !== "ESRCH") throw error;
-  }
+  if (leaderSettled || child.exitCode !== null || child.signalCode !== null)
+    return;
+  signalOwnedGroup(child, signal);
 };
 const stop = (signal) => {
   kill(signal);
@@ -105,11 +107,16 @@ const timer = setInterval(
       if (bytes.length > 4 * 1024 * 1024)
         throw new Error("Runner progress exceeds bound");
       const event = JSON.parse(bytes.trim().split("\n").at(-1));
+      const eventAt = Date.parse(event.at);
       if (
         event.schema_id === "dd-flow/check-runner-progress@1" &&
         event.invocation_id === binding().invocation_id &&
         Number.isSafeInteger(event.sequence) &&
         event.sequence > sequence &&
+        Number.isFinite(eventAt) &&
+        eventAt >= startedAt &&
+        eventAt <= wall &&
+        wall - eventAt < (phase === "startup" ? startup : execution) &&
         ["startup", "execution"].includes(event.phase) &&
         acceptedEvents.has(event.event)
       ) {
@@ -118,7 +125,7 @@ const timer = setInterval(
         if (!seen.has(identity)) {
           seen.add(identity);
           if (phase !== "execution") phase = event.phase;
-          last = now;
+          last = now - Math.max(0, wall - eventAt);
         }
       }
     } catch (error) {
@@ -146,6 +153,7 @@ let exit;
 try {
   exit = await new Promise((resolve) => {
     child.once("error", (error) => {
+      leaderSettled = true;
       failure = {
         category: "tooling",
         code: "spawn_error",
@@ -153,39 +161,23 @@ try {
       };
       resolve(1);
     });
-    child.once("exit", (code) => resolve(code ?? 1));
+    child.once("exit", (code) => {
+      leaderSettled = true;
+      resolve(code ?? 1);
+    });
   });
 } finally {
   clearInterval(timer);
   process.off("SIGTERM", terminate);
   process.off("SIGINT", terminate);
-  if (failure && child.pid) {
-    const deadline = performance.now() + 5000;
-    while (performance.now() < deadline) {
-      try {
-        process.kill(-child.pid, 0);
-      } catch (error) {
-        if (error.code === "ESRCH") break;
-        failure ??= {
-          category: "tooling",
-          code: "cleanup_unconfirmed",
-          message: error.message,
-        };
-        break;
-      }
-      await new Promise((resolve) => setTimeout(resolve, 50));
-    }
-  }
   if (escalation) clearTimeout(escalation);
-  try {
-    kill("SIGKILL");
-  } catch (error) {
-    failure ??= {
+  const settlement = await observeGroupSettlement(child);
+  if (!settlement.settled)
+    cleanupFailure = {
       category: "tooling",
       code: "cleanup_unconfirmed",
-      message: error.message,
+      message: settlement.reason,
     };
-  }
 }
 let report;
 try {
@@ -202,6 +194,11 @@ try {
 }
 if (failure) {
   report.failures.push(failure);
+  report.completed = false;
+  report.observation_unknown = true;
+}
+if (cleanupFailure) {
+  report.failures.push(cleanupFailure);
   report.completed = false;
   report.observation_unknown = true;
 }
@@ -238,4 +235,4 @@ if (destination) {
   renameSync(publication, destination);
 }
 rmSync(temp, { recursive: true });
-process.exitCode = failure ? 1 : exit;
+process.exitCode = failure || cleanupFailure ? 1 : exit;

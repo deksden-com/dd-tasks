@@ -173,3 +173,43 @@ test("stale timestamps do not extend a silent operation", async () => {
   assert.equal(result.code, 1);
   assert.equal(result.report.failures[0].code, "inactivity_timeout");
 });
+test("Playwright requires matching expectation proof and retains mixed outcomes", async () => {
+  const reporter = new URL("./playwright-observation.mjs", import.meta.url)
+    .href;
+  const result = await invoke(
+    `import Reporter from ${JSON.stringify(reporter)}; const r=new Reporter(); const assertion={message:'expected',stack:'expect at fixture:1'};const exception={message:'unexpected',stack:'throw at fixture:2'};const test={id:'case'};const outcome={status:'failed',errors:[{...assertion},exception]};r.onTestBegin(test,outcome);r.onStepEnd(test,outcome,{category:'expect',error:assertion,title:'check',startTime:new Date()});r.onTestEnd(test,outcome);const missing={status:'failed',errors:[assertion]};r.onTestBegin(test,missing);r.onTestEnd(test,missing);r.onEnd({status:'failed'});process.exitCode=1;`,
+  );
+  assert.deepEqual(
+    result.report.failures.map((error) => error.category),
+    ["assertion", "unclassified", "unclassified"],
+  );
+  assert.equal(result.report.counts.failed, 2);
+});
+test("Playwright interrupted and timedOut remain tooling even with an assertion", async () => {
+  const reporter = new URL("./playwright-observation.mjs", import.meta.url)
+    .href;
+  const result = await invoke(
+    `import Reporter from ${JSON.stringify(reporter)};const r=new Reporter();for(const status of ['timedOut','interrupted']){const error={message:'expected',stack:'expect at fixture:1'};const outcome={status,errors:[error]};const test={id:status};r.onTestBegin(test,outcome);r.onStepEnd(test,outcome,{category:'expect',error,title:'check',startTime:new Date()});r.onTestEnd(test,outcome);}r.onEnd({status:'failed'});process.exitCode=1;`,
+  );
+  assert.deepEqual(
+    result.report.failures.map((error) => error.category),
+    ["assertion", "tooling", "assertion", "tooling"],
+  );
+});
+test("real installed Playwright reports assertion, exception and mixed failures structurally", async () => {
+  const reporter = fileURLToPath(
+    new URL("./playwright-observation.mjs", import.meta.url),
+  );
+  const playwright = path.join(root, "apps/web/node_modules/@playwright/test");
+  const result = await invoke(
+    `import {mkdtempSync,writeFileSync,rmSync} from 'node:fs';import os from 'node:os';import path from 'node:path';import {spawnSync} from 'node:child_process';const dir=mkdtempSync(path.join(os.tmpdir(),'dd-tasks-real-playwright-'));try{writeFileSync(path.join(dir,'fixture.spec.cjs'),${JSON.stringify(`const {test,expect}=require(${JSON.stringify(playwright)}); test('assertion',()=>expect(1).toBe(2));test('exception',()=>{throw new Error('unexpected')});test('mixed',()=>{expect.soft(1).toBe(2);throw new Error('unexpected')});`)});writeFileSync(path.join(dir,'config.cjs'),'module.exports='+JSON.stringify({testDir:dir,testMatch:'fixture.spec.cjs',workers:1,retries:0,reporter:[[${JSON.stringify(reporter)}]],outputDir:path.join(dir,'output')}));const child=spawnSync('pnpm',['--filter','@dd-tasks/web','exec','playwright','test','--config',path.join(dir,'config.cjs')],{cwd:${JSON.stringify(root)},env:process.env,stdio:'inherit'});process.exitCode=child.status??1;}finally{rmSync(dir,{recursive:true});}`,
+    { DD_FLOW_TEST_EXECUTION_SILENCE_MS: "10000" },
+  );
+  assert.equal(result.code, 1);
+  assert.equal(result.report.completed, true, result.stderr);
+  assert.equal(result.report.counts.failed, 3);
+  assert.deepEqual(
+    result.report.failures.map((error) => error.category),
+    ["assertion", "unclassified", "assertion", "unclassified"],
+  );
+});

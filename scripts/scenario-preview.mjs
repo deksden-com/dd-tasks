@@ -5,6 +5,7 @@ import { join, resolve } from "node:path";
 import { observeGroupSettlement, signalOwnedGroup } from "./owned-process.mjs";
 import { acquirePreviewLease } from "./preview-lease.mjs";
 import { runtimePorts } from "./runtime-ports.mjs";
+import { hasTestWatchdog } from "./test-observation.mjs";
 
 const workspaceRoot = process.cwd();
 const profile = valueAfter("--profile");
@@ -718,26 +719,28 @@ function run(command, args, options = {}) {
     let stdout = "";
     let stderr = "";
     let timedOut = false;
-    const timeout = setTimeout(() => {
-      if (child.exitCode !== null || child.signalCode !== null) return;
-      timedOut = true;
-      signalOwnedGroup(child, "SIGTERM");
-      setTimeout(
-        () =>
-          child.exitCode === null &&
-          child.signalCode === null &&
-          signalOwnedGroup(child, "SIGKILL"),
-        2_000,
-      ).unref();
-    }, options.timeoutMs ?? 120_000);
+    const timeout = hasTestWatchdog(command, args, options.cwd ?? workspaceRoot)
+      ? undefined
+      : setTimeout(() => {
+          if (child.exitCode !== null || child.signalCode !== null) return;
+          timedOut = true;
+          signalOwnedGroup(child, "SIGTERM");
+          setTimeout(
+            () =>
+              child.exitCode === null &&
+              child.signalCode === null &&
+              signalOwnedGroup(child, "SIGKILL"),
+            2_000,
+          ).unref();
+        }, options.timeoutMs ?? 120_000);
     child.stdout.on("data", (chunk) => (stdout += String(chunk)));
     child.stderr.on("data", (chunk) => (stderr += String(chunk)));
     child.on("error", (error) => {
-      clearTimeout(timeout);
+      if (timeout) clearTimeout(timeout);
       resolvePromise({ status: 1, stdout: "", stderr: redact(error.message) });
     });
     child.on("close", async (code) => {
-      clearTimeout(timeout);
+      if (timeout) clearTimeout(timeout);
       const settlement = await observeGroupSettlement(child);
       resolvePromise({
         status: !settlement.settled ? 1 : timedOut ? 124 : (code ?? 1),

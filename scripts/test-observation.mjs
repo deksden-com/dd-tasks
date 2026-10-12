@@ -9,6 +9,46 @@ import {
 } from "node:fs";
 import path from "node:path";
 
+// ponytail: exact browser/world routes; new launchers stay bounded until added.
+export function hasTestWatchdog(command, args, cwd) {
+  const root = path.resolve(import.meta.dirname, "..");
+  if (command === process.execPath)
+    return (
+      path.resolve(cwd, args[0] ?? "") ===
+      path.join(root, "scripts/test-runner.mjs")
+    );
+  if (command !== "pnpm" || path.resolve(cwd) !== root) return false;
+  try {
+    const scripts = JSON.parse(
+      readFileSync(path.join(root, "package.json"), "utf8"),
+    ).scripts;
+    const web = JSON.parse(
+      readFileSync(path.join(root, "apps/web/package.json"), "utf8"),
+    ).scripts;
+    const browser =
+      web["test:browser"] ===
+      "node ../../scripts/test-runner.mjs pnpm --filter @dd-tasks/api exec tsx scripts/test-world.ts browser pnpm --filter @dd-tasks/web exec playwright test --config playwright.config.ts";
+    if (
+      args[0] === "--filter" &&
+      args[1] === "@dd-tasks/web" &&
+      args[2] === "test:browser"
+    )
+      return browser;
+    if (args[0] === "test:browser")
+      return (
+        browser &&
+        scripts["test:browser"] === "pnpm --filter @dd-tasks/web test:browser"
+      );
+    return (
+      args[0] === "test:world" &&
+      scripts["test:world"] ===
+        "node scripts/test-runner.mjs pnpm --filter @dd-tasks/api exec tsx scripts/test-world-isolation.ts"
+    );
+  } catch {
+    return false;
+  }
+}
+
 export function readProgress(file) {
   const fd = openSync(
     file,

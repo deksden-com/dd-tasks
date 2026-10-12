@@ -10,6 +10,7 @@ import {
   signalOwnedGroup,
 } from "./owned-process.mjs";
 import { runtimePorts } from "./runtime-ports.mjs";
+import { hasTestWatchdog } from "./test-observation.mjs";
 
 const postgres = createRequire(
   new URL("../apps/api/package.json", import.meta.url),
@@ -626,13 +627,15 @@ function runCommand(command, args, options = {}) {
     let stderr = "";
     let settled = false;
     let timedOut = false;
-    const timeout = setTimeout(() => {
-      timedOut = true;
-      signalGroup(child, "SIGTERM");
-      setTimeout(() => {
-        signalGroup(child, "SIGKILL");
-      }, 2_000).unref();
-    }, options.timeoutMs ?? 120_000);
+    const timeout = hasTestWatchdog(command, args, options.cwd ?? workspaceRoot)
+      ? undefined
+      : setTimeout(() => {
+          timedOut = true;
+          signalGroup(child, "SIGTERM");
+          setTimeout(() => {
+            signalGroup(child, "SIGKILL");
+          }, 2_000).unref();
+        }, options.timeoutMs ?? 120_000);
     child.stdout.on("data", (chunk) => {
       stdout += String(chunk);
     });
@@ -643,14 +646,14 @@ function runCommand(command, args, options = {}) {
       if (settled) return;
       settled = true;
       activeCommands.delete(child);
-      clearTimeout(timeout);
+      if (timeout) clearTimeout(timeout);
       resolvePromise({ status: 1, stdout, stderr: error.message });
     });
     child.on("close", async (status, signal) => {
       if (settled) return;
       settled = true;
       activeCommands.delete(child);
-      clearTimeout(timeout);
+      if (timeout) clearTimeout(timeout);
       const settlement = await observeGroupSettlement(child);
       resolvePromise({
         status: !settlement.settled ? 1 : timedOut ? 124 : (status ?? 1),

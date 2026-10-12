@@ -10,3 +10,8 @@ export function evidence(
   failures: unknown[],
   completed?: boolean,
 ): void;
+export function hasTestWatchdog(
+  command: string,
+  args: string[],
+  cwd: string,
+): boolean;

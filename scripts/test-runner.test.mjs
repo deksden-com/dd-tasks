@@ -5,9 +5,50 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
+import { hasTestWatchdog } from "./test-observation.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const observation = new URL("./test-observation.mjs", import.meta.url).href;
+test("only exact owned test launcher routes delegate outer timeouts", () => {
+  assert.equal(
+    hasTestWatchdog(
+      "pnpm",
+      [
+        "--filter",
+        "@dd-tasks/web",
+        "test:browser",
+        "--",
+        "--project",
+        "chromium",
+      ],
+      root,
+    ),
+    true,
+  );
+  assert.equal(hasTestWatchdog("pnpm", ["test:world"], root), true);
+  assert.equal(
+    hasTestWatchdog(
+      process.execPath,
+      ["scripts/test-runner.mjs", "pnpm", "exec", "playwright"],
+      root,
+    ),
+    true,
+  );
+  assert.equal(hasTestWatchdog("docker", ["compose", "up"], root), false);
+  assert.equal(
+    hasTestWatchdog(
+      "pnpm",
+      ["--filter", "@dd-tasks/web", "exec", "playwright"],
+      root,
+    ),
+    false,
+  );
+  assert.equal(
+    hasTestWatchdog(process.execPath, ["somewhere/test-runner.mjs"], root),
+    false,
+  );
+  assert.equal(hasTestWatchdog("pnpm", ["test:browser"], os.tmpdir()), false);
+});
 async function invoke(source, budgets = {}, cancelOnReady = false) {
   const directory = mkdtempSync(
     path.join(os.tmpdir(), "dd-tasks-watchdog-test-"),

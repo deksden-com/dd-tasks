@@ -1,3 +1,4 @@
+import { progress } from "../../../scripts/test-observation.mjs";
 import { createSqlClient } from "../src/db/client.js";
 import { resetAndMigrate } from "../src/db/migrations.js";
 import { requireTestWorld } from "../src/db/test-world.js";
@@ -7,6 +8,7 @@ export default async function setup(): Promise<void> {
   const sql = createSqlClient(TEST_DATABASE_URL);
   try {
     await resetAndMigrate(sql);
+    progress("database_migrated", "startup");
   } finally {
     await sql.end({ timeout: 5 });
   }

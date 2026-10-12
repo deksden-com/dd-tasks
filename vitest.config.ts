@@ -1,8 +1,10 @@
 import { defineConfig } from "vitest/config";
 import { TEST_DATABASE_URL } from "./apps/api/tests/global-setup.js";
+import { managedVitest } from "./scripts/test-observation.mjs";
 
 export default defineConfig({
   test: {
+    ...managedVitest(),
     projects: [
       {
         test: {

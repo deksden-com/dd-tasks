@@ -220,7 +220,7 @@ describe("checkpoint-02 core API", () => {
     ).toBe(401);
   });
 
-  it("registers exactly once and rotates or expires server-side sessions", async () => {
+  it("registers exactly once including normalized duplicate email", async () => {
     const register = await app.request("/api/auth/register", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -242,7 +242,8 @@ describe("checkpoint-02 core API", () => {
       }),
     });
     expect(duplicate.status).toBe(409);
-
+  });
+  it("rotates and expires server-side sessions", async () => {
     const first = await login("owner@example.test");
     const second = await login("owner@example.test");
     expect((await jsonRequest("/api/auth/me", first)).status).toBe(401);

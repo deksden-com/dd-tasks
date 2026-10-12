@@ -1,6 +1,7 @@
 import { writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { runtimePorts } from "../../../../scripts/runtime-ports.mjs";
+import { progress } from "../../../../scripts/test-observation.mjs";
 import { createSqlClient } from "../../../api/src/db/client.js";
 import { seedDemoData } from "../../../api/src/db/fixtures.js";
 import { resetAndMigrate } from "../../../api/src/db/migrations.js";
@@ -10,7 +11,9 @@ export default async function setup() {
   const sql = createSqlClient(requireTestWorld());
   try {
     await resetAndMigrate(sql);
+    progress("database_migrated", "startup");
     await seedDemoData(sql);
+    progress("setup_step_completed:database_seeded", "startup");
     const ports = runtimePorts();
     const endpoints = {} as Record<string, { url: string; status: number }>;
     for (const [name, url] of [
@@ -21,6 +24,7 @@ export default async function setup() {
       if (response.status !== 200)
         throw new Error(`Test endpoint ${name} is not ready`);
       endpoints[name] = { url, status: response.status };
+      progress(`setup_step_completed:endpoint_ready:${name}`, "startup");
     }
     const file = fileURLToPath(
       new URL(

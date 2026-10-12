@@ -5,6 +5,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import postgres from "postgres";
+import { evidence, progress } from "../../../scripts/test-observation.mjs";
 
 const api = path.resolve(import.meta.dirname, "..");
 const root = path.resolve(api, "../..");
@@ -44,12 +45,15 @@ async function launch(marker: string, checkout = root) {
     errors += String(data);
   });
   const ready = await new Promise<{ token: string }>((resolve, reject) => {
-    const timer = setTimeout(
-      () => reject(new Error(`probe timeout: ${errors}`)),
-      20000,
-    );
+    const timer =
+      process.env.DD_TASKS_TEST_WATCHDOG === "1"
+        ? undefined
+        : setTimeout(
+            () => reject(new Error(`probe timeout: ${errors}`)),
+            20000,
+          );
     child.once("exit", () => {
-      clearTimeout(timer);
+      if (timer) clearTimeout(timer);
       reject(new Error(`probe exited: ${errors}`));
     });
     child.stdout?.on("data", (data) => {
@@ -58,7 +62,8 @@ async function launch(marker: string, checkout = root) {
         .split("\n")
         .find((line) => line.startsWith('{"ready":'));
       if (line) {
-        clearTimeout(timer);
+        if (timer) clearTimeout(timer);
+        progress(`setup_step_completed:world_ready:${marker}`, "startup");
         resolve(JSON.parse(line));
       }
     });
@@ -90,6 +95,7 @@ try {
   const exited = once(first.child, "exit");
   first.child.kill("SIGTERM");
   await exited;
+  progress("step_completed:cancelled_world_settled");
   const rows = await admin<
     { datname: string }[]
   >`SELECT datname FROM pg_database WHERE datname IN (${first.receipt.database}, ${second.receipt.database})`;
@@ -114,6 +120,11 @@ try {
   );
   console.log(
     "PASS concurrent worlds have distinct migration digests; cancelling one preserves the other's database and data",
+  );
+  evidence(
+    { name: "test-world-isolation", version: "1" },
+    { passed: 1, failed: 0, skipped: 0 },
+    [],
   );
 } finally {
   for (const child of children) {

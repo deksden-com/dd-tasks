@@ -4,18 +4,17 @@ import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import net from "node:net";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { progress } from "../../../scripts/test-observation.mjs";
 import { createTestWorld } from "../src/db/test-world.js";
 
 const [role, command, ...args] = process.argv.slice(2);
 if (!role || !command)
   throw new Error("test-world requires a role and command");
 const root = fileURLToPath(new URL("../../../", import.meta.url));
-const world = await createTestWorld();
-const directory = path.join(root, ".test-worlds", world.token);
+let world: Awaited<ReturnType<typeof createTestWorld>> | undefined;
+let directory: string | undefined;
 const env: NodeJS.ProcessEnv = {
   ...process.env,
-  DATABASE_URL: world.url,
-  DD_TASKS_TEST_WORLD: world.token,
   DD_TASKS_TEST_ROLE: role,
   RUNTIME_PROFILE: "test",
 };
@@ -37,25 +36,29 @@ async function availablePort(): Promise<string> {
 }
 const receipt: Record<string, unknown> = {
   schema_id: "dd-tasks/test-world@1",
-  id: world.token,
   role,
   project_root: root,
-  database: world.name,
   pid: process.pid,
   state: "running",
   started_at: new Date().toISOString(),
 };
-let child: ReturnType<typeof spawn> | null = null;
+const children: ReturnType<typeof spawn>[] = [];
+let primaryError: unknown;
 let signal: NodeJS.Signals | null = null;
 let escalation: ReturnType<typeof setTimeout> | undefined;
 const stopGroup = (value: NodeJS.Signals) => {
-  if (child?.pid) {
-    try {
-      process.kill(-child.pid, value);
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== "ESRCH") throw error;
+  for (const owned of children)
+    if (owned.pid) {
+      try {
+        process.kill(-owned.pid, 0);
+        process.kill(-owned.pid, value);
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== "ESRCH")
+          throw new Error(
+            `Owned process group ${owned.pid} ${value}: ${String(error)}`,
+          );
+      }
     }
-  }
 };
 const stop = (value: NodeJS.Signals) => {
   signal = value;
@@ -67,6 +70,14 @@ const terminate = () => stop("SIGTERM"),
 process.on("SIGTERM", terminate);
 process.on("SIGINT", interrupt);
 try {
+  world = await createTestWorld();
+  directory = path.join(root, ".test-worlds", world.token);
+  Object.assign(env, {
+    DATABASE_URL: world.url,
+    DD_TASKS_TEST_WORLD: world.token,
+  });
+  Object.assign(receipt, { id: world.token, database: world.name });
+  progress("test_world_created", "startup");
   if (role === "browser" || role === "foundation") {
     env.DD_FLOW_PORT_API ??= await availablePort();
     if (!env.DD_FLOW_PORT_WEB) {
@@ -76,6 +87,7 @@ try {
     }
     if (env.DD_FLOW_PORT_WEB === env.DD_FLOW_PORT_API)
       throw new Error("API and Web require distinct ports");
+    progress("ports_allocated", "startup");
   }
   const migrations = path.resolve(
     process.env.MIGRATIONS_DIR ?? path.join(root, "apps/api/drizzle"),
@@ -94,43 +106,142 @@ try {
       web: env.DD_FLOW_PORT_WEB ?? null,
     },
   });
+  progress("migrations_hashed", "startup");
   await mkdir(directory, { recursive: true });
   await writeFile(
     path.join(directory, "receipt.json"),
     JSON.stringify(receipt, null, 2),
   );
   if (signal) throw new Error("Test invocation cancelled before dispatch");
+  if (role === "browser" && env.DD_TASKS_TEST_WATCHDOG === "1") {
+    const start = (args: string[], extra: NodeJS.ProcessEnv = {}) => {
+      const server = spawn("pnpm", args, {
+        cwd: root,
+        env: { ...env, ...extra },
+        stdio: "inherit",
+        detached: true,
+      });
+      children.push(server);
+      return server;
+    };
+    const ready = async (
+      server: ReturnType<typeof spawn>,
+      url: string,
+      name: string,
+    ) => {
+      while (!signal) {
+        if (server.exitCode !== null || server.signalCode !== null)
+          throw new Error(`${name} exited before readiness`);
+        try {
+          const response = await fetch(url, {
+            signal: AbortSignal.timeout(5000),
+          });
+          if (response.status === 200) {
+            progress(`setup_step_completed:${name}_ready`, "startup");
+            return;
+          }
+        } catch {
+          /* Probe retries are not progress; the outer watcher bounds silence. */
+        }
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+      throw new Error("Startup cancelled");
+    };
+    const api = start(["--filter", "@dd-tasks/api", "start"], {
+      PORT: env.DD_FLOW_PORT_API,
+    });
+    await ready(
+      api,
+      `http://127.0.0.1:${env.DD_FLOW_PORT_API}/api/health`,
+      "api",
+    );
+    const dist = path.join(directory, "web-dist");
+    const build = start([
+      "--filter",
+      "@dd-tasks/web",
+      "build",
+      "--outDir",
+      dist,
+    ]);
+    const buildCode = await new Promise<number | null>((resolve, reject) => {
+      build.once("error", reject);
+      build.once("exit", resolve);
+    });
+    if (buildCode !== 0 || signal)
+      throw new Error("Browser build failed or cancelled");
+    children.splice(children.indexOf(build), 1);
+    progress("setup_step_completed:web_built", "startup");
+    const web = start(
+      [
+        "--filter",
+        "@dd-tasks/web",
+        "exec",
+        "vite",
+        "preview",
+        "--outDir",
+        dist,
+        "--host",
+        "127.0.0.1",
+        "--port",
+        String(env.DD_FLOW_PORT_WEB),
+        "--strictPort",
+      ],
+      { API_PORT: env.DD_FLOW_PORT_API },
+    );
+    await ready(web, `http://127.0.0.1:${env.DD_FLOW_PORT_WEB}/login`, "web");
+  }
   const spawned = spawn(command, args, {
     cwd: process.cwd(),
     env,
     stdio: "inherit",
     detached: true,
   });
-  child = spawned;
+  children.push(spawned);
   const code = await new Promise<number>((resolve, reject) => {
     spawned.once("error", reject);
     spawned.once("exit", (code, signal) => resolve(code ?? (signal ? 128 : 1)));
   });
   process.exitCode = code;
   receipt.exit_code = code;
+} catch (error) {
+  primaryError = error;
+  throw error;
 } finally {
-  await cleanupOwnedGroup();
-  await world.drop();
-  receipt.state = "cleaned";
+  const cleanupErrors: string[] = [];
+  for (const cleanup of [cleanupOwnedGroup, async () => world?.drop()]) {
+    try {
+      await cleanup();
+    } catch (error) {
+      cleanupErrors.push(String(error));
+    }
+  }
+  if (cleanupErrors.length) {
+    receipt.cleanup_errors = cleanupErrors;
+    if (!primaryError && !process.exitCode) process.exitCode = 1;
+  }
+  receipt.state = cleanupErrors.length ? "cleanup_unconfirmed" : "cleaned";
   receipt.finished_at = new Date().toISOString();
-  const endpoints = await readFile(
-    path.join(directory, "endpoints.json"),
-    "utf8",
-  ).catch((error) => {
-    if (error.code === "ENOENT") return null;
-    throw error;
-  });
-  if (endpoints) receipt.observed_endpoints = JSON.parse(endpoints);
-  await mkdir(directory, { recursive: true });
-  await writeFile(
-    path.join(directory, "receipt.json"),
-    JSON.stringify(receipt, null, 2),
-  );
+  try {
+    const endpoints = directory
+      ? await readFile(path.join(directory, "endpoints.json"), "utf8").catch(
+          (error) => {
+            if (error.code === "ENOENT") return null;
+            throw error;
+          },
+        )
+      : null;
+    if (endpoints) receipt.observed_endpoints = JSON.parse(endpoints);
+    if (directory) {
+      await mkdir(directory, { recursive: true });
+      await writeFile(
+        path.join(directory, "receipt.json"),
+        JSON.stringify(receipt, null, 2),
+      );
+    }
+  } catch (error) {
+    console.error({ cleanup_error: String(error) });
+    if (!primaryError && !process.exitCode) process.exitCode = 1;
+  }
   process.off("SIGTERM", terminate);
   process.off("SIGINT", interrupt);
 }
@@ -138,17 +249,28 @@ try {
 async function cleanupOwnedGroup() {
   if (escalation) clearTimeout(escalation);
   stopGroup("SIGTERM");
-  if (child?.pid) {
-    const deadline = Date.now() + 2000;
-    while (Date.now() < deadline) {
-      try {
-        process.kill(-child.pid, 0);
-      } catch (error) {
-        if ((error as NodeJS.ErrnoException).code === "ESRCH") break;
-        throw error;
+  for (const owned of children)
+    if (owned.pid) {
+      const deadline = Date.now() + 2000;
+      let alive = true;
+      while (Date.now() < deadline) {
+        try {
+          process.kill(-owned.pid, 0);
+        } catch (error) {
+          if ((error as NodeJS.ErrnoException).code === "ESRCH") {
+            alive = false;
+            break;
+          }
+          throw error;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 50));
       }
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      if (alive) {
+        try {
+          process.kill(-owned.pid, "SIGKILL");
+        } catch (error) {
+          if ((error as NodeJS.ErrnoException).code !== "ESRCH") throw error;
+        }
+      }
     }
-    stopGroup("SIGKILL");
-  }
 }

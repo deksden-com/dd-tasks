@@ -268,8 +268,10 @@ try {
   if (phasePassed("phase-04-api-role-smoke")) {
     await phase("phase-05-browser-scn-003", async (result) => {
       const browser = await run(
-        "pnpm",
+        process.execPath,
         [
+          "scripts/test-runner.mjs",
+          "pnpm",
           "--filter",
           "@dd-tasks/web",
           "exec",

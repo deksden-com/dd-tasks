@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import { createHash, randomBytes } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
+import { observeGroupSettlement, signalOwnedGroup } from "./owned-process.mjs";
 import { acquirePreviewLease } from "./preview-lease.mjs";
 import { runtimePorts } from "./runtime-ports.mjs";
 
@@ -709,6 +710,7 @@ function parseLastJson(value) {
 function run(command, args, options = {}) {
   return new Promise((resolvePromise) => {
     const child = spawn(command, args, {
+      detached: true,
       cwd: options.cwd ?? workspaceRoot,
       env: options.env ?? process.env,
       stdio: ["ignore", "pipe", "pipe"],
@@ -717,10 +719,14 @@ function run(command, args, options = {}) {
     let stderr = "";
     let timedOut = false;
     const timeout = setTimeout(() => {
+      if (child.exitCode !== null || child.signalCode !== null) return;
       timedOut = true;
-      child.kill("SIGTERM");
+      signalOwnedGroup(child, "SIGTERM");
       setTimeout(
-        () => child.exitCode === null && child.kill("SIGKILL"),
+        () =>
+          child.exitCode === null &&
+          child.signalCode === null &&
+          signalOwnedGroup(child, "SIGKILL"),
         2_000,
       ).unref();
     }, options.timeoutMs ?? 120_000);
@@ -730,12 +736,17 @@ function run(command, args, options = {}) {
       clearTimeout(timeout);
       resolvePromise({ status: 1, stdout: "", stderr: redact(error.message) });
     });
-    child.on("close", (code) => {
+    child.on("close", async (code) => {
       clearTimeout(timeout);
+      const settlement = await observeGroupSettlement(child);
       resolvePromise({
-        status: timedOut ? 124 : (code ?? 1),
+        status: !settlement.settled ? 1 : timedOut ? 124 : (code ?? 1),
         stdout: redact(stdout),
-        stderr: redact(stderr),
+        stderr: redact(
+          !settlement.settled
+            ? `${stderr}\ncleanup_unconfirmed: ${settlement.reason}`
+            : stderr,
+        ),
       });
     });
   });

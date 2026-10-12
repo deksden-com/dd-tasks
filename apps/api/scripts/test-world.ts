@@ -4,6 +4,11 @@ import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import net from "node:net";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  liveLeader,
+  observeGroupSettlement,
+  signalOwnedGroup,
+} from "../../../scripts/owned-process.mjs";
 import { progress } from "../../../scripts/test-observation.mjs";
 import { createTestWorld } from "../src/db/test-world.js";
 
@@ -47,18 +52,7 @@ let primaryError: unknown;
 let signal: NodeJS.Signals | null = null;
 let escalation: ReturnType<typeof setTimeout> | undefined;
 const stopGroup = (value: NodeJS.Signals) => {
-  for (const owned of children)
-    if (owned.pid) {
-      try {
-        process.kill(-owned.pid, 0);
-        process.kill(-owned.pid, value);
-      } catch (error) {
-        if ((error as NodeJS.ErrnoException).code !== "ESRCH")
-          throw new Error(
-            `Owned process group ${owned.pid} ${value}: ${String(error)}`,
-          );
-      }
-    }
+  for (const owned of children) signalOwnedGroup(owned, value);
 };
 const stop = (value: NodeJS.Signals) => {
   signal = value;
@@ -249,28 +243,18 @@ try {
 async function cleanupOwnedGroup() {
   if (escalation) clearTimeout(escalation);
   stopGroup("SIGTERM");
-  for (const owned of children)
-    if (owned.pid) {
-      const deadline = Date.now() + 2000;
-      let alive = true;
-      while (Date.now() < deadline) {
-        try {
-          process.kill(-owned.pid, 0);
-        } catch (error) {
-          if ((error as NodeJS.ErrnoException).code === "ESRCH") {
-            alive = false;
-            break;
-          }
-          throw error;
-        }
-        await new Promise((resolve) => setTimeout(resolve, 50));
+  const results = await Promise.all(
+    children.map(async (owned) => {
+      let settlement = await observeGroupSettlement(owned, 2000);
+      if (!settlement.settled && liveLeader(owned)) {
+        signalOwnedGroup(owned, "SIGKILL");
+        settlement = await observeGroupSettlement(owned, 1000);
       }
-      if (alive) {
-        try {
-          process.kill(-owned.pid, "SIGKILL");
-        } catch (error) {
-          if ((error as NodeJS.ErrnoException).code !== "ESRCH") throw error;
-        }
-      }
-    }
+      return settlement.settled
+        ? null
+        : `Process group ${owned.pid}: ${settlement.reason}`;
+    }),
+  );
+  const failures = results.filter(Boolean);
+  if (failures.length) throw new Error(failures.join("; "));
 }

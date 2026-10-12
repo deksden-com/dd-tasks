@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const observation = new URL("./test-observation.mjs", import.meta.url).href;
-async function invoke(source, budgets = {}) {
+async function invoke(source, budgets = {}, cancelOnReady = false) {
   const directory = mkdtempSync(
     path.join(os.tmpdir(), "dd-tasks-watchdog-test-"),
   );
@@ -40,6 +40,10 @@ async function invoke(source, budgets = {}) {
       },
     );
     let stderr = "";
+    child.stdout.on("data", (bytes) => {
+      if (cancelOnReady && String(bytes).includes("READY"))
+        child.kill("SIGTERM");
+    });
     child.stderr.on("data", (bytes) => {
       stderr += bytes;
     });
@@ -47,7 +51,12 @@ async function invoke(source, budgets = {}) {
       child.once("error", reject);
       child.once("exit", resolve);
     });
-    return { code, report: JSON.parse(readFileSync(evidence, "utf8")), stderr };
+    return {
+      code,
+      report: JSON.parse(readFileSync(evidence, "utf8")),
+      stderr,
+      marker: existsSync(`${evidence}.marker`),
+    };
   } finally {
     rmSync(directory, { recursive: true });
   }
@@ -89,4 +98,37 @@ test("reporter preserves assertion identity from structured runner error", async
   );
   assert.equal(result.report.counts.failed, 1);
   assert.equal(result.report.failures[0].category, "assertion");
+});
+test("naturally exiting leader cannot SIGKILL its finishing helper", async () => {
+  const result = await invoke(
+    `import {spawn} from 'node:child_process';import {evidence} from ${JSON.stringify(observation)}; evidence({name:'fixture',version:'1'},{passed:1,failed:0,skipped:0},[]);const helper=spawn(process.execPath,['--input-type=module','-e',"import {writeFileSync} from 'node:fs';setTimeout(()=>writeFileSync(process.env.DD_FLOW_CHECK_RUNNER_EVIDENCE_PATH+'.marker','settled'),500);"],{stdio:'ignore'});helper.unref();`,
+  );
+  assert.equal(result.code, 0, result.stderr);
+  assert.equal(result.marker, true);
+});
+test("cancellation allows live owned leader to clean up", async () => {
+  const result = await invoke(
+    `import {writeFileSync} from 'node:fs'; process.on('SIGTERM',()=>setTimeout(()=>{writeFileSync(process.env.DD_FLOW_CHECK_RUNNER_EVIDENCE_PATH+'.marker','cleaned');process.exit(0);},100));console.log('READY');setInterval(()=>{},100);`,
+    {},
+    true,
+  );
+  assert.equal(result.code, 1);
+  assert.equal(result.marker, true);
+  assert.equal(result.report.failures[0].code, "cancelled");
+});
+test("future timestamps do not extend a silent operation", async () => {
+  const result = await invoke(
+    `import {appendFileSync} from 'node:fs';let sequence=0;setInterval(()=>appendFileSync(process.env.DD_FLOW_CHECK_RUNNER_PROGRESS_PATH,JSON.stringify({schema_id:'dd-flow/check-runner-progress@1',invocation_id:'test',sequence:++sequence,phase:'execution',event:'step_completed',detail:String(sequence),at:new Date(Date.now()+60000).toISOString()})+'\\n'),100);`,
+    { DD_FLOW_TEST_STARTUP_SILENCE_MS: "1000" },
+  );
+  assert.equal(result.code, 1);
+  assert.equal(result.report.failures[0].code, "inactivity_timeout");
+});
+test("stale timestamps do not extend a silent operation", async () => {
+  const result = await invoke(
+    `import {appendFileSync} from 'node:fs';let sequence=0;setInterval(()=>appendFileSync(process.env.DD_FLOW_CHECK_RUNNER_PROGRESS_PATH,JSON.stringify({schema_id:'dd-flow/check-runner-progress@1',invocation_id:'test',sequence:++sequence,phase:'execution',event:'step_completed',detail:String(sequence),at:new Date(Date.now()-60000).toISOString()})+'\\n'),100);`,
+    { DD_FLOW_TEST_STARTUP_SILENCE_MS: "1000" },
+  );
+  assert.equal(result.code, 1);
+  assert.equal(result.report.failures[0].code, "inactivity_timeout");
 });

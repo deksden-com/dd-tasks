@@ -1,5 +1,13 @@
 {
-  "schema_id": "dd-flow/code-check-profile@6",
+  "schema_id": "dd-flow/code-check-profile@7",
+  "runner_evidence_by_alias": {
+    "@check/api-contract": { "schema_id": "dd-flow/check-runner-evidence@1", "path": "api-contract.runner.json" },
+    "@check/api-unit": { "schema_id": "dd-flow/check-runner-evidence@1", "path": "api-unit.runner.json" },
+    "@check/api-integration": { "schema_id": "dd-flow/check-runner-evidence@1", "path": "api-integration.runner.json" },
+    "@check/web-unit": { "schema_id": "dd-flow/check-runner-evidence@1", "path": "web-unit.runner.json" },
+    "@check/browser": { "schema_id": "dd-flow/check-runner-evidence@1", "path": "browser.runner.json" },
+    "@check/quality": { "schema_id": "dd-flow/check-runner-evidence@1", "path": "quality.runner.json" }
+  },
   "aliases": {
     "@check/api-contract": "pnpm test:api-contract",
     "@check/api-unit": "pnpm --filter @dd-tasks/api test:unit",

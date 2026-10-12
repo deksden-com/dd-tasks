@@ -4,7 +4,13 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import net from "node:net";
 import { join, resolve } from "node:path";
+import {
+  liveLeader,
+  observeGroupSettlement,
+  signalOwnedGroup,
+} from "./owned-process.mjs";
 import { runtimePorts } from "./runtime-ports.mjs";
+import { hasTestWatchdog } from "./test-observation.mjs";
 
 const postgres = createRequire(
   new URL("../apps/api/package.json", import.meta.url),
@@ -585,16 +591,21 @@ async function ensureApi() {
 async function stopOwnedApi() {
   const processToStop = ownedApiProcess;
   ownedApiProcess = null;
-  if (!processToStop || processToStop.exitCode !== null) return;
-  signalGroup(processToStop, "SIGTERM");
-  await new Promise((resolvePromise) => {
-    const timer = setTimeout(resolvePromise, 2_000);
-    processToStop.once("exit", () => {
-      clearTimeout(timer);
-      resolvePromise();
+  if (!processToStop) return;
+  if (liveLeader(processToStop)) {
+    signalGroup(processToStop, "SIGTERM");
+    await new Promise((resolvePromise) => {
+      const timer = setTimeout(resolvePromise, 2_000);
+      processToStop.once("exit", () => {
+        clearTimeout(timer);
+        resolvePromise();
+      });
     });
-  });
-  if (processToStop.exitCode === null) signalGroup(processToStop, "SIGKILL");
+    signalGroup(processToStop, "SIGKILL");
+  }
+  const settlement = await observeGroupSettlement(processToStop);
+  if (!settlement.settled)
+    throw new Error(`cleanup_unconfirmed: ${settlement.reason}`);
 }
 
 async function fetchJson(url, options = {}) {
@@ -616,13 +627,15 @@ function runCommand(command, args, options = {}) {
     let stderr = "";
     let settled = false;
     let timedOut = false;
-    const timeout = setTimeout(() => {
-      timedOut = true;
-      signalGroup(child, "SIGTERM");
-      setTimeout(() => {
-        signalGroup(child, "SIGKILL");
-      }, 2_000).unref();
-    }, options.timeoutMs ?? 120_000);
+    const timeout = hasTestWatchdog(command, args, options.cwd ?? workspaceRoot)
+      ? undefined
+      : setTimeout(() => {
+          timedOut = true;
+          signalGroup(child, "SIGTERM");
+          setTimeout(() => {
+            signalGroup(child, "SIGKILL");
+          }, 2_000).unref();
+        }, options.timeoutMs ?? 120_000);
     child.stdout.on("data", (chunk) => {
       stdout += String(chunk);
     });
@@ -633,20 +646,25 @@ function runCommand(command, args, options = {}) {
       if (settled) return;
       settled = true;
       activeCommands.delete(child);
-      clearTimeout(timeout);
+      if (timeout) clearTimeout(timeout);
       resolvePromise({ status: 1, stdout, stderr: error.message });
     });
-    child.on("close", (status, signal) => {
+    child.on("close", async (status, signal) => {
       if (settled) return;
       settled = true;
       activeCommands.delete(child);
-      clearTimeout(timeout);
+      if (timeout) clearTimeout(timeout);
+      const settlement = await observeGroupSettlement(child);
       resolvePromise({
-        status: timedOut ? 124 : (status ?? 1),
+        status: !settlement.settled ? 1 : timedOut ? 124 : (status ?? 1),
         signal,
         timed_out: timedOut,
         stdout: redact(stdout),
-        stderr: redact(stderr),
+        stderr: redact(
+          !settlement.settled
+            ? `${stderr}\ncleanup_unconfirmed: ${settlement.reason}`
+            : stderr,
+        ),
       });
     });
     if (options.input) child.stdin.end(options.input);
@@ -693,10 +711,5 @@ async function availablePort() {
 }
 
 function signalGroup(child, signal) {
-  if (!child?.pid) return;
-  try {
-    process.kill(-child.pid, signal);
-  } catch (error) {
-    if (error.code !== "ESRCH") throw error;
-  }
+  signalOwnedGroup(child, signal);
 }

@@ -15,10 +15,14 @@ export default defineConfig({
   testIgnore: ["**/preview.spec.ts", "**/keyboard-qualification.spec.ts"],
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.DD_FLOW_CHECK_INVOCATION_ID ? 0 : process.env.CI ? 2 : 0,
+  ...(process.env.DD_TASKS_TEST_WATCHDOG === "1" ? { timeout: 0 } : {}),
   workers: 1,
   reporter: [
     ["list"],
+    ...(process.env.DD_TASKS_TEST_WATCHDOG === "1"
+      ? [["../../scripts/playwright-observation.mjs"] as [string]]
+      : []),
     [
       "json",
       {
@@ -38,18 +42,21 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
     },
   ],
-  webServer: [
-    {
-      command: `PORT=${ports.api} pnpm --filter @dd-tasks/api start`,
-      url: `${ports.apiUrl}/api/health`,
-      reuseExistingServer: false,
-      timeout: 120_000,
-    },
-    {
-      command: `pnpm --filter @dd-tasks/web build --outDir ${webDist} && API_PORT=${ports.api} pnpm --filter @dd-tasks/web exec vite preview --outDir ${webDist} --host 127.0.0.1 --port ${ports.web} --strictPort`,
-      url: `${ports.webUrl}/login`,
-      reuseExistingServer: false,
-      timeout: 120_000,
-    },
-  ],
+  webServer:
+    process.env.DD_TASKS_TEST_WATCHDOG === "1"
+      ? []
+      : [
+          {
+            command: `PORT=${ports.api} pnpm --filter @dd-tasks/api start`,
+            url: `${ports.apiUrl}/api/health`,
+            reuseExistingServer: false,
+            timeout: 120_000,
+          },
+          {
+            command: `pnpm --filter @dd-tasks/web build --outDir ${webDist} && API_PORT=${ports.api} pnpm --filter @dd-tasks/web exec vite preview --outDir ${webDist} --host 127.0.0.1 --port ${ports.web} --strictPort`,
+            url: `${ports.webUrl}/login`,
+            reuseExistingServer: false,
+            timeout: 120_000,
+          },
+        ],
 });

@@ -2,8 +2,10 @@ import { spawn } from "node:child_process";
 import { createHash, randomBytes } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
+import { observeGroupSettlement, signalOwnedGroup } from "./owned-process.mjs";
 import { acquirePreviewLease } from "./preview-lease.mjs";
 import { runtimePorts } from "./runtime-ports.mjs";
+import { hasTestWatchdog } from "./test-observation.mjs";
 
 const workspaceRoot = process.cwd();
 const profile = valueAfter("--profile");
@@ -268,8 +270,10 @@ try {
   if (phasePassed("phase-04-api-role-smoke")) {
     await phase("phase-05-browser-scn-003", async (result) => {
       const browser = await run(
-        "pnpm",
+        process.execPath,
         [
+          "scripts/test-runner.mjs",
+          "pnpm",
           "--filter",
           "@dd-tasks/web",
           "exec",
@@ -707,6 +711,7 @@ function parseLastJson(value) {
 function run(command, args, options = {}) {
   return new Promise((resolvePromise) => {
     const child = spawn(command, args, {
+      detached: true,
       cwd: options.cwd ?? workspaceRoot,
       env: options.env ?? process.env,
       stdio: ["ignore", "pipe", "pipe"],
@@ -714,26 +719,37 @@ function run(command, args, options = {}) {
     let stdout = "";
     let stderr = "";
     let timedOut = false;
-    const timeout = setTimeout(() => {
-      timedOut = true;
-      child.kill("SIGTERM");
-      setTimeout(
-        () => child.exitCode === null && child.kill("SIGKILL"),
-        2_000,
-      ).unref();
-    }, options.timeoutMs ?? 120_000);
+    const timeout = hasTestWatchdog(command, args, options.cwd ?? workspaceRoot)
+      ? undefined
+      : setTimeout(() => {
+          if (child.exitCode !== null || child.signalCode !== null) return;
+          timedOut = true;
+          signalOwnedGroup(child, "SIGTERM");
+          setTimeout(
+            () =>
+              child.exitCode === null &&
+              child.signalCode === null &&
+              signalOwnedGroup(child, "SIGKILL"),
+            2_000,
+          ).unref();
+        }, options.timeoutMs ?? 120_000);
     child.stdout.on("data", (chunk) => (stdout += String(chunk)));
     child.stderr.on("data", (chunk) => (stderr += String(chunk)));
     child.on("error", (error) => {
-      clearTimeout(timeout);
+      if (timeout) clearTimeout(timeout);
       resolvePromise({ status: 1, stdout: "", stderr: redact(error.message) });
     });
-    child.on("close", (code) => {
-      clearTimeout(timeout);
+    child.on("close", async (code) => {
+      if (timeout) clearTimeout(timeout);
+      const settlement = await observeGroupSettlement(child);
       resolvePromise({
-        status: timedOut ? 124 : (code ?? 1),
+        status: !settlement.settled ? 1 : timedOut ? 124 : (code ?? 1),
         stdout: redact(stdout),
-        stderr: redact(stderr),
+        stderr: redact(
+          !settlement.settled
+            ? `${stderr}\ncleanup_unconfirmed: ${settlement.reason}`
+            : stderr,
+        ),
       });
     });
   });

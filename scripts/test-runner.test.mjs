@@ -139,7 +139,7 @@ test("owned migrated PostgreSQL world retains real beforeAll SQLSTATE23503 repai
     const report = JSON.parse(readFileSync(reportPath, "utf8"));
     assert.equal(report.completed, true);
     assert.deepEqual(report.counts, { passed: 0, failed: 0, skipped: 1 });
-    assert.equal(report.failures.length, 1);
+    assert.equal(report.failures.length, 1, JSON.stringify(report.failures));
     const failure = report.failures[0];
     assert.equal(failure.native_code, "23503");
     assert.equal(failure.phase, "setup");
@@ -423,7 +423,12 @@ test("real installed Playwright reports assertion, exception and mixed failures 
   const playwright = path.join(root, "apps/web/node_modules/@playwright/test");
   const result = await invoke(
     `import {mkdtempSync,writeFileSync,rmSync} from 'node:fs';import os from 'node:os';import path from 'node:path';import {spawnSync} from 'node:child_process';const dir=mkdtempSync(path.join(os.tmpdir(),'dd-tasks-real-playwright-'));try{writeFileSync(path.join(dir,'fixture.spec.cjs'),${JSON.stringify(`const {test,expect}=require(${JSON.stringify(playwright)}); test('assertion',()=>expect(1).toBe(2));test('exception',()=>{throw new Error('unexpected')});test('mixed',()=>{expect.soft(1).toBe(2);throw new Error('unexpected')});`)});writeFileSync(path.join(dir,'config.cjs'),'module.exports='+JSON.stringify({testDir:dir,testMatch:'fixture.spec.cjs',workers:1,retries:0,reporter:[[${JSON.stringify(reporter)}]],outputDir:path.join(dir,'output')}));const child=spawnSync('pnpm',['--filter','@dd-tasks/web','exec','playwright','test','--config',path.join(dir,'config.cjs')],{cwd:${JSON.stringify(root)},env:process.env,stdio:'inherit'});process.exitCode=child.status??1;}finally{rmSync(dir,{recursive:true});}`,
-    { DD_FLOW_TEST_EXECUTION_SILENCE_MS: "10000" },
+    // Real runner boot/worker import uses production silence windows; the
+    // small budgets in invoke() are only for synthetic watchdog regressions.
+    {
+      DD_FLOW_TEST_STARTUP_SILENCE_MS: "120000",
+      DD_FLOW_TEST_EXECUTION_SILENCE_MS: "600000",
+    },
   );
   assert.equal(result.code, 1);
   assert.equal(result.report.completed, true, result.stderr);

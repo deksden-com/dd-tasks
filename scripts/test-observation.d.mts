@@ -1,4 +1,8 @@
 export function progress(event: string, phase?: "startup" | "execution"): void;
+export function binding(): { invocation_id?: string };
+export function readJson(file: string, limit?: number): Record<string, unknown>;
+export function writeWorldProof(proof: unknown): void;
+export function completeWorldSetup(): void;
 export function managedVitest(): {
   testTimeout?: number;
   hookTimeout?: number;

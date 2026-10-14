@@ -4,7 +4,6 @@ import {
   lstatSync,
   mkdirSync,
   mkdtempSync,
-  readFileSync,
   renameSync,
   rmSync,
   writeFileSync,
@@ -13,7 +12,13 @@ import os from "node:os";
 import path from "node:path";
 import { performance } from "node:perf_hooks";
 import { observeGroupSettlement, signalOwnedGroup } from "./owned-process.mjs";
-import { binding, readProgress } from "./test-observation.mjs";
+import {
+  binding,
+  boundReport,
+  readJson,
+  readProgress,
+  validReport,
+} from "./test-observation.mjs";
 
 const [command, ...args] = process.argv.slice(2);
 if (!command) throw new Error("test-runner requires a command");
@@ -25,6 +30,8 @@ const progressPath =
   process.env.DD_FLOW_CHECK_RUNNER_PROGRESS_PATH ??
   path.join(temp, "progress.jsonl");
 const reportPath = path.join(temp, "report.json");
+const worldReceipt = path.join(temp, "world-ready.json");
+const worldFinal = path.join(temp, "world-final.json");
 const startedAt = Date.now();
 const startup = Number(process.env.DD_FLOW_TEST_STARTUP_SILENCE_MS ?? 120000);
 const execution = Number(
@@ -52,6 +59,8 @@ const child = spawn(command, args, {
     ...process.env,
     DD_TASKS_TEST_WATCHDOG: "1",
     DD_TASKS_RUNNER_REPORT: reportPath,
+    DD_TASKS_TEST_WORLD_RECEIPT: worldReceipt,
+    DD_TASKS_TEST_WORLD_FINAL_RECEIPT: worldFinal,
     DD_FLOW_CHECK_RUNNER_PROGRESS_PATH: progressPath,
   },
 });
@@ -181,7 +190,12 @@ try {
 }
 let report;
 try {
-  report = JSON.parse(readFileSync(reportPath, "utf8"));
+  report = readJson(reportPath);
+  if (
+    !validReport(report) ||
+    JSON.stringify(report.binding) !== JSON.stringify(binding())
+  )
+    throw new Error("Invalid runner report");
 } catch {
   report = {
     schema_id: "dd-flow/check-runner-evidence@1",
@@ -189,11 +203,17 @@ try {
     runner: { name: "test-wrapper", version: "1" },
     completed: false,
     counts: { passed: 0, failed: 0, skipped: 0 },
-    failures: [],
+    failures: [
+      {
+        category: "tooling",
+        code: "invalid_runner_evidence",
+        message: "Runner did not publish valid bound structured evidence",
+      },
+    ],
   };
 }
 if (failure) {
-  report.failures.push(failure);
+  report.failures.unshift(failure);
   report.completed = false;
   report.observation_unknown = true;
 }
@@ -201,6 +221,39 @@ if (cleanupFailure) {
   report.failures.push(cleanupFailure);
   report.completed = false;
   report.observation_unknown = true;
+}
+try {
+  const ready = readJson(worldReceipt, 16384);
+  const final = readJson(worldFinal, 65536);
+  if (
+    final.schema_id !== "dd-tasks/test-world@1" ||
+    ready.schema_id !== "dd-tasks/test-world-ready@1" ||
+    final.world_id !== ready.world_id ||
+    ready.invocation_id !== binding().invocation_id ||
+    final.invocation_id !== binding().invocation_id ||
+    final.state !== "cleaned" ||
+    !Array.isArray(final.cleanup_errors ?? []) ||
+    final.cleanup_errors?.length
+  )
+    throw new Error("Test world cleanup not confirmed");
+} catch (error) {
+  const exists = (file) => {
+    try {
+      lstatSync(file);
+      return true;
+    } catch (cause) {
+      return cause.code !== "ENOENT";
+    }
+  };
+  if (error.code !== "ENOENT" || exists(worldReceipt) || exists(worldFinal)) {
+    cleanupFailure = {
+      category: "tooling",
+      code: "cleanup_unconfirmed",
+      message: error.message,
+    };
+    report.failures.push(cleanupFailure);
+    report.completed = false;
+  }
 }
 if (exit !== 0 && !report.failures.length)
   report.failures.push({ category: "unclassified", code: "nonzero_exit" });
@@ -210,14 +263,17 @@ if (destination) {
   try {
     if (!lstatSync(destination).isFile())
       throw new Error("Invalid runner evidence destination");
-    const prior = JSON.parse(readFileSync(destination, "utf8"));
-    if (JSON.stringify(prior.binding) === JSON.stringify(report.binding)) {
-      for (const key of ["passed", "failed", "skipped"])
-        report.counts[key] += prior.counts[key];
-      report.failures.unshift(...prior.failures);
-      report.completed &&= prior.completed;
-      report.observation_unknown ||= prior.observation_unknown;
-    }
+    const prior = readJson(destination);
+    if (
+      !validReport(prior) ||
+      JSON.stringify(prior.binding) !== JSON.stringify(report.binding)
+    )
+      throw new Error("Invalid prior evidence binding or schema");
+    for (const key of ["passed", "failed", "skipped"])
+      report.counts[key] += prior.counts[key];
+    report.failures.unshift(...prior.failures);
+    report.completed &&= prior.completed;
+    report.observation_unknown ||= prior.observation_unknown;
   } catch (error) {
     if (error.code !== "ENOENT") {
       report.completed = false;
@@ -228,11 +284,14 @@ if (destination) {
     }
   }
   const publication = `${destination}.${process.pid}.tmp`;
-  writeFileSync(publication, JSON.stringify(report), {
+  writeFileSync(publication, JSON.stringify(boundReport(report)), {
     flag: "wx",
     mode: 0o600,
   });
   renameSync(publication, destination);
 }
 rmSync(temp, { recursive: true });
-process.exitCode = failure || cleanupFailure ? 1 : exit;
+process.exitCode =
+  failure || cleanupFailure || !report.completed || report.failures.length
+    ? 1
+    : exit;

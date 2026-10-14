@@ -1,5 +1,5 @@
 import { createRequire } from "node:module";
-import { evidence, progress } from "./test-observation.mjs";
+import { evidence, normalizeFailure, progress } from "./test-observation.mjs";
 
 const version = createRequire(
   new URL("../apps/web/package.json", import.meta.url),
@@ -46,18 +46,15 @@ export default class Reporter {
         result.status === "timedOut" || result.status === "interrupted";
       const proof = this.expectationErrors.get(result) ?? new Set();
       const failures = (result.errors.length ? result.errors : [{}]).map(
-        (error) => ({
-          category: proof.has(errorSignature(error))
-            ? "assertion"
-            : tooling
-              ? "tooling"
-              : "unclassified",
-          code: result.status,
-          message:
-            error.message ??
-            error.value ??
-            "Test failed without structured error",
-        }),
+        (error) =>
+          normalizeFailure(error, {
+            phase: "test",
+            file: test.location?.file,
+            test_id: test.id,
+            assertion: proof.has(errorSignature(error)),
+            tooling,
+            code: result.status,
+          }),
       );
       if (tooling && !failures.some((error) => error.category === "tooling"))
         failures.push({
@@ -71,11 +68,13 @@ export default class Reporter {
     progress(`test_completed:${test.id}`);
   }
   onError(error) {
-    this.failures.push({
-      category: "tooling",
-      code: "runner_error",
-      message: error.message,
-    });
+    this.failures.push(
+      normalizeFailure(error, {
+        phase: "runner",
+        tooling: true,
+        code: "runner_error",
+      }),
+    );
   }
   onEnd(result) {
     evidence(

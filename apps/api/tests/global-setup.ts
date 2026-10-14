@@ -1,4 +1,7 @@
-import { progress } from "../../../scripts/test-observation.mjs";
+import {
+  completeWorldSetup,
+  progress,
+} from "../../../scripts/test-observation.mjs";
 import { createSqlClient } from "../src/db/client.js";
 import { resetAndMigrate } from "../src/db/migrations.js";
 import { requireTestWorld } from "../src/db/test-world.js";
@@ -12,4 +15,6 @@ export default async function setup(): Promise<void> {
   } finally {
     await sql.end({ timeout: 5 });
   }
+  requireTestWorld();
+  completeWorldSetup();
 }

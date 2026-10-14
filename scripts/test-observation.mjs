@@ -16,7 +16,7 @@ const bounded = (value, limit) => {
   const bytes = Buffer.from(
     String(value ?? "")
       .replace(
-        /\b(password|token|secret|api[_-]?key)\s*[:=]\s*[^\s,;]+/gi,
+        /\b(password|token|secret|api[_-]?key)["']?\s*[:=]\s*["']?[^"'\s,;&}]+/gi,
         "$1=[redacted]",
       )
       .replace(/\bBearer\s+[^\s]+/gi, "Bearer [redacted]")
@@ -214,6 +214,19 @@ function validRepairEvidence(proof, owner) {
   );
 }
 export function boundReport(report) {
+  if (
+    !["passed", "failed", "skipped"].every(
+      (key) =>
+        Number.isSafeInteger(report.counts?.[key]) && report.counts[key] >= 0,
+    )
+  ) {
+    report.failures.push({
+      category: "tooling",
+      code: "invalid_aggregate_counts",
+      message: "Aggregate runner counts exceed the safe integer range",
+    });
+    report.completed = false;
+  }
   for (const key of Object.keys(report))
     if (
       ![

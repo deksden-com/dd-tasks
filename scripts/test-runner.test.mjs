@@ -86,7 +86,7 @@ const root = fileURLToPath(new URL("../", import.meta.url));
 const observation = new URL("./test-observation.mjs", import.meta.url).href;
 test("diagnostics redact credentials and preserve UTF8 byte bounds", () => {
   const failure = normalizeFailure({
-    message: `postgresql://user:password@localhost/db token=private secret:private Bearer private ${"я".repeat(5000)}`,
+    message: `postgresql://user:password@localhost/db token=private secret:private Bearer private api-key = private {"api_key":"private"} ${"я".repeat(5000)}`,
     stack: `api_key=private ${"я".repeat(10000)}`,
   });
   assert.equal(JSON.stringify(failure).includes("private"), false);
@@ -302,6 +302,25 @@ test("foreign prior report and malformed current report cannot certify zero exit
   );
   assert.equal(current.code, 1);
   assert.equal(current.report.failures[0].code, "invalid_runner_evidence");
+});
+test("safe individual counts cannot overflow into a passing aggregate", async () => {
+  for (const key of ["passed", "skipped"]) {
+    const result = await invoke(`
+      import { writeFileSync } from 'node:fs';
+      import { evidence, binding } from '${observation}';
+      const counts = {passed:0,failed:0,skipped:0};
+      writeFileSync(process.env.DD_FLOW_CHECK_RUNNER_EVIDENCE_PATH, JSON.stringify({schema_id:'dd-flow/check-runner-evidence@1',binding:binding(),runner:{name:'fixture',version:'1'},completed:true,counts:{...counts,${key}:Number.MAX_SAFE_INTEGER},failures:[]}));
+      evidence({name:'fixture',version:'1'},{...counts,${key}:1},[]);
+    `);
+    assert.equal(result.code, 1);
+    assert.equal(result.report.completed, false);
+    assert.ok(
+      result.report.failures.some(
+        (failure) => failure.code === "invalid_aggregate_counts",
+      ),
+    );
+    assert.equal(result.report.counts[key], Number.MAX_SAFE_INTEGER + 1);
+  }
 });
 test("foreign or orphan final world receipt cannot certify cleanup", async () => {
   for (const orphan of [false, true]) {

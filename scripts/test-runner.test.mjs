@@ -5,10 +5,152 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { hasTestWatchdog } from "./test-observation.mjs";
+import {
+  boundReport,
+  hasTestWatchdog,
+  normalizeFailure,
+  validReport,
+} from "./test-observation.mjs";
+
+test("installed Vitest retains native SQLSTATE and hook phases without invented failed counts", async () => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), "dd-tasks-native-"));
+  try {
+    const reportPath = path.join(directory, "report.json");
+    const child = spawn(
+      process.execPath,
+      [
+        path.join(root, "node_modules/vitest/vitest.mjs"),
+        "run",
+        "--config",
+        "scripts/fixtures/observation.config.mjs",
+      ],
+      {
+        cwd: root,
+        env: {
+          ...process.env,
+          DD_TASKS_RUNNER_REPORT: reportPath,
+          DD_TASKS_TEST_INVOCATION_ID: "native",
+          DD_TASKS_TEST_COMMAND: "native",
+        },
+        stdio: "ignore",
+      },
+    );
+    const exit = await new Promise((resolve, reject) => {
+      child.once("error", reject);
+      child.once("exit", resolve);
+    });
+    assert.equal(exit, 1);
+    const report = JSON.parse(readFileSync(reportPath, "utf8"));
+    assert.deepEqual(report.counts, { passed: 1, failed: 5, skipped: 2 });
+    assert.equal(report.failures.length, 9);
+    assert.equal(
+      report.failures.find((x) => x.native_code === "COLLECTION_NATIVE").phase,
+      "collection",
+    );
+    assert.deepEqual(
+      report.failures
+        .filter((x) => x.native_code === "23503")
+        .map((x) => x.phase)
+        .sort(),
+      ["setup", "setup", "setup", "teardown", "teardown", "test", "test"],
+    );
+    assert.equal(
+      report.failures
+        .filter((x) => x.native_code === "23503")
+        .every((x) => x.origin === "unknown" && !x.repair_evidence),
+      true,
+    );
+    assert.equal(new Set(report.failures.map((x) => x.test_id)).size, 9);
+    assert.equal(validReport(report), true);
+  } finally {
+    rmSync(directory, { recursive: true });
+  }
+});
+test("aggregate overflow is incomplete and preserves counts", () => {
+  const report = {
+    failures: Array.from({ length: 100 }, () => ({
+      category: "unclassified",
+      code: "Error",
+      message: "cause",
+    })),
+    completed: true,
+    counts: { passed: 1, failed: 100, skipped: 0 },
+  };
+  boundReport(report);
+  assert.equal(report.completed, false);
+  assert.equal(report.failures.at(-1).code, "report_truncated");
+  assert.equal(report.counts.failed, 100);
+});
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const observation = new URL("./test-observation.mjs", import.meta.url).href;
+test("diagnostics redact credentials and preserve UTF8 byte bounds", () => {
+  const failure = normalizeFailure({
+    message: `postgresql://user:password@localhost/db token=private secret:private Bearer private ${"я".repeat(5000)}`,
+    stack: `api_key=private ${"я".repeat(10000)}`,
+  });
+  assert.equal(JSON.stringify(failure).includes("private"), false);
+  assert.equal(JSON.stringify(failure).includes("user:password"), false);
+  assert.ok(Buffer.byteLength(failure.message) <= 4096);
+  assert.ok(Buffer.byteLength(failure.stack) <= 16384);
+  assert.equal(failure.message.includes("�"), false);
+});
+test("owned migrated PostgreSQL world retains real beforeAll SQLSTATE23503 repair proof", {
+  skip: !process.env.DD_TASKS_TEST_ADMIN_URL,
+}, async () => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), "dd-tasks-sql-native-"));
+  try {
+    const reportPath = path.join(directory, "report.json");
+    const child = spawn(
+      process.execPath,
+      [
+        path.join(root, "scripts/test-runner.mjs"),
+        "pnpm",
+        "--filter",
+        "@dd-tasks/api",
+        "exec",
+        "tsx",
+        "scripts/test-world.ts",
+        "api",
+        "pnpm",
+        "-C",
+        "../..",
+        "exec",
+        "vitest",
+        "run",
+        "--config",
+        "scripts/fixtures/sql-observation.config.mjs",
+      ],
+      {
+        cwd: root,
+        env: {
+          ...process.env,
+          DD_FLOW_CHECK_INVOCATION_ID: "native-sql",
+          DD_FLOW_CHECK_RUNNER_EVIDENCE_PATH: reportPath,
+        },
+        stdio: "ignore",
+      },
+    );
+    const exit = await new Promise((resolve, reject) => {
+      child.once("error", reject);
+      child.once("exit", resolve);
+    });
+    assert.equal(exit, 1);
+    const report = JSON.parse(readFileSync(reportPath, "utf8"));
+    assert.equal(report.completed, true);
+    assert.deepEqual(report.counts, { passed: 0, failed: 0, skipped: 1 });
+    assert.equal(report.failures.length, 1);
+    const failure = report.failures[0];
+    assert.equal(failure.native_code, "23503");
+    assert.equal(failure.phase, "setup");
+    assert.equal(failure.origin, "candidate");
+    assert.equal(failure.repair_evidence.world.ready, true);
+    assert.equal(failure.repair_evidence.world.invocation_id, "native-sql");
+    assert.equal(validReport(report), true);
+  } finally {
+    rmSync(directory, { recursive: true });
+  }
+});
 test("only exact owned test launcher routes delegate outer timeouts", () => {
   assert.equal(
     hasTestWatchdog(
@@ -131,6 +273,65 @@ test("nonzero exit cannot be certified by an empty passing reporter", async () =
   );
   assert.equal(result.code, 1);
   assert.equal(result.report.failures[0].category, "unclassified");
+});
+test("late world cleanup failure blocks an otherwise passing reporter", async () => {
+  const result = await invoke(`
+    import { writeFileSync } from 'node:fs';
+    import { evidence, binding } from '${observation}';
+    const world_id = 'a'.repeat(32);
+    writeFileSync(process.env.DD_TASKS_TEST_WORLD_RECEIPT, JSON.stringify({schema_id:'dd-tasks/test-world-ready@1',invocation_id:binding().invocation_id,world_id}));
+    writeFileSync(process.env.DD_TASKS_TEST_WORLD_FINAL_RECEIPT, JSON.stringify({schema_id:'dd-tasks/test-world@1',invocation_id:binding().invocation_id,world_id,state:'cleanup_unconfirmed',cleanup_errors:['drop refused']}));
+    evidence({name:'fixture',version:'1'},{passed:1,failed:0,skipped:0},[]);
+  `);
+  assert.equal(result.code, 1);
+  assert.equal(result.report.completed, false);
+  assert.equal(result.report.failures.at(-1).code, "cleanup_unconfirmed");
+});
+test("foreign prior report and malformed current report cannot certify zero exit", async () => {
+  const prior = await invoke(`
+    import { writeFileSync } from 'node:fs';
+    import { evidence, binding } from '${observation}';
+    writeFileSync(process.env.DD_FLOW_CHECK_RUNNER_EVIDENCE_PATH,JSON.stringify({schema_id:'dd-flow/check-runner-evidence@1',binding:{...binding(),invocation_id:'foreign'},runner:{name:'fixture',version:'1'},completed:true,counts:{passed:1,failed:0,skipped:0},failures:[]}));
+    evidence({name:'fixture',version:'1'},{passed:1,failed:0,skipped:0},[]);
+  `);
+  assert.equal(prior.code, 1);
+  assert.equal(prior.report.completed, false);
+  assert.equal(prior.report.failures.at(-1).code, "invalid_prior_evidence");
+  const current = await invoke(
+    `import {writeFileSync} from 'node:fs';writeFileSync(process.env.DD_TASKS_RUNNER_REPORT,'{}');`,
+  );
+  assert.equal(current.code, 1);
+  assert.equal(current.report.failures[0].code, "invalid_runner_evidence");
+});
+test("foreign or orphan final world receipt cannot certify cleanup", async () => {
+  for (const orphan of [false, true]) {
+    const result = await invoke(`
+      import { writeFileSync } from 'node:fs';
+      import { evidence, binding } from '${observation}';
+      ${orphan ? "" : "writeFileSync(process.env.DD_TASKS_TEST_WORLD_RECEIPT, JSON.stringify({schema_id:'dd-tasks/test-world-ready@1',invocation_id:binding().invocation_id,world_id:'a'.repeat(32)}));"}
+      writeFileSync(process.env.DD_TASKS_TEST_WORLD_FINAL_RECEIPT, JSON.stringify({schema_id:'dd-tasks/test-world@1',invocation_id:binding().invocation_id,world_id:'b'.repeat(32),state:'cleaned'}));
+      evidence({name:'fixture',version:'1'},{passed:1,failed:0,skipped:0},[]);
+    `);
+    assert.equal(result.code, 1);
+    assert.equal(result.report.completed, false);
+    assert.equal(result.report.failures.at(-1).code, "cleanup_unconfirmed");
+  }
+});
+test("orphan malformed and symlink final world receipts block cleanup", async () => {
+  for (const corrupt of ["malformed", "symlink", "directory"]) {
+    const result = await invoke(`
+      import { writeFileSync, symlinkSync, mkdirSync } from 'node:fs';
+      import { evidence } from '${observation}';
+      const file = process.env.DD_TASKS_TEST_WORLD_FINAL_RECEIPT;
+      if ('${corrupt}' === 'malformed') writeFileSync(file, '{');
+      else if ('${corrupt}' === 'directory') mkdirSync(file);
+      else { writeFileSync(file+'.target', '{}'); symlinkSync(file+'.target',file); }
+      evidence({name:'fixture',version:'1'},{passed:1,failed:0,skipped:0},[]);
+    `);
+    assert.equal(result.code, 1);
+    assert.equal(result.report.completed, false);
+    assert.equal(result.report.failures.at(-1).code, "cleanup_unconfirmed");
+  }
 });
 test("reporter preserves assertion identity from structured runner error", async () => {
   const reporterUrl = new URL("./vitest-observation.mjs", import.meta.url).href;

@@ -9,7 +9,11 @@ import {
   observeGroupSettlement,
   signalOwnedGroup,
 } from "../../../scripts/owned-process.mjs";
-import { progress } from "../../../scripts/test-observation.mjs";
+import {
+  binding,
+  progress,
+  writeWorldProof,
+} from "../../../scripts/test-observation.mjs";
 import { createTestWorld } from "../src/db/test-world.js";
 
 const [role, command, ...args] = process.argv.slice(2);
@@ -70,7 +74,11 @@ try {
     DATABASE_URL: world.url,
     DD_TASKS_TEST_WORLD: world.token,
   });
-  Object.assign(receipt, { id: world.token, database: world.name });
+  Object.assign(receipt, {
+    id: world.token,
+    world_id: world.token,
+    database: world.name,
+  });
   progress("test_world_created", "startup");
   if (role === "browser" || role === "foundation") {
     env.DD_FLOW_PORT_API ??= await availablePort();
@@ -101,6 +109,16 @@ try {
     },
   });
   progress("migrations_hashed", "startup");
+  Object.assign(receipt, { invocation_id: binding().invocation_id });
+  writeWorldProof({
+    schema_id: "dd-tasks/test-world-ready@1",
+    invocation_id: binding().invocation_id,
+    world_id: world.token,
+    ready: false,
+    setup_completed: false,
+    migrations_sha256: receipt.migrations_sha256,
+    role,
+  });
   await mkdir(directory, { recursive: true });
   await writeFile(
     path.join(directory, "receipt.json"),
@@ -215,6 +233,17 @@ try {
   }
   receipt.state = cleanupErrors.length ? "cleanup_unconfirmed" : "cleaned";
   receipt.finished_at = new Date().toISOString();
+  if (env.DD_TASKS_TEST_WORLD_FINAL_RECEIPT) {
+    try {
+      await writeFile(
+        env.DD_TASKS_TEST_WORLD_FINAL_RECEIPT,
+        JSON.stringify(receipt),
+      );
+    } catch (error) {
+      console.error({ cleanup_error: String(error) });
+      process.exitCode = 1;
+    }
+  }
   try {
     const endpoints = directory
       ? await readFile(path.join(directory, "endpoints.json"), "utf8").catch(

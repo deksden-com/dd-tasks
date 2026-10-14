@@ -1,7 +1,10 @@
 import { writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { runtimePorts } from "../../../../scripts/runtime-ports.mjs";
-import { progress } from "../../../../scripts/test-observation.mjs";
+import {
+  completeWorldSetup,
+  progress,
+} from "../../../../scripts/test-observation.mjs";
 import { createSqlClient } from "../../../api/src/db/client.js";
 import { seedDemoData } from "../../../api/src/db/fixtures.js";
 import { resetAndMigrate } from "../../../api/src/db/migrations.js";
@@ -36,4 +39,6 @@ export default async function setup() {
   } finally {
     await sql.end({ timeout: 5 });
   }
+  requireTestWorld();
+  completeWorldSetup();
 }

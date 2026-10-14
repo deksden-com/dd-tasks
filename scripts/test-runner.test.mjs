@@ -246,7 +246,13 @@ async function invoke(source, budgets = {}, cancelOnReady = false) {
 }
 test("real completed steps slide the window beyond total duration", async () => {
   const result = await invoke(
-    `import { progress, evidence } from ${JSON.stringify(observation)}; for(let i=0;i<6;i++){progress('step_completed:'+i);await new Promise(r=>setTimeout(r,300));} evidence({name:'fixture',version:'1'},{passed:1,failed:0,skipped:0},[]);`,
+    `import { progress, evidence } from ${JSON.stringify(observation)}; for(let i=0;i<40;i++){progress('step_completed:'+i);await new Promise(r=>setTimeout(r,300));} evidence({name:'fixture',version:'1'},{passed:1,failed:0,skipped:0},[]);`,
+    // Still outlives a fixed 10s deadline, without assuming the host schedules
+    // both real processes within the 1s synthetic negative-test budget.
+    {
+      DD_FLOW_TEST_STARTUP_SILENCE_MS: "120000",
+      DD_FLOW_TEST_EXECUTION_SILENCE_MS: "10000",
+    },
   );
   assert.equal(result.code, 0, result.stderr);
   assert.equal(result.report.completed, true);

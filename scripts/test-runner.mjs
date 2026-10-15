@@ -13,25 +13,28 @@ import path from "node:path";
 import { performance } from "node:perf_hooks";
 import { observeGroupSettlement, signalOwnedGroup } from "./owned-process.mjs";
 import {
+  assertWorldCleanup,
   binding,
   boundReport,
   readJson,
   readProgress,
   validReport,
+  worldObservationPaths,
 } from "./test-observation.mjs";
 
 const [command, ...args] = process.argv.slice(2);
 if (!command) throw new Error("test-runner requires a command");
 const temp = mkdtempSync(path.join(os.tmpdir(), "dd-tasks-observation-"));
+const paths = worldObservationPaths(temp);
 process.env.DD_TASKS_TEST_INVOCATION_ID =
   process.env.DD_FLOW_CHECK_INVOCATION_ID ?? randomUUID();
 process.env.DD_TASKS_TEST_COMMAND = [command, ...args].join(" ");
 const progressPath =
   process.env.DD_FLOW_CHECK_RUNNER_PROGRESS_PATH ??
-  path.join(temp, "progress.jsonl");
-const reportPath = path.join(temp, "report.json");
-const worldReceipt = path.join(temp, "world-ready.json");
-const worldFinal = path.join(temp, "world-final.json");
+  paths.DD_FLOW_CHECK_RUNNER_PROGRESS_PATH;
+const reportPath = paths.DD_TASKS_RUNNER_REPORT;
+const worldReceipt = paths.DD_TASKS_TEST_WORLD_RECEIPT;
+const worldFinal = paths.DD_TASKS_TEST_WORLD_FINAL_RECEIPT;
 const startedAt = Date.now();
 const startup = Number(process.env.DD_FLOW_TEST_STARTUP_SILENCE_MS ?? 120000);
 const execution = Number(
@@ -225,17 +228,7 @@ if (cleanupFailure) {
 try {
   const ready = readJson(worldReceipt, 16384);
   const final = readJson(worldFinal, 65536);
-  if (
-    final.schema_id !== "dd-tasks/test-world@1" ||
-    ready.schema_id !== "dd-tasks/test-world-ready@1" ||
-    final.world_id !== ready.world_id ||
-    ready.invocation_id !== binding().invocation_id ||
-    final.invocation_id !== binding().invocation_id ||
-    final.state !== "cleaned" ||
-    !Array.isArray(final.cleanup_errors ?? []) ||
-    final.cleanup_errors?.length
-  )
-    throw new Error("Test world cleanup not confirmed");
+  assertWorldCleanup(ready, final, binding().invocation_id);
 } catch (error) {
   const exists = (file) => {
     try {

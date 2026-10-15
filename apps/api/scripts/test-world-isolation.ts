@@ -6,7 +6,14 @@ import { createRequire } from "node:module";
 import os from "node:os";
 import path from "node:path";
 import postgres from "postgres";
-import { evidence, progress } from "../../../scripts/test-observation.mjs";
+import {
+  assertWorldCleanup,
+  binding,
+  evidence,
+  progress,
+  readJson,
+  worldObservationPaths,
+} from "../../../scripts/test-observation.mjs";
 
 const require = createRequire(import.meta.url);
 const tsx = require.resolve("tsx/cli");
@@ -19,10 +26,20 @@ const adminUrl = new URL(
 );
 const admin = postgres(adminUrl.toString(), { max: 1 });
 const children: ReturnType<typeof spawn>[] = [];
+const observations: ReturnType<typeof worldObservationPaths>[] = [];
+async function stop(child: ReturnType<typeof spawn>) {
+  if (child.pid && child.exitCode === null && child.signalCode === null) {
+    const exited = once(child, "exit");
+    child.kill("SIGTERM");
+    await exited;
+  }
+}
 async function launch(marker: string, checkout = root) {
   const migrations = path.join(temp, marker);
   await mkdir(migrations);
   await writeFile(path.join(migrations, "0000.sql"), `-- ${marker}\n`);
+  const observation = worldObservationPaths(migrations);
+  observations.push(observation);
   const child = spawn(
     process.execPath,
     [
@@ -35,7 +52,12 @@ async function launch(marker: string, checkout = root) {
     ],
     {
       cwd: path.join(checkout, "apps/api"),
-      env: { ...process.env, MIGRATIONS_DIR: migrations, PROBE_MARKER: marker },
+      env: {
+        ...process.env,
+        ...observation,
+        MIGRATIONS_DIR: migrations,
+        PROBE_MARKER: marker,
+      },
       stdio: ["ignore", "pipe", "pipe"],
     },
   );
@@ -46,6 +68,7 @@ async function launch(marker: string, checkout = root) {
     errors += String(data);
   });
   const ready = await new Promise<{ token: string }>((resolve, reject) => {
+    child.once("error", reject);
     const timer =
       process.env.DD_TASKS_TEST_WATCHDOG === "1"
         ? undefined
@@ -114,6 +137,13 @@ try {
     JSON.parse(await readFile(first.receiptPath, "utf8")).state,
     "cleaned",
   );
+  await stop(second.child);
+  for (const observation of observations)
+    assertWorldCleanup(
+      readJson(observation.DD_TASKS_TEST_WORLD_RECEIPT, 16384),
+      readJson(observation.DD_TASKS_TEST_WORLD_FINAL_RECEIPT, 65536),
+      binding().invocation_id,
+    );
   console.log(
     "PASS concurrent worlds have distinct migration digests; cancelling one preserves the other's database and data",
   );
@@ -123,13 +153,15 @@ try {
     [],
   );
 } finally {
-  for (const child of children) {
-    if (child.exitCode === null && child.signalCode === null) {
-      const exited = once(child, "exit");
-      child.kill("SIGTERM");
-      await exited;
+  try {
+    const stopped = await Promise.allSettled(children.map(stop));
+    const failed = stopped.find((result) => result.status === "rejected");
+    if (failed?.status === "rejected") {
+      console.error({ cleanup_error: String(failed.reason) });
+      process.exitCode = 1;
     }
+  } finally {
+    await admin.end();
+    await rm(temp, { recursive: true, force: true });
   }
-  await admin.end();
-  await rm(temp, { recursive: true, force: true });
 }

@@ -40,6 +40,31 @@ export function readJson(file, limit = 1024 * 1024) {
     closeSync(fd);
   }
 }
+export function worldObservationPaths(directory) {
+  return {
+    DD_TASKS_RUNNER_REPORT: path.join(directory, "report.json"),
+    DD_FLOW_CHECK_RUNNER_PROGRESS_PATH: path.join(directory, "progress.jsonl"),
+    DD_TASKS_TEST_WORLD_RECEIPT: path.join(directory, "world-ready.json"),
+    DD_TASKS_TEST_WORLD_FINAL_RECEIPT: path.join(directory, "world-final.json"),
+  };
+}
+export function assertWorldCleanup(ready, final, invocationId) {
+  if (
+    typeof invocationId !== "string" ||
+    !invocationId ||
+    final.schema_id !== "dd-tasks/test-world@1" ||
+    ready.schema_id !== "dd-tasks/test-world-ready@1" ||
+    typeof ready.world_id !== "string" ||
+    !/^[a-f0-9]{32}$/.test(ready.world_id) ||
+    final.world_id !== ready.world_id ||
+    ready.invocation_id !== invocationId ||
+    final.invocation_id !== invocationId ||
+    final.state !== "cleaned" ||
+    !Array.isArray(final.cleanup_errors ?? []) ||
+    final.cleanup_errors?.length
+  )
+    throw new Error("Test world cleanup not confirmed");
+}
 export function writeWorldProof(proof) {
   const file = process.env.DD_TASKS_TEST_WORLD_RECEIPT;
   if (!file) return;

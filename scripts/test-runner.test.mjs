@@ -1,16 +1,81 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import {
+  assertWorldCleanup,
   boundReport,
   hasTestWatchdog,
   normalizeFailure,
   validReport,
+  worldObservationPaths,
 } from "./test-observation.mjs";
+
+test("parallel world observations survive reverse final order and reject foreign cleanup", () => {
+  const directory = mkdtempSync(
+    path.join(os.tmpdir(), "dd-tasks-world-owners-"),
+  );
+  try {
+    const owners = ["a", "b"].map((id) => {
+      const folder = path.join(directory, id);
+      mkdirSync(folder);
+      const paths = worldObservationPaths(folder);
+      const ready = {
+        schema_id: "dd-tasks/test-world-ready@1",
+        invocation_id: "test",
+        world_id: id.repeat(32),
+      };
+      const final = {
+        schema_id: "dd-tasks/test-world@1",
+        invocation_id: "test",
+        world_id: ready.world_id,
+        state: "cleaned",
+      };
+      writeFileSync(paths.DD_TASKS_TEST_WORLD_RECEIPT, JSON.stringify(ready));
+      return { paths, ready, final };
+    });
+    assert.equal(
+      new Set(owners.flatMap((owner) => Object.values(owner.paths))).size,
+      8,
+    );
+    for (const owner of [...owners].reverse())
+      writeFileSync(
+        owner.paths.DD_TASKS_TEST_WORLD_FINAL_RECEIPT,
+        JSON.stringify(owner.final),
+      );
+    for (const owner of owners)
+      assertWorldCleanup(
+        JSON.parse(readFileSync(owner.paths.DD_TASKS_TEST_WORLD_RECEIPT)),
+        JSON.parse(readFileSync(owner.paths.DD_TASKS_TEST_WORLD_FINAL_RECEIPT)),
+        "test",
+      );
+    assert.throws(
+      () => assertWorldCleanup(owners[0].ready, owners[1].final, "test"),
+      /cleanup not confirmed/,
+    );
+    assert.throws(
+      () =>
+        assertWorldCleanup(
+          owners[0].ready,
+          { ...owners[0].final, state: "cleanup_unconfirmed" },
+          "test",
+        ),
+      /cleanup not confirmed/,
+    );
+  } finally {
+    rmSync(directory, { recursive: true });
+  }
+});
 
 test("installed Vitest retains native SQLSTATE and hook phases without invented failed counts", async () => {
   const directory = mkdtempSync(path.join(os.tmpdir(), "dd-tasks-native-"));

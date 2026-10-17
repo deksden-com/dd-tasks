@@ -65,7 +65,7 @@ export function sanitizeDiagnostic(value, depth = 0) {
         .slice(0, 64)
         .map(([key, item]) => [
           key,
-          /^(?:password|token|secret|api[_-]?key|authorization)$/i.test(key)
+          /password|token|secret|api[_-]?key|authorization/i.test(key)
             ? "[redacted]"
             : sanitizeDiagnostic(item, depth + 1),
         ]),

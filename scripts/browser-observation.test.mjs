@@ -4,6 +4,7 @@ import {
   mkdtempSync,
   readdirSync,
   readFileSync,
+  realpathSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
@@ -180,7 +181,7 @@ test('hung afterEach',async({page})=>{await page.setContent('<p>ok</p>');});`,
     );
     writeFileSync(
       file("config.mjs"),
-      `export default {testDir:${JSON.stringify(dir)},testMatch:'*.spec.mjs',workers:1,retries:0,timeout:0,reporter:[[${JSON.stringify(path.join(root, "scripts/playwright-observation.mjs"))}],['json',{outputFile:${JSON.stringify(file("native.json"))}}]],use:{headless:true}};`,
+      `export default {testDir:${JSON.stringify(dir)},outputDir:${JSON.stringify(file("artifacts"))},testMatch:'*.spec.mjs',workers:1,retries:0,timeout:0,reporter:[[${JSON.stringify(path.join(root, "scripts/playwright-observation.mjs"))}],['json',{outputFile:${JSON.stringify(file("native.json"))}}]],use:{headless:true,trace:'retain-on-failure'}};`,
     );
     const child = spawn(
       process.execPath,
@@ -228,6 +229,33 @@ test('hung afterEach',async({page})=>{await page.setContent('<p>ok</p>');});`,
         ["hung afterEach", "timedOut"],
       ],
       output,
+    );
+    const missingLocator = report.suites
+      .flatMap((suite) => suite.specs)
+      .find((spec) => spec.title === "missing locator");
+    const trace = missingLocator.tests[0].results[0].attachments.find(
+      (attachment) => attachment.name === "trace",
+    );
+    assert.ok(
+      trace?.path,
+      "native missing-locator timeout retains its trace attachment",
+    );
+    const tracePath = realpathSync(trace.path);
+    const relativeTrace = path.relative(
+      realpathSync(file("artifacts")),
+      tracePath,
+    );
+    assert.ok(
+      !path.isAbsolute(relativeTrace) &&
+        relativeTrace !== ".." &&
+        !relativeTrace.startsWith(`..${path.sep}`),
+      "trace stays in this isolated invocation's artifact directory",
+    );
+    assert.equal(path.basename(tracePath), "trace.zip");
+    assert.equal(
+      readFileSync(tracePath).subarray(0, 2).toString(),
+      "PK",
+      "native trace archive is present before private temp cleanup",
     );
     const observations = readdirSync(file("observations")).filter((name) =>
       name.endsWith(".worker.json"),

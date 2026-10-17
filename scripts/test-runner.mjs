@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import {
   lstatSync,
   mkdirSync,
@@ -11,13 +11,14 @@ import {
 import os from "node:os";
 import path from "node:path";
 import { performance } from "node:perf_hooks";
-import { observeGroupSettlement, signalOwnedGroup } from "./owned-process.mjs";
+import { stopOwnedGroup } from "./owned-process.mjs";
+import { createProgressPublisher } from "./runner-progress.mjs";
 import {
   assertWorldCleanup,
   binding,
   boundReport,
   readJson,
-  readProgress,
+  sanitizeDiagnostic,
   validReport,
   worldObservationPaths,
 } from "./test-observation.mjs";
@@ -42,19 +43,17 @@ const execution = Number(
 );
 if (![startup, execution].every((value) => Number.isFinite(value) && value > 0))
   throw new Error("Invalid test observation budget");
-let initialSequence = -1;
-try {
-  const prior = JSON.parse(
-    readProgress(progressPath).trim().split("\n").at(-1),
-  );
-  if (
-    prior.invocation_id === binding().invocation_id &&
-    Number.isSafeInteger(prior.sequence)
-  )
-    initialSequence = prior.sequence;
-} catch (error) {
-  if (error.code !== "ENOENT") throw error;
-}
+const mailbox = path.join(temp, "mailboxes");
+const publisher = createProgressPublisher(
+  progressPath,
+  mailbox,
+  binding().invocation_id,
+);
+const evidenceRoot = path.dirname(
+  process.env.DD_FLOW_CHECK_RUNNER_EVIDENCE_PATH ?? reportPath,
+);
+const browserDirectory = path.join(evidenceRoot, "browser-observation");
+mkdirSync(browserDirectory, { recursive: true });
 const child = spawn(command, args, {
   stdio: "inherit",
   detached: true,
@@ -65,17 +64,20 @@ const child = spawn(command, args, {
     DD_TASKS_TEST_WORLD_RECEIPT: worldReceipt,
     DD_TASKS_TEST_WORLD_FINAL_RECEIPT: worldFinal,
     DD_FLOW_CHECK_RUNNER_PROGRESS_PATH: progressPath,
+    DD_TASKS_PROGRESS_MAILBOX_DIR: mailbox,
+    DD_TASKS_PROGRESS_PUBLISHER: "1",
+    DD_TASKS_BROWSER_OBSERVATION_DIR: browserDirectory,
   },
 });
 let last = performance.now(),
   previousWall = Date.now(),
   previousMono = last,
-  sequence = initialSequence,
   phase = "startup",
   failure,
-  escalation;
-let leaderSettled = false;
+  stopping;
 let cleanupFailure;
+let processSettlement;
+let resolveExecution;
 const seen = new Set();
 const acceptedEvents = new Set([
   "setup_step_completed",
@@ -86,14 +88,26 @@ const acceptedEvents = new Set([
   "step_completed",
   "run_completed",
 ]);
-const kill = (signal) => {
-  if (leaderSettled || child.exitCode !== null || child.signalCode !== null)
-    return;
-  signalOwnedGroup(child, signal);
-};
 const stop = (signal) => {
-  kill(signal);
-  escalation ??= setTimeout(() => kill("SIGKILL"), 5000);
+  stopping ??= stopOwnedGroup(child, { signal });
+  // Timer/signal callbacks only initiate a handled stop; final publication owns errors.
+  void stopping
+    .then((result) => {
+      if (!result.settled) {
+        // A denied signal must not prevent final evidence publication forever.
+        child.unref();
+        resolveExecution?.(1);
+      }
+    })
+    .catch((error) => {
+      cleanupFailure ??= {
+        category: "tooling",
+        code: "cleanup_unconfirmed",
+        message: error.message,
+      };
+      child.unref();
+      resolveExecution?.(1);
+    });
 };
 const terminate = () => {
   failure ??= { category: "tooling", code: "cancelled" };
@@ -115,42 +129,40 @@ const timer = setInterval(
     previousWall = wall;
     previousMono = now;
     try {
-      const bytes = readProgress(progressPath);
-      if (bytes.length > 4 * 1024 * 1024)
-        throw new Error("Runner progress exceeds bound");
-      const event = JSON.parse(bytes.trim().split("\n").at(-1));
-      const eventAt = Date.parse(event.at);
-      if (
-        event.schema_id === "dd-flow/check-runner-progress@1" &&
-        event.invocation_id === binding().invocation_id &&
-        Number.isSafeInteger(event.sequence) &&
-        event.sequence > sequence &&
-        Number.isFinite(eventAt) &&
-        eventAt >= startedAt &&
-        eventAt <= wall &&
-        wall - eventAt < (phase === "startup" ? startup : execution) &&
-        ["startup", "execution"].includes(event.phase) &&
-        acceptedEvents.has(event.event)
-      ) {
-        sequence = event.sequence;
-        const identity = `${event.event}:${event.detail ?? ""}`;
-        if (!seen.has(identity)) {
-          seen.add(identity);
-          if (phase !== "execution") phase = event.phase;
-          last = now - Math.max(0, wall - eventAt);
+      const events = publisher.collect();
+      for (const event of events) {
+        const eventAt = Date.parse(event.at);
+        if (
+          event.schema_id === "dd-flow/check-runner-progress@1" &&
+          event.invocation_id === binding().invocation_id &&
+          Number.isSafeInteger(event.sequence) &&
+          Number.isFinite(eventAt) &&
+          eventAt >= startedAt &&
+          eventAt <= wall &&
+          wall - eventAt < (phase === "startup" ? startup : execution) &&
+          ["startup", "execution"].includes(event.phase) &&
+          acceptedEvents.has(event.event)
+        ) {
+          const identity = `${event.event}:${event.detail ?? ""}`;
+          if (!seen.has(identity)) {
+            seen.add(identity);
+            if (seen.size > 4096) seen.delete(seen.values().next().value);
+            if (phase !== "execution") phase = event.phase;
+            last = now - Math.max(0, wall - eventAt);
+          }
         }
       }
     } catch (error) {
-      if (error.code !== "ENOENT" && !(error instanceof SyntaxError)) {
+      if (error.code !== "ENOENT") {
         failure ??= {
           category: "tooling",
-          code: "invalid_progress",
+          code: error.code ?? "invalid_progress",
           message: error.message,
         };
         stop("SIGTERM");
       }
     }
-    if (now - last >= (phase === "startup" ? startup : execution)) {
+    if (now - last >= (phase === "startup" ? startup : execution + 5000)) {
       failure ??= {
         category: "tooling",
         code: "inactivity_timeout",
@@ -164,8 +176,8 @@ const timer = setInterval(
 let exit;
 try {
   exit = await new Promise((resolve) => {
+    resolveExecution = resolve;
     child.once("error", (error) => {
-      leaderSettled = true;
       failure = {
         category: "tooling",
         code: "spawn_error",
@@ -174,7 +186,6 @@ try {
       resolve(1);
     });
     child.once("exit", (code) => {
-      leaderSettled = true;
       resolve(code ?? 1);
     });
   });
@@ -182,8 +193,35 @@ try {
   clearInterval(timer);
   process.off("SIGTERM", terminate);
   process.off("SIGINT", terminate);
-  if (escalation) clearTimeout(escalation);
-  const settlement = await observeGroupSettlement(child);
+  try {
+    publisher.collect();
+  } catch (error) {
+    failure ??= {
+      category: "tooling",
+      code: error.code ?? "invalid_progress",
+      message: error.message,
+    };
+  }
+  const settlement = await (stopping ?? stopOwnedGroup(child));
+  processSettlement = settlement;
+  // Preserve warnings even when the group disappeared after a denied signal.
+  const diagnostics = path.join(
+    evidenceRoot,
+    `process-cleanup-${randomUUID()}.json`,
+  );
+  try {
+    writeFileSync(
+      diagnostics,
+      JSON.stringify({ binding: binding(), settlement }),
+      { flag: "wx", mode: 0o600 },
+    );
+  } catch (error) {
+    cleanupFailure ??= {
+      category: "tooling",
+      code: "diagnostic_capture_failed",
+      message: error.message,
+    };
+  }
   if (!settlement.settled)
     cleanupFailure = {
       category: "tooling",
@@ -250,41 +288,148 @@ try {
 }
 if (exit !== 0 && !report.failures.length)
   report.failures.push({ category: "unclassified", code: "nonzero_exit" });
-const destination = process.env.DD_FLOW_CHECK_RUNNER_EVIDENCE_PATH;
-if (destination) {
-  mkdirSync(path.dirname(destination), { recursive: true });
+// Capture before report publication, so publication failures cannot erase the only copy.
+let captured = true;
+const retained = [];
+const diagnostic = {
+  binding: binding(),
+  process_cleanup: processSettlement,
+  progress: publisher.diagnostics,
+};
+for (const [name, file, limit] of [
+  ["world-ready", worldReceipt, 16384],
+  ["world-final", worldFinal, 65536],
+  ["native-report", reportPath, 1024 * 1024],
+]) {
   try {
-    if (!lstatSync(destination).isFile())
-      throw new Error("Invalid runner evidence destination");
-    const prior = readJson(destination);
-    if (
-      !validReport(prior) ||
-      JSON.stringify(prior.binding) !== JSON.stringify(report.binding)
-    )
-      throw new Error("Invalid prior evidence binding or schema");
-    for (const key of ["passed", "failed", "skipped"])
-      report.counts[key] += prior.counts[key];
-    report.failures.unshift(...prior.failures);
-    report.completed &&= prior.completed;
-    report.observation_unknown ||= prior.observation_unknown;
-  } catch (error) {
-    if (error.code !== "ENOENT") {
-      report.completed = false;
-      report.failures.push({
-        category: "tooling",
-        code: "invalid_prior_evidence",
-      });
+    let value;
+    try {
+      value = readJson(file, limit);
+    } catch (error) {
+      if (error.code === "ENOENT") continue;
+      throw error;
     }
+    value = sanitizeDiagnostic(value);
+    const artifact = `${name}-${randomUUID()}.json`;
+    writeFileSync(path.join(evidenceRoot, artifact), JSON.stringify(value), {
+      flag: "wx",
+      mode: 0o600,
+    });
+    retained.push(artifact);
+    diagnostic[name.replaceAll("-", "_")] = value;
+  } catch (error) {
+    captured = false;
+    report.completed = false;
+    report.failures.push({
+      category: "tooling",
+      code: "diagnostic_capture_failed",
+      message: `${error.message}; retained private evidence: ${temp}`.slice(
+        0,
+        4096,
+      ),
+    });
   }
-  const publication = `${destination}.${process.pid}.tmp`;
-  writeFileSync(publication, JSON.stringify(boundReport(report)), {
+}
+try {
+  const relative_path = `runner-diagnostics-${randomUUID()}.json`;
+  const bytes = JSON.stringify({
+    ...sanitizeDiagnostic(diagnostic),
+    binding: binding(),
+  });
+  if (Buffer.byteLength(bytes) > 2 * 1024 * 1024)
+    throw new Error(
+      "Diagnostic bundle exceeds 2MiB; private evidence retained",
+    );
+  writeFileSync(path.join(evidenceRoot, relative_path), bytes, {
     flag: "wx",
     mode: 0o600,
   });
-  renameSync(publication, destination);
+  const reference = {
+    relative_path,
+    sha256: createHash("sha256").update(bytes).digest("hex"),
+  };
+  for (const item of report.failures) item.diagnostic_artifact = reference;
+} catch (error) {
+  captured = false;
+  report.completed = false;
+  report.failures.push({
+    category: "tooling",
+    code: "diagnostic_capture_failed",
+    message: `${error.message}; retained private evidence: ${temp}`.slice(
+      0,
+      4096,
+    ),
+  });
 }
-rmSync(temp, { recursive: true });
+if (cleanupFailure && retained.length)
+  cleanupFailure.message =
+    `${cleanupFailure.message}; artifacts: ${retained.join(", ")}`.slice(
+      0,
+      4096,
+    );
+const destination = process.env.DD_FLOW_CHECK_RUNNER_EVIDENCE_PATH;
+try {
+  if (destination) {
+    mkdirSync(path.dirname(destination), { recursive: true });
+    try {
+      if (!lstatSync(destination).isFile())
+        throw new Error("Invalid runner evidence destination");
+      const prior = readJson(destination);
+      if (
+        !validReport(prior) ||
+        JSON.stringify(prior.binding) !== JSON.stringify(report.binding)
+      )
+        throw new Error("Invalid prior evidence binding or schema");
+      for (const key of ["passed", "failed", "skipped"])
+        report.counts[key] += prior.counts[key];
+      report.failures.unshift(...prior.failures);
+      report.completed &&= prior.completed;
+      report.observation_unknown ||= prior.observation_unknown;
+    } catch (error) {
+      if (error.code !== "ENOENT") {
+        report.completed = false;
+        report.failures.push({
+          category: "tooling",
+          code: "invalid_prior_evidence",
+        });
+      }
+    }
+    const publication = `${destination}.${process.pid}.tmp`;
+    report.failures = report.failures.map((item) => sanitizeDiagnostic(item));
+    writeFileSync(publication, JSON.stringify(boundReport(report)), {
+      flag: "wx",
+      mode: 0o600,
+    });
+    renameSync(publication, destination);
+  }
+} catch (error) {
+  captured = false;
+  console.error(
+    JSON.stringify({
+      code: "evidence_publication_failed",
+      message: error.message,
+      retained_temp: temp,
+    }),
+  );
+}
+try {
+  publisher.release();
+} catch (error) {
+  captured = false;
+  console.error(
+    JSON.stringify({
+      code: "progress_ownership_error",
+      message: error.message,
+      retained_temp: temp,
+    }),
+  );
+}
+if (captured) rmSync(temp, { recursive: true });
 process.exitCode =
-  failure || cleanupFailure || !report.completed || report.failures.length
+  !captured ||
+  failure ||
+  cleanupFailure ||
+  !report.completed ||
+  report.failures.length
     ? 1
     : exit;

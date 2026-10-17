@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
+import { createHash } from "node:crypto";
 import {
   existsSync,
   mkdirSync,
@@ -17,6 +18,7 @@ import {
   boundReport,
   hasTestWatchdog,
   normalizeFailure,
+  sanitizeDiagnostic,
   validReport,
   worldObservationPaths,
 } from "./test-observation.mjs";
@@ -159,6 +161,13 @@ test("diagnostics redact credentials and preserve UTF8 byte bounds", () => {
   assert.ok(Buffer.byteLength(failure.message) <= 4096);
   assert.ok(Buffer.byteLength(failure.stack) <= 16384);
   assert.equal(failure.message.includes("�"), false);
+  const diagnostic = sanitizeDiagnostic({
+    password: "private",
+    error: {
+      message: "token=private postgresql://private:private@localhost/db",
+    },
+  });
+  assert.equal(JSON.stringify(diagnostic).includes("private"), false);
 });
 test("owned migrated PostgreSQL world retains real beforeAll SQLSTATE23503 repair proof", {
   skip: !process.env.DD_TASKS_TEST_ADMIN_URL,
@@ -299,9 +308,23 @@ async function invoke(source, budgets = {}, cancelOnReady = false) {
       child.once("error", reject);
       child.once("exit", resolve);
     });
+    const report = JSON.parse(readFileSync(evidence, "utf8"));
+    const reference = report.failures.find(
+      (failure) => failure.diagnostic_artifact,
+    )?.diagnostic_artifact;
+    let diagnostic;
+    if (reference) {
+      const bytes = readFileSync(path.join(directory, reference.relative_path));
+      assert.equal(
+        createHash("sha256").update(bytes).digest("hex"),
+        reference.sha256,
+      );
+      diagnostic = JSON.parse(bytes);
+    }
     return {
       code,
-      report: JSON.parse(readFileSync(evidence, "utf8")),
+      report,
+      diagnostic,
       stderr,
       marker: existsSync(`${evidence}.marker`),
     };
@@ -357,6 +380,11 @@ test("late world cleanup failure blocks an otherwise passing reporter", async ()
   assert.equal(result.code, 1);
   assert.equal(result.report.completed, false);
   assert.equal(result.report.failures.at(-1).code, "cleanup_unconfirmed");
+  assert.equal(result.report.counts.passed, 1);
+  assert.deepEqual(result.diagnostic.world_final.cleanup_errors, [
+    "drop refused",
+  ]);
+  assert.equal(result.diagnostic.process_cleanup.settled, true);
 });
 test("foreign prior report and malformed current report cannot certify zero exit", async () => {
   const prior = await invoke(`
@@ -420,7 +448,11 @@ test("orphan malformed and symlink final world receipts block cleanup", async ()
     `);
     assert.equal(result.code, 1);
     assert.equal(result.report.completed, false);
-    assert.equal(result.report.failures.at(-1).code, "cleanup_unconfirmed");
+    assert.ok(
+      result.report.failures.some(
+        (failure) => failure.code === "cleanup_unconfirmed",
+      ),
+    );
   }
 });
 test("reporter preserves assertion identity from structured runner error", async () => {

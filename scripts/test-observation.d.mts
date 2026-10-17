@@ -1,4 +1,12 @@
 export function progress(event: string, phase?: "startup" | "execution"): void;
+export function normalizeFailure(
+  error: Record<string, unknown>,
+  context?: Record<string, unknown>,
+): Record<string, unknown> & {
+  message: string;
+  native_code?: string;
+  code: string;
+};
 export function binding(): { invocation_id?: string };
 export function readJson(file: string, limit?: number): Record<string, unknown>;
 export function worldObservationPaths(directory: string): {

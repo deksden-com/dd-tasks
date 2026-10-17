@@ -4,11 +4,7 @@ import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import net from "node:net";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import {
-  liveLeader,
-  observeGroupSettlement,
-  signalOwnedGroup,
-} from "../../../scripts/owned-process.mjs";
+import { stopOwnedGroups } from "../../../scripts/owned-process.mjs";
 import {
   binding,
   progress,
@@ -54,14 +50,23 @@ const receipt: Record<string, unknown> = {
 const children: ReturnType<typeof spawn>[] = [];
 let primaryError: unknown;
 let signal: NodeJS.Signals | null = null;
-let escalation: ReturnType<typeof setTimeout> | undefined;
-const stopGroup = (value: NodeJS.Signals) => {
-  for (const owned of children) signalOwnedGroup(owned, value);
-};
+let stopping: ReturnType<typeof stopOwnedGroups> | undefined;
+let resolveCommand: (() => void) | undefined;
 const stop = (value: NodeJS.Signals) => {
   signal = value;
-  stopGroup(value);
-  escalation ??= setTimeout(() => stopGroup("SIGKILL"), 5000).unref();
+  stopping ??= stopOwnedGroups(children, { signal: value });
+  void stopping
+    .then((results) => {
+      if (results.some((result) => !result.settled)) {
+        for (const child of children) child.unref();
+        resolveCommand?.();
+      }
+    })
+    .catch((error) => {
+      receipt.callback_cleanup_error = String(error);
+      for (const child of children) child.unref();
+      resolveCommand?.();
+    });
 };
 const terminate = () => stop("SIGTERM"),
   interrupt = () => stop("SIGINT");
@@ -176,12 +181,13 @@ try {
       dist,
     ]);
     const buildCode = await new Promise<number | null>((resolve, reject) => {
+      resolveCommand = () => resolve(128);
       build.once("error", reject);
       build.once("exit", resolve);
     });
     if (buildCode !== 0 || signal)
       throw new Error("Browser build failed or cancelled");
-    children.splice(children.indexOf(build), 1);
+    // Keep the exited leader handle: its descendants still require settlement.
     progress("setup_step_completed:web_built", "startup");
     const web = start(
       [
@@ -210,6 +216,7 @@ try {
   });
   children.push(spawned);
   const code = await new Promise<number>((resolve, reject) => {
+    resolveCommand = () => resolve(128);
     spawned.once("error", reject);
     spawned.once("exit", (code, signal) => resolve(code ?? (signal ? 128 : 1)));
   });
@@ -270,20 +277,8 @@ try {
 }
 
 async function cleanupOwnedGroup() {
-  if (escalation) clearTimeout(escalation);
-  stopGroup("SIGTERM");
-  const results = await Promise.all(
-    children.map(async (owned) => {
-      let settlement = await observeGroupSettlement(owned, 2000);
-      if (!settlement.settled && liveLeader(owned)) {
-        signalOwnedGroup(owned, "SIGKILL");
-        settlement = await observeGroupSettlement(owned, 1000);
-      }
-      return settlement.settled
-        ? null
-        : `Process group ${owned.pid}: ${settlement.reason}`;
-    }),
-  );
-  const failures = results.filter(Boolean);
-  if (failures.length) throw new Error(failures.join("; "));
+  const results = await (stopping ?? stopOwnedGroups(children));
+  receipt.process_cleanup = results;
+  const failures = results.filter((result) => !result.settled);
+  if (failures.length) throw new Error(JSON.stringify(failures));
 }

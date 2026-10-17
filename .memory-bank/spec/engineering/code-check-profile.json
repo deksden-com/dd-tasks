@@ -1,6 +1,7 @@
 {
   "schema_id": "dd-flow/code-check-profile@7",
   "runner_evidence_by_alias": {
+    "@check/db-verify-local": { "schema_id": "dd-flow/check-runner-evidence@1", "path": "db-verify.runner.json" },
     "@check/api-contract": { "schema_id": "dd-flow/check-runner-evidence@1", "path": "api-contract.runner.json" },
     "@check/api-unit": { "schema_id": "dd-flow/check-runner-evidence@1", "path": "api-unit.runner.json" },
     "@check/api-integration": { "schema_id": "dd-flow/check-runner-evidence@1", "path": "api-integration.runner.json" },
@@ -15,21 +16,24 @@
     "@check/web-unit": "pnpm test:web",
     "@check/web-build": "pnpm build:web",
     "@check/db-migrate-local": "pnpm db:migrate -- --target local --run-id {run_id}",
-    "@check/db-check-local": "pnpm db:check -- --target local --run-id {run_id}",
+    "@check/db-verify-local": "pnpm db:verify -- --target local --run-id {run_id}",
     "@check/quality": "pnpm quality",
     "@check/docs": "pnpm docs:check",
     "@check/browser": "pnpm test:browser"
   },
   "require_alias_for": {
     "pnpm db:migrate": "@check/db-migrate-local",
-    "pnpm db:check": "@check/db-check-local"
+    "pnpm db:check": "@check/db-verify-local",
+    "pnpm db:verify": "@check/db-verify-local"
   },
   "mandatory_by_gate": {
+    "readiness": ["@check/db-verify-local"],
     "code": [
       "@check/quality",
       "@check/docs"
     ],
     "merge": [
+      "@check/db-verify-local",
       "@check/quality",
       "@check/docs"
     ]

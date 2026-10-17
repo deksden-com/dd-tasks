@@ -4,11 +4,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import net from "node:net";
 import { join, resolve } from "node:path";
-import {
-  liveLeader,
-  observeGroupSettlement,
-  signalOwnedGroup,
-} from "./owned-process.mjs";
+import { stopOwnedGroup } from "./owned-process.mjs";
 import { runtimePorts } from "./runtime-ports.mjs";
 import { hasTestWatchdog } from "./test-observation.mjs";
 
@@ -69,6 +65,7 @@ let overallStatus = "passed";
 let overallReason = "all phases passed";
 let cancelled = false;
 const activeCommands = new Set();
+const unsettledCommands = new WeakMap();
 const cancel = () => {
   cancelled = true;
   overallStatus = "failed";
@@ -592,18 +589,8 @@ async function stopOwnedApi() {
   const processToStop = ownedApiProcess;
   ownedApiProcess = null;
   if (!processToStop) return;
-  if (liveLeader(processToStop)) {
-    signalGroup(processToStop, "SIGTERM");
-    await new Promise((resolvePromise) => {
-      const timer = setTimeout(resolvePromise, 2_000);
-      processToStop.once("exit", () => {
-        clearTimeout(timer);
-        resolvePromise();
-      });
-    });
-    signalGroup(processToStop, "SIGKILL");
-  }
-  const settlement = await observeGroupSettlement(processToStop);
+  const settlement = await stopOwnedGroup(processToStop);
+  await writeJson("api-process-cleanup.json", settlement);
   if (!settlement.settled)
     throw new Error(`cleanup_unconfirmed: ${settlement.reason}`);
 }
@@ -627,14 +614,26 @@ function runCommand(command, args, options = {}) {
     let stderr = "";
     let settled = false;
     let timedOut = false;
+    unsettledCommands.set(child, (settlement) => {
+      if (settled) return;
+      settled = true;
+      activeCommands.delete(child);
+      if (timeout) clearTimeout(timeout);
+      child.stdout.destroy();
+      child.stderr.destroy();
+      child.unref();
+      resolvePromise({
+        status: 1,
+        stdout: redact(stdout),
+        stderr: redact(`${stderr}\ncleanup_unconfirmed: ${settlement.reason}`),
+        process_cleanup: settlement,
+      });
+    });
     const timeout = hasTestWatchdog(command, args, options.cwd ?? workspaceRoot)
       ? undefined
       : setTimeout(() => {
           timedOut = true;
           signalGroup(child, "SIGTERM");
-          setTimeout(() => {
-            signalGroup(child, "SIGKILL");
-          }, 2_000).unref();
         }, options.timeoutMs ?? 120_000);
     child.stdout.on("data", (chunk) => {
       stdout += String(chunk);
@@ -654,11 +653,12 @@ function runCommand(command, args, options = {}) {
       settled = true;
       activeCommands.delete(child);
       if (timeout) clearTimeout(timeout);
-      const settlement = await observeGroupSettlement(child);
+      const settlement = await stopOwnedGroup(child);
       resolvePromise({
         status: !settlement.settled ? 1 : timedOut ? 124 : (status ?? 1),
         signal,
         timed_out: timedOut,
+        process_cleanup: settlement,
         stdout: redact(stdout),
         stderr: redact(
           !settlement.settled
@@ -711,5 +711,16 @@ async function availablePort() {
 }
 
 function signalGroup(child, signal) {
-  signalOwnedGroup(child, signal);
+  void stopOwnedGroup(child, { signal })
+    .then((settlement) => {
+      if (!settlement.settled) unsettledCommands.get(child)?.(settlement);
+    })
+    .catch((error) => {
+      overallStatus = "failed";
+      overallReason = `cleanup_unconfirmed: ${redact(error.message)}`;
+      unsettledCommands.get(child)?.({
+        settled: false,
+        reason: redact(error.message),
+      });
+    });
 }

@@ -5,11 +5,14 @@ import {
   mkdirSync,
   openSync,
   readFileSync,
+  readSync,
   realpathSync,
   renameSync,
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
+
+export { progress, readProgress } from "./runner-progress.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const bounded = (value, limit) => {
@@ -35,10 +38,39 @@ export function readJson(file, limit = 1024 * 1024) {
     const stat = fstatSync(fd);
     if (!stat.isFile() || stat.size > limit)
       throw new Error("Invalid evidence file");
-    return JSON.parse(readFileSync(fd, "utf8"));
+    const bytes = Buffer.alloc(Math.min(limit + 1, stat.size + 1));
+    let offset = 0;
+    while (offset < bytes.length) {
+      const count = readSync(fd, bytes, offset, bytes.length - offset, null);
+      if (!count) break;
+      offset += count;
+    }
+    if (offset > limit || fstatSync(fd).size > limit)
+      throw new Error("Evidence grew beyond bound");
+    return JSON.parse(bytes.subarray(0, offset).toString("utf8"));
   } finally {
     closeSync(fd);
   }
+}
+export function sanitizeDiagnostic(value, depth = 0) {
+  if (typeof value === "string") return bounded(value, 16384);
+  if (depth > 12) return "[diagnostic depth truncated]";
+  if (Array.isArray(value))
+    return value
+      .slice(0, 64)
+      .map((item) => sanitizeDiagnostic(item, depth + 1));
+  if (value && typeof value === "object")
+    return Object.fromEntries(
+      Object.entries(value)
+        .slice(0, 64)
+        .map(([key, item]) => [
+          key,
+          /^(?:password|token|secret|api[_-]?key|authorization)$/i.test(key)
+            ? "[redacted]"
+            : sanitizeDiagnostic(item, depth + 1),
+        ]),
+    );
+  return value;
 }
 export function worldObservationPaths(directory) {
   return {
@@ -216,6 +248,14 @@ export function validReport(report) {
               Buffer.byteLength(f[key]) <= (key === "stack" ? 16384 : 8192)),
         ) &&
         (f.stack === undefined || Buffer.byteLength(f.stack) <= 16384) &&
+        (f.diagnostic_artifact === undefined ||
+          (typeof f.diagnostic_artifact.relative_path === "string" &&
+            f.diagnostic_artifact.relative_path.length <= 4096 &&
+            !path.isAbsolute(f.diagnostic_artifact.relative_path) &&
+            !f.diagnostic_artifact.relative_path
+              .split(/[\\/]/)
+              .includes("..") &&
+            /^[a-f0-9]{64}$/.test(f.diagnostic_artifact.sha256))) &&
         (f.repair_evidence === undefined ||
           validRepairEvidence(f.repair_evidence, report.binding)),
     )
@@ -223,6 +263,39 @@ export function validReport(report) {
 }
 function validRepairEvidence(proof, owner) {
   const world = proof?.world;
+  if (proof?.rule === "candidate_browser_action_inactivity") {
+    const reference = (value) =>
+      value &&
+      typeof value.relative_path === "string" &&
+      value.relative_path.length <= 4096 &&
+      !path.isAbsolute(value.relative_path) &&
+      !value.relative_path.split(/[\\/]/).includes("..") &&
+      /^[a-f0-9]{64}$/.test(value.sha256);
+    return (
+      proof.native_code === "PLAYWRIGHT_ACTION_INACTIVITY" &&
+      typeof proof.file === "string" &&
+      world?.schema_id === "dd-tasks/test-world-ready@1" &&
+      world.invocation_id === owner.invocation_id &&
+      /^[a-f0-9]{32}$/.test(world.world_id) &&
+      /^[a-f0-9]{64}$/.test(world.migrations_sha256) &&
+      world.ready === true &&
+      world.setup_completed === true &&
+      typeof world.role === "string" &&
+      proof.attempt?.invocation_id === owner.invocation_id &&
+      typeof proof.attempt.test_id === "string" &&
+      ["retry", "repeat_each_index", "worker_index"].every(
+        (key) =>
+          Number.isSafeInteger(proof.attempt[key]) && proof.attempt[key] >= 0,
+      ) &&
+      ["pw:api", "expect"].includes(proof.step?.category) &&
+      typeof proof.step.id === "string" &&
+      typeof proof.step.file === "string" &&
+      Number.isSafeInteger(proof.step.line) &&
+      proof.step.line > 0 &&
+      reference(proof.worker_snapshot) &&
+      reference(proof.native_result)
+    );
+  }
   return (
     proof?.rule === "candidate_sql_integrity" &&
     ["23502", "23503", "23505", "23514"].includes(proof.native_code) &&
@@ -301,6 +374,24 @@ export function hasTestWatchdog(command, args, cwd) {
     const web = JSON.parse(
       readFileSync(path.join(root, "apps/web/package.json"), "utf8"),
     ).scripts;
+    const api = JSON.parse(
+      readFileSync(path.join(root, "apps/api/package.json"), "utf8"),
+    ).scripts;
+    if (args[0] === "db:verify")
+      return (
+        scripts["db:verify"] === "pnpm --filter @dd-tasks/api db:verify" &&
+        api["db:verify"] ===
+          "node ../../scripts/test-runner.mjs tsx src/db/commands.ts verify"
+      );
+    if (
+      args[0] === "--filter" &&
+      args[1] === "@dd-tasks/api" &&
+      args[2] === "db:verify"
+    )
+      return (
+        api["db:verify"] ===
+        "node ../../scripts/test-runner.mjs tsx src/db/commands.ts verify"
+      );
     const browser =
       web["test:browser"] ===
       "node ../../scripts/test-runner.mjs pnpm --filter @dd-tasks/api exec tsx scripts/test-world.ts browser pnpm --filter @dd-tasks/web exec playwright test --config playwright.config.ts";
@@ -325,21 +416,6 @@ export function hasTestWatchdog(command, args, cwd) {
   }
 }
 
-export function readProgress(file) {
-  const fd = openSync(
-    file,
-    constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK,
-  );
-  try {
-    const stat = fstatSync(fd);
-    if (!stat.isFile() || stat.size > 4 * 1024 * 1024)
-      throw new Error("Invalid runner progress file");
-    return readFileSync(fd, "utf8");
-  } finally {
-    closeSync(fd);
-  }
-}
-
 export const binding = () => ({
   invocation_id:
     process.env.DD_FLOW_CHECK_INVOCATION_ID ??
@@ -351,54 +427,6 @@ export const binding = () => ({
   verification_epoch:
     process.env.DD_FLOW_CHECK_VERIFICATION_EPOCH ?? "standalone",
 });
-export function progress(event, phase = "execution") {
-  const file = process.env.DD_FLOW_CHECK_RUNNER_PROGRESS_PATH;
-  if (!file) return;
-  mkdirSync(path.dirname(file), { recursive: true });
-  let sequence = 0;
-  try {
-    const bytes = readProgress(file);
-    if (bytes.length > 4 * 1024 * 1024)
-      throw new Error("Runner progress exceeds bound");
-    const last = bytes.trim().split("\n").at(-1);
-    if (last) sequence = JSON.parse(last).sequence;
-  } catch (error) {
-    if (error.code !== "ENOENT") throw error;
-  }
-  const [name, ...detail] = event.split(":");
-  const normalized =
-    name === "test_run_started"
-      ? "run_started"
-      : name === "test_run_completed"
-        ? "run_completed"
-        : [
-              "test_world_created",
-              "ports_allocated",
-              "migrations_hashed",
-              "database_migrated",
-            ].includes(name)
-          ? "setup_step_completed"
-          : name;
-  const fd = openSync(
-    file,
-    constants.O_APPEND |
-      constants.O_CREAT |
-      constants.O_WRONLY |
-      constants.O_NOFOLLOW |
-      constants.O_NONBLOCK,
-    0o600,
-  );
-  try {
-    if (!fstatSync(fd).isFile())
-      throw new Error("Invalid runner progress destination");
-    writeFileSync(
-      fd,
-      `${JSON.stringify({ schema_id: "dd-flow/check-runner-progress@1", invocation_id: binding().invocation_id, sequence: sequence + 1, phase, event: normalized, detail: detail.join(":") || name, at: new Date().toISOString() })}\n`,
-    );
-  } finally {
-    closeSync(fd);
-  }
-}
 export function evidence(runner, counts, failures, completed = true) {
   const file = process.env.DD_TASKS_RUNNER_REPORT;
   if (!file) return;

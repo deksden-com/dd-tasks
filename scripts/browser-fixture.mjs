@@ -24,6 +24,8 @@ export const test = base.extend({
       const quiet = Number(
         process.env.DD_FLOW_TEST_EXECUTION_SILENCE_MS ?? 600000,
       );
+      const database = databaseHealth();
+      void database.check(Math.min(1000, quiet / 4));
       const identity = attempt(info),
         key = attemptKey(identity);
       let epoch = performance.now(),
@@ -133,7 +135,12 @@ export const test = base.extend({
             ) {
               probing = true;
               const frozenLast = last;
-              void captureHealth(browser, healthState, Math.min(500, quiet / 6))
+              void captureHealth(
+                browser,
+                healthState,
+                database,
+                Math.min(500, quiet / 6),
+              )
                 .then((health) => {
                   if (closed || last !== frozenLast || Date.now() >= deadline)
                     return;
@@ -177,13 +184,14 @@ export const test = base.extend({
         closed = true;
         clearInterval(timer);
         browser.off("disconnected", disconnected);
+        await database.close();
       }
     },
     { auto: true },
   ],
 });
 
-async function captureHealth(browser, state, budget) {
+async function captureHealth(browser, state, database, budget) {
   const observed = new Date().toISOString();
   const pages = browser.contexts().flatMap((context) => context.pages());
   const check = async (url) => {
@@ -192,16 +200,36 @@ async function captureHealth(browser, state, budget) {
       return (
         await fetch(url, {
           signal: AbortSignal.timeout(Math.max(1, Math.floor(budget))),
+          redirect: "error",
         })
       ).ok;
     } catch {
       return false;
     }
   };
-  const postgres = createRequire(
-    new URL("../apps/api/package.json", import.meta.url),
-  )("postgres");
-  let db = false;
+  const localEndpoint = (port, suffix) =>
+    /^\d+$/.test(port ?? "") && Number(port) > 0 && Number(port) <= 65535
+      ? `http://127.0.0.1:${port}${suffix}`
+      : null;
+  const [api, web, db] = await Promise.all([
+    check(localEndpoint(process.env.DD_FLOW_PORT_API, "/api/health")),
+    check(localEndpoint(process.env.DD_FLOW_PORT_WEB, "/login")),
+    database.check(budget),
+  ]);
+  return {
+    browser: {
+      connected: browser.isConnected(),
+      page_closed:
+        state.closed ||
+        pages.length === 0 ||
+        pages.some((page) => page.isClosed()),
+      crashed: state.crashed,
+    },
+    world_health: { api, web, db },
+    health_observed_at: observed,
+  };
+}
+function databaseHealth() {
   let ownedDatabase = false;
   try {
     const url = new URL(process.env.DATABASE_URL);
@@ -215,42 +243,48 @@ async function captureHealth(browser, state, budget) {
         !url.hash,
     );
   } catch {}
-  if (ownedDatabase) {
-    const sql = postgres(process.env.DATABASE_URL, {
-      max: 1,
-      connect_timeout: 1,
-    });
+  const postgres = createRequire(
+    new URL("../apps/api/package.json", import.meta.url),
+  )("postgres");
+  const sql = ownedDatabase
+    ? // One probe-only session; avoid per-poll reconnect/type discovery and never
+      // force-close an initializing connection from a health timer.
+      postgres(process.env.DATABASE_URL, {
+        max: 1,
+        connect_timeout: 1,
+        fetch_types: false,
+        prepare: false,
+        connection: { statement_timeout: 500 },
+      })
+    : null;
+  let active;
+  const checkDatabase = async (budget) => {
+    if (!ownedDatabase) return false;
+    if (active) return false;
+    active = sql`select 1`
+      .then(
+        () => true,
+        () => false,
+      )
+      .finally(() => {
+        active = null;
+      });
+    let timer;
     try {
-      await Promise.race([
-        sql`select 1`,
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("health timeout")), budget),
-        ),
+      return await Promise.race([
+        active,
+        new Promise((resolve) => {
+          timer = setTimeout(() => resolve(false), budget);
+        }),
       ]);
-      db = true;
-    } catch {
     } finally {
-      await sql.end({ timeout: 0 });
+      clearTimeout(timer);
     }
-  }
-  const localEndpoint = (port, suffix) =>
-    /^\d+$/.test(port ?? "") && Number(port) > 0 && Number(port) <= 65535
-      ? `http://127.0.0.1:${port}${suffix}`
-      : null;
-  const [api, web] = await Promise.all([
-    check(localEndpoint(process.env.DD_FLOW_PORT_API, "/api/health")),
-    check(localEndpoint(process.env.DD_FLOW_PORT_WEB, "/login")),
-  ]);
+  };
   return {
-    browser: {
-      connected: browser.isConnected(),
-      page_closed:
-        state.closed ||
-        pages.length === 0 ||
-        pages.some((page) => page.isClosed()),
-      crashed: state.crashed,
+    check: checkDatabase,
+    async close() {
+      if (sql) await sql.end({ timeout: 1 });
     },
-    world_health: { api, web, db },
-    health_observed_at: observed,
   };
 }

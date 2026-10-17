@@ -13,6 +13,8 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { pathToFileURL } from "node:url";
+import Reporter from "./playwright-observation.mjs";
+import { binding } from "./test-observation.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const require = createRequire(
@@ -36,9 +38,104 @@ test("all browser specs use the observed test base", () => {
     );
   }
 });
+test("browser proof keeps mixed errors and UTF8 or count overflow fail-closed", () => {
+  const dir = mkdtempSync(path.join(os.tmpdir(), "dd-browser-proof-"));
+  const keys = [
+    "DD_FLOW_CHECK_INVOCATION_ID",
+    "DD_TASKS_TEST_WORLD",
+    "DD_TASKS_TEST_WORLD_RECEIPT",
+    "DD_TASKS_BROWSER_OBSERVATION_DIR",
+    "DD_TASKS_RUNNER_REPORT",
+  ];
+  const previous = Object.fromEntries(
+    keys.map((key) => [key, process.env[key]]),
+  );
+  try {
+    Object.assign(process.env, {
+      DD_FLOW_CHECK_INVOCATION_ID: "proof-unit",
+      DD_TASKS_TEST_WORLD: "a".repeat(32),
+      DD_TASKS_TEST_WORLD_RECEIPT: path.join(dir, "ready.json"),
+      DD_TASKS_BROWSER_OBSERVATION_DIR: path.join(dir, "observations"),
+      DD_TASKS_RUNNER_REPORT: path.join(dir, "report.json"),
+    });
+    const world = {
+      schema_id: "dd-tasks/test-world-ready@1",
+      invocation_id: "proof-unit",
+      world_id: "a".repeat(32),
+      ready: true,
+      setup_completed: true,
+      migrations_sha256: "b".repeat(64),
+      role: "browser",
+    };
+    writeFileSync(
+      process.env.DD_TASKS_TEST_WORLD_RECEIPT,
+      JSON.stringify(world),
+    );
+    const attempt = {
+        invocation_id: "proof-unit",
+        test_id: "case",
+        retry: 0,
+        repeat_each_index: 0,
+        worker_index: 0,
+      },
+      step = {
+        id: "step",
+        category: "pw:api",
+        file: import.meta.filename,
+        line: 1,
+      };
+    const deadline = Date.now() - 20;
+    const snapshot = {
+      binding: binding(),
+      attempt,
+      step,
+      world,
+      phase: "body",
+      observation_gap: false,
+      browser: { connected: true, page_closed: false, crashed: false },
+      world_health: { api: true, web: true, db: true },
+      quiet_ms: 4000,
+      last_progress_at: new Date(deadline - 4000).toISOString(),
+      deadline_at: new Date(deadline).toISOString(),
+      observed_at: new Date(deadline - 30).toISOString(),
+      health_observed_at: new Date(deadline - 40).toISOString(),
+    };
+    const reporter = new Reporter(),
+      timeout = { message: "Test timeout of 4000ms exceeded." };
+    const proof = (errors) =>
+      reporter.browserProof(
+        { id: "case" },
+        { status: "timedOut", errors },
+        snapshot,
+        { attempt },
+      );
+    assert.ok(proof([timeout]));
+    assert.equal(
+      proof([timeout, { message: "write CONNECTION_DESTROYED" }]),
+      null,
+    );
+    assert.equal(proof(Array(65).fill(timeout)), null);
+    assert.equal(
+      proof([
+        {
+          message:
+            `Test timeout of 4000ms exceeded.\nCall log:\n${"я".repeat(2100)}`,
+        },
+      ]),
+      null,
+    );
+    assert.equal(proof([]), null);
+  } finally {
+    for (const key of keys)
+      if (previous[key] === undefined) delete process.env[key];
+      else process.env[key] = previous[key];
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
 test("native browser quiet window rearms and completes body/teardown timeouts", async () => {
   const dir = mkdtempSync(path.join(os.tmpdir(), "dd-browser-observation-"));
   let world, server;
+  let failed = false;
   try {
     const file = (name) => path.join(dir, name);
     const environment = {};
@@ -77,8 +174,8 @@ test("native browser quiet window rearms and completes body/teardown timeouts", 
     writeFileSync(
       file("contract.spec.mjs"),
       `import {test,expect} from ${JSON.stringify(pathToFileURL(path.join(root, "scripts/browser-fixture.mjs")).href)};
-test('long healthy body and teardown',async({page})=>{await page.setContent('<button>ok</button>');for(let i=0;i<7;i++){await new Promise(r=>setTimeout(r,300));await test.step('body '+i,async()=>expect(await page.title()).toBe(''));}});
-test.afterEach(async({},info)=>{if(info.title.includes('long healthy'))for(let i=0;i<7;i++){await new Promise(r=>setTimeout(r,300));await test.step('cleanup '+i,async()=>expect(true).toBe(true));}if(info.title==='hung afterEach')await new Promise(()=>{});});
+test('long healthy body and teardown',async({page})=>{await page.setContent('<button>ok</button>');for(let i=0;i<6;i++){await new Promise(r=>setTimeout(r,750));await test.step('body '+i,async()=>expect(await page.title()).toBe(''));}});
+test.afterEach(async({},info)=>{if(info.title.includes('long healthy'))for(let i=0;i<6;i++){await new Promise(r=>setTimeout(r,750));await test.step('cleanup '+i,async()=>expect(true).toBe(true));}if(info.title==='hung afterEach')await new Promise(()=>{});});
 test('missing locator',async({page})=>{await page.setContent('<p>not a button</p>');await page.getByRole('button',{name:'missing'}).click();});
 test('hung afterEach',async({page})=>{await page.setContent('<p>ok</p>');});`,
     );
@@ -100,7 +197,7 @@ test('hung afterEach',async({page})=>{await page.setContent('<p>ok</p>');});`,
           ...process.env,
           ...environment,
           DD_TASKS_TEST_WATCHDOG: "1",
-          DD_FLOW_TEST_EXECUTION_SILENCE_MS: "2000",
+          DD_FLOW_TEST_EXECUTION_SILENCE_MS: "4000",
           DD_TASKS_BROWSER_OBSERVATION_DIR: file("observations"),
           DD_TASKS_RUNNER_REPORT: file("report.json"),
           DD_FLOW_CHECK_INVOCATION_ID: "browser-contract",
@@ -158,9 +255,13 @@ test('hung afterEach',async({page})=>{await page.setContent('<p>ok</p>');});`,
         evidence.failures.every((failure) => !failure.repair_evidence),
         "unknown world health must not grant source repair",
       );
+  } catch (error) {
+    failed = true;
+    error.message += `\nRetained browser contract diagnostics: ${dir}`;
+    throw error;
   } finally {
     if (server) await new Promise((resolve) => server.close(resolve));
     if (world) await world.drop();
-    rmSync(dir, { recursive: true, force: true });
+    if (!failed) rmSync(dir, { recursive: true, force: true });
   }
 });

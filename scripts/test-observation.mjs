@@ -18,11 +18,18 @@ const root = path.resolve(import.meta.dirname, "..");
 const bounded = (value, limit) => {
   const bytes = Buffer.from(
     String(value ?? "")
+      .replace(/\b(Bearer|Basic)\s+[^\s"']+/gi, "$1 [redacted]")
       .replace(
-        /\b(password|token|secret|api[_-]?key)["']?\s*[:=]\s*["']?[^"'\s,;&}]+/gi,
-        "$1=[redacted]",
+        /(^|[^\w-])([\w-]+)(["']?\s*[:=]\s*["']?)([^"'\s,;&}]+)/g,
+        (whole, prefix, key, separator) =>
+          /password|token|secret|api[_-]?key|authorization/i.test(key)
+            ? `${prefix}${key}${separator}[redacted]`
+            : whole,
       )
-      .replace(/\bBearer\s+[^\s]+/gi, "Bearer [redacted]")
+      .replace(
+        /(\b[a-z][a-z0-9+.-]*:\/\/)[^\s/@]+:[^\s/@]+@/gi,
+        "$1[redacted]@",
+      )
       .replace(/(?:postgres(?:ql)?:\/\/)[^\s]+/gi, "[redacted database URL]"),
   );
   let end = Math.min(limit, bytes.length);

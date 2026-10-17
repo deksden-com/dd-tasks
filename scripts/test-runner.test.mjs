@@ -342,8 +342,10 @@ async function invoke(source, budgets = {}, cancelOnReady = false) {
         stdio: "pipe",
       },
     );
-    let stderr = "";
+    let stderr = "",
+      stdout = "";
     child.stdout.on("data", (bytes) => {
+      stdout += bytes;
       if (cancelOnReady && String(bytes).includes("READY"))
         child.kill("SIGTERM");
     });
@@ -372,6 +374,7 @@ async function invoke(source, budgets = {}, cancelOnReady = false) {
       report,
       diagnostic,
       stderr,
+      stdout,
       marker: existsSync(`${evidence}.marker`),
     };
   } finally {
@@ -400,6 +403,61 @@ test("silent setup terminates as tooling, not an assertion verdict", async () =>
   assert.equal(result.report.failures[0].code, "inactivity_timeout");
   assert.equal(result.report.failures[0].category, "tooling");
 });
+for (const mode of ["beforeAll", "afterAll", "dead-worker"]) {
+  test(`native Playwright ${mode} cannot bypass outer settlement or fabricate browser repair`, async () => {
+    const reporter = path.join(root, "scripts/playwright-observation.mjs");
+    const fixture = new URL("./browser-fixture.mjs", import.meta.url).href;
+    const marker = `OUTER_CONTRACT_${mode}`;
+    const body =
+      mode === "dead-worker"
+        ? `test('dead worker',async()=>{console.log(${JSON.stringify(marker)});process.kill(process.pid,'SIGKILL');});`
+        : `test.${mode}(async()=>{console.log(${JSON.stringify(marker)});await new Promise(()=>{});});test('body',async()=>{console.log('OUTER_BODY_EXECUTED');});`;
+    const source = `import {mkdirSync,writeFileSync} from 'node:fs';import path from 'node:path';import {createRequire} from 'node:module';import {spawnSync} from 'node:child_process';const require=createRequire(${JSON.stringify(path.join(root, "apps/web/package.json"))});const dir=path.join(path.dirname(process.env.DD_TASKS_RUNNER_REPORT),'native-outer');mkdirSync(dir,{recursive:true});writeFileSync(path.join(dir,'outer.spec.mjs'),${JSON.stringify(`import {test} from ${JSON.stringify(fixture)};\n${body}`)});writeFileSync(path.join(dir,'config.cjs'),'module.exports='+JSON.stringify({testDir:dir,testMatch:'outer.spec.mjs',workers:1,retries:0,timeout:0,reporter:[['list'],[${JSON.stringify(reporter)}]],outputDir:path.join(dir,'output')}));const result=spawnSync(process.execPath,[require.resolve('@playwright/test/cli'),'test','--config',path.join(dir,'config.cjs')],{cwd:${JSON.stringify(root)},env:process.env,stdio:'inherit'});process.exitCode=result.status??1;`;
+    const result = await invoke(source, {
+      DD_FLOW_TEST_STARTUP_SILENCE_MS: "120000",
+      DD_FLOW_TEST_EXECUTION_SILENCE_MS: "4000",
+    });
+    assert.equal(result.code, 1, result.stderr);
+    assert.match(
+      result.stdout,
+      new RegExp(marker),
+      JSON.stringify({ report: result.report, stderr: result.stderr }),
+    );
+    const missingFinal = result.report.failures.some(
+      (failure) => failure.code === "invalid_runner_evidence",
+    );
+    assert.equal(
+      result.report.counts.passed,
+      mode === "afterAll" && !missingFinal ? 1 : 0,
+      JSON.stringify(result.report),
+    );
+    if (mode === "afterAll")
+      assert.match(result.stdout, /OUTER_BODY_EXECUTED/, result.stdout);
+    assert.ok(result.report.failures.length, JSON.stringify(result.report));
+    assert.ok(
+      result.report.failures.every((failure) => !failure.repair_evidence),
+      JSON.stringify(result.report),
+    );
+    assert.equal(
+      result.diagnostic.process_cleanup.settled,
+      true,
+      JSON.stringify(result.diagnostic),
+    );
+    if (mode === "dead-worker")
+      assert.match(JSON.stringify(result.report), /SIGKILL/);
+    else {
+      assert.equal(result.report.completed, false);
+      assert.equal(result.report.observation_unknown, true);
+      assert.ok(
+        result.report.failures.some(
+          (failure) =>
+            failure.category === "tooling" &&
+            failure.code === "inactivity_timeout",
+        ),
+      );
+    }
+  });
+}
 test("repeated evidence identity does not extend the window", async () => {
   const result = await invoke(
     `import { progress } from ${JSON.stringify(observation)}; progress('step_completed:same'); setInterval(()=>progress('step_completed:same'),100);`,

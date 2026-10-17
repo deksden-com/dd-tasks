@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "../../../../scripts/browser-fixture.mjs";
 
 test.describe("foundation surface", () => {
   test("shows a healthy API signal with stable semantics", async ({ page }) => {

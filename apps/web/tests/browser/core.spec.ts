@@ -1,4 +1,5 @@
-import { expect, type Page, test } from "@playwright/test";
+import type { Page } from "@playwright/test";
+import { expect, test } from "../../../../scripts/browser-fixture.mjs";
 
 const demoPassword = "local-demo-only";
 const priorityLabels = ["Low", "Medium", "High"] as const;

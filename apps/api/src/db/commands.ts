@@ -1,4 +1,9 @@
 import {
+  evidence,
+  normalizeFailure,
+  progress,
+} from "../../../../scripts/test-observation.mjs";
+import {
   createSqlClient,
   getDatabaseUrl,
   getFlowScopedLocalDatabaseUrl,
@@ -18,11 +23,9 @@ import {
 
 const command = process.argv[2] ?? "help";
 const commandArgs = process.argv.slice(3);
-const parsed = parseCommandArgs(commandArgs);
-const databaseUrl = getFlowScopedLocalDatabaseUrl(
-  getDatabaseUrl(),
-  parsed.runId,
-);
+let parsed: ReturnType<typeof parseCommandArgs>;
+let databaseUrl: string;
+let phase = "resolve";
 
 function emit(value: Record<string, unknown>): void {
   console.log(JSON.stringify(value));
@@ -115,6 +118,7 @@ function previewSeedOptions(
 }
 
 async function migrate(): Promise<void> {
+  phase = "migrate";
   const classification = requireSafeTarget("migrate");
   await ensureLocalFlowDatabase(classification);
   const sql = createSqlClient(databaseUrl);
@@ -133,8 +137,10 @@ async function migrate(): Promise<void> {
   }
 }
 
-async function check(): Promise<void> {
-  const classification = requireSafeTarget("check");
+async function check(
+  classification = requireSafeTarget("check"),
+): Promise<boolean> {
+  phase = "inspect";
   const sql = createSqlClient(databaseUrl);
   try {
     const state = await migrationState(sql);
@@ -157,7 +163,7 @@ async function check(): Promise<void> {
         migrationsMatch,
       });
       process.exitCode = 1;
-      return;
+      return false;
     }
     emit({
       status: "ok",
@@ -167,12 +173,14 @@ async function check(): Promise<void> {
       migrationCount: state.applied.length,
       migrationOrder: state.applied,
     });
+    return true;
   } finally {
     await sql.end({ timeout: 5 });
   }
 }
 
 async function reset(): Promise<void> {
+  phase = "reset";
   const classification = requireSafeTarget("reset");
   await ensureLocalFlowDatabase(classification);
   const sql = createSqlClient(databaseUrl);
@@ -214,14 +222,24 @@ async function ensureLocalFlowDatabase(
     const rows = await admin<{ present: number }[]>`
       SELECT 1 AS present FROM pg_database WHERE datname = ${classification.databaseName}
     `;
-    if (!rows[0])
-      await admin.unsafe(`CREATE DATABASE "${classification.databaseName}"`);
+    if (!rows[0]) {
+      try {
+        await admin.unsafe(`CREATE DATABASE "${classification.databaseName}"`);
+      } catch (error) {
+        if ((error as { code?: string }).code !== "42P04") throw error;
+        const readback = await admin<
+          { present: number }[]
+        >`SELECT 1 AS present FROM pg_database WHERE datname = ${classification.databaseName}`;
+        if (!readback[0]) throw error;
+      }
+    }
   } finally {
     await admin.end({ timeout: 5 });
   }
 }
 
 async function seed(): Promise<void> {
+  phase = "seed";
   const classification = requireSafeTarget("seed");
   const options = previewSeedOptions(classification.profile);
   const sql = createSqlClient(databaseUrl);
@@ -250,8 +268,14 @@ async function seed(): Promise<void> {
 }
 
 async function main(): Promise<void> {
+  parsed = parseCommandArgs(commandArgs);
+  databaseUrl = getFlowScopedLocalDatabaseUrl(getDatabaseUrl(), parsed.runId);
+  if (command === "verify") return verify();
   if (command === "migrate") return migrate();
-  if (command === "check") return check();
+  if (command === "check") {
+    await check();
+    return;
+  }
   if (command === "reset") return reset();
   if (command === "seed") return seed();
   emit({
@@ -262,13 +286,79 @@ async function main(): Promise<void> {
   process.exitCode = 2;
 }
 
-main().catch(() => {
+async function verify(): Promise<void> {
+  const suffix = process.env.DD_FLOW_LOCAL_DATABASE_SUFFIX;
+  const classification = classificationFor("migrate", true);
+  if (
+    !classification.safe ||
+    classification.profile !== "local" ||
+    parsed.target !== "local" ||
+    !parsed.runId ||
+    !/^RUN-[A-Za-z0-9_-]+$/.test(parsed.runId) ||
+    !suffix ||
+    !/^[a-f0-9]{8,64}$/.test(suffix) ||
+    process.env.DD_TASKS_TEST_WORLD ||
+    !classification.databaseName?.endsWith(`_${suffix}`)
+  ) {
+    throw Object.assign(
+      new Error(
+        "DB verify requires an explicit flow-owned scoped local target",
+      ),
+      { code: "TARGET_REJECTED" },
+    );
+  }
+  phase = "prepare";
+  await ensureLocalFlowDatabase(classification);
+  progress("setup_step_completed:database_created", "startup");
+  phase = "migrate";
+  const sql = createSqlClient(databaseUrl);
+  try {
+    await applyMigrations(sql);
+  } finally {
+    await sql.end({ timeout: 5 });
+  }
+  progress("setup_step_completed:database_migrated", "startup");
+  const matched = await check(classification);
+  progress("step_completed:database_inspected");
+  evidence(
+    { name: "db-verify", version: "1" },
+    { passed: matched ? 1 : 0, failed: matched ? 0 : 1, skipped: 0 },
+    matched
+      ? []
+      : [
+          {
+            category: "unclassified",
+            code: "DATABASE_SCHEMA_MISMATCH",
+            origin: "unknown",
+            phase: "test",
+            message: "Schema or migration ledger differs after migration",
+          },
+        ],
+    true,
+  );
+}
+
+main().catch((error: unknown) => {
+  const failure = normalizeFailure(error as Record<string, unknown>, {
+    tooling: true,
+    phase: "setup",
+  });
+  if (command === "verify")
+    evidence(
+      { name: "db-verify", version: "1" },
+      { passed: 0, failed: 0, skipped: 0 },
+      [{ ...failure, classification_reason: `database_${phase}` }],
+      false,
+    );
   if (process.exitCode !== 2) {
     emit({
       status: "failed",
       operation: command,
       code: "DATABASE_OPERATION_FAILED",
-      message: "Database operation failed",
+      phase,
+      message: failure.message,
+      native_code: failure.native_code,
+      cause: failure.code,
     });
     process.exitCode = 1;
   }

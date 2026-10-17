@@ -118,8 +118,7 @@ test("browser proof keeps mixed errors and UTF8 or count overflow fail-closed", 
     assert.equal(
       proof([
         {
-          message:
-            `Test timeout of 4000ms exceeded.\nCall log:\n${"я".repeat(2100)}`,
+          message: `Test timeout of 4000ms exceeded.\nCall log:\n${"я".repeat(2100)}`,
         },
       ]),
       null,

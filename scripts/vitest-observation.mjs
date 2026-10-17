@@ -2,10 +2,27 @@ import { createRequire } from "node:module";
 import { evidence, normalizeFailure, progress } from "./test-observation.mjs";
 
 const version = createRequire(import.meta.url)("vitest/package.json").version;
+// Vitest can reconstruct serialized Error objects between hook and suite views.
+// Only a full native trace within the same entity identifies that projection.
+function errorIdentity(error) {
+  if (!error.stack && !error.stackStr && !error.stacks?.length) return error;
+  try {
+    return JSON.stringify([
+      error.name,
+      error.message,
+      error.value,
+      error.code,
+      error.stack ?? error.stackStr ?? error.stacks,
+    ]);
+  } catch {
+    return error;
+  }
+}
 export default class Reporter {
   counts = { passed: 0, failed: 0, skipped: 0 };
   failures = [];
-  hookErrors = new Set();
+  hookErrors = new Map();
+  capturedHooks = new WeakMap();
   pendingHooks = new Map();
   onHookStart(hook) {
     this.captureHook(hook.entity);
@@ -18,9 +35,19 @@ export default class Reporter {
     const hook = this.pendingHooks.get(entity.id);
     if (!hook) return;
     const errors = entity.errors?.() ?? entity.result?.().errors ?? [];
+    const captured = this.capturedHooks.get(hook) ?? new Map();
+    const occurrences = new Map();
+    this.capturedHooks.set(hook, captured);
+    const owner = entity.id ?? entity;
+    const projections = this.hookErrors.get(owner) ?? new Map();
+    this.hookErrors.set(owner, projections);
     for (const error of errors) {
-      if (this.hookErrors.has(error)) continue;
-      this.hookErrors.add(error);
+      const identity = errorIdentity(error);
+      const occurrence = (occurrences.get(identity) ?? 0) + 1;
+      occurrences.set(identity, occurrence);
+      if (occurrence <= (captured.get(identity) ?? 0)) continue;
+      captured.set(identity, occurrence);
+      projections.set(identity, (projections.get(identity) ?? 0) + 1);
       this.failures.push(
         normalizeFailure(error, {
           phase: hook.name.startsWith("before") ? "setup" : "teardown",
@@ -30,6 +57,16 @@ export default class Reporter {
         }),
       );
     }
+  }
+  withoutHookProjections(entity, errors) {
+    const remaining = new Map(this.hookErrors.get(entity.id ?? entity));
+    return errors.filter((error) => {
+      const identity = errorIdentity(error),
+        count = remaining.get(identity) ?? 0;
+      if (!count) return true;
+      remaining.set(identity, count - 1);
+      return false;
+    });
   }
   onTestRunStart() {
     progress("test_run_started", "startup");
@@ -47,24 +84,28 @@ export default class Reporter {
     else if (result.state === "failed") {
       this.counts.failed++;
       const errors = result.errors ?? [];
-      for (const error of errors.length ? errors : [{}])
-        if (!this.hookErrors.has(error))
-          this.failures.push(
-            normalizeFailure(error, {
-              phase: "test",
-              file: test.module?.moduleId,
-              test_id: test.id,
-              assertion: error.name === "AssertionError",
-            }),
-          );
+      for (const error of this.withoutHookProjections(
+        test,
+        errors.length ? errors : [{}],
+      ))
+        this.failures.push(
+          normalizeFailure(error, {
+            phase: "test",
+            file: test.module?.moduleId,
+            test_id: test.id,
+            assertion: error.name === "AssertionError",
+          }),
+        );
     } else this.counts.skipped++;
     progress(`test_completed:${test.id}`);
   }
   onTestRunEnd(modules, errors, reason) {
     const visit = (suite) => {
       this.captureHook(suite);
-      for (const error of suite.errors?.() ?? []) {
-        if (this.hookErrors.has(error)) continue;
+      for (const error of this.withoutHookProjections(
+        suite,
+        suite.errors?.() ?? [],
+      )) {
         this.failures.push(
           normalizeFailure(error, {
             phase: "collection",

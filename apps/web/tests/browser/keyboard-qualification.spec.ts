@@ -1,5 +1,5 @@
 import { writeFile } from "node:fs/promises";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "../../../../scripts/browser-fixture.mjs";
 
 test("qualifies native select keyboard behavior independently of persistence", async ({
   page,

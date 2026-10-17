@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "../../../../scripts/browser-fixture.mjs";
 
 const ownerPassword = process.env.SCN003_OWNER_PASSWORD;
 const memberPassword = process.env.SCN003_MEMBER_PASSWORD;

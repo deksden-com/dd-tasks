@@ -2,7 +2,7 @@ import { spawn } from "node:child_process";
 import { createHash, randomBytes } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
-import { observeGroupSettlement, signalOwnedGroup } from "./owned-process.mjs";
+import { stopOwnedGroup } from "./owned-process.mjs";
 import { acquirePreviewLease } from "./preview-lease.mjs";
 import { runtimePorts } from "./runtime-ports.mjs";
 import { hasTestWatchdog } from "./test-observation.mjs";
@@ -724,14 +724,34 @@ function run(command, args, options = {}) {
       : setTimeout(() => {
           if (child.exitCode !== null || child.signalCode !== null) return;
           timedOut = true;
-          signalOwnedGroup(child, "SIGTERM");
-          setTimeout(
-            () =>
-              child.exitCode === null &&
-              child.signalCode === null &&
-              signalOwnedGroup(child, "SIGKILL"),
-            2_000,
-          ).unref();
+          void stopOwnedGroup(child)
+            .then((settlement) => {
+              if (!settlement.settled) {
+                child.stdout.destroy();
+                child.stderr.destroy();
+                child.unref();
+                resolvePromise({
+                  status: 1,
+                  stdout: redact(stdout),
+                  stderr: redact(
+                    `${stderr}\ncleanup_unconfirmed: ${settlement.reason}`,
+                  ),
+                  process_cleanup: settlement,
+                });
+              }
+            })
+            .catch((error) => {
+              child.stdout.destroy();
+              child.stderr.destroy();
+              child.unref();
+              resolvePromise({
+                status: 1,
+                stdout: redact(stdout),
+                stderr: redact(
+                  `${stderr}\ncleanup_unconfirmed: ${error.message}`,
+                ),
+              });
+            });
         }, options.timeoutMs ?? 120_000);
     child.stdout.on("data", (chunk) => (stdout += String(chunk)));
     child.stderr.on("data", (chunk) => (stderr += String(chunk)));
@@ -741,9 +761,10 @@ function run(command, args, options = {}) {
     });
     child.on("close", async (code) => {
       if (timeout) clearTimeout(timeout);
-      const settlement = await observeGroupSettlement(child);
+      const settlement = await stopOwnedGroup(child);
       resolvePromise({
         status: !settlement.settled ? 1 : timedOut ? 124 : (code ?? 1),
+        process_cleanup: settlement,
         stdout: redact(stdout),
         stderr: redact(
           !settlement.settled

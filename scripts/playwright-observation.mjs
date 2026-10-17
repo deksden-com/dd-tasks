@@ -1,4 +1,5 @@
 import { createRequire } from "node:module";
+import { stripVTControlCharacters } from "node:util";
 import {
   artifactReference,
   attempt,
@@ -151,7 +152,18 @@ export default class Reporter {
     const observed = Date.parse(snapshot?.observed_at);
     if (
       Date.now() < deadline ||
-      Date.now() - deadline > Math.min(1000, snapshot?.quiet_ms / 4) ||
+      Date.now() - deadline > 5000 ||
+      !result.errors.length ||
+      result.errors.length > 64 ||
+      result.errors.some(
+        (error) => Buffer.byteLength(String(error.message ?? "")) > 4096,
+      ) ||
+      result.errors.some(
+        (error) =>
+          !/^(?:Error: )?(?:[A-Za-z][\w.]*: )?Test timeout of [1-9]\d*ms exceeded\.(?:\nCall log:[\s\S]*)?$/.test(
+            stripVTControlCharacters(error.message ?? ""),
+          ),
+      ) ||
       result.errors.some((error) =>
         /afterEach|afterAll|fixture.*timeout/i.test(error.message ?? ""),
       )
@@ -182,7 +194,7 @@ export default class Reporter {
     )
       return null;
     const key = attemptKey(state.attempt);
-    const native = writeObservation(key, "native", {
+    const nativeResult = {
       binding: binding(),
       attempt: state.attempt,
       step,
@@ -190,7 +202,11 @@ export default class Reporter {
       phase: "test",
       file: step.file,
       ended_at: new Date().toISOString(),
-    });
+      errors: result.errors.map((error) => String(error.message ?? "")),
+    };
+    if (Buffer.byteLength(JSON.stringify(nativeResult)) > 256 * 1024)
+      return null;
+    const native = writeObservation(key, "native", nativeResult);
     const worker = writeObservation(key, "frozen-worker", snapshot);
     if (!native || !worker) return null;
     return {

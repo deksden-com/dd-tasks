@@ -22,6 +22,7 @@ import {
   validReport,
   worldObservationPaths,
 } from "./test-observation.mjs";
+import VitestReporter from "./vitest-observation.mjs";
 
 test("parallel world observations survive reverse final order and reject foreign cleanup", () => {
   const directory = mkdtempSync(
@@ -151,9 +152,54 @@ test("aggregate overflow is incomplete and preserves counts", () => {
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const observation = new URL("./test-observation.mjs", import.meta.url).href;
+test("Vitest cloned hook projections deduplicate only within the same entity and occurrence", () => {
+  const error = {
+    name: "PostgresError",
+    code: "23503",
+    message: "foreign key violation",
+    stack: "PostgresError: foreign key violation\n at source:9",
+  };
+  const reporter = new VitestReporter();
+  const entity = {
+    id: "suite",
+    moduleId: "fixture",
+    errors: () => [error],
+    children: [],
+  };
+  for (const name of ["beforeAll", "afterAll"]) {
+    const hook = { name, entity };
+    reporter.onHookStart(hook);
+    reporter.captureHook(entity);
+    reporter.captureHook(entity);
+    reporter.onHookEnd(hook);
+  }
+  assert.deepEqual(
+    reporter.failures.map((failure) => failure.phase),
+    ["setup", "teardown"],
+  );
+  entity.errors = () => [
+    { ...error },
+    { ...error },
+    { ...error, stack: "different native stack" },
+  ];
+  const other = {
+    ...entity,
+    id: "different suite",
+    errors: () => [{ ...error }],
+  };
+  reporter.onTestRunEnd([entity, other], [{ ...error }], "failed");
+  assert.deepEqual(
+    reporter.failures.map((failure) => failure.phase),
+    ["setup", "teardown", "collection", "collection", "runner"],
+  );
+  assert.equal(
+    reporter.failures.every((failure) => failure.native_code === "23503"),
+    true,
+  );
+});
 test("diagnostics redact credentials and preserve UTF8 byte bounds", () => {
   const failure = normalizeFailure({
-    message: `postgresql://user:password@localhost/db token=private secret:private Bearer private api-key = private {"api_key":"private"} ${"я".repeat(5000)}`,
+    message: `Authorization: Bearer private Authorization:Basic private postgresql://user:password@localhost/db https://user:private@localhost/path token=private access_token=private db_password:private secret:private Bearer private Basic private api-key = private {"api_key":"private"} ${"я".repeat(5000)}`,
     stack: `api_key=private ${"я".repeat(10000)}`,
   });
   assert.equal(JSON.stringify(failure).includes("private"), false);

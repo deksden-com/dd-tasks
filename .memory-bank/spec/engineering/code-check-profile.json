@@ -38,6 +38,14 @@
       "@check/docs"
     ]
   },
+  "inputs_by_alias": {
+    "@check/api-contract": ["apps/api", "scripts", "package.json", "pnpm-lock.yaml", "pnpm-workspace.yaml", "tsconfig.base.json", "vitest.config.ts", "drizzle.config.ts", "docker-compose.yml", "apps/web/package.json"],
+    "@check/api-unit": ["apps/api", "scripts", "package.json", "pnpm-lock.yaml", "pnpm-workspace.yaml", "tsconfig.base.json", "vitest.config.ts", "drizzle.config.ts", "docker-compose.yml", "apps/web/package.json"],
+    "@check/api-integration": ["apps/api", "scripts", "package.json", "pnpm-lock.yaml", "pnpm-workspace.yaml", "tsconfig.base.json", "vitest.config.ts", "drizzle.config.ts", "docker-compose.yml", "apps/web/package.json"],
+    "@check/web-unit": ["apps/web", "scripts", "package.json", "pnpm-lock.yaml", "pnpm-workspace.yaml", "tsconfig.base.json", "vitest.config.ts", "apps/api/package.json"],
+    "@check/web-build": ["apps/web", "scripts", "package.json", "pnpm-lock.yaml", "pnpm-workspace.yaml", "tsconfig.base.json"],
+    "@check/browser": ["apps/api", "apps/web", "scripts", "package.json", "pnpm-lock.yaml", "pnpm-workspace.yaml", "tsconfig.base.json", "vitest.config.ts", "drizzle.config.ts", "docker-compose.yml"]
+  },
   "ports_by_alias": {
     "@check/browser": [
       "api",

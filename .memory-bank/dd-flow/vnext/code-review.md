@@ -21,6 +21,23 @@ database, seed and services with the declared cwd/env. Reliance on prior test
 leftovers is a material verification defect. Reviewers receive empty context;
 a different session identifier alone does not prove independent review.
 
+Compare the original accepted-input paths supplied by the runtime with the
+observable implementation, not only with the PLAN summary. Preserve material
+actors, UI/API surfaces, operations, states and exceptions. API evidence does not
+prove a UI action; an omitted accepted surface is a quality finding even when all
+declared tests passed. Cite original source and R/AC references. An unavailable
+original source is an evidence gap. Do not edit immutable accepted SPECIFY to hide
+loss; require the supported upstream correction/revision, or report an actionable
+blocker when that route is unavailable. Do not invent HITL references or silently
+replace an earlier decision with later conflicting text.
+
+For a clarification accepted in this same review before its decision is frozen,
+use the exact `accepted_intent_acknowledgement` returned by resume/finish, then
+classify and repair through the existing coordinator route. The old independent
+results cover only their prior retained sources. A new upstream decision or a new
+answer after decision freeze needs a supported accepted revision; do not rewrite
+the frozen decision or claim fresh independent coverage.
+
 The coordinator delegates the registered aspect groups to fresh read-only
 workers and never claims a reviewer Work itself. Workers neither edit the
 product nor create child workers. A reviewer may read the complete bounded

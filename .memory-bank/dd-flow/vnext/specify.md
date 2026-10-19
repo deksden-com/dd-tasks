@@ -162,6 +162,16 @@ as `specified` only after every material question is settled.
 
 ## Design aspects, assessment and handoff
 
+Before finishing, compare the original intake and every actually delivered user
+answer with the exact R/AC statements and explained non-goals. Cite source paths
+and question references in the existing sections; do not create another ledger.
+Preserve material actors, operations, surfaces and exceptions: UI plus API is not
+API alone, close plus reopen is not one operation, and an archived-state exception
+is not a happy-path detail. Do not turn an optional choice into an obligation.
+An agent recommendation is not an accepted answer. Preserve the answer sequence;
+only an explicit accepted correction supersedes a prior decision. Resolve material
+conflicts through the existing pause/resume route, not last-text-wins.
+
 Consult `.memory-bank/dd-flow/mb-sdlc/specify/design-aspects/index.md` only
 when a relevant aspect is signalled (for example CLI, AI pipeline/model prompt
 or web UI). For every selected aspect, record applicability, accepted canonical

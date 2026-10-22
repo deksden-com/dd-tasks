@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import {
+  mkdirSync,
   mkdtempSync,
   readdirSync,
   readFileSync,
@@ -14,9 +15,13 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { pathToFileURL } from "node:url";
-import { attemptKey } from "./browser-observation.mjs";
+import {
+  attempt,
+  attemptKey,
+  writeObservation,
+} from "./browser-observation.mjs";
 import Reporter from "./playwright-observation.mjs";
-import { binding } from "./test-observation.mjs";
+import { binding, validReport } from "./test-observation.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const require = createRequire(
@@ -112,6 +117,9 @@ test("browser proof keeps mixed errors and UTF8 or count overflow fail-closed", 
         { attempt },
       );
     assert.ok(proof([timeout]));
+    snapshot.observation_gap = true;
+    assert.equal(proof([timeout]), null);
+    snapshot.observation_gap = false;
     assert.equal(
       proof([timeout, { message: "write CONNECTION_DESTROYED" }]),
       null,
@@ -131,6 +139,127 @@ test("browser proof keeps mixed errors and UTF8 or count overflow fail-closed", 
       if (previous[key] === undefined) delete process.env[key];
       else process.env[key] = previous[key];
     rmSync(dir, { recursive: true, force: true });
+  }
+});
+test("browser observation publication refusal preserves the native failure and blocks repair", () => {
+  const keys = [
+    "DD_FLOW_CHECK_INVOCATION_ID",
+    "DD_FLOW_CHECK_COMMAND",
+    "DD_FLOW_CHECK_RUNNER_EVIDENCE_PATH",
+    "DD_TASKS_TEST_WORLD",
+    "DD_TASKS_TEST_WORLD_RECEIPT",
+    "DD_TASKS_BROWSER_OBSERVATION_DIR",
+    "DD_TASKS_RUNNER_REPORT",
+  ];
+  const previous = Object.fromEntries(
+    keys.map((key) => [key, process.env[key]]),
+  );
+  const directory = mkdtempSync(path.join(os.tmpdir(), "browser-publication-"));
+  try {
+    for (const role of [
+      "reporter",
+      "proof-diagnostic",
+      "native",
+      "frozen-worker",
+    ]) {
+      const root = path.join(directory, role);
+      mkdirSync(root);
+      const reportPath = path.join(root, "report.json");
+      Object.assign(process.env, {
+        DD_FLOW_CHECK_INVOCATION_ID: `refused-${role}`,
+        DD_FLOW_CHECK_COMMAND: "browser publication regression",
+        DD_FLOW_CHECK_RUNNER_EVIDENCE_PATH: reportPath,
+        DD_TASKS_RUNNER_REPORT: reportPath,
+        DD_TASKS_BROWSER_OBSERVATION_DIR: path.join(root, "observations"),
+        DD_TASKS_TEST_WORLD: "a".repeat(32),
+        DD_TASKS_TEST_WORLD_RECEIPT: path.join(root, "ready.json"),
+      });
+      const world = {
+        schema_id: "dd-tasks/test-world-ready@1",
+        invocation_id: process.env.DD_FLOW_CHECK_INVOCATION_ID,
+        world_id: process.env.DD_TASKS_TEST_WORLD,
+        ready: true,
+        setup_completed: true,
+        migrations_sha256: "b".repeat(64),
+        role: "browser",
+      };
+      writeFileSync(
+        process.env.DD_TASKS_TEST_WORLD_RECEIPT,
+        JSON.stringify(world),
+      );
+      const subject = {
+        id: "refused",
+        repeatEachIndex: 0,
+        location: { file: import.meta.filename },
+      };
+      const result = {
+        workerIndex: 0,
+        retry: 0,
+        status: "timedOut",
+        errors: [{ message: "Test timeout of 4000ms exceeded." }],
+      };
+      const identity = attempt(subject, result),
+        key = attemptKey(identity);
+      if (["native", "frozen-worker"].includes(role)) {
+        const deadline = Date.now() - 20;
+        writeObservation(key, "worker", {
+          binding: binding(),
+          attempt: identity,
+          world,
+          phase: "body",
+          observation_gap: false,
+          step: {
+            id: "step",
+            category: "pw:api",
+            file: import.meta.filename,
+            line: 1,
+          },
+          browser: { connected: true, page_closed: false, crashed: false },
+          world_health: { api: true, web: true, db: true },
+          quiet_ms: 4000,
+          last_progress_at: new Date(deadline - 4000).toISOString(),
+          deadline_at: new Date(deadline).toISOString(),
+          observed_at: new Date(deadline - 30).toISOString(),
+          health_observed_at: new Date(deadline - 40).toISOString(),
+        });
+      }
+      mkdirSync(
+        path.join(
+          process.env.DD_TASKS_BROWSER_OBSERVATION_DIR,
+          `${key}.${role}.json`,
+        ),
+        { recursive: true },
+      );
+      const reporter = new Reporter();
+      reporter.onTestBegin(subject, result);
+      assert.doesNotThrow(() => reporter.onTestEnd(subject, result), role);
+      reporter.onEnd({ status: "failed" });
+      const report = JSON.parse(readFileSync(reportPath));
+      assert.equal(validReport(report), true, role);
+      assert.equal(report.counts.failed, 1);
+      assert.ok(
+        report.failures.some(
+          (failure) => failure.message === result.errors[0].message,
+        ),
+        role,
+      );
+      assert.ok(
+        report.failures.some(
+          (failure) =>
+            failure.code === "browser_observation_publication_failed",
+        ),
+        role,
+      );
+      assert.ok(
+        report.failures.every((failure) => !failure.repair_evidence),
+        role,
+      );
+    }
+  } finally {
+    for (const key of keys)
+      if (previous[key] === undefined) delete process.env[key];
+      else process.env[key] = previous[key];
+    rmSync(directory, { recursive: true, force: true });
   }
 });
 test("native browser quiet window rearms and completes body/teardown timeouts", async () => {

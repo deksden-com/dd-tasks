@@ -30,8 +30,28 @@ function errorSignature(error) {
 export default class Reporter {
   counts = { passed: 0, failed: 0, skipped: 0 };
   failures = [];
+  observationFailed = false;
   expectationErrors = new WeakMap();
   observations = new WeakMap();
+  observe(action) {
+    try {
+      return action();
+    } catch (error) {
+      if (!this.observationFailed)
+        this.failures.push({
+          category: "tooling",
+          origin: "tooling",
+          phase: "runner",
+          code: "browser_observation_publication_failed",
+          message: String(error?.code ?? "browser_observation_failed").slice(
+            0,
+            512,
+          ),
+        });
+      this.observationFailed = true;
+      return null;
+    }
+  }
   onBegin() {
     progress("test_run_started");
   }
@@ -65,14 +85,16 @@ export default class Reporter {
     this.publish(state);
   }
   publish(state, terminal = false) {
-    writeObservation(attemptKey(state.attempt), "reporter", {
-      attempt: state.attempt,
-      sequence: state.sequence,
-      last_progress_at: state.last_progress_at,
-      progress_phase: state.progress_phase,
-      active_step: [...state.active.values()].at(-1),
-      terminal,
-    });
+    this.observe(() =>
+      writeObservation(attemptKey(state.attempt), "reporter", {
+        attempt: state.attempt,
+        sequence: state.sequence,
+        last_progress_at: state.last_progress_at,
+        progress_phase: state.progress_phase,
+        active_step: [...state.active.values()].at(-1),
+        terminal,
+      }),
+    );
   }
   onStepEnd(test, result, step) {
     const state = this.observations.get(result);
@@ -146,16 +168,18 @@ export default class Reporter {
                 : "native_timeout_proof_not_satisfied";
         for (const failure of failures) failure.classification_reason = reason;
         if (state)
-          writeObservation(attemptKey(state.attempt), "proof-diagnostic", {
-            attempt: state.attempt,
-            reason,
-            worker_diagnostic:
-              typeof diagnostic?.reason === "string"
-                ? diagnostic.reason.slice(0, 128)
-                : null,
-            terminal_status: result.status,
-            observed_at: new Date().toISOString(),
-          });
+          this.observe(() =>
+            writeObservation(attemptKey(state.attempt), "proof-diagnostic", {
+              attempt: state.attempt,
+              reason,
+              worker_diagnostic:
+                typeof diagnostic?.reason === "string"
+                  ? diagnostic.reason.slice(0, 128)
+                  : null,
+              terminal_status: result.status,
+              observed_at: new Date().toISOString(),
+            }),
+          );
       }
       if (
         tooling &&
@@ -173,6 +197,7 @@ export default class Reporter {
     progress(`test_completed:${test.id}`);
   }
   browserProof(test, result, snapshot, state) {
+    if (this.observationFailed) return null;
     const step = snapshot?.step;
     const world = readyWorldProof();
     const deadline = Date.parse(snapshot?.deadline_at);
@@ -233,30 +258,33 @@ export default class Reporter {
     };
     if (Buffer.byteLength(JSON.stringify(nativeResult)) > 256 * 1024)
       return null;
-    const native = writeObservation(key, "native", nativeResult);
-    const worker = writeObservation(key, "frozen-worker", snapshot);
-    if (!native || !worker) return null;
-    return {
-      category: "unclassified",
-      origin: "candidate",
-      phase: "test",
-      native_code: "PLAYWRIGHT_ACTION_INACTIVITY",
-      code: "timedOut",
-      message: "Native browser action made no progress within the quiet window",
-      file: step.file,
-      test_id: test.id,
-      classification_reason: "candidate_browser_action_inactivity",
-      repair_evidence: {
-        rule: "candidate_browser_action_inactivity",
+    return this.observe(() => {
+      const native = writeObservation(key, "native", nativeResult);
+      const worker = writeObservation(key, "frozen-worker", snapshot);
+      if (!native || !worker) return null;
+      return {
+        category: "unclassified",
+        origin: "candidate",
+        phase: "test",
         native_code: "PLAYWRIGHT_ACTION_INACTIVITY",
+        code: "timedOut",
+        message:
+          "Native browser action made no progress within the quiet window",
         file: step.file,
-        world,
-        attempt: state.attempt,
-        step,
-        worker_snapshot: artifactReference(worker),
-        native_result: artifactReference(native),
-      },
-    };
+        test_id: test.id,
+        classification_reason: "candidate_browser_action_inactivity",
+        repair_evidence: {
+          rule: "candidate_browser_action_inactivity",
+          native_code: "PLAYWRIGHT_ACTION_INACTIVITY",
+          file: step.file,
+          world,
+          attempt: state.attempt,
+          step,
+          worker_snapshot: artifactReference(worker),
+          native_result: artifactReference(native),
+        },
+      };
+    });
   }
   onError(error) {
     this.failures.push(

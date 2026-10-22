@@ -99,6 +99,8 @@ export async function runTool([tool, ...args]) {
               configFile.config,
               ts.sys,
               path.dirname(path.resolve(config)),
+              undefined,
+              path.resolve(config),
             );
         const diagnostics = [...parsed.errors];
         if (!diagnostics.length) {

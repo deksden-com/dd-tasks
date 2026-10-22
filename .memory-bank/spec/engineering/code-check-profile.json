@@ -1,15 +1,15 @@
 {
   "schema_id": "dd-flow/code-check-profile@7",
   "runner_evidence_by_alias": {
-    "@check/docs": { "schema_id": "dd-flow/check-runner-evidence@1", "path": "docs.runner.json" },
-    "@check/web-build": { "schema_id": "dd-flow/check-runner-evidence@1", "path": "web-build.runner.json" },
-    "@check/db-verify-local": { "schema_id": "dd-flow/check-runner-evidence@1", "path": "db-verify.runner.json" },
-    "@check/api-contract": { "schema_id": "dd-flow/check-runner-evidence@1", "path": "api-contract.runner.json" },
-    "@check/api-unit": { "schema_id": "dd-flow/check-runner-evidence@1", "path": "api-unit.runner.json" },
-    "@check/api-integration": { "schema_id": "dd-flow/check-runner-evidence@1", "path": "api-integration.runner.json" },
-    "@check/web-unit": { "schema_id": "dd-flow/check-runner-evidence@1", "path": "web-unit.runner.json" },
-    "@check/browser": { "schema_id": "dd-flow/check-runner-evidence@1", "path": "browser.runner.json" },
-    "@check/quality": { "schema_id": "dd-flow/check-runner-evidence@1", "path": "quality.runner.json" }
+    "@check/docs": { "schema_id": "dd-flow/check-runner-evidence@2", "path": "docs.runner.json" },
+    "@check/web-build": { "schema_id": "dd-flow/check-runner-evidence@2", "path": "web-build.runner.json" },
+    "@check/db-verify-local": { "schema_id": "dd-flow/check-runner-evidence@2", "path": "db-verify.runner.json" },
+    "@check/api-contract": { "schema_id": "dd-flow/check-runner-evidence@2", "path": "api-contract.runner.json" },
+    "@check/api-unit": { "schema_id": "dd-flow/check-runner-evidence@2", "path": "api-unit.runner.json" },
+    "@check/api-integration": { "schema_id": "dd-flow/check-runner-evidence@2", "path": "api-integration.runner.json" },
+    "@check/web-unit": { "schema_id": "dd-flow/check-runner-evidence@2", "path": "web-unit.runner.json" },
+    "@check/browser": { "schema_id": "dd-flow/check-runner-evidence@2", "path": "browser.runner.json" },
+    "@check/quality": { "schema_id": "dd-flow/check-runner-evidence@2", "path": "quality.runner.json" }
   },
   "aliases": {
     "@check/api-contract": "pnpm test:api-contract",

@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "typeRoots": ["../api/node_modules/@types", "node_modules/@types"],
+    "paths": { "@playwright/test": ["./node_modules/@playwright/test"] }
+  },
+  "include": ["tests/browser", "playwright.config.ts"]
+}

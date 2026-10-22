@@ -229,11 +229,12 @@ export async function runQuality(steps = qualitySteps) {
         identity.report = ref;
         if (!report.completed || report.observation_unknown) {
           observationUnknown = true;
-          failures.push({
-            category: "tooling",
-            code: "child_observation_unknown",
-            message: step.id,
-          });
+          if (!report.failures.length)
+            failures.push({
+              category: "tooling",
+              code: "child_observation_unknown",
+              message: step.id,
+            });
         }
         for (const key of Object.keys(counts))
           counts[key] += report.counts[key];

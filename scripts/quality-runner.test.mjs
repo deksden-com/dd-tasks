@@ -15,13 +15,13 @@ const observation = pathToFileURL(
 const runner = pathToFileURL(
   path.join(root, "scripts/quality-runner.mjs"),
 ).href;
-for (const kind of ["incomplete", "signal", "zero-exit"])
+for (const kind of ["incomplete", "signal", "zero-exit", "full-report"])
   test(`incomplete child observation remains unknown: ${kind}`, async () => {
     const directory = mkdtempSync(path.join(os.tmpdir(), "quality-unknown-"));
     try {
       const reportPath = path.join(directory, "report.json");
       const signal = kind === "signal";
-      const native = `import {evidence} from ${JSON.stringify(observation)};evidence({name:'fixture',version:'1'},{passed:0,failed:0,skipped:0},${kind === "zero-exit" ? "[]" : "[{category:'unclassified',code:'original_child_failure',message:'retained original cause'}]"},${signal});${signal ? "process.kill(process.pid,'SIGTERM');" : `process.exitCode=${kind === "zero-exit" ? 0 : 1};`}`;
+      const native = `import {evidence} from ${JSON.stringify(observation)};evidence({name:'fixture',version:'1'},{passed:0,failed:0,skipped:0},${kind === "zero-exit" ? "[]" : kind === "full-report" ? "Array.from({length:64},(_,index)=>({category:'unclassified',code:'original_child_failure',message:'retained original cause '+index}))" : "[{category:'unclassified',code:'original_child_failure',message:'retained original cause'}]"},${signal});${signal ? "process.kill(process.pid,'SIGTERM');" : `process.exitCode=${kind === "zero-exit" ? 0 : 1};`}`;
       const child = spawnSync(
         process.execPath,
         [
@@ -47,6 +47,10 @@ for (const kind of ["incomplete", "signal", "zero-exit"])
       assert.equal(report.completed, false);
       assert.equal(report.observation_unknown, true);
       assert.equal(report.steps[1].state, "unreached");
+      if (kind === "full-report") {
+        assert.equal(report.failures.length, 64);
+        assert.ok(report.failures.every((failure) => failure.child_evidence));
+      }
       if (kind !== "zero-exit")
         assert.ok(
           report.failures.some(

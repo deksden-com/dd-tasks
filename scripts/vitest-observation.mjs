@@ -123,7 +123,7 @@ export default class Reporter {
     if (setupFailure) this.failures.push(setupFailure);
     for (const error of errors.filter(
       (error) =>
-        !setupFailure ||
+        !setupFailure?.operation_id ||
         error.dd_tasks_migration_operation_id !== setupFailure.operation_id,
     ))
       this.failures.push(

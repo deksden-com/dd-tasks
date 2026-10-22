@@ -1,8 +1,13 @@
 import { readFile } from "node:fs/promises";
-import { sha256, toolFailure } from "./source-diagnostic.mjs";
+import {
+  observeToolErrors,
+  sha256,
+  toolFailure,
+} from "./source-diagnostic.mjs";
 import { evidence, progress } from "./test-observation.mjs";
 
 const files = process.argv.slice(2);
+observeToolErrors({ name: "value-absence", version: "1" });
 const highRiskPatterns = [
   /-----BEGIN (?:RSA|OPENSSH|EC|DSA|PRIVATE) KEY-----/i,
   /postgres(?:ql)?:\/\/[^\s"']+@/i,

@@ -10,8 +10,42 @@ import {
 } from "./source-diagnostic.mjs";
 import { binding, evidence, validReport } from "./test-observation.mjs";
 import { biomeFailures } from "./tool-diagnostic-runner.mjs";
+import Reporter from "./vitest-observation.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
+test("invalid setup sidecar cannot suppress an unrelated native runner error", () => {
+  const dir = mkdtempSync(path.join(root, ".diagnostic-test-"));
+  const prior = process.env.DD_TASKS_SETUP_FAILURE_PATH;
+  const report = process.env.DD_TASKS_RUNNER_REPORT;
+  try {
+    process.env.DD_TASKS_SETUP_FAILURE_PATH = path.join(
+      dir,
+      "invalid-setup.json",
+    );
+    delete process.env.DD_TASKS_RUNNER_REPORT;
+    writeFileSync(process.env.DD_TASKS_SETUP_FAILURE_PATH, "not JSON");
+    const reporter = new Reporter();
+    reporter.onTestRunEnd(
+      [],
+      [{ name: "NativeError", message: "original native error" }],
+      "failed",
+    );
+    assert.ok(
+      reporter.failures.some((item) => item.code === "invalid_setup_evidence"),
+    );
+    assert.ok(
+      reporter.failures.some(
+        (item) => item.message === "original native error",
+      ),
+    );
+  } finally {
+    if (prior === undefined) delete process.env.DD_TASKS_SETUP_FAILURE_PATH;
+    else process.env.DD_TASKS_SETUP_FAILURE_PATH = prior;
+    if (report === undefined) delete process.env.DD_TASKS_RUNNER_REPORT;
+    else process.env.DD_TASKS_RUNNER_REPORT = report;
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
 test("native candidate diagnostics bind content, missing declaration and migration pre-ready identity", () => {
   const dir = mkdtempSync(path.join(root, ".diagnostic-test-"));
   const saved = { ...process.env };

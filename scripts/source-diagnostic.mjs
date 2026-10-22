@@ -8,7 +8,14 @@ import {
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
-import { binding, readJson, sanitizeDiagnostic } from "./test-observation.mjs";
+import {
+  binding,
+  evidence,
+  normalizeFailure,
+  readJson,
+  sanitizeDiagnostic,
+  validReport,
+} from "./test-observation.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 export const sha256 = (value) =>
@@ -48,6 +55,57 @@ export function nativeArtifact(value) {
   mkdirSync(path.dirname(file), { recursive: true });
   writeFileSync(file, bytes, { flag: "wx", mode: 0o600 });
   return { relative_path, sha256: sha256(bytes) };
+}
+// Observe fatal native errors without intercepting Node's default nonzero exit.
+export function observeToolErrors(runner) {
+  process.once("uncaughtExceptionMonitor", (error) => {
+    try {
+      const failure = normalizeFailure(error, {
+        tooling: true,
+        phase: "runner",
+      });
+      failure.code = failure.native_code ?? "native_tool_failed";
+      let previous;
+      try {
+        const report = readJson(process.env.DD_TASKS_RUNNER_REPORT);
+        if (
+          validReport(report) &&
+          JSON.stringify(report.binding) === JSON.stringify(binding())
+        )
+          previous = report;
+      } catch {
+        /* A fatal error before the first publication has no prior report. */
+      }
+      const failures = [...(previous?.failures ?? []), failure];
+      try {
+        const ref = nativeArtifact({ runner, failure });
+        if (ref) failure.diagnostic_artifact = ref;
+      } catch (publication) {
+        const diagnostic = normalizeFailure(publication, {
+          tooling: true,
+          phase: "runner",
+        });
+        failures.push({ ...diagnostic, code: "diagnostic_capture_failed" });
+      }
+      evidence(
+        runner,
+        previous?.counts ?? { passed: 0, failed: 0, skipped: 0 },
+        failures,
+        previous?.completed ?? true,
+        previous?.observation_unknown ? { observation_unknown: true } : {},
+      );
+    } catch (publication) {
+      // Diagnostics must never replace the original uncaught exception.
+      console.error(
+        JSON.stringify(
+          sanitizeDiagnostic({
+            code: "evidence_publication_failed",
+            message: publication.message,
+          }),
+        ),
+      );
+    }
+  });
 }
 export function toolFailure({
   tool,

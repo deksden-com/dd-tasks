@@ -11,6 +11,8 @@ import {
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { candidatePath, nativeArtifact, sha256 } from "./source-diagnostic.mjs";
 
 export { progress, readProgress } from "./runner-progress.mjs";
 
@@ -165,27 +167,41 @@ export function normalizeFailure(error, context = {}) {
   const assertion = context.assertion === true;
   const tooling =
     context.tooling === true || /^(08|28|53|57|58)/.test(nativeCode ?? "");
+  const runtime =
+    !tooling && !assertion && candidate
+      ? candidateRuntimeProof(error, context, file)
+      : null;
   return {
     category: assertion ? "assertion" : tooling ? "tooling" : "unclassified",
     code: bounded(error.name ?? context.code ?? "test_failure", 256),
     message: bounded(error.message ?? error.value ?? "Test failed", 4096),
     origin: tooling
       ? "tooling"
-      : (assertion && candidate) || sql
+      : (assertion && candidate) || sql || runtime
         ? "candidate"
         : "unknown",
     phase: context.phase ?? "test",
     ...(file ? { file } : {}),
     ...(context.test_id ? { test_id: bounded(context.test_id, 1024) } : {}),
     ...(error.stack ? { stack: bounded(error.stack, 16384) } : {}),
-    ...(nativeCode ? { native_code: bounded(nativeCode, 256) } : {}),
+    ...(runtime || nativeCode
+      ? { native_code: bounded(runtime?.exception_type ?? nativeCode, 256) }
+      : {}),
     classification_reason: tooling
       ? "runner_or_infrastructure"
       : sql
         ? "candidate_sql_integrity"
-        : assertion
-          ? "native_expectation"
-          : "unsupported_attribution",
+        : runtime
+          ? "candidate_test_runtime_error"
+          : assertion
+            ? "native_expectation"
+            : "unsupported_attribution",
+    ...(runtime
+      ? {
+          repair_evidence: runtime,
+          diagnostic_artifact: runtime.native_artifact,
+        }
+      : {}),
     ...(sql && !tooling
       ? {
           repair_evidence: {
@@ -198,9 +214,75 @@ export function normalizeFailure(error, context = {}) {
       : {}),
   };
 }
+function candidateRuntimeProof(error, context, file) {
+  if (!["test", "setup", "collection"].includes(context.phase)) return null;
+  const stack = error.stack ?? error.stackStr;
+  if (typeof stack !== "string" || Buffer.byteLength(stack) > 16384)
+    return null;
+  const exception_type =
+    error.name ?? /^(TypeError|ReferenceError):/.exec(stack)?.[1];
+  if (!["TypeError", "ReferenceError"].includes(exception_type)) return null;
+  if (!stack.startsWith(`${exception_type}:`)) return null;
+  // Only the first native causal frame, never a later candidate wrapper frame.
+  const frame = stack.split("\n").find((line) => /^\s*at\s/.test(line));
+  const match =
+    /^\s*at (?:.*?\()?((?:file:\/\/)?\/[^\n]+):(\d+):(\d+)\)?$/.exec(
+      frame ?? "",
+    );
+  if (!match) return null;
+  try {
+    const actual = match[1].startsWith("file:")
+      ? fileURLToPath(match[1])
+      : match[1];
+    if (
+      realpathSync(candidatePath(actual)) !== realpathSync(candidatePath(file))
+    )
+      return null;
+    const line = Number(match[2]),
+      column = Number(match[3]);
+    if (
+      ![line, column].every((value) => Number.isSafeInteger(value) && value > 0)
+    )
+      return null;
+    const proof = {
+      rule: "candidate_test_runtime_error",
+      exception_type,
+      file,
+      file_sha256: sha256(readFileSync(file)),
+      line,
+      column,
+      phase: context.phase,
+    };
+    const ref = nativeArtifact({
+      ...proof,
+      executing_file: file,
+      top_frame: { file, line, column },
+      stack,
+      exception_name: exception_type,
+    });
+    return ref ? { ...proof, native_artifact: ref } : null;
+  } catch {
+    return null;
+  }
+}
 export function validReport(report) {
   return (
-    report?.schema_id === "dd-flow/check-runner-evidence@1" &&
+    [
+      "dd-flow/check-runner-evidence@1",
+      "dd-flow/check-runner-evidence@2",
+    ].includes(report?.schema_id) &&
+    (report.failure_projection === undefined ||
+      (report.schema_id === "dd-flow/check-runner-evidence@2" &&
+        report.failure_projection.state === "partial" &&
+        ["count_bound", "byte_bound", "interrupt"].includes(
+          report.failure_projection.reason,
+        ) &&
+        ["represented", "omitted"].every(
+          (key) =>
+            Number.isSafeInteger(report.failure_projection[key]) &&
+            report.failure_projection[key] >= 0,
+        ) &&
+        report.completed === false)) &&
     report.binding &&
     [
       "invocation_id",
@@ -282,6 +364,17 @@ function validRepairEvidence(proof, owner) {
       .split(/[\\/]/)
       .some((part) => !part || part === "." || part === "..") &&
     /^[a-f0-9]{64}$/.test(value.sha256);
+  if (proof?.rule === "candidate_test_runtime_error")
+    return (
+      ["TypeError", "ReferenceError"].includes(proof.exception_type) &&
+      ["test", "setup", "collection"].includes(proof.phase) &&
+      path.isAbsolute(proof.file ?? "") &&
+      /^[a-f0-9]{64}$/.test(proof.file_sha256) &&
+      [proof.line, proof.column].every(
+        (value) => Number.isSafeInteger(value) && value > 0,
+      ) &&
+      reference(proof.native_artifact)
+    );
   if (proof?.rule === "candidate_migration_sql")
     return (
       proof.native_code === "42601" &&
@@ -324,6 +417,11 @@ function validRepairEvidence(proof, owner) {
       /^[a-f0-9]{64}$/.test(value.sha256);
     return (
       proof.native_code === "PLAYWRIGHT_ACTION_INACTIVITY" &&
+      proof.observation_contract === "dd-tasks/browser-observation@2" &&
+      typeof proof.target?.page_id === "string" &&
+      typeof proof.target?.context_id === "string" &&
+      Number.isSafeInteger(proof.window_epoch) &&
+      proof.window_epoch > 0 &&
       typeof proof.file === "string" &&
       world?.schema_id === "dd-tasks/test-world-ready@1" &&
       world.invocation_id === owner.invocation_id &&
@@ -387,6 +485,7 @@ export function boundReport(report) {
         "failures",
         "observation_unknown",
         "steps",
+        "failure_projection",
       ].includes(key)
     )
       delete report[key];
@@ -394,7 +493,16 @@ export function boundReport(report) {
     report.failures.length > 64 ||
     Buffer.byteLength(JSON.stringify(report)) > 768 * 1024
   ) {
-    report.failures = report.failures.slice(0, 63);
+    const composite = Array.isArray(report.steps);
+    const original = report.failures;
+    const projected = original.filter((item) => item.child_evidence);
+    const locals = original.filter(
+      (item) => !item.child_evidence && item.code !== "report_truncated",
+    );
+    const reason = original.length > 64 ? "count_bound" : "byte_bound";
+    // Keep local primary errors ahead of flattened child projections. Child refs
+    // retain the complete source; flattening is a bounded diagnostic convenience.
+    report.failures = [...locals, ...projected].slice(0, 63);
     while (
       report.failures.length &&
       Buffer.byteLength(JSON.stringify(report)) > 740 * 1024
@@ -406,7 +514,24 @@ export function boundReport(report) {
       message: "Runner diagnostics exceeded retained evidence bound",
     });
     report.completed = false;
+    const represented = composite
+      ? report.failures.filter((item) => item.child_evidence).length
+      : report.failures.length - 1;
+    const before = composite
+      ? projected.length
+      : original.filter((item) => item.code !== "report_truncated").length;
+    report.failure_projection = {
+      state: "partial",
+      reason,
+      represented,
+      omitted: (report.failure_projection?.omitted ?? 0) + before - represented,
+    };
+    if (Buffer.byteLength(JSON.stringify(report)) > 768 * 1024)
+      throw new Error(
+        "evidence_incomplete: required report identity exceeds bound",
+      );
   }
+  if (report.failure_projection) report.completed = false;
   return report;
 }
 
@@ -493,7 +618,7 @@ export function evidence(
     file,
     JSON.stringify(
       boundReport({
-        schema_id: "dd-flow/check-runner-evidence@1",
+        schema_id: "dd-flow/check-runner-evidence@2",
         binding: binding(),
         runner,
         completed,

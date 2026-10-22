@@ -53,7 +53,9 @@ export const qualitySteps = [
       "scripts/tool-diagnostic-runner.mjs",
       "typescript",
       "apps/api/tsconfig.json",
+      "apps/api/tsconfig.test.json",
       "apps/web/tsconfig.json",
+      "apps/web/tsconfig.browser.json",
     ],
   },
   ...unitSteps,
@@ -102,7 +104,8 @@ export async function runQuality(steps = qualitySteps) {
   let active,
     stopping,
     cancelled = false,
-    observationUnknown = false;
+    observationUnknown = false,
+    partialReason;
   const terminate = () => {
     cancelled = true;
     if (active) stopping ??= stopOwnedGroup(active, { signal: "SIGTERM" });
@@ -228,7 +231,9 @@ export async function runQuality(steps = qualitySteps) {
         };
         identity.report = ref;
         if (!report.completed || report.observation_unknown) {
-          observationUnknown = true;
+          observationUnknown ||=
+            report.observation_unknown === true || !report.failure_projection;
+          partialReason ??= report.failure_projection?.reason;
           if (!report.failures.length)
             failures.push({
               category: "tooling",
@@ -286,6 +291,17 @@ export async function runQuality(steps = qualitySteps) {
       !cancelled && !observationUnknown,
       {
         steps: result,
+        ...(partialReason
+          ? {
+              failure_projection: {
+                state: "partial",
+                reason: partialReason,
+                represented: failures.filter((item) => item.child_evidence)
+                  .length,
+                omitted: 0,
+              },
+            }
+          : {}),
         ...(cancelled || observationUnknown
           ? { observation_unknown: true }
           : {}),

@@ -65,7 +65,7 @@ for (const kind of ["incomplete", "signal", "zero-exit", "full-report"])
         );
         const accepted = engine.readRunnerEvidence(
           directory,
-          { schema_id: "dd-flow/check-runner-evidence@1", path: "report.json" },
+          { schema_id: report.schema_id, path: "report.json" },
           report.binding,
         );
         assert.ok(accepted, JSON.stringify(report));
@@ -87,6 +87,66 @@ for (const kind of ["incomplete", "signal", "zero-exit", "full-report"])
       rmSync(directory, { recursive: true, force: true });
     }
   });
+test("settled partial child remains incomplete diagnostics, not unknown native effects", async () => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), "quality-partial-"));
+  try {
+    const reportPath = path.join(directory, "report.json");
+    const native = `import {evidence} from ${JSON.stringify(observation)};evidence({name:'fixture',version:'1'},{passed:0,failed:100,skipped:0},Array.from({length:100},()=>({category:'unclassified',code:'native_failure'})));process.exitCode=1;`;
+    const child = spawnSync(
+      process.execPath,
+      [
+        "scripts/test-runner.mjs",
+        process.execPath,
+        "--input-type=module",
+        "-e",
+        `import {runQuality} from ${JSON.stringify(runner)};process.exitCode=await runQuality([{id:'first',argv:[process.execPath,'--input-type=module','-e',${JSON.stringify(native)}]}]);`,
+      ],
+      {
+        cwd: root,
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          DD_FLOW_CHECK_RUNNER_EVIDENCE_PATH: reportPath,
+          DD_FLOW_CHECK_INVOCATION_ID: "partial-test",
+          DD_FLOW_CHECK_COMMAND: "quality",
+        },
+      },
+    );
+    assert.equal(child.status, 1, child.stderr);
+    const report = JSON.parse(readFileSync(reportPath));
+    assert.equal(validReport(report), true);
+    assert.equal(report.completed, false);
+    assert.equal(report.observation_unknown, undefined);
+    assert.equal(report.counts.failed, 100);
+    assert.deepEqual(report.failure_projection, {
+      state: "partial",
+      reason: "count_bound",
+      represented: 64,
+      omitted: 0,
+    });
+    if (process.env.DD_TASKS_ENGINE_EVIDENCE_MODULE) {
+      const engine = await import(
+        pathToFileURL(process.env.DD_TASKS_ENGINE_EVIDENCE_MODULE).href
+      );
+      const accepted = engine.readRunnerEvidence(
+        directory,
+        { schema_id: report.schema_id, path: "report.json" },
+        report.binding,
+      );
+      assert.ok(accepted, JSON.stringify(report));
+      assert.equal(
+        engine.checkRepairDisposition({
+          status: "failed",
+          exit_code: 1,
+          runner_evidence: accepted,
+        }),
+        "tooling_blocker",
+      );
+    }
+  } finally {
+    rmSync(directory, { recursive: true });
+  }
+});
 test("separate nested runner owners sum leaf counts exactly once", () => {
   const directory = mkdtempSync(path.join(os.tmpdir(), "quality-leaf-"));
   try {

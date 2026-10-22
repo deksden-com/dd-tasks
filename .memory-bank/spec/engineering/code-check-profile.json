@@ -1,6 +1,8 @@
 {
   "schema_id": "dd-flow/code-check-profile@7",
   "runner_evidence_by_alias": {
+    "@check/docs": { "schema_id": "dd-flow/check-runner-evidence@1", "path": "docs.runner.json" },
+    "@check/web-build": { "schema_id": "dd-flow/check-runner-evidence@1", "path": "web-build.runner.json" },
     "@check/db-verify-local": { "schema_id": "dd-flow/check-runner-evidence@1", "path": "db-verify.runner.json" },
     "@check/api-contract": { "schema_id": "dd-flow/check-runner-evidence@1", "path": "api-contract.runner.json" },
     "@check/api-unit": { "schema_id": "dd-flow/check-runner-evidence@1", "path": "api-unit.runner.json" },

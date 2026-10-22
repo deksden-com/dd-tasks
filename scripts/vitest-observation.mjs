@@ -1,4 +1,5 @@
 import { createRequire } from "node:module";
+import { retainedSetupFailure } from "./source-diagnostic.mjs";
 import { evidence, normalizeFailure, progress } from "./test-observation.mjs";
 
 const version = createRequire(import.meta.url)("vitest/package.json").version;
@@ -118,7 +119,13 @@ export default class Reporter {
         if (child.type !== "test") visit(child);
     };
     for (const module of modules) visit(module);
-    for (const error of errors)
+    const setupFailure = retainedSetupFailure();
+    if (setupFailure) this.failures.push(setupFailure);
+    for (const error of errors.filter(
+      (error) =>
+        !setupFailure ||
+        error.dd_tasks_migration_operation_id !== setupFailure.operation_id,
+    ))
       this.failures.push(
         normalizeFailure(error, { phase: "runner", tooling: true }),
       );

@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { readdir, readFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import type { Sql, TransactionSql } from "postgres";
+import { retainMigrationFailure } from "../../../../scripts/source-diagnostic.mjs";
 import { assertTestWorld } from "./test-world.js";
 
 export type QuerySql =
@@ -95,7 +96,23 @@ async function applyMigrationsInTransaction(
       }
       continue;
     }
-    await transaction.unsafe(content);
+    try {
+      await transaction.unsafe(content);
+    } catch (error) {
+      try {
+        retainMigrationFailure(
+          error,
+          join(migrationsDirectory.pathname, file),
+          checksum,
+        );
+      } catch (publication) {
+        if (error && typeof error === "object")
+          Object.assign(error, {
+            evidence_publication_error: String(publication),
+          });
+      }
+      throw error;
+    }
     await transaction`
       INSERT INTO foundation_migrations (id, checksum) VALUES (${file}, ${checksum})
     `;

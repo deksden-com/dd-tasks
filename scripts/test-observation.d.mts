@@ -32,6 +32,7 @@ export function evidence(
   counts: { passed: number; failed: number; skipped: number },
   failures: unknown[],
   completed?: boolean,
+  metadata?: Record<string, unknown>,
 ): void;
 export function hasTestWatchdog(
   command: string,

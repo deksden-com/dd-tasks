@@ -384,8 +384,12 @@ test("native browser gap recovery and auxiliary close use a fresh target window"
     ).href;
     writeFileSync(
       path.join(directory, "window.spec.mjs"),
-      `import {test} from ${JSON.stringify(fixture)};
-test('gap then progress',async({page})=>{await page.setContent('<p>ok</p>');await new Promise(r=>setTimeout(r,100));const until=Date.now()+650;while(Date.now()<until){};await new Promise(r=>setTimeout(r,100));await page.title();await page.getByRole('button',{name:'missing'}).click();});
+      `import {observeInactivity} from ${JSON.stringify(fixture)};
+import native from ${JSON.stringify(pathToFileURL(webRequire.resolve("@playwright/test")).href)};
+// This regression starts its body window after native page startup; startup is
+// not the deliberately quiet action being tested.
+const test=native.test.extend({_observeInactivity:[async({browser,page},use,info)=>observeInactivity(browser,use,info),{auto:true}]});
+test('gap then progress',async({page})=>{await page.setContent('<p>ok</p>');await new Promise(r=>setTimeout(r,100));const until=Date.now()+1200;while(Date.now()<until){};await new Promise(r=>setTimeout(r,100));await page.title();await page.getByRole('button',{name:'missing'}).click();});
 test('auxiliary close then progress',async({page})=>{await page.setContent('<p>ok</p>');const auxiliary=await page.context().newPage();await new Promise(r=>setTimeout(r,100));await auxiliary.close();await page.title();await page.getByRole('button',{name:'missing'}).click();});`,
     );
     const config = path.join(directory, "config.mjs");
@@ -398,7 +402,7 @@ test('auxiliary close then progress',async({page})=>{await page.setContent('<p>o
       [webRequire.resolve("@playwright/test/cli"), "test", "--config", config],
       {
         DD_TASKS_TEST_WATCHDOG: "1",
-        DD_FLOW_TEST_EXECUTION_SILENCE_MS: "1600",
+        DD_FLOW_TEST_EXECUTION_SILENCE_MS: "4000",
         DD_TASKS_BROWSER_OBSERVATION_DIR: observations,
         DD_TASKS_RUNNER_REPORT: path.join(directory, "report.json"),
         DD_FLOW_CHECK_INVOCATION_ID: "window097",

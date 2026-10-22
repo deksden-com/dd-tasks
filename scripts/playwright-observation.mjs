@@ -130,6 +130,33 @@ export default class Reporter {
               code: result.status,
             }),
           );
+      if (tooling && !browserProof) {
+        const diagnostic =
+          state && readObservation(attemptKey(state.attempt), "diagnostic");
+        const reason = !snapshot
+          ? "worker_snapshot_missing"
+          : snapshot.observation_gap
+            ? "worker_observation_gap"
+            : snapshot.phase !== "body"
+              ? "not_body_phase"
+              : !["api", "web", "db"].every(
+                    (key) => snapshot.world_health?.[key] === true,
+                  )
+                ? "world_health_unproven"
+                : "native_timeout_proof_not_satisfied";
+        for (const failure of failures) failure.classification_reason = reason;
+        if (state)
+          writeObservation(attemptKey(state.attempt), "proof-diagnostic", {
+            attempt: state.attempt,
+            reason,
+            worker_diagnostic:
+              typeof diagnostic?.reason === "string"
+                ? diagnostic.reason.slice(0, 128)
+                : null,
+            terminal_status: result.status,
+            observed_at: new Date().toISOString(),
+          });
+      }
       if (
         tooling &&
         !browserProof &&

@@ -14,6 +14,7 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { pathToFileURL } from "node:url";
+import { attemptKey } from "./browser-observation.mjs";
 import Reporter from "./playwright-observation.mjs";
 import { binding } from "./test-observation.mjs";
 
@@ -149,7 +150,10 @@ test("native browser quiet window rearms and completes body/teardown timeouts", 
         import.meta.url,
       );
       world = await createTestWorld();
-      server = createServer((_, response) => {
+      let healthy = true;
+      server = createServer((request, response) => {
+        if (request.url === "/make-unhealthy") healthy = false;
+        response.statusCode = healthy ? 200 : 503;
         response.end("healthy contract fixture");
       });
       await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
@@ -173,11 +177,17 @@ test("native browser quiet window rearms and completes body/teardown timeouts", 
     }
     writeFileSync(
       file("contract.spec.mjs"),
-      `import {test,expect} from ${JSON.stringify(pathToFileURL(path.join(root, "scripts/browser-fixture.mjs")).href)};
+      `import {test,expect,observeInactivity} from ${JSON.stringify(pathToFileURL(path.join(root, "scripts/browser-fixture.mjs")).href)};
+import nativePlaywright from ${JSON.stringify(pathToFileURL(require.resolve("@playwright/test")).href)};
+const {test:nativeBase}=nativePlaywright;
 test('long healthy body and teardown',async({page})=>{await page.setContent('<button>ok</button>');for(let i=0;i<6;i++){await new Promise(r=>setTimeout(r,750));await test.step('body '+i,async()=>expect(await page.title()).toBe(''));}});
 test.afterEach(async({},info)=>{if(info.title.includes('long healthy'))for(let i=0;i<6;i++){await new Promise(r=>setTimeout(r,750));await test.step('cleanup '+i,async()=>expect(true).toBe(true));}if(info.title==='hung afterEach')await new Promise(()=>{});});
 test('missing locator',async({page})=>{await page.setContent('<p>not a button</p>');await page.getByRole('button',{name:'missing'}).click();});
-test('hung afterEach',async({page})=>{await page.setContent('<p>ok</p>');});`,
+test('hung afterEach',async({page})=>{await page.setContent('<p>ok</p>');});
+const delayed=nativeBase.extend({_startupDelay:async({},use)=>{await new Promise(r=>setTimeout(r,2000));await use();},_observeInactivity:[async({browser,_startupDelay},use,info)=>observeInactivity(browser,use,info),{auto:true}]});
+delayed('delayed fixture missing locator',async({page})=>{await page.setContent('<p>not a button</p>');await page.getByRole('button',{name:'missing'}).click();});
+delayed('delayed fixture passes',async({page})=>{await page.setContent('<button>ok</button>');await page.getByRole('button').click();});
+test('unhealthy missing locator',async({page})=>{if(process.env.DD_FLOW_PORT_API)await fetch('http://127.0.0.1:'+process.env.DD_FLOW_PORT_API+'/make-unhealthy');await page.setContent('<p>not a button</p>');await page.getByRole('button',{name:'missing'}).click();});`,
     );
     writeFileSync(
       file("config.mjs"),
@@ -227,6 +237,9 @@ test('hung afterEach',async({page})=>{await page.setContent('<p>ok</p>');});`,
         ["long healthy body and teardown", "passed"],
         ["missing locator", "timedOut"],
         ["hung afterEach", "timedOut"],
+        ["delayed fixture missing locator", "timedOut"],
+        ["delayed fixture passes", "passed"],
+        ["unhealthy missing locator", "timedOut"],
       ],
       output,
     );
@@ -257,16 +270,44 @@ test('hung afterEach',async({page})=>{await page.setContent('<p>ok</p>');});`,
       "PK",
       "native trace archive is present before private temp cleanup",
     );
-    const observations = readdirSync(file("observations")).filter((name) =>
-      name.endsWith(".worker.json"),
-    );
-    assert.ok(
-      observations.length >= 1,
-      "predeadline worker snapshot survives a native timeout",
-    );
+    const specs = report.suites.flatMap((suite) => suite.specs);
+    for (const title of [
+      "missing locator",
+      "delayed fixture missing locator",
+      "unhealthy missing locator",
+    ]) {
+      const spec = specs.find((spec) => spec.title === title);
+      const result = spec.tests[0].results[0];
+      const key = attemptKey({
+        invocation_id: "browser-contract",
+        test_id: spec.id,
+        retry: result.retry ?? 0,
+        repeat_each_index: spec.tests[0].repeatEachIndex ?? 0,
+        worker_index: result.workerIndex,
+      });
+      const snapshot = JSON.parse(
+        readFileSync(file(`observations/${key}.worker.json`), "utf8"),
+      );
+      assert.equal(
+        snapshot.attempt.test_id,
+        spec.id,
+        `${title} has its own snapshot`,
+      );
+      assert.equal(snapshot.native_timeout.supported, true);
+      if (title === "unhealthy missing locator" && world)
+        assert.equal(snapshot.world_health.api, false);
+    }
     const evidence = JSON.parse(readFileSync(file("report.json"), "utf8"));
-    assert.equal(evidence.counts.passed, 1);
-    assert.equal(evidence.counts.failed, 2);
+    assert.equal(evidence.counts.passed, 2);
+    assert.equal(evidence.counts.failed, 4);
+    const unhealthyId = specs.find(
+      (spec) => spec.title === "unhealthy missing locator",
+    ).id;
+    const unhealthyFailures = evidence.failures.filter(
+      (failure) => failure.test_id === unhealthyId,
+    );
+    assert.ok(unhealthyFailures.length > 0);
+    assert.ok(unhealthyFailures.every((failure) => !failure.repair_evidence));
     if (world) {
       assert.equal(
         evidence.failures.filter(
@@ -274,8 +315,8 @@ test('hung afterEach',async({page})=>{await page.setContent('<p>ok</p>');});`,
             failure.repair_evidence?.rule ===
             "candidate_browser_action_inactivity",
         ).length,
-        1,
-        "only the body action with healthy browser/world gets proof",
+        2,
+        "both ordinary and delayed-fixture body actions receive proof; teardown does not",
       );
     } else
       assert.ok(

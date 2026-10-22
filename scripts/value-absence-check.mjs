@@ -1,4 +1,6 @@
 import { readFile } from "node:fs/promises";
+import { sha256, toolFailure } from "./source-diagnostic.mjs";
+import { evidence, progress } from "./test-observation.mjs";
 
 const files = process.argv.slice(2);
 const highRiskPatterns = [
@@ -17,7 +19,33 @@ for (const file of files) {
       findings.push({ file, pattern: pattern.source });
     }
   }
+  progress(`step_completed:value-absence:${file}`);
 }
+const step = JSON.parse(
+  process.env.DD_TASKS_CHECK_STEP ??
+    JSON.stringify({
+      id: "value-absence",
+      ordinal: 0,
+      command_sha256: sha256("value-absence"),
+    }),
+);
+evidence(
+  { name: "value-absence", version: "1" },
+  {
+    passed: files.length - new Set(findings.map((item) => item.file)).size,
+    failed: findings.length,
+    skipped: 0,
+  },
+  findings.map(({ file, pattern }) =>
+    toolFailure({
+      tool: { name: "value-absence", version: "1" },
+      step,
+      diagnostic_code: "value_absence",
+      file,
+      message: `Forbidden value pattern: ${pattern}`,
+    }),
+  ),
+);
 
 if (findings.length > 0) {
   console.log(

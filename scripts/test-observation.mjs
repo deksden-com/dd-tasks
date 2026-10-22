@@ -264,12 +264,56 @@ export function validReport(report) {
               .includes("..") &&
             /^[a-f0-9]{64}$/.test(f.diagnostic_artifact.sha256))) &&
         (f.repair_evidence === undefined ||
-          validRepairEvidence(f.repair_evidence, report.binding)),
+          validRepairEvidence(
+            f.repair_evidence,
+            f.child_evidence?.binding ?? report.binding,
+          )),
     )
   );
 }
 function validRepairEvidence(proof, owner) {
   const world = proof?.world;
+  const reference = (value) =>
+    value &&
+    typeof value.relative_path === "string" &&
+    value.relative_path.length <= 4096 &&
+    !path.isAbsolute(value.relative_path) &&
+    !value.relative_path
+      .split(/[\\/]/)
+      .some((part) => !part || part === "." || part === "..") &&
+    /^[a-f0-9]{64}$/.test(value.sha256);
+  if (proof?.rule === "candidate_migration_sql")
+    return (
+      proof.native_code === "42601" &&
+      path.isAbsolute(proof.file ?? "") &&
+      /^[a-f0-9]{64}$/.test(proof.file_sha256) &&
+      typeof proof.operation_id === "string" &&
+      world?.invocation_id === owner.invocation_id &&
+      /^[a-f0-9]{32}$/.test(world.world_id) &&
+      /^[a-f0-9]{64}$/.test(world.migrations_sha256) &&
+      typeof world.role === "string" &&
+      world.phase === "migrating" &&
+      world.setup_completed === false &&
+      reference(proof.native_artifact)
+    );
+  if (proof?.rule === "candidate_tool_diagnostic")
+    return (
+      typeof proof.tool?.name === "string" &&
+      typeof proof.tool.version === "string" &&
+      typeof proof.step?.id === "string" &&
+      Number.isSafeInteger(proof.step.ordinal) &&
+      proof.step.ordinal >= 0 &&
+      /^[a-f0-9]{64}$/.test(proof.step.command_sha256) &&
+      typeof proof.diagnostic_code === "string" &&
+      path.isAbsolute(proof.file ?? "") &&
+      reference(proof.native_artifact) &&
+      ((proof.path_state === "present" &&
+        /^[a-f0-9]{64}$/.test(proof.file_sha256)) ||
+        (proof.path_state === "missing" &&
+          proof.file_sha256 === null &&
+          path.isAbsolute(proof.declaration?.file ?? "") &&
+          /^[a-f0-9]{64}$/.test(proof.declaration.sha256)))
+    );
   if (proof?.rule === "candidate_browser_action_inactivity") {
     const reference = (value) =>
       value &&
@@ -342,6 +386,7 @@ export function boundReport(report) {
         "counts",
         "failures",
         "observation_unknown",
+        "steps",
       ].includes(key)
     )
       delete report[key];
@@ -434,7 +479,13 @@ export const binding = () => ({
   verification_epoch:
     process.env.DD_FLOW_CHECK_VERIFICATION_EPOCH ?? "standalone",
 });
-export function evidence(runner, counts, failures, completed = true) {
+export function evidence(
+  runner,
+  counts,
+  failures,
+  completed = true,
+  metadata = {},
+) {
   const file = process.env.DD_TASKS_RUNNER_REPORT;
   if (!file) return;
   mkdirSync(path.dirname(file), { recursive: true });
@@ -448,6 +499,7 @@ export function evidence(runner, counts, failures, completed = true) {
         completed,
         counts,
         failures,
+        ...metadata,
       }),
     ),
   );

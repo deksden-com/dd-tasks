@@ -262,6 +262,74 @@ test("browser observation publication refusal preserves the native failure and b
     rmSync(directory, { recursive: true, force: true });
   }
 });
+test("native missing browser installation is tooling, not an arbitrary launch error", async () => {
+  const directory = mkdtempSync(
+    path.join(os.tmpdir(), "browser-missing-install-"),
+  );
+  try {
+    const reportPath = path.join(directory, "report.json");
+    const config = path.join(directory, "config.mjs");
+    const nativeModule = pathToFileURL(
+      require.resolve("@playwright/test"),
+    ).href;
+    writeFileSync(
+      path.join(directory, "probe.spec.mjs"),
+      `import native from ${JSON.stringify(nativeModule)}; const {test}=native;
+test('missing installed browser',async({browser})=>{});
+test('generic launch error',()=>{throw new Error('browserType.launch: arbitrary launch failure');});`,
+    );
+    writeFileSync(
+      config,
+      `export default {testDir:${JSON.stringify(directory)},outputDir:${JSON.stringify(path.join(directory, "artifacts"))},testMatch:'probe.spec.mjs',workers:1,retries:0,reporter:[[${JSON.stringify(path.join(root, "scripts/playwright-observation.mjs"))}]]};`,
+    );
+    const child = spawn(
+      process.execPath,
+      [require.resolve("@playwright/test/cli"), "test", "--config", config],
+      {
+        cwd: root,
+        env: {
+          ...process.env,
+          PLAYWRIGHT_BROWSERS_PATH: path.join(directory, "empty-browser-cache"),
+          DD_FLOW_CHECK_INVOCATION_ID: "missing-install",
+          DD_FLOW_CHECK_COMMAND: "native missing install regression",
+          DD_TASKS_RUNNER_REPORT: reportPath,
+          DD_TASKS_BROWSER_OBSERVATION_DIR: path.join(
+            directory,
+            "observations",
+          ),
+        },
+        stdio: ["ignore", "pipe", "pipe"],
+      },
+    );
+    let output = "";
+    for (const stream of [child.stdout, child.stderr])
+      stream.on("data", (chunk) => {
+        output += chunk;
+      });
+    const status = await new Promise((resolve, reject) => {
+      child.on("error", reject);
+      child.on("close", resolve);
+    });
+    assert.equal(status, 1, output);
+    const report = JSON.parse(readFileSync(reportPath));
+    assert.equal(validReport(report), true, output);
+    assert.equal(report.counts.failed, 2);
+    const missing = report.failures.find(
+      (failure) => failure.code === "playwright_browser_executable_missing",
+    );
+    assert.ok(missing, JSON.stringify(report));
+    assert.equal(missing.category, "tooling");
+    assert.equal(missing.origin, "tooling");
+    const generic = report.failures.find((failure) =>
+      failure.message.includes("arbitrary launch failure"),
+    );
+    assert.equal(generic.category, "unclassified");
+    assert.equal(generic.origin, "unknown");
+    assert.ok(report.failures.every((failure) => !failure.repair_evidence));
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
 test("native browser quiet window rearms and completes body/teardown timeouts", async () => {
   const dir = mkdtempSync(path.join(os.tmpdir(), "dd-browser-observation-"));
   let world, server;

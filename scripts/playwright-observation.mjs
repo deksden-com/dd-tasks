@@ -1,4 +1,6 @@
+import { statSync } from "node:fs";
 import { createRequire } from "node:module";
+import path from "node:path";
 import { stripVTControlCharacters } from "node:util";
 import {
   artifactReference,
@@ -15,9 +17,38 @@ import {
   readyWorldProof,
 } from "./test-observation.mjs";
 
-const version = createRequire(
+const require = createRequire(
   new URL("../apps/web/package.json", import.meta.url),
-)("@playwright/test/package.json").version;
+);
+const version = require("@playwright/test/package.json").version;
+
+function missingBrowserExecutable(error) {
+  if (version !== "1.62.1") return false;
+  const match =
+    /^(?:Error: )?browserType\.launch: Executable doesn't exist at ([^\r\n]+)(?:\r?\n|$)/.exec(
+      stripVTControlCharacters(String(error?.message ?? "")),
+    );
+  if (!match || !path.isAbsolute(match[1])) return false;
+  try {
+    // Same pinned native registry as the launcher; custom executables and generic
+    // browserType.launch errors are not evidence of a missing installation.
+    const registry = createRequire(
+      require.resolve("@playwright/test/package.json"),
+    )("playwright-core/lib/coreBundle").registry.registry;
+    if (
+      !registry.executables().some((item) => item.executablePath() === match[1])
+    )
+      return false;
+  } catch {
+    return false;
+  }
+  try {
+    statSync(match[1]);
+    return false;
+  } catch (error) {
+    return error.code === "ENOENT";
+  }
+}
 
 function errorSignature(error) {
   if (!error || typeof error.stack !== "string" || !error.stack) return null;
@@ -142,16 +173,25 @@ export default class Reporter {
       const browserProof = this.browserProof(test, result, snapshot, state);
       const failures = browserProof
         ? [browserProof]
-        : (result.errors.length ? result.errors : [{}]).map((error) =>
-            normalizeFailure(error, {
-              phase: "test",
-              file: test.location?.file,
-              test_id: test.id,
-              assertion: proof.has(errorSignature(error)),
-              tooling,
-              code: result.status,
-            }),
-          );
+        : (result.errors.length ? result.errors : [{}]).map((error) => {
+            const missing = missingBrowserExecutable(error);
+            return {
+              ...normalizeFailure(error, {
+                phase: "test",
+                file: test.location?.file,
+                test_id: test.id,
+                assertion: proof.has(errorSignature(error)),
+                tooling: tooling || missing,
+                code: result.status,
+              }),
+              ...(missing
+                ? {
+                    code: "playwright_browser_executable_missing",
+                    classification_reason: "pinned_browser_executable_missing",
+                  }
+                : {}),
+            };
+          });
       if (tooling && !browserProof) {
         const diagnostic =
           state && readObservation(attemptKey(state.attempt), "diagnostic");

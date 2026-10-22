@@ -15,6 +15,74 @@ const observation = pathToFileURL(
 const runner = pathToFileURL(
   path.join(root, "scripts/quality-runner.mjs"),
 ).href;
+for (const kind of ["incomplete", "signal", "zero-exit"])
+  test(`incomplete child observation remains unknown: ${kind}`, async () => {
+    const directory = mkdtempSync(path.join(os.tmpdir(), "quality-unknown-"));
+    try {
+      const reportPath = path.join(directory, "report.json");
+      const signal = kind === "signal";
+      const native = `import {evidence} from ${JSON.stringify(observation)};evidence({name:'fixture',version:'1'},{passed:0,failed:0,skipped:0},${kind === "zero-exit" ? "[]" : "[{category:'unclassified',code:'original_child_failure',message:'retained original cause'}]"},${signal});${signal ? "process.kill(process.pid,'SIGTERM');" : `process.exitCode=${kind === "zero-exit" ? 0 : 1};`}`;
+      const child = spawnSync(
+        process.execPath,
+        [
+          "scripts/test-runner.mjs",
+          process.execPath,
+          "--input-type=module",
+          "-e",
+          `import {runQuality} from ${JSON.stringify(runner)};process.exitCode=await runQuality([{id:'first',argv:[process.execPath,'--input-type=module','-e',${JSON.stringify(native)}]},{id:'next',argv:[process.execPath,'-e','process.exit(0)']}]);`,
+        ],
+        {
+          cwd: root,
+          encoding: "utf8",
+          env: {
+            ...process.env,
+            DD_FLOW_CHECK_RUNNER_EVIDENCE_PATH: reportPath,
+            DD_FLOW_CHECK_INVOCATION_ID: "unknown-test",
+            DD_FLOW_CHECK_COMMAND: "quality",
+          },
+        },
+      );
+      assert.equal(child.status, 1, child.stderr);
+      const report = JSON.parse(readFileSync(reportPath));
+      assert.equal(report.completed, false);
+      assert.equal(report.observation_unknown, true);
+      assert.equal(report.steps[1].state, "unreached");
+      if (kind !== "zero-exit")
+        assert.ok(
+          report.failures.some(
+            (item) => item.code === "original_child_failure",
+          ),
+        );
+      if (signal)
+        assert.ok(report.failures.some((item) => item.code === "child_signal"));
+      if (process.env.DD_TASKS_ENGINE_EVIDENCE_MODULE) {
+        const engine = await import(
+          pathToFileURL(process.env.DD_TASKS_ENGINE_EVIDENCE_MODULE).href
+        );
+        const accepted = engine.readRunnerEvidence(
+          directory,
+          { schema_id: "dd-flow/check-runner-evidence@1", path: "report.json" },
+          report.binding,
+        );
+        assert.ok(accepted, JSON.stringify(report));
+        assert.equal(
+          engine.checkRepairDisposition({
+            status: "failed",
+            exit_code: 1,
+            runner_evidence: accepted,
+          }),
+          "settlement_required",
+        );
+        assert.ok(
+          engine
+            .runnerProofArtifacts(accepted)
+            .includes(report.steps[0].report.relative_path),
+        );
+      }
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
+  });
 test("separate nested runner owners sum leaf counts exactly once", () => {
   const directory = mkdtempSync(path.join(os.tmpdir(), "quality-leaf-"));
   try {

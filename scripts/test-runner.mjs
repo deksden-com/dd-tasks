@@ -188,7 +188,13 @@ try {
       };
       resolve(1);
     });
-    child.once("exit", (code) => {
+    child.once("exit", (code, signal) => {
+      if (signal)
+        failure ??= {
+          category: "tooling",
+          code: "child_signal",
+          message: `Native runner terminated by ${signal}`,
+        };
       resolve(code ?? 1);
     });
   });

@@ -93,7 +93,11 @@ test("docs checker publishes exact missing declaration and document errors, not 
       );
     else
       assert.ok(
-        denied.report.failures.every((failure) => !failure.repair_evidence),
+        denied.report.failures.every((failure) => !failure.repair_evidence) &&
+          denied.report.failures.some(
+            (failure) =>
+              failure.code === "EACCES" && failure.native_code === "EACCES",
+          ),
       );
   } finally {
     try {

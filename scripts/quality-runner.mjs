@@ -101,7 +101,8 @@ export async function runQuality(steps = qualitySteps) {
   }));
   let active,
     stopping,
-    cancelled = false;
+    cancelled = false,
+    observationUnknown = false;
   const terminate = () => {
     cancelled = true;
     if (active) stopping ??= stopOwnedGroup(active, { signal: "SIGTERM" });
@@ -179,6 +180,7 @@ export async function runQuality(steps = qualitySteps) {
       try {
         exit = await new Promise((resolve, reject) => {
           active.once("exit", (code, signal) => {
+            if (signal) observationUnknown = true;
             if (signal)
               failures.push({
                 category: "tooling",
@@ -201,8 +203,10 @@ export async function runQuality(steps = qualitySteps) {
       }
       if (stopping) {
         const settled = await stopping;
-        if (!settled.settled)
+        if (!settled.settled) {
+          observationUnknown = true;
           failures.push({ category: "tooling", code: "cleanup_unconfirmed" });
+        }
       }
       Object.assign(identity, {
         binding: childBinding,
@@ -223,12 +227,14 @@ export async function runQuality(steps = qualitySteps) {
           sha256: sha256(bytes),
         };
         identity.report = ref;
-        if (!report.completed || report.observation_unknown)
+        if (!report.completed || report.observation_unknown) {
+          observationUnknown = true;
           failures.push({
             category: "tooling",
             code: "child_observation_unknown",
             message: step.id,
           });
+        }
         for (const key of Object.keys(counts))
           counts[key] += report.counts[key];
         failures.push(
@@ -272,9 +278,18 @@ export async function runQuality(steps = qualitySteps) {
         code: "cancelled",
         origin: "tooling",
       });
-    evidence({ name: "quality", version: "1" }, counts, failures, !cancelled, {
-      steps: result,
-    });
+    evidence(
+      { name: "quality", version: "1" },
+      counts,
+      failures,
+      !cancelled && !observationUnknown,
+      {
+        steps: result,
+        ...(cancelled || observationUnknown
+          ? { observation_unknown: true }
+          : {}),
+      },
+    );
   }
   return failures.length ? 1 : 0;
 }

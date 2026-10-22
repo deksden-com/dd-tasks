@@ -1,10 +1,15 @@
 import { readFileSync } from "node:fs";
 import { access, readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
-import { sha256, toolFailure } from "./source-diagnostic.mjs";
+import {
+  observeToolErrors,
+  sha256,
+  toolFailure,
+} from "./source-diagnostic.mjs";
 import { evidence, progress } from "./test-observation.mjs";
 
 const root = process.cwd();
+observeToolErrors({ name: "docs", version: "1" });
 const requiredFiles = [
   "README.md",
   ".memory-bank/index.md",

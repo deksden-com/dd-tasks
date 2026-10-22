@@ -2,7 +2,6 @@ import { createHash } from "node:crypto";
 import { readdir, readFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import type { Sql, TransactionSql } from "postgres";
-import { retainMigrationFailure } from "../../../../scripts/source-diagnostic.mjs";
 import { assertTestWorld } from "./test-world.js";
 
 export type QuerySql =
@@ -85,11 +84,17 @@ async function applyMigrationsInTransaction(
       await transaction.unsafe(content);
     } catch (error) {
       try {
-        retainMigrationFailure(
-          error,
-          join(migrationsDirectory.pathname, file),
-          checksum,
-        );
+        if (process.env.DD_TASKS_SETUP_FAILURE_PATH) {
+          // Test observation tooling is not part of the deployed API package.
+          const { retainMigrationFailure } = await import(
+            "../../../../scripts/source-diagnostic.mjs"
+          );
+          retainMigrationFailure(
+            error,
+            join(migrationsDirectory.pathname, file),
+            checksum,
+          );
+        }
       } catch (publication) {
         if (error && typeof error === "object")
           Object.assign(error, {

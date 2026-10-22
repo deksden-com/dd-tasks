@@ -12,7 +12,10 @@ import os from "node:os";
 import path from "node:path";
 import { performance } from "node:perf_hooks";
 import { stopOwnedGroup } from "./owned-process.mjs";
-import { createProgressPublisher } from "./runner-progress.mjs";
+import {
+  createProgressPublisher,
+  observerGapReason,
+} from "./runner-progress.mjs";
 import { retainedSetupFailure } from "./source-diagnostic.mjs";
 import {
   assertWorldCleanup,
@@ -89,6 +92,7 @@ const acceptedEvents = new Set([
   "test_started",
   "test_completed",
   "step_completed",
+  "step_started",
   "run_completed",
 ]);
 const stop = (signal) => {
@@ -122,13 +126,9 @@ const timer = setInterval(
   () => {
     const now = performance.now(),
       wall = Date.now();
-    if (
-      now - previousMono > 60000 ||
-      Math.abs(wall - previousWall - (now - previousMono)) > 60000
-    ) {
-      failure ??= { category: "tooling", code: "observation_gap" };
-      stop("SIGTERM");
-    }
+    const monotonicElapsed = now - previousMono,
+      wallElapsed = wall - previousWall;
+    let progressed = false;
     previousWall = wall;
     previousMono = now;
     try {
@@ -152,6 +152,7 @@ const timer = setInterval(
             if (seen.size > 4096) seen.delete(seen.values().next().value);
             if (phase !== "execution") phase = event.phase;
             last = now - Math.max(0, wall - eventAt);
+            progressed = true;
           }
         }
       }
@@ -164,6 +165,17 @@ const timer = setInterval(
         };
         stop("SIGTERM");
       }
+    }
+    // A delayed observer first consumes buffered native work. Wall-clock jumps
+    // remain unknown even with buffered events; no new budget is anchored to now.
+    const gapReason = observerGapReason(
+      monotonicElapsed,
+      wallElapsed,
+      progressed,
+    );
+    if (!failure && gapReason) {
+      failure = { category: "tooling", code: gapReason };
+      stop("SIGTERM");
     }
     if (now - last >= (phase === "startup" ? startup : execution + 5000)) {
       failure ??= {
@@ -248,7 +260,7 @@ try {
     throw new Error("Invalid runner report");
 } catch {
   report = {
-    schema_id: "dd-flow/check-runner-evidence@1",
+    schema_id: "dd-flow/check-runner-evidence@2",
     binding: binding(),
     runner: { name: "test-wrapper", version: "1" },
     completed: false,

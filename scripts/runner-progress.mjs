@@ -15,6 +15,11 @@ import path from "node:path";
 
 export const PROGRESS_LIMIT = 4 * 1024 * 1024;
 export const RECORD_LIMIT = 16 * 1024;
+export function observerGapReason(monotonicElapsed, wallElapsed, progressed) {
+  if (Math.abs(wallElapsed - monotonicElapsed) > 60000)
+    return "observation_clock_discontinuity";
+  return monotonicElapsed > 60000 && !progressed ? "observation_gap" : null;
+}
 const source = randomUUID();
 let localSequence = 0;
 const records = [];
@@ -25,6 +30,7 @@ const accepted = new Set([
   "test_started",
   "test_completed",
   "step_completed",
+  "step_started",
   "run_completed",
 ]);
 function problem(code, message) {

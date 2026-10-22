@@ -52,10 +52,24 @@ export async function observeInactivity(browser, use, info) {
     return;
   }
   const quiet = Number(process.env.DD_FLOW_TEST_EXECUTION_SILENCE_MS ?? 600000);
-  const database = databaseHealth();
-  void database.check(Math.min(1000, quiet / 4));
   const identity = attempt(info),
     key = attemptKey(identity);
+  let nativeTimeout = armQuietTimeout(info, quiet);
+  if (!nativeTimeout.supported) {
+    writeObservation(key, "capability", {
+      binding: binding(),
+      attempt: identity,
+      supported: false,
+      reason: nativeTimeout.reason,
+      native_version: playwrightRequire("@playwright/test/package.json")
+        .version,
+    });
+    throw Object.assign(new Error(nativeTimeout.reason), {
+      code: "browser_timeout_capability_unavailable",
+    });
+  }
+  const database = databaseHealth();
+  void database.check(Math.min(1000, quiet / 4));
   let phase = "body",
     last = Date.now(),
     cursor = 0;
@@ -63,17 +77,71 @@ export async function observeInactivity(browser, use, info) {
     gap = false,
     probing = false,
     closed = false;
-  const healthState = { closed: false, crashed: false };
+  let windowEpoch = 1,
+    epochIdentity,
+    gapAt = 0,
+    gapRecord;
+  const identities = new WeakMap(),
+    crashed = new WeakSet();
+  let nextIdentity = 0;
+  const identityOf = (value) => {
+    if (!identities.has(value)) identities.set(value, String(++nextIdentity));
+    return identities.get(value);
+  };
+  const currentTarget = () => {
+    const contexts = browser.contexts(),
+      pages = contexts.flatMap((context) => context.pages());
+    if (contexts.length !== 1 || pages.length !== 1 || pages[0].isClosed())
+      return null;
+    const page = pages[0];
+    return {
+      page,
+      identity: {
+        page_id: identityOf(page),
+        context_id: identityOf(contexts[0]),
+      },
+    };
+  };
+  const markGap = (reason, interval = null) => {
+    gap = true;
+    gapAt = Date.now();
+    gapRecord = {
+      reason,
+      interval_ms: interval,
+      observed_at: new Date(gapAt).toISOString(),
+      window_epoch: windowEpoch,
+      sequence: cursor,
+    };
+    const snapshot = readObservation(key, "worker");
+    if (
+      snapshot?.binding &&
+      snapshot.window_epoch === windowEpoch &&
+      Date.now() <= Date.parse(snapshot.deadline_at)
+    ) {
+      try {
+        writeObservation(key, "worker", {
+          ...snapshot,
+          observation_gap: true,
+          gap: gapRecord,
+        });
+      } catch {
+        gapRecord.reason = "worker_publication_failed";
+      }
+    }
+  };
   const invalidateBeforeDeadline = () => {
     const snapshot = readObservation(key, "worker");
     if (!snapshot || Date.now() > Date.parse(snapshot.deadline_at)) return;
     try {
+      const target = currentTarget();
       writeObservation(key, "worker", {
         ...snapshot,
         browser: {
           connected: browser.isConnected(),
-          page_closed: healthState.closed,
-          crashed: healthState.crashed,
+          page_closed:
+            !target ||
+            JSON.stringify(target.identity) !== JSON.stringify(snapshot.target),
+          crashed: target ? crashed.has(target.page) : false,
         },
       });
     } catch {
@@ -81,48 +149,44 @@ export async function observeInactivity(browser, use, info) {
     }
   };
   const disconnected = () => {
-    healthState.closed = true;
     invalidateBeforeDeadline();
   };
   browser.on("disconnected", disconnected);
   const observePage = (page) => {
     page.on("crash", () => {
-      healthState.crashed = true;
+      crashed.add(page);
+      markGap("target_crashed");
+      windowEpoch++;
       invalidateBeforeDeadline();
     });
     page.on("close", () => {
-      healthState.closed = true;
+      markGap("target_closed");
+      windowEpoch++;
       invalidateBeforeDeadline();
     });
   };
   const observeContext = (context) => {
     context.pages().forEach(observePage);
-    context.on("page", observePage);
+    context.on("page", (page) => {
+      markGap("target_changed");
+      windowEpoch++;
+      observePage(page);
+    });
     context.on("close", () => {
-      healthState.closed = true;
+      markGap("target_context_closed");
+      windowEpoch++;
       invalidateBeforeDeadline();
     });
   };
   // Browser contexts are discovered without making page/context fixtures a dependency.
   const contexts = new WeakSet();
-  let nativeTimeout = armQuietTimeout(info, quiet);
-  if (!nativeTimeout.supported) {
-    gap = true;
-    info.setTimeout(quiet);
-  }
   let nextProbe = 0;
   const timer = setInterval(
     () => {
       try {
         const now = performance.now();
         if (now - previous > Math.min(1000, quiet / 4)) {
-          gap = true;
-          const frozen = readObservation(key, "worker");
-          if (frozen?.binding)
-            writeObservation(key, "worker", {
-              ...frozen,
-              observation_gap: true,
-            });
+          markGap("event_loop_gap", now - previous);
         }
         previous = now;
         for (const context of browser.contexts())
@@ -134,10 +198,11 @@ export async function observeInactivity(browser, use, info) {
           phase = "teardown";
           last = Date.now();
           nativeTimeout = armQuietTimeout(info, quiet);
-          if (!nativeTimeout.supported) gap = true;
+          windowEpoch++;
+          if (!nativeTimeout.supported) markGap(nativeTimeout.reason);
         }
         const state = readObservation(key, "reporter");
-        if (state?.observation_error) gap = true;
+        if (state?.observation_error) markGap("reporter_observation_invalid");
         if (state?.terminal) {
           clearInterval(timer);
           return;
@@ -151,9 +216,22 @@ export async function observeInactivity(browser, use, info) {
             state.last_progress_at <= Date.now()
           ) {
             last = state.last_progress_at;
+            windowEpoch++;
+            if (last >= gapAt) gap = false;
             nativeTimeout = armQuietTimeout(info, quiet - (Date.now() - last));
-            if (!nativeTimeout.supported) gap = true;
+            if (!nativeTimeout.supported) markGap(nativeTimeout.reason);
           }
+        }
+        const target = currentTarget();
+        const nextEpochIdentity = JSON.stringify([
+          phase,
+          state?.active_step?.id,
+          target?.identity,
+        ]);
+        if (nextEpochIdentity !== epochIdentity) {
+          epochIdentity = nextEpochIdentity;
+          windowEpoch++;
+          if (!target) markGap("target_ambiguous");
         }
         const deadline = last + quiet;
         // Preserve a bounded snapshot throughout the window, not just during
@@ -166,20 +244,24 @@ export async function observeInactivity(browser, use, info) {
         ) {
           probing = true;
           const frozenLast = last;
+          const frozenEpoch = windowEpoch;
           void captureHealth(
             browser,
-            healthState,
+            target,
+            crashed,
             database,
             Math.min(500, quiet / 6),
           )
             .then((health) => {
               const reason = closed
                 ? "fixture_closed"
-                : last !== frozenLast
-                  ? "progress_advanced"
-                  : Date.now() >= deadline
-                    ? "probe_completed_after_deadline"
-                    : null;
+                : windowEpoch !== frozenEpoch
+                  ? "window_epoch_changed"
+                  : last !== frozenLast
+                    ? "progress_advanced"
+                    : Date.now() >= deadline
+                      ? "probe_completed_after_deadline"
+                      : null;
               if (reason) {
                 writeObservation(key, "diagnostic", {
                   reason,
@@ -202,6 +284,9 @@ export async function observeInactivity(browser, use, info) {
               }
               writeObservation(key, "worker", {
                 schema_id: "dd-tasks/browser-worker@1",
+                observation_contract: "dd-tasks/browser-observation@2",
+                target: target?.identity ?? null,
+                window_epoch: frozenEpoch,
                 binding: binding(),
                 attempt: identity,
                 phase,
@@ -212,13 +297,14 @@ export async function observeInactivity(browser, use, info) {
                 last_progress_at: new Date(last).toISOString(),
                 deadline_at: new Date(deadline).toISOString(),
                 observation_gap: gap,
+                ...(gapRecord ? { gap: gapRecord } : {}),
                 native_timeout: nativeTimeout,
                 ...health,
                 world: readyWorldProof(),
               });
             })
             .catch((error) => {
-              gap = true;
+              markGap("health_probe_failed");
               try {
                 writeObservation(key, "diagnostic", {
                   reason: "health_probe_failed",
@@ -249,9 +335,8 @@ export async function observeInactivity(browser, use, info) {
   }
 }
 
-async function captureHealth(browser, state, database, budget) {
+async function captureHealth(browser, target, crashed, database, budget) {
   const observed = new Date().toISOString();
-  const pages = browser.contexts().flatMap((context) => context.pages());
   const check = async (url) => {
     if (!url) return false;
     try {
@@ -277,11 +362,8 @@ async function captureHealth(browser, state, database, budget) {
   return {
     browser: {
       connected: browser.isConnected(),
-      page_closed:
-        state.closed ||
-        pages.length === 0 ||
-        pages.some((page) => page.isClosed()),
-      crashed: state.crashed,
+      page_closed: !target || target.page.isClosed(),
+      crashed: target ? crashed.has(target.page) : false,
     },
     world_health: { api, web, db },
     health_observed_at: observed,

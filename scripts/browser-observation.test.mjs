@@ -93,6 +93,9 @@ test("browser proof keeps mixed errors and UTF8 or count overflow fail-closed", 
       };
     const deadline = Date.now() - 20;
     const snapshot = {
+      observation_contract: "dd-tasks/browser-observation@2",
+      target: { page_id: "page", context_id: "context" },
+      window_epoch: 1,
       binding: binding(),
       attempt,
       step,
@@ -203,6 +206,9 @@ test("browser observation publication refusal preserves the native failure and b
       if (["native", "frozen-worker"].includes(role)) {
         const deadline = Date.now() - 20;
         writeObservation(key, "worker", {
+          observation_contract: "dd-tasks/browser-observation@2",
+          target: { page_id: "page", context_id: "context" },
+          window_epoch: 1,
           binding: binding(),
           attempt: identity,
           world,

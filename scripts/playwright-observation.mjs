@@ -1,4 +1,6 @@
+import { statSync } from "node:fs";
 import { createRequire } from "node:module";
+import path from "node:path";
 import { stripVTControlCharacters } from "node:util";
 import {
   artifactReference,
@@ -15,9 +17,38 @@ import {
   readyWorldProof,
 } from "./test-observation.mjs";
 
-const version = createRequire(
+const require = createRequire(
   new URL("../apps/web/package.json", import.meta.url),
-)("@playwright/test/package.json").version;
+);
+const version = require("@playwright/test/package.json").version;
+
+function missingBrowserExecutable(error) {
+  if (version !== "1.62.1") return false;
+  const match =
+    /^(?:Error: )?browserType\.launch: Executable doesn't exist at ([^\r\n]+)(?:\r?\n|$)/.exec(
+      stripVTControlCharacters(String(error?.message ?? "")),
+    );
+  if (!match || !path.isAbsolute(match[1])) return false;
+  try {
+    // Same pinned native registry as the launcher; custom executables and generic
+    // browserType.launch errors are not evidence of a missing installation.
+    const registry = createRequire(
+      require.resolve("@playwright/test/package.json"),
+    )("playwright-core/lib/coreBundle").registry.registry;
+    if (
+      !registry.executables().some((item) => item.executablePath() === match[1])
+    )
+      return false;
+  } catch {
+    return false;
+  }
+  try {
+    statSync(match[1]);
+    return false;
+  } catch (error) {
+    return error.code === "ENOENT";
+  }
+}
 
 function errorSignature(error) {
   if (!error || typeof error.stack !== "string" || !error.stack) return null;
@@ -30,8 +61,28 @@ function errorSignature(error) {
 export default class Reporter {
   counts = { passed: 0, failed: 0, skipped: 0 };
   failures = [];
+  observationFailed = false;
   expectationErrors = new WeakMap();
   observations = new WeakMap();
+  observe(action) {
+    try {
+      return action();
+    } catch (error) {
+      if (!this.observationFailed)
+        this.failures.push({
+          category: "tooling",
+          origin: "tooling",
+          phase: "runner",
+          code: "browser_observation_publication_failed",
+          message: String(error?.code ?? "browser_observation_failed").slice(
+            0,
+            512,
+          ),
+        });
+      this.observationFailed = true;
+      return null;
+    }
+  }
   onBegin() {
     progress("test_run_started");
   }
@@ -65,14 +116,16 @@ export default class Reporter {
     this.publish(state);
   }
   publish(state, terminal = false) {
-    writeObservation(attemptKey(state.attempt), "reporter", {
-      attempt: state.attempt,
-      sequence: state.sequence,
-      last_progress_at: state.last_progress_at,
-      progress_phase: state.progress_phase,
-      active_step: [...state.active.values()].at(-1),
-      terminal,
-    });
+    this.observe(() =>
+      writeObservation(attemptKey(state.attempt), "reporter", {
+        attempt: state.attempt,
+        sequence: state.sequence,
+        last_progress_at: state.last_progress_at,
+        progress_phase: state.progress_phase,
+        active_step: [...state.active.values()].at(-1),
+        terminal,
+      }),
+    );
   }
   onStepEnd(test, result, step) {
     const state = this.observations.get(result);
@@ -120,16 +173,54 @@ export default class Reporter {
       const browserProof = this.browserProof(test, result, snapshot, state);
       const failures = browserProof
         ? [browserProof]
-        : (result.errors.length ? result.errors : [{}]).map((error) =>
-            normalizeFailure(error, {
-              phase: "test",
-              file: test.location?.file,
-              test_id: test.id,
-              assertion: proof.has(errorSignature(error)),
-              tooling,
-              code: result.status,
+        : (result.errors.length ? result.errors : [{}]).map((error) => {
+            const missing = missingBrowserExecutable(error);
+            return {
+              ...normalizeFailure(error, {
+                phase: "test",
+                file: test.location?.file,
+                test_id: test.id,
+                assertion: proof.has(errorSignature(error)),
+                tooling: tooling || missing,
+                code: result.status,
+              }),
+              ...(missing
+                ? {
+                    code: "playwright_browser_executable_missing",
+                    classification_reason: "pinned_browser_executable_missing",
+                  }
+                : {}),
+            };
+          });
+      if (tooling && !browserProof) {
+        const diagnostic =
+          state && readObservation(attemptKey(state.attempt), "diagnostic");
+        const reason = !snapshot
+          ? "worker_snapshot_missing"
+          : snapshot.observation_gap
+            ? "worker_observation_gap"
+            : snapshot.phase !== "body"
+              ? "not_body_phase"
+              : !["api", "web", "db"].every(
+                    (key) => snapshot.world_health?.[key] === true,
+                  )
+                ? "world_health_unproven"
+                : "native_timeout_proof_not_satisfied";
+        for (const failure of failures) failure.classification_reason = reason;
+        if (state)
+          this.observe(() =>
+            writeObservation(attemptKey(state.attempt), "proof-diagnostic", {
+              attempt: state.attempt,
+              reason,
+              worker_diagnostic:
+                typeof diagnostic?.reason === "string"
+                  ? diagnostic.reason.slice(0, 128)
+                  : null,
+              terminal_status: result.status,
+              observed_at: new Date().toISOString(),
             }),
           );
+      }
       if (
         tooling &&
         !browserProof &&
@@ -146,6 +237,7 @@ export default class Reporter {
     progress(`test_completed:${test.id}`);
   }
   browserProof(test, result, snapshot, state) {
+    if (this.observationFailed) return null;
     const step = snapshot?.step;
     const world = readyWorldProof();
     const deadline = Date.parse(snapshot?.deadline_at);
@@ -206,30 +298,33 @@ export default class Reporter {
     };
     if (Buffer.byteLength(JSON.stringify(nativeResult)) > 256 * 1024)
       return null;
-    const native = writeObservation(key, "native", nativeResult);
-    const worker = writeObservation(key, "frozen-worker", snapshot);
-    if (!native || !worker) return null;
-    return {
-      category: "unclassified",
-      origin: "candidate",
-      phase: "test",
-      native_code: "PLAYWRIGHT_ACTION_INACTIVITY",
-      code: "timedOut",
-      message: "Native browser action made no progress within the quiet window",
-      file: step.file,
-      test_id: test.id,
-      classification_reason: "candidate_browser_action_inactivity",
-      repair_evidence: {
-        rule: "candidate_browser_action_inactivity",
+    return this.observe(() => {
+      const native = writeObservation(key, "native", nativeResult);
+      const worker = writeObservation(key, "frozen-worker", snapshot);
+      if (!native || !worker) return null;
+      return {
+        category: "unclassified",
+        origin: "candidate",
+        phase: "test",
         native_code: "PLAYWRIGHT_ACTION_INACTIVITY",
+        code: "timedOut",
+        message:
+          "Native browser action made no progress within the quiet window",
         file: step.file,
-        world,
-        attempt: state.attempt,
-        step,
-        worker_snapshot: artifactReference(worker),
-        native_result: artifactReference(native),
-      },
-    };
+        test_id: test.id,
+        classification_reason: "candidate_browser_action_inactivity",
+        repair_evidence: {
+          rule: "candidate_browser_action_inactivity",
+          native_code: "PLAYWRIGHT_ACTION_INACTIVITY",
+          file: step.file,
+          world,
+          attempt: state.attempt,
+          step,
+          worker_snapshot: artifactReference(worker),
+          native_result: artifactReference(native),
+        },
+      };
+    });
   }
   onError(error) {
     this.failures.push(

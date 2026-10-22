@@ -95,7 +95,29 @@ async function applyMigrationsInTransaction(
       }
       continue;
     }
-    await transaction.unsafe(content);
+    try {
+      await transaction.unsafe(content);
+    } catch (error) {
+      try {
+        if (process.env.DD_TASKS_SETUP_FAILURE_PATH) {
+          // Test observation tooling is not part of the deployed API package.
+          const { retainMigrationFailure } = await import(
+            "../../../../scripts/source-diagnostic.mjs"
+          );
+          retainMigrationFailure(
+            error,
+            join(migrationsDirectory.pathname, file),
+            checksum,
+          );
+        }
+      } catch (publication) {
+        if (error && typeof error === "object")
+          Object.assign(error, {
+            evidence_publication_error: String(publication),
+          });
+      }
+      throw error;
+    }
     await transaction`
       INSERT INTO foundation_migrations (id, checksum) VALUES (${file}, ${checksum})
     `;

@@ -1,7 +1,15 @@
+import { readFileSync } from "node:fs";
 import { access, readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
+import {
+  observeToolErrors,
+  sha256,
+  toolFailure,
+} from "./source-diagnostic.mjs";
+import { evidence, progress } from "./test-observation.mjs";
 
 const root = process.cwd();
+observeToolErrors({ name: "docs", version: "1" });
 const requiredFiles = [
   "README.md",
   ".memory-bank/index.md",
@@ -37,13 +45,27 @@ const requiredFiles = [
 const errors = [];
 const warnings = [];
 const checked = [];
+const diagnostics = [];
+let currentFile = "scripts/docs-check.mjs";
+const record = (message, file = currentFile, missing = false) => {
+  file = resolve(root, file);
+  errors.push(message);
+  diagnostics.push({
+    message,
+    file,
+    missing:
+      missing || diagnostics.some((item) => item.file === file && item.missing),
+  });
+};
 
 for (const relativePath of requiredFiles) {
   try {
     await access(resolve(root, relativePath));
     checked.push(relativePath);
-  } catch {
-    errors.push(`missing required path: ${relativePath}`);
+    progress(`step_completed:docs:${relativePath}`);
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+    record(`missing required path: ${relativePath}`, relativePath, true);
   }
 }
 
@@ -51,15 +73,17 @@ const markdownFiles = requiredFiles.filter(
   (file) => file.endsWith(".md") && file.startsWith(".memory-bank/"),
 );
 for (const relativePath of markdownFiles) {
+  currentFile = relativePath;
   let content = "";
   try {
     content = await readFile(resolve(root, relativePath), "utf8");
-  } catch {
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
     continue;
   }
   const frontmatter = parseFrontmatter(content, relativePath);
   if (!frontmatter) {
-    errors.push(`missing frontmatter: ${relativePath}`);
+    record(`missing frontmatter: ${relativePath}`);
     continue;
   }
   for (const key of [
@@ -71,7 +95,7 @@ for (const relativePath of markdownFiles) {
     "parent",
   ]) {
     if (!new RegExp(`^${key}:\\s*\\S`, "m").test(frontmatter)) {
-      errors.push(`frontmatter ${key} missing: ${relativePath}`);
+      record(`frontmatter ${key} missing: ${relativePath}`);
     }
   }
   for (const target of pathReferences(frontmatter)) {
@@ -79,7 +103,7 @@ for (const relativePath of markdownFiles) {
   }
   for (const target of markdownLinks(content)) {
     if (isForbiddenEvidenceTarget(target)) {
-      errors.push(
+      record(
         `ignored run directory used as durable evidence link: ${relativePath} -> ${target}`,
       );
       continue;
@@ -96,26 +120,29 @@ const previewScenario = await readText(
   ".memory-bank/scenarios/SCN-003-private-preview-runtime.md",
 );
 const packageJson = JSON.parse(await readText("package.json"));
+currentFile = "package.json";
 if (
   !packageJson.scripts?.["scenario:foundation"] ||
   !packageJson.scripts?.["docs:check"] ||
   !packageJson.scripts?.["preview:build"] ||
   !packageJson.scripts?.["scenario:preview"]
 ) {
-  errors.push(
+  record(
     "root package scripts must expose foundation/docs and preview build/scenario commands",
   );
 }
+currentFile = ".memory-bank/plans/verification-matrix.md";
 if (
   !matrix.includes("SCN-001") ||
   !matrix.includes("verification-passport.md") ||
   !matrix.includes("SCN-003") ||
   !matrix.includes("pending_deploy_flow")
 ) {
-  errors.push(
+  record(
     "verification matrix must bind SCN-001 and SCN-003 with a pending live-provider row",
   );
 }
+currentFile = ".memory-bank/scenarios/SCN-001-foundation-acceptance.md";
 if (
   !(
     scenario.includes("managed localhost") ||
@@ -124,7 +151,7 @@ if (
   !scenario.includes("file://") ||
   !/(запрещ|forbidden|prohibit)/i.test(scenario)
 ) {
-  errors.push(
+  record(
     "SCN-001 must document managed localhost browser evidence and file:// prohibition",
   );
 }
@@ -132,10 +159,11 @@ if (
   !scenario.includes("phase-06-cleanup") ||
   !scenario.includes("cleanup failure")
 ) {
-  errors.push(
+  record(
     "SCN-001 must document mandatory cleanup and cleanup failure semantics",
   );
 }
+currentFile = ".memory-bank/scenarios/SCN-003-private-preview-runtime.md";
 if (
   !previewScenario.includes("SCN-003") ||
   !previewScenario.includes("preview-checkpoint") ||
@@ -143,7 +171,7 @@ if (
   !previewScenario.toLowerCase().includes("live-provider") ||
   !previewScenario.includes("does_not_prove")
 ) {
-  errors.push(
+  record(
     "SCN-003 must document both preview profiles, source/live split and proof limits",
   );
 }
@@ -170,11 +198,39 @@ console.log(
   ),
 );
 process.exitCode = errors.length === 0 ? 0 : 1;
+const declaration = {
+  file: resolve(root, "scripts/docs-check.mjs"),
+  sha256: sha256(readFileSync(resolve(root, "scripts/docs-check.mjs"))),
+};
+const step = JSON.parse(
+  process.env.DD_TASKS_CHECK_STEP ??
+    JSON.stringify({
+      id: "docs",
+      ordinal: 0,
+      command_sha256: sha256("docs:check"),
+    }),
+);
+evidence(
+  { name: "docs", version: "1" },
+  { passed: checked.length, failed: diagnostics.length, skipped: 0 },
+  diagnostics.map((diagnostic) =>
+    toolFailure({
+      tool: { name: "docs", version: "1" },
+      step,
+      diagnostic_code: diagnostic.missing
+        ? "required_path_missing"
+        : "docs_contract",
+      ...diagnostic,
+      ...(diagnostic.missing ? { declaration } : {}),
+    }),
+  ),
+);
 
 async function readText(relativePath) {
   try {
     return await readFile(resolve(root, relativePath), "utf8");
-  } catch {
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
     return "";
   }
 }
@@ -185,7 +241,7 @@ function parseFrontmatter(content, relativePath) {
   }
   const end = content.indexOf("\n---", 4);
   if (end < 0) {
-    errors.push(`unterminated frontmatter: ${relativePath}`);
+    record(`unterminated frontmatter: ${relativePath}`, relativePath);
     return null;
   }
   return content.slice(4, end);
@@ -219,8 +275,9 @@ async function checkReference(target, source, kind) {
   if (target.includes("...") || target.includes("<")) return;
   if (isForbiddenEvidenceTarget(target)) {
     if (kind === "markdown")
-      errors.push(
+      record(
         `ignored run directory used as durable reference: ${source} -> ${target}`,
+        source,
       );
     return;
   }
@@ -231,7 +288,8 @@ async function checkReference(target, source, kind) {
   if (!candidate.startsWith(root)) return;
   try {
     await access(candidate);
-  } catch {
-    errors.push(`broken ${kind} reference: ${source} -> ${target}`);
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+    record(`broken ${kind} reference: ${source} -> ${target}`, source);
   }
 }

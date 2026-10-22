@@ -13,6 +13,7 @@ import path from "node:path";
 import { performance } from "node:perf_hooks";
 import { stopOwnedGroup } from "./owned-process.mjs";
 import { createProgressPublisher } from "./runner-progress.mjs";
+import { retainedSetupFailure } from "./source-diagnostic.mjs";
 import {
   assertWorldCleanup,
   binding,
@@ -34,6 +35,7 @@ const progressPath =
   process.env.DD_FLOW_CHECK_RUNNER_PROGRESS_PATH ??
   paths.DD_FLOW_CHECK_RUNNER_PROGRESS_PATH;
 const reportPath = paths.DD_TASKS_RUNNER_REPORT;
+process.env.DD_TASKS_SETUP_FAILURE_PATH = path.join(temp, "setup-failure.json");
 const worldReceipt = paths.DD_TASKS_TEST_WORLD_RECEIPT;
 const worldFinal = paths.DD_TASKS_TEST_WORLD_FINAL_RECEIPT;
 const startedAt = Date.now();
@@ -61,6 +63,7 @@ const child = spawn(command, args, {
     ...process.env,
     DD_TASKS_TEST_WATCHDOG: "1",
     DD_TASKS_RUNNER_REPORT: reportPath,
+    DD_TASKS_SETUP_FAILURE_PATH: process.env.DD_TASKS_SETUP_FAILURE_PATH,
     DD_TASKS_TEST_WORLD_RECEIPT: worldReceipt,
     DD_TASKS_TEST_WORLD_FINAL_RECEIPT: worldFinal,
     DD_FLOW_CHECK_RUNNER_PROGRESS_PATH: progressPath,
@@ -185,7 +188,13 @@ try {
       };
       resolve(1);
     });
-    child.once("exit", (code) => {
+    child.once("exit", (code, signal) => {
+      if (signal)
+        failure ??= {
+          category: "tooling",
+          code: "child_signal",
+          message: `Native runner terminated by ${signal}`,
+        };
       resolve(code ?? 1);
     });
   });
@@ -286,6 +295,24 @@ try {
     report.completed = false;
   }
 }
+const setupFailure = retainedSetupFailure();
+if (
+  setupFailure &&
+  !report.failures.some(
+    (item) =>
+      item.operation_id && item.operation_id === setupFailure.operation_id,
+  )
+) {
+  report.failures.push(setupFailure);
+  // A terminal setup refusal is a complete failed observation, not a missing runner.
+  if (
+    report.runner.name === "test-wrapper" &&
+    report.failures[0]?.code === "invalid_runner_evidence"
+  ) {
+    report.failures.shift();
+    report.completed = true;
+  }
+}
 if (exit !== 0 && !report.failures.length)
   report.failures.push({ category: "unclassified", code: "nonzero_exit" });
 // Capture before report publication, so publication failures cannot erase the only copy.
@@ -348,7 +375,7 @@ try {
     relative_path,
     sha256: createHash("sha256").update(bytes).digest("hex"),
   };
-  for (const item of report.failures) item.diagnostic_artifact = reference;
+  for (const item of report.failures) item.diagnostic_artifact ??= reference;
 } catch (error) {
   captured = false;
   report.completed = false;

@@ -316,7 +316,8 @@ test("native Playwright hook Errors never acquire test-body repair authority", a
       `import native from ${JSON.stringify(pathToFileURL(webRequire.resolve("@playwright/test")).href)};
 const {test}=native;
 test.describe('setup',()=>{test.beforeEach(()=>{throw new Error('native setup refusal');});test('body',()=>{});});
-test.describe('teardown',()=>{test.afterEach(()=>{throw new Error('native teardown refusal');});test('body',()=>{});});`,
+test.describe('teardown',()=>{test.afterEach(()=>{throw new Error('native teardown refusal');});test('body',()=>{});});
+test('ordinary step title is not a native hook',()=>test.step('setup then teardown',()=>{throw new Error('native body refusal');}));`,
     );
     writeFileSync(
       config,
@@ -333,15 +334,19 @@ test.describe('teardown',()=>{test.afterEach(()=>{throw new Error('native teardo
     assert.equal(result.status, 1, result.output);
     const observed = JSON.parse(readFileSync(report));
     assert.equal(validReport(observed), true, result.output);
-    assert.equal(observed.failures.length, 2);
+    assert.equal(observed.failures.length, 3);
     assert.deepEqual(
       observed.failures.map((item) => item.phase),
-      ["setup", "teardown"],
+      ["setup", "teardown", "test"],
     );
     assert.ok(
-      observed.failures.every(
-        (item) => !item.repair_evidence && item.origin === "unknown",
-      ),
+      observed.failures
+        .slice(0, 2)
+        .every((item) => !item.repair_evidence && item.origin === "unknown"),
+    );
+    assert.equal(
+      observed.failures[2].repair_evidence?.rule,
+      "candidate_test_runtime_error",
     );
   } finally {
     rmSync(directory, { recursive: true });

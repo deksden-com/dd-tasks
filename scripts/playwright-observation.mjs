@@ -142,17 +142,14 @@ export default class Reporter {
       if (step.error) {
         let phase = "test";
         for (let item = step; item; item = item.parent) {
+          if (!["hook", "fixture"].includes(item.category)) continue;
           if (/afterEach|afterAll|After Hooks|teardown/i.test(item.title)) {
             phase = "teardown";
             break;
           }
           if (/beforeEach|beforeAll|Before Hooks|setup/i.test(item.title))
             phase = "setup";
-          else if (
-            phase === "test" &&
-            ["hook", "fixture"].includes(item.category)
-          )
-            phase = "runner";
+          else if (phase === "test") phase = "runner";
         }
         const signature = errorSignature(step.error);
         if (signature && phase !== "test")

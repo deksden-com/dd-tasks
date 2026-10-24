@@ -27,7 +27,7 @@ describe("foundation API JSON contract", () => {
     const response = await app.request("/api/health", {
       headers: { "x-request-id": "caller-controlled-value" },
     });
-    const body = await response.json();
+    const body = (await response.json()) as Record<string, unknown>;
 
     expect(response.status).toBe(200);
     assertJsonContentType(response);
@@ -43,7 +43,7 @@ describe("foundation API JSON contract", () => {
   it("returns the exact expected JSON shape for the foundation missing probe", async () => {
     const app = createApiApp({ environment: "test" });
     const response = await app.request("/api/__foundation_missing__");
-    const body = await response.json();
+    const body = (await response.json()) as Record<string, unknown>;
 
     expect(response.status).toBe(404);
     assertJsonContentType(response);
@@ -58,7 +58,7 @@ describe("foundation API JSON contract", () => {
   it("keeps the bare API prefix out of the SPA fallback", async () => {
     const app = createApiApp({ environment: "test", staticRoot: "." });
     const response = await app.request("/api");
-    const body = await response.json();
+    const body = (await response.json()) as Record<string, unknown>;
 
     expect(response.status).toBe(404);
     assertJsonContentType(response);
@@ -70,7 +70,7 @@ describe("foundation API JSON contract", () => {
     const response = await app.request("/api/health", {
       headers: { "x-foundation-test-fault": "unexpected" },
     });
-    const body = await response.json();
+    const body = (await response.json()) as Record<string, unknown>;
 
     expect(response.status).toBe(500);
     assertJsonContentType(response);

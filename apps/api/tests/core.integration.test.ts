@@ -83,7 +83,9 @@ describe("checkpoint-02 core API", () => {
       { name: "Acceptance project" },
     );
     expect(createdProjectResponse.status).toBe(201);
-    const createdProject = (await createdProjectResponse.json()).project as {
+    const createdProject = (
+      (await createdProjectResponse.json()) as Record<string, unknown>
+    ).project as {
       id: string;
     };
 
@@ -104,7 +106,9 @@ describe("checkpoint-02 core API", () => {
       { title: "Acceptance task", description: "created through the API" },
     );
     expect(createdTaskResponse.status).toBe(201);
-    const createdTask = (await createdTaskResponse.json()).task as {
+    const createdTask = (
+      (await createdTaskResponse.json()) as Record<string, unknown>
+    ).task as {
       id: string;
     };
     const updated = await jsonRequest(
@@ -132,18 +136,20 @@ describe("checkpoint-02 core API", () => {
       cookie,
     );
     expect(
-      ((await defaultProjects.json()).projects as { id: string }[]).some(
-        (project) => project.id === createdProject.id,
-      ),
+      (
+        ((await defaultProjects.json()) as Record<string, unknown>)
+          .projects as { id: string }[]
+      ).some((project) => project.id === createdProject.id),
     ).toBe(false);
     const archivedProjects = await jsonRequest(
       "/api/workspaces/ws-alpha/projects?includeArchived=true",
       cookie,
     );
     expect(
-      ((await archivedProjects.json()).projects as { id: string }[]).some(
-        (project) => project.id === createdProject.id,
-      ),
+      (
+        ((await archivedProjects.json()) as Record<string, unknown>)
+          .projects as { id: string }[]
+      ).some((project) => project.id === createdProject.id),
     ).toBe(true);
     const blocked = await jsonRequest(
       `/api/workspaces/ws-alpha/projects/${createdProject.id}/tasks`,
@@ -230,7 +236,9 @@ describe("checkpoint-02 core API", () => {
       }),
     });
     expect(register.status).toBe(201);
-    expect((await register.json()).account).toMatchObject({
+    expect(
+      ((await register.json()) as Record<string, unknown>).account,
+    ).toMatchObject({
       email: "new.account@example.test",
     });
     const duplicate = await app.request("/api/auth/register", {

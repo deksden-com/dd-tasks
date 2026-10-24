@@ -127,7 +127,7 @@ try {
   const survivor = postgres(survivorUrl.toString(), { max: 1 });
   try {
     assert.equal(
-      (await survivor`SELECT value FROM isolation_probe`)[0].value,
+      (await survivor`SELECT value FROM isolation_probe`)[0]?.value,
       "second-migration",
     );
   } finally {

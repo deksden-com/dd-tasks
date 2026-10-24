@@ -93,6 +93,8 @@ export default class Reporter {
       sequence: 0,
       active: new Map(),
       steps: new WeakMap(),
+      finished: new WeakSet(),
+      error_phases: new Map(),
       last_progress_at: Date.now(),
       progress_phase: "body",
     });
@@ -101,18 +103,23 @@ export default class Reporter {
   onStepBegin(test, result, step) {
     const state = this.observations.get(result);
     if (!state) return;
+    if (state.steps.has(step)) return;
     const id = `${test.id}:${step.startTime.toISOString()}:${state.sequence++}`;
     state.steps.set(step, id);
     let hook = false;
     for (let item = step.parent; item; item = item.parent)
       if (item.category === "hook" || item.category === "fixture") hook = true;
-    if (!hook && ["pw:api", "expect"].includes(step.category))
+    if (!hook && ["pw:api", "expect"].includes(step.category)) {
       state.active.set(id, {
         id,
         category: step.category,
         file: step.location?.file,
         line: step.location?.line,
       });
+      state.last_progress_at = Date.now();
+      state.progress_phase = "body";
+      progress(`step_started:${id}`);
+    }
     this.publish(state);
   }
   publish(state, terminal = false) {
@@ -130,6 +137,24 @@ export default class Reporter {
   onStepEnd(test, result, step) {
     const state = this.observations.get(result);
     if (state) {
+      if (state.finished.has(step)) return;
+      state.finished.add(step);
+      if (step.error) {
+        let phase = "test";
+        for (let item = step; item; item = item.parent) {
+          if (!["hook", "fixture"].includes(item.category)) continue;
+          if (/afterEach|afterAll|After Hooks|teardown/i.test(item.title)) {
+            phase = "teardown";
+            break;
+          }
+          if (/beforeEach|beforeAll|Before Hooks|setup/i.test(item.title))
+            phase = "setup";
+          else if (phase === "test") phase = "runner";
+        }
+        const signature = errorSignature(step.error);
+        if (signature && phase !== "test")
+          state.error_phases.set(signature, phase);
+      }
       state.active.delete(state.steps.get(step));
       const teardown = (() => {
         for (let item = step; item; item = item.parent)
@@ -177,7 +202,9 @@ export default class Reporter {
             const missing = missingBrowserExecutable(error);
             return {
               ...normalizeFailure(error, {
-                phase: "test",
+                phase:
+                  state?.error_phases.get(errorSignature(error)) ??
+                  (state?.error_phases.size ? "runner" : "test"),
                 file: test.location?.file,
                 test_id: test.id,
                 assertion: proof.has(errorSignature(error)),
@@ -192,6 +219,26 @@ export default class Reporter {
                 : {}),
             };
           });
+      const capability =
+        state && readObservation(attemptKey(state.attempt), "capability");
+      if (
+        capability?.supported === false &&
+        JSON.stringify(capability.attempt) === JSON.stringify(state.attempt) &&
+        JSON.stringify(capability.binding) === JSON.stringify(binding()) &&
+        [
+          "unsupported_native_timeout_version",
+          "unknown_native_timeout_slot",
+          "invalid_native_timeout_clock",
+        ].includes(capability.reason)
+      ) {
+        failures.push({
+          category: "tooling",
+          origin: "tooling",
+          phase: "runner",
+          code: "browser_timeout_capability_unavailable",
+          message: `${capability.reason}: ${capability.native_version}`,
+        });
+      }
       if (tooling && !browserProof) {
         const diagnostic =
           state && readObservation(attemptKey(state.attempt), "diagnostic");
@@ -268,6 +315,11 @@ export default class Reporter {
       JSON.stringify(snapshot.attempt) !== JSON.stringify(state.attempt) ||
       snapshot.phase !== "body" ||
       snapshot.observation_gap !== false ||
+      snapshot.observation_contract !== "dd-tasks/browser-observation@2" ||
+      !snapshot.target?.page_id ||
+      !snapshot.target?.context_id ||
+      !Number.isSafeInteger(snapshot.window_epoch) ||
+      snapshot.window_epoch < 1 ||
       !step?.file ||
       !Number.isSafeInteger(step.line) ||
       !["pw:api", "expect"].includes(step.category) ||
@@ -287,6 +339,9 @@ export default class Reporter {
       return null;
     const key = attemptKey(state.attempt);
     const nativeResult = {
+      observation_contract: snapshot.observation_contract,
+      target: snapshot.target,
+      window_epoch: snapshot.window_epoch,
       binding: binding(),
       attempt: state.attempt,
       step,
@@ -315,6 +370,9 @@ export default class Reporter {
         classification_reason: "candidate_browser_action_inactivity",
         repair_evidence: {
           rule: "candidate_browser_action_inactivity",
+          observation_contract: snapshot.observation_contract,
+          target: snapshot.target,
+          window_epoch: snapshot.window_epoch,
           native_code: "PLAYWRIGHT_ACTION_INACTIVITY",
           file: step.file,
           world,

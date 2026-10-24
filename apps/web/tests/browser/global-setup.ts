@@ -22,7 +22,7 @@ export default async function setup() {
     for (const [name, url] of [
       ["api", `${ports.apiUrl}/api/health`],
       ["web", `${ports.webUrl}/login`],
-    ]) {
+    ] as const) {
       const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
       if (response.status !== 200)
         throw new Error(`Test endpoint ${name} is not ready`);

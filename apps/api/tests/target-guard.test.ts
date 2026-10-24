@@ -182,27 +182,30 @@ describe("foundation reset target guard", () => {
           "postgresql://dd_tasks@postgres/dd_tasks_preview_checkpoint?sslmode=disable",
       },
     ],
-  ])("rejects %s before a mutating client can be opened", (_label, partial) => {
-    const binding = previewBindingFor(
-      "preview-checkpoint",
-      "RUN-300-preview-runtime",
-    );
-    const result = classifyMutationTarget({
-      databaseUrl:
-        partial.databaseUrl ??
-        "postgresql://dd_tasks@postgres/dd_tasks_preview_checkpoint",
-      profile: partial.profile,
-      runId: binding.runId,
-      worldId: binding.worldId,
-      composeProject: binding.composeProject,
-      volume: binding.volume,
-      operation: "reset",
-      requireRunId: true,
-      requireWorldBinding: true,
-    });
-    expect(result.safe).toBe(false);
-    expect(result.reason).not.toMatch(/postgres:|secret|password/i);
-  });
+  ])(
+    "rejects %s before a mutating client can be opened",
+    (_label, partial: { profile?: string; databaseUrl?: string }) => {
+      const binding = previewBindingFor(
+        "preview-checkpoint",
+        "RUN-300-preview-runtime",
+      );
+      const result = classifyMutationTarget({
+        databaseUrl:
+          partial.databaseUrl ??
+          "postgresql://dd_tasks@postgres/dd_tasks_preview_checkpoint",
+        profile: partial.profile,
+        runId: binding.runId,
+        worldId: binding.worldId,
+        composeProject: binding.composeProject,
+        volume: binding.volume,
+        operation: "reset",
+        requireRunId: true,
+        requireWorldBinding: true,
+      });
+      expect(result.safe).toBe(false);
+      expect(result.reason).not.toMatch(/postgres:|secret|password/i);
+    },
+  );
 
   it("rejects a stale world/project/volume tuple", () => {
     const binding = previewBindingFor(

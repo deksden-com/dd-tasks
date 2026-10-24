@@ -27,7 +27,7 @@ describe("foundation API JSON contract", () => {
     const response = await app.request("/api/health", {
       headers: { "x-request-id": "caller-controlled-value" },
     });
-    const body = await response.json();
+    const body = (await response.json()) as Record<string, unknown>;
 
     expect(response.status).toBe(200);
     assertJsonContentType(response);
@@ -43,7 +43,7 @@ describe("foundation API JSON contract", () => {
   it("returns the exact expected JSON shape for the foundation missing probe", async () => {
     const app = createApiApp({ environment: "test" });
     const response = await app.request("/api/__foundation_missing__");
-    const body = await response.json();
+    const body = (await response.json()) as Record<string, unknown>;
 
     expect(response.status).toBe(404);
     assertJsonContentType(response);
@@ -58,7 +58,7 @@ describe("foundation API JSON contract", () => {
   it("keeps the bare API prefix out of the SPA fallback", async () => {
     const app = createApiApp({ environment: "test", staticRoot: "." });
     const response = await app.request("/api");
-    const body = await response.json();
+    const body = (await response.json()) as Record<string, unknown>;
 
     expect(response.status).toBe(404);
     assertJsonContentType(response);
@@ -70,7 +70,7 @@ describe("foundation API JSON contract", () => {
     const response = await app.request("/api/health", {
       headers: { "x-foundation-test-fault": "unexpected" },
     });
-    const body = await response.json();
+    const body = (await response.json()) as Record<string, unknown>;
 
     expect(response.status).toBe(500);
     assertJsonContentType(response);
@@ -139,7 +139,7 @@ describe("foundation API JSON contract", () => {
       });
       expect(listResponse.status).toBe(200);
       assertJsonContentType(listResponse);
-      const listBody = await listResponse.json();
+      const listBody = (await listResponse.json()) as { tasks: unknown[] };
       expect(Array.isArray(listBody.tasks)).toBe(true);
       expect(listBody.tasks.length).toBeGreaterThan(0);
       for (const task of listBody.tasks as unknown[]) {
@@ -156,7 +156,9 @@ describe("foundation API JSON contract", () => {
       });
       expect(createResponse.status).toBe(201);
       assertJsonContentType(createResponse);
-      const created = assertTaskJson((await createResponse.json()).task);
+      const created = assertTaskJson(
+        ((await createResponse.json()) as Record<string, unknown>).task,
+      );
       expect(created.priority).toBe("high");
 
       const updateResponse = await app.request(`${tasksPath}/${created.id}`, {
@@ -169,7 +171,9 @@ describe("foundation API JSON contract", () => {
       });
       expect(updateResponse.status).toBe(200);
       assertJsonContentType(updateResponse);
-      const updated = assertTaskJson((await updateResponse.json()).task);
+      const updated = assertTaskJson(
+        ((await updateResponse.json()) as Record<string, unknown>).task,
+      );
       expect(updated.id).toBe(created.id);
       expect(updated.priority).toBe("low");
 

@@ -72,6 +72,30 @@ test("candidate runtime authority uses exact top frame, native type and executin
         { ...context, phase: "collection" },
       ).repair_evidence,
     );
+    const helperError = {
+      name: "Error",
+      message: "Expected synchronized query lock: UPDATE projects",
+      stack: `Error: Expected synchronized query lock: UPDATE projects\n    at waitForQueryLock (${import.meta.filename}:100:9)`,
+    };
+    assert.equal(
+      normalizeFailure(helperError, context).repair_evidence?.exception_type,
+      "Error",
+    );
+    for (const phase of ["setup", "collection", "teardown", "runner"])
+      assert.equal(
+        normalizeFailure(helperError, { ...context, phase }).repair_evidence,
+        undefined,
+      );
+    assert.equal(
+      normalizeFailure(
+        {
+          ...helperError,
+          stack: `Error: network\n    at /tmp/dependency.js:1:1\n    at ${import.meta.filename}:100:9`,
+        },
+        context,
+      ).repair_evidence,
+      undefined,
+    );
   } finally {
     if (previous === undefined) delete process.env.DD_TASKS_RUNNER_REPORT;
     else process.env.DD_TASKS_RUNNER_REPORT = previous;
@@ -290,7 +314,7 @@ test("native Playwright and Vitest preserve candidate runtime proof, not arbitra
       writeFileSync(
         spec,
         `${runner === "playwright" ? `import native from ${JSON.stringify(pathToFileURL(webRequire.resolve("@playwright/test")).href)}; const {test,expect}=native;` : `import {test,expect} from ${JSON.stringify(pathToFileURL(path.join(root, "node_modules/vitest/dist/index.js")).href)};`}\n` +
-          `test('native runtime error',()=>{${runner === "playwright" ? "expect(1).doesNotExist();" : "const value=null;value.doesNotExist();"}});\ntest('unsupported generic error',()=>{throw new Error('TypeError arbitrary message');});`,
+          `test('native runtime error',()=>{${runner === "playwright" ? "expect(1).doesNotExist();" : "const value=null;value.doesNotExist();"}});\ntest('native helper Error',()=>{throw new Error('Expected synchronized query lock: UPDATE projects');});\ntest('unsupported native error',()=>{throw new RangeError('TypeError arbitrary message');});`,
       );
       const config = path.join(directory, `${runner}.config.mjs`);
       const reporter = path.join(root, `scripts/${runner}-observation.mjs`);
@@ -327,7 +351,7 @@ test("native Playwright and Vitest preserve candidate runtime proof, not arbitra
           (item) =>
             item.repair_evidence?.rule === "candidate_test_runtime_error",
         ).length,
-        1,
+        2,
         JSON.stringify(observed),
       );
       assert.equal(

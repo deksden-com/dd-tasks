@@ -28,7 +28,7 @@
     "typecheck": "pnpm --filter @dd-tasks/api typecheck && pnpm --filter @dd-tasks/web typecheck",
     "test:unit": "node scripts/test-runner.mjs node scripts/quality-runner.mjs --unit",
     "qualify:keyboard": "node scripts/test-runner.mjs pnpm --filter @dd-tasks/web exec playwright test --config playwright.keyboard.config.ts",
-    "test:tooling": "node --test scripts/test-runner.test.mjs scripts/runner-progress.test.mjs scripts/owned-process.test.mjs scripts/db-verify.test.mjs scripts/browser-observation.test.mjs scripts/check-inputs.test.mjs scripts/source-diagnostic.test.mjs scripts/quality-runner.test.mjs scripts/docs-observation.test.mjs scripts/tool-diagnostic-runner.test.mjs scripts/migration-observation.test.mjs scripts/migration-packaging.test.mjs scripts/tool-error-observation.test.mjs scripts/plan097-observation.test.mjs",
+    "test:tooling": "node --test scripts/test-runner.test.mjs scripts/runner-progress.test.mjs scripts/owned-process.test.mjs scripts/db-verify.test.mjs scripts/browser-observation.test.mjs scripts/check-inputs.test.mjs scripts/source-diagnostic.test.mjs scripts/quality-runner.test.mjs scripts/docs-observation.test.mjs scripts/tool-diagnostic-runner.test.mjs scripts/migration-observation.test.mjs scripts/migration-packaging.test.mjs scripts/tool-error-observation.test.mjs scripts/plan097-observation.test.mjs scripts/check-evidence-probe.test.mjs",
     "test:world": "node scripts/test-runner.mjs pnpm --filter @dd-tasks/api exec tsx scripts/test-world-isolation.ts",
     "test:integration": "pnpm --filter @dd-tasks/api test:integration",
     "build": "pnpm --recursive --if-present build",

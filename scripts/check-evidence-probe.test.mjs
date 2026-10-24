@@ -35,6 +35,17 @@ test("failure capability probe executes real isolated producers", () => {
       assert.equal(validReport(report), true, JSON.stringify(report));
       assert.equal(report.completed, true);
       assert.ok(report.failures.length);
+      assert.equal(
+        report.failures.some((failure) => failure.category === "tooling"),
+        false,
+        JSON.stringify(report),
+      );
+      if (item.id === "composite") {
+        assert.ok(report.steps[0].report);
+        assert.equal(report.steps[0].state, "failed");
+        assert.equal(report.steps[0].exit_code, 1);
+        assert.ok(report.failures[0].child_evidence);
+      }
       assert.deepEqual(report.binding, item.binding);
       assert.equal(item.expected, "source_repair");
     }

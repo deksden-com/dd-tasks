@@ -209,11 +209,13 @@ async function produce(id) {
       (await runQuality([
         {
           id: "runtime",
+          wrapped: true,
           argv: [
             process.execPath,
             import.meta.filename,
             "--produce",
             "runtime-error",
+            "--failed-check",
           ],
         },
       ])) !== 1
@@ -288,8 +290,12 @@ if (
   process.argv[1] &&
   realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
-  if (process.argv[2] === "--produce") await produce(process.argv[3]);
-  else {
+  if (process.argv[2] === "--produce") {
+    process.env.DD_TASKS_RUNNER_REPORT ??=
+      process.env.DD_FLOW_CHECK_RUNNER_EVIDENCE_PATH;
+    await produce(process.argv[3]);
+    if (process.argv.includes("--failed-check")) process.exitCode = 1;
+  } else {
     const args = process.argv.slice(2),
       outputRoot = args[args.indexOf("--output") + 1],
       raw = args[args.indexOf("--binding-json") + 1];

@@ -139,7 +139,7 @@ describe("foundation API JSON contract", () => {
       });
       expect(listResponse.status).toBe(200);
       assertJsonContentType(listResponse);
-      const listBody = await listResponse.json();
+      const listBody = (await listResponse.json()) as { tasks: unknown[] };
       expect(Array.isArray(listBody.tasks)).toBe(true);
       expect(listBody.tasks.length).toBeGreaterThan(0);
       for (const task of listBody.tasks as unknown[]) {
@@ -156,7 +156,9 @@ describe("foundation API JSON contract", () => {
       });
       expect(createResponse.status).toBe(201);
       assertJsonContentType(createResponse);
-      const created = assertTaskJson((await createResponse.json()).task);
+      const created = assertTaskJson(
+        ((await createResponse.json()) as Record<string, unknown>).task,
+      );
       expect(created.priority).toBe("high");
 
       const updateResponse = await app.request(`${tasksPath}/${created.id}`, {
@@ -169,7 +171,9 @@ describe("foundation API JSON contract", () => {
       });
       expect(updateResponse.status).toBe(200);
       assertJsonContentType(updateResponse);
-      const updated = assertTaskJson((await updateResponse.json()).task);
+      const updated = assertTaskJson(
+        ((await updateResponse.json()) as Record<string, unknown>).task,
+      );
       expect(updated.id).toBe(created.id);
       expect(updated.priority).toBe("low");
 

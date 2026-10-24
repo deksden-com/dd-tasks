@@ -345,7 +345,8 @@ describe("checkpoint-02 core API", () => {
       priority: "high",
     });
     expect(highCreate.status).toBe(201);
-    const highTask = (await highCreate.json()).task as {
+    const highTask = ((await highCreate.json()) as Record<string, unknown>)
+      .task as {
       id: string;
       priority: string;
     };
@@ -353,7 +354,7 @@ describe("checkpoint-02 core API", () => {
 
     const listedHigh = await jsonRequest(tasksPath, member);
     expect(listedHigh.status).toBe(200);
-    const listedHighBody = await listedHigh.json();
+    const listedHighBody = (await listedHigh.json()) as Record<string, unknown>;
     expect(
       (
         listedHighBody.tasks as {
@@ -373,7 +374,9 @@ describe("checkpoint-02 core API", () => {
       title: "Priority omitted task",
     });
     expect(omittedCreate.status).toBe(201);
-    const omittedTask = (await omittedCreate.json()).task as {
+    const omittedTask = (
+      (await omittedCreate.json()) as Record<string, unknown>
+    ).task as {
       id: string;
       priority: string;
     };
@@ -382,7 +385,7 @@ describe("checkpoint-02 core API", () => {
     const listedOmitted = await jsonRequest(tasksPath, member);
     expect(
       (
-        (await listedOmitted.json()).tasks as {
+        ((await listedOmitted.json()) as Record<string, unknown>).tasks as {
           id: string;
           priority: string;
         }[]
@@ -404,7 +407,10 @@ describe("checkpoint-02 core API", () => {
     const listedLow = await jsonRequest(tasksPath, member);
     expect(
       (
-        (await listedLow.json()).tasks as { id: string; priority: string }[]
+        ((await listedLow.json()) as Record<string, unknown>).tasks as {
+          id: string;
+          priority: string;
+        }[]
       ).some((task) => task.id === omittedTask.id && task.priority === "low"),
     ).toBe(true);
 
@@ -424,8 +430,10 @@ describe("checkpoint-02 core API", () => {
     });
 
     const beforeInvalid = await jsonRequest(tasksPath, member);
-    const beforeCount = ((await beforeInvalid.json()).tasks as unknown[])
-      .length;
+    const beforeCount = (
+      ((await beforeInvalid.json()) as Record<string, unknown>)
+        .tasks as unknown[]
+    ).length;
     for (const priority of [null, "", "High", "urgent"]) {
       const rejectedCreate = await jsonRequest(tasksPath, member, "POST", {
         title: "Must not persist",
@@ -447,7 +455,7 @@ describe("checkpoint-02 core API", () => {
       });
     }
     const afterInvalid = await jsonRequest(tasksPath, member);
-    const afterBody = await afterInvalid.json();
+    const afterBody = (await afterInvalid.json()) as Record<string, unknown>;
     expect((afterBody.tasks as unknown[]).length).toBe(beforeCount);
     expect(
       (afterBody.tasks as { id: string; priority: string }[]).some(
@@ -465,7 +473,9 @@ describe("checkpoint-02 core API", () => {
       { name: "Priority archive project" },
     );
     expect(createdProjectResponse.status).toBe(201);
-    const project = (await createdProjectResponse.json()).project as {
+    const project = (
+      (await createdProjectResponse.json()) as Record<string, unknown>
+    ).project as {
       id: string;
     };
     const tasksPath = `/api/workspaces/ws-alpha/projects/${project.id}/tasks`;
@@ -474,7 +484,8 @@ describe("checkpoint-02 core API", () => {
       priority: "low",
     });
     expect(createdTaskResponse.status).toBe(201);
-    const task = (await createdTaskResponse.json()).task as { id: string };
+    const task = ((await createdTaskResponse.json()) as Record<string, unknown>)
+      .task as { id: string };
 
     expect(
       (

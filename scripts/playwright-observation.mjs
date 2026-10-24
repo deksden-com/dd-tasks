@@ -94,6 +94,7 @@ export default class Reporter {
       active: new Map(),
       steps: new WeakMap(),
       finished: new WeakSet(),
+      error_phases: new Map(),
       last_progress_at: Date.now(),
       progress_phase: "body",
     });
@@ -138,6 +139,25 @@ export default class Reporter {
     if (state) {
       if (state.finished.has(step)) return;
       state.finished.add(step);
+      if (step.error) {
+        let phase = "test";
+        for (let item = step; item; item = item.parent) {
+          if (/afterEach|afterAll|After Hooks|teardown/i.test(item.title)) {
+            phase = "teardown";
+            break;
+          }
+          if (/beforeEach|beforeAll|Before Hooks|setup/i.test(item.title))
+            phase = "setup";
+          else if (
+            phase === "test" &&
+            ["hook", "fixture"].includes(item.category)
+          )
+            phase = "runner";
+        }
+        const signature = errorSignature(step.error);
+        if (signature && phase !== "test")
+          state.error_phases.set(signature, phase);
+      }
       state.active.delete(state.steps.get(step));
       const teardown = (() => {
         for (let item = step; item; item = item.parent)
@@ -185,7 +205,9 @@ export default class Reporter {
             const missing = missingBrowserExecutable(error);
             return {
               ...normalizeFailure(error, {
-                phase: "test",
+                phase:
+                  state?.error_phases.get(errorSignature(error)) ??
+                  (state?.error_phases.size ? "runner" : "test"),
                 file: test.location?.file,
                 test_id: test.id,
                 assertion: proof.has(errorSignature(error)),

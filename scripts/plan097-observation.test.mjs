@@ -305,6 +305,49 @@ test("real outer observer accepts buffered work after lag, but rejects clock dis
     rmSync(directory, { recursive: true });
   }
 });
+test("native Playwright hook Errors never acquire test-body repair authority", async () => {
+  const directory = mkdtempSync(path.join(root, "scripts/.hooks101-"));
+  try {
+    const spec = path.join(directory, "hooks.spec.mjs");
+    const report = path.join(directory, "report.json");
+    const config = path.join(directory, "playwright.config.mjs");
+    writeFileSync(
+      spec,
+      `import native from ${JSON.stringify(pathToFileURL(webRequire.resolve("@playwright/test")).href)};
+const {test}=native;
+test.describe('setup',()=>{test.beforeEach(()=>{throw new Error('native setup refusal');});test('body',()=>{});});
+test.describe('teardown',()=>{test.afterEach(()=>{throw new Error('native teardown refusal');});test('body',()=>{});});`,
+    );
+    writeFileSync(
+      config,
+      `export default {testDir:${JSON.stringify(directory)},testMatch:'hooks.spec.mjs',workers:1,retries:0,reporter:[[${JSON.stringify(path.join(root, "scripts/playwright-observation.mjs"))}]],outputDir:${JSON.stringify(path.join(directory, "artifacts"))}};`,
+    );
+    const result = await nativeRun(
+      [webRequire.resolve("@playwright/test/cli"), "test", "--config", config],
+      {
+        DD_TASKS_RUNNER_REPORT: report,
+        DD_FLOW_CHECK_INVOCATION_ID: "native-hooks101",
+        DD_FLOW_CHECK_COMMAND: "native hook regression",
+      },
+    );
+    assert.equal(result.status, 1, result.output);
+    const observed = JSON.parse(readFileSync(report));
+    assert.equal(validReport(observed), true, result.output);
+    assert.equal(observed.failures.length, 2);
+    assert.deepEqual(
+      observed.failures.map((item) => item.phase),
+      ["setup", "teardown"],
+    );
+    assert.ok(
+      observed.failures.every(
+        (item) => !item.repair_evidence && item.origin === "unknown",
+      ),
+    );
+  } finally {
+    rmSync(directory, { recursive: true });
+  }
+});
+
 test("native Playwright and Vitest preserve candidate runtime proof, not arbitrary message text", async () => {
   const directory = mkdtempSync(path.join(root, "scripts/.runtime097-"));
   try {

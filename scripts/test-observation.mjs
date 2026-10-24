@@ -220,8 +220,12 @@ function candidateRuntimeProof(error, context, file) {
   if (typeof stack !== "string" || Buffer.byteLength(stack) > 16384)
     return null;
   const exception_type =
-    error.name ?? /^(TypeError|ReferenceError):/.exec(stack)?.[1];
-  if (!["TypeError", "ReferenceError"].includes(exception_type)) return null;
+    error.name ?? /^(TypeError|ReferenceError|Error):/.exec(stack)?.[1];
+  if (
+    !["TypeError", "ReferenceError", "Error"].includes(exception_type) ||
+    (exception_type === "Error" && context.phase !== "test")
+  )
+    return null;
   if (!stack.startsWith(`${exception_type}:`)) return null;
   // Only the first native causal frame, never a later candidate wrapper frame.
   const frame = stack.split("\n").find((line) => /^\s*at\s/.test(line));
@@ -366,7 +370,8 @@ function validRepairEvidence(proof, owner) {
     /^[a-f0-9]{64}$/.test(value.sha256);
   if (proof?.rule === "candidate_test_runtime_error")
     return (
-      ["TypeError", "ReferenceError"].includes(proof.exception_type) &&
+      ["TypeError", "ReferenceError", "Error"].includes(proof.exception_type) &&
+      (proof.exception_type !== "Error" || proof.phase === "test") &&
       ["test", "setup", "collection"].includes(proof.phase) &&
       path.isAbsolute(proof.file ?? "") &&
       /^[a-f0-9]{64}$/.test(proof.file_sha256) &&

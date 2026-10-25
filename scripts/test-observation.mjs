@@ -12,7 +12,7 @@ import {
 } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { candidatePath, nativeArtifact, sha256 } from "./source-diagnostic.mjs";
+import { candidatePath, nativeArtifact, nativeInputArtifact, sha256 } from "./source-diagnostic.mjs";
 
 export { progress, readProgress } from "./runner-progress.mjs";
 
@@ -169,7 +169,7 @@ export function normalizeFailure(error, context = {}) {
     context.tooling === true || /^(08|28|53|57|58)/.test(nativeCode ?? "");
   const runtime =
     !tooling && !assertion && candidate
-      ? candidateRuntimeProof(error, context, file)
+      ? candidateLibraryQueryProof(error, context, file) ?? candidateRuntimeProof(error, context, file)
       : null;
   return {
     category: assertion ? "assertion" : tooling ? "tooling" : "unclassified",
@@ -192,10 +192,10 @@ export function normalizeFailure(error, context = {}) {
       : sql
         ? "candidate_sql_integrity"
         : runtime
-          ? "candidate_test_runtime_error"
+          ? runtime.rule
           : assertion
             ? "native_expectation"
-            : "unsupported_attribution",
+            : error.name === "TestingLibraryElementError" ? "unsupported_library_query_shape" : "unsupported_attribution",
     ...(runtime
       ? {
           repair_evidence: runtime,
@@ -213,6 +213,67 @@ export function normalizeFailure(error, context = {}) {
         }
       : {}),
   };
+}
+const libraryQueryInputs = {
+  "dist/config.js": "3627f6265cccd26604777602d7249788c2347a273bdd1cae41719c790f2c5a7a",
+  "dist/query-helpers.js": "901f513f2ac901992d7c5002e644aef69286edbcd7d050d3ee7dd6aaaebfc9cc",
+  "package.json": "4e62e2aa8b974b6a5d2d532396f7610d1b4e806d9d2aaef3c84221f0d2fab06d",
+};
+function libraryInputBytes(file) {
+  const fd = openSync(file, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
+  try {
+    const before = fstatSync(fd), limit = 2 * 1024 * 1024;
+    if (!before.isFile() || before.size > limit) throw new Error("Invalid library input");
+    const bytes = Buffer.alloc(before.size + 1); let offset = 0;
+    while (offset < bytes.length) { const count = readSync(fd, bytes, offset, bytes.length - offset, offset); if (!count) break; offset += count; }
+    const after = fstatSync(fd);
+    if (offset !== before.size || ["dev", "ino", "size", "mtimeMs", "ctimeMs"].some(key => before[key] !== after[key])) throw new Error("Library input changed");
+    return bytes.subarray(0, offset);
+  } finally { closeSync(fd); }
+}
+function candidateLibraryQueryProof(error, context, file) {
+  if (error.name !== "TestingLibraryElementError" || context.phase !== "test" || typeof context.test_id !== "string" || !context.test_id || Buffer.byteLength(context.test_id) > 4096) return null;
+  const stack = error.stack ?? error.stackStr;
+  if (typeof stack !== "string" || Buffer.byteLength(stack) > 256 * 1024 || !stack.startsWith("TestingLibraryElementError:")) return null;
+  const frameLines = stack.split("\n").filter(line => /^\s*at\s/.test(line));
+  if (!frameLines.length || frameLines.length > 32 || frameLines.some(line => Buffer.byteLength(line) > 4096)) return null;
+  const parseFrame = line => {
+    const match = /^\s*at (?:.*?\()?((?:file:\/\/)?\/[^\n]+):(\d+):(\d+)\)?$/.exec(line);
+    if (!match) return null;
+    const file = match[1].startsWith("file:") ? fileURLToPath(match[1]) : match[1];
+    return { file: realpathSync(file), line: Number(match[2]), column: Number(match[3]) };
+  };
+  try {
+    const frames = frameLines.map(parseFrame);
+    const callsite = frames.findIndex(frame => frame?.file === realpathSync(file));
+    if (callsite < 2 || callsite > 8 || frames.slice(0, callsite + 1).some(frame => !frame || ![frame.line, frame.column].every(n => Number.isSafeInteger(n) && n > 0))) return null;
+    const packageRoot = path.dirname(path.dirname(frames[0].file));
+    const installationRoot = realpathSync(root), relative = path.relative(installationRoot, packageRoot);
+    if (!relative || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) return null;
+    const configFile = path.join(packageRoot, "dist/config.js"), queryFile = path.join(packageRoot, "dist/query-helpers.js");
+    if (frames[0].file !== configFile || !frameLines[0].includes("getElementError") || frames.slice(1, callsite).some(frame => frame.file !== queryFile)) return null;
+    const files = [...Object.keys(libraryQueryInputs).map(name => path.join(packageRoot, name)), path.join(installationRoot, "pnpm-lock.yaml")];
+    const inputs = files.map(input => {
+      const actual = candidatePath(input), bytes = libraryInputBytes(actual);
+      return { file: realpathSync(actual), sha256: sha256(bytes), bytes };
+    });
+    if (inputs.slice(0, 3).some((input, index) => input.sha256 !== Object.values(libraryQueryInputs)[index])) return null;
+    const pkg = JSON.parse(inputs[2].bytes);
+    if (pkg.name !== "@testing-library/dom" || pkg.version !== "10.4.1" || !inputs[3].bytes.toString("utf8").includes("@testing-library/dom@10.4.1")) return null;
+    const helper_frames = frames.slice(0, callsite).map(frame => ({ ...frame, file_sha256: inputs.find(input => input.file === frame.file).sha256 }));
+    const proof = { rule: "candidate_library_query_error", exception_type: "TestingLibraryElementError", phase: "test", test_id: context.test_id,
+      file: realpathSync(candidatePath(file)), file_sha256: sha256(readFileSync(file)), line: frames[callsite].line, column: frames[callsite].column,
+      library: { name: pkg.name, version: pkg.version, package_json_sha256: inputs[2].sha256, lockfile_sha256: inputs[3].sha256 }, helper_frames };
+    const selectedLines = frameLines.slice(0, callsite + 1);
+    // Only full native frame lines, not a DOM dump or a reconstructed stack.
+    const machine = { ...proof, executing_file: proof.file, exception_name: error.name, test_id: context.test_id,
+      frame_lines: selectedLines, stack_complete: true, frames_complete: true };
+    if (Buffer.byteLength(JSON.stringify(machine)) > 128 * 1024 || JSON.stringify(sanitizeDiagnostic(machine)) !== JSON.stringify(machine)) return null;
+    const library_inputs = inputs.map(({ file, sha256, bytes }) => ({ file, sha256, artifact: nativeInputArtifact(bytes) }));
+    if (library_inputs.some(input => !input.artifact)) return null;
+    const ref = nativeArtifact({ ...machine, library_inputs });
+    return ref ? { ...proof, native_artifact: ref } : null;
+  } catch { return null; }
 }
 function candidateRuntimeProof(error, context, file) {
   if (!["test", "setup", "collection"].includes(context.phase)) return null;
@@ -368,6 +429,11 @@ function validRepairEvidence(proof, owner) {
       .split(/[\\/]/)
       .some((part) => !part || part === "." || part === "..") &&
     /^[a-f0-9]{64}$/.test(value.sha256);
+  if (proof?.rule === "candidate_library_query_error") return proof.exception_type === "TestingLibraryElementError" && proof.phase === "test"
+    && typeof proof.test_id === "string" && proof.test_id.length > 0 && Buffer.byteLength(proof.test_id) <= 4096
+    && path.isAbsolute(proof.file ?? "") && /^[a-f0-9]{64}$/.test(proof.file_sha256) && [proof.line, proof.column].every(n => Number.isSafeInteger(n) && n > 0)
+    && proof.library?.name === "@testing-library/dom" && proof.library.version === "10.4.1" && [proof.library.package_json_sha256, proof.library.lockfile_sha256].every(x => /^[a-f0-9]{64}$/.test(x))
+    && Array.isArray(proof.helper_frames) && proof.helper_frames.length >= 2 && proof.helper_frames.length <= 8 && proof.helper_frames.every(frame => path.isAbsolute(frame.file ?? "") && /^[a-f0-9]{64}$/.test(frame.file_sha256) && [frame.line, frame.column].every(n => Number.isSafeInteger(n) && n > 0)) && reference(proof.native_artifact);
   if (proof?.rule === "candidate_test_runtime_error")
     return (
       ["TypeError", "ReferenceError", "Error"].includes(proof.exception_type) &&

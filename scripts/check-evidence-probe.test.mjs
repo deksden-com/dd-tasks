@@ -58,3 +58,18 @@ test("failure capability probe executes real isolated producers", () => {
     rmSync(outputRoot, { recursive: true });
   }
 });
+
+test("probe @2 adds a real library query while @1 stays backward compatible", () => {
+  const outputRoot = mkdtempSync(path.join(os.tmpdir(), "evidence-probe105-"));
+  try {
+    const manifest = produceEvidenceProbe({ outputRoot, contract: "dd-tasks/check-evidence-probe@2", binding: { invocation_id: "query", check_id: "query", command: "probe", input_hash: "a".repeat(64), verification_epoch: "b".repeat(64) } });
+    assert.equal(manifest.schema_id, "dd-tasks/check-evidence-probe@2");
+    assert.equal(manifest.cases.length, 6);
+    const item = manifest.cases.find(item => item.id === "library-query");
+    const report = JSON.parse(readFileSync(path.join(outputRoot, item.root, item.contract.path)));
+    assert.equal(validReport(report), true);
+    assert.equal(report.failures[0].repair_evidence.rule, "candidate_library_query_error");
+    assert.equal(report.failures[0].category, "unclassified");
+    assert.throws(() => produceEvidenceProbe({ outputRoot, contract: "foreign" }), /contract/);
+  } finally { rmSync(outputRoot, { recursive: true }); }
+});

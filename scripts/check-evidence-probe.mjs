@@ -9,13 +9,15 @@ import {
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
+import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 
 const sourceRoot = path.resolve(import.meta.dirname, "..");
 const json = (file, value) => writeFileSync(file, JSON.stringify(value));
 
 // Run the actual producers in a disposable candidate, never in the scored workspace.
-export function produceEvidenceProbe({ outputRoot, binding }) {
+export function produceEvidenceProbe({ outputRoot, binding, contract = "dd-tasks/check-evidence-probe@1" }) {
+  if (!["dd-tasks/check-evidence-probe@1", "dd-tasks/check-evidence-probe@2"].includes(contract)) throw new Error("Unsupported producer probe contract");
   let output = path.resolve(outputRoot);
   if (
     !binding ||
@@ -97,6 +99,18 @@ export function produceEvidenceProbe({ outputRoot, binding }) {
     },
     files: ["probe.test.ts"],
   });
+  if (contract.endsWith("@2")) {
+    const require = createRequire(path.join(sourceRoot, "apps/web/package.json"));
+    const installed = path.dirname(createRequire(require.resolve("@testing-library/react")).resolve("@testing-library/dom/package.json"));
+    const local = path.join(project, ".probe-library/node_modules/@testing-library/dom");
+    mkdirSync(path.dirname(local), { recursive: true });
+    cpSync(installed, local, { recursive: true, errorOnExist: true, force: false, filter: file => file === installed || path.basename(file) !== "node_modules" });
+    // Ancillary dependencies may be shared read-only; the attested helper
+    // package itself is a real candidate-owned installation, never an escape.
+    symlinkSync(path.dirname(path.dirname(installed)), path.join(local, "node_modules"), "dir");
+    cpSync(path.join(sourceRoot, "pnpm-lock.yaml"), path.join(project, "pnpm-lock.yaml"));
+    writeFileSync(path.join(project, "library-query.test.cjs"), `module.exports = function query(document) { return require('./.probe-library/node_modules/@testing-library/dom').getByText(document.body, 'duplicate'); };\n`);
+  }
   const cases = [];
   for (const id of [
     "browser-window",
@@ -104,6 +118,7 @@ export function produceEvidenceProbe({ outputRoot, binding }) {
     "runtime-typeerror",
     "compiler",
     "composite",
+    ...(contract.endsWith("@2") ? ["library-query"] : []),
   ]) {
     const root = path.join(output, id),
       owner = {
@@ -151,7 +166,7 @@ export function produceEvidenceProbe({ outputRoot, binding }) {
       expected: "source_repair",
     });
   }
-  const manifest = { schema_id: "dd-tasks/check-evidence-probe@1", cases };
+  const manifest = { schema_id: contract, cases };
   json(path.join(output, "probe.json"), manifest);
   return manifest;
 }
@@ -181,6 +196,19 @@ async function emitRuntime(type = "Error") {
 }
 
 async function produce(id) {
+  if (id === "library-query") {
+    const require = createRequire(path.join(sourceRoot, "apps/web/package.json"));
+    const { JSDOM } = require("jsdom");
+    const { normalizeFailure, evidence } = await import("./test-observation.mjs");
+    const file = path.join(sourceRoot, "library-query.test.cjs");
+    let error;
+    try { createRequire(import.meta.url)(file)(new JSDOM('<p>duplicate</p><p>duplicate</p>').window.document); }
+    catch (failure) { error = failure; }
+    const failure = normalizeFailure(error ?? {}, { file, phase: "test", test_id: "native-library-query" });
+    if (failure.repair_evidence?.rule !== "candidate_library_query_error") throw new Error(`Actual library query was not attributed: ${failure.classification_reason}`);
+    evidence({ name: "vitest-native-query-probe", version: "1" }, { passed: 0, failed: 1, skipped: 0 }, [failure]);
+    return;
+  }
   if (id.startsWith("runtime-"))
     return emitRuntime(id === "runtime-error" ? "Error" : "TypeError");
   if (id === "compiler") {
@@ -308,6 +336,7 @@ if (
       throw new Error(
         "Usage: --output <new directory> --binding-json <binding>",
       );
-    produceEvidenceProbe({ outputRoot, binding: JSON.parse(raw) });
+    const contract = args.includes("--contract") ? args[args.indexOf("--contract") + 1] : undefined;
+    produceEvidenceProbe({ outputRoot, binding: JSON.parse(raw), ...(contract ? { contract } : {}) });
   }
 }

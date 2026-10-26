@@ -6,22 +6,13 @@ import {
   openSync,
   readFileSync,
   readSync,
-  realpathSync,
   renameSync,
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
-import {
-  candidatePath,
-  nativeArtifact,
-  nativeInputArtifact,
-  sha256,
-} from "./source-diagnostic.mjs";
 
 export { progress, readProgress } from "./runner-progress.mjs";
 
-const root = path.resolve(import.meta.dirname, "..");
 const bounded = (value, limit) => {
   const bytes = Buffer.from(
     String(value ?? "")
@@ -153,315 +144,30 @@ export function readyWorldProof() {
   }
 }
 export function normalizeFailure(error, context = {}) {
-  const file =
-    typeof context.file === "string" ? path.resolve(context.file) : undefined;
-  let candidate = false;
-  try {
-    candidate =
-      file &&
-      !path.relative(realpathSync(root), realpathSync(file)).startsWith("..") &&
-      !path.isAbsolute(path.relative(realpathSync(root), realpathSync(file)));
-  } catch {}
-  const nativeCode = typeof error.code === "string" ? error.code : undefined;
-  const world = readyWorldProof();
-  const sql =
-    candidate &&
-    world &&
-    ["23502", "23503", "23505", "23514"].includes(nativeCode) &&
-    ["test", "setup"].includes(context.phase);
-  const assertion = context.assertion === true;
-  const tooling =
-    context.tooling === true || /^(08|28|53|57|58)/.test(nativeCode ?? "");
-  const runtime =
-    !tooling && !assertion && candidate
-      ? (candidateLibraryQueryProof(error, context, file) ??
-        candidateRuntimeProof(error, context, file))
-      : null;
+  // Error attribution is diagnostic metadata, never authority to run repair.
+  // Preserve native data without parsing stacks or hashing dependency internals.
   return {
-    category: assertion ? "assertion" : tooling ? "tooling" : "unclassified",
+    category: context.assertion
+      ? "assertion"
+      : context.tooling
+        ? "tooling"
+        : "unclassified",
     code: bounded(error.name ?? context.code ?? "test_failure", 256),
     message: bounded(error.message ?? error.value ?? "Test failed", 4096),
-    origin: tooling
-      ? "tooling"
-      : (assertion && candidate) || sql || runtime
-        ? "candidate"
-        : "unknown",
+    origin: context.tooling ? "tooling" : "unknown",
     phase: context.phase ?? "test",
-    ...(file ? { file } : {}),
+    ...(typeof context.file === "string"
+      ? { file: path.resolve(context.file) }
+      : {}),
     ...(context.test_id ? { test_id: bounded(context.test_id, 1024) } : {}),
-    ...(error.stack ? { stack: bounded(error.stack, 16384) } : {}),
-    ...(runtime || nativeCode
-      ? { native_code: bounded(runtime?.exception_type ?? nativeCode, 256) }
+    ...((error.stack ?? error.stackStr)
+      ? { stack: bounded(error.stack ?? error.stackStr, 16384) }
       : {}),
-    classification_reason: tooling
-      ? "runner_or_infrastructure"
-      : sql
-        ? "candidate_sql_integrity"
-        : runtime
-          ? runtime.rule
-          : assertion
-            ? "native_expectation"
-            : error.name === "TestingLibraryElementError"
-              ? "unsupported_library_query_shape"
-              : "unsupported_attribution",
-    ...(runtime
-      ? {
-          repair_evidence: runtime,
-          diagnostic_artifact: runtime.native_artifact,
-        }
+    ...(typeof error.code === "string"
+      ? { native_code: bounded(error.code, 256) }
       : {}),
-    ...(sql && !tooling
-      ? {
-          repair_evidence: {
-            rule: "candidate_sql_integrity",
-            native_code: nativeCode,
-            file,
-            world,
-          },
-        }
-      : {}),
+    classification_reason: "native_diagnostic",
   };
-}
-const libraryQueryInputs = {
-  "dist/config.js":
-    "3627f6265cccd26604777602d7249788c2347a273bdd1cae41719c790f2c5a7a",
-  "dist/query-helpers.js":
-    "901f513f2ac901992d7c5002e644aef69286edbcd7d050d3ee7dd6aaaebfc9cc",
-  "package.json":
-    "4e62e2aa8b974b6a5d2d532396f7610d1b4e806d9d2aaef3c84221f0d2fab06d",
-};
-function libraryInputBytes(file) {
-  const fd = openSync(
-    file,
-    constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK,
-  );
-  try {
-    const before = fstatSync(fd),
-      limit = 2 * 1024 * 1024;
-    if (!before.isFile() || before.size > limit)
-      throw new Error("Invalid library input");
-    const bytes = Buffer.alloc(before.size + 1);
-    let offset = 0;
-    while (offset < bytes.length) {
-      const count = readSync(fd, bytes, offset, bytes.length - offset, offset);
-      if (!count) break;
-      offset += count;
-    }
-    const after = fstatSync(fd);
-    if (
-      offset !== before.size ||
-      ["dev", "ino", "size", "mtimeMs", "ctimeMs"].some(
-        (key) => before[key] !== after[key],
-      )
-    )
-      throw new Error("Library input changed");
-    return bytes.subarray(0, offset);
-  } finally {
-    closeSync(fd);
-  }
-}
-function candidateLibraryQueryProof(error, context, file) {
-  if (
-    error.name !== "TestingLibraryElementError" ||
-    context.phase !== "test" ||
-    typeof context.test_id !== "string" ||
-    !context.test_id ||
-    Buffer.byteLength(context.test_id) > 4096
-  )
-    return null;
-  const stack = error.stack ?? error.stackStr;
-  if (
-    typeof stack !== "string" ||
-    Buffer.byteLength(stack) > 256 * 1024 ||
-    !stack.startsWith("TestingLibraryElementError:")
-  )
-    return null;
-  const frameLines = stack.split("\n").filter((line) => /^\s*at\s/.test(line));
-  if (
-    !frameLines.length ||
-    frameLines.length > 32 ||
-    frameLines.some((line) => Buffer.byteLength(line) > 4096)
-  )
-    return null;
-  const parseFrame = (line) => {
-    const match =
-      /^\s*at (?:.*?\()?((?:file:\/\/)?\/[^\n]+):(\d+):(\d+)\)?$/.exec(line);
-    if (!match) return null;
-    const file = match[1].startsWith("file:")
-      ? fileURLToPath(match[1])
-      : match[1];
-    return {
-      file: realpathSync(file),
-      line: Number(match[2]),
-      column: Number(match[3]),
-    };
-  };
-  try {
-    const frames = frameLines.map(parseFrame);
-    const callsite = frames.findIndex(
-      (frame) => frame?.file === realpathSync(file),
-    );
-    if (
-      callsite < 2 ||
-      callsite > 8 ||
-      frames
-        .slice(0, callsite + 1)
-        .some(
-          (frame) =>
-            !frame ||
-            ![frame.line, frame.column].every(
-              (n) => Number.isSafeInteger(n) && n > 0,
-            ),
-        )
-    )
-      return null;
-    const packageRoot = path.dirname(path.dirname(frames[0].file));
-    const installationRoot = realpathSync(root),
-      relative = path.relative(installationRoot, packageRoot);
-    if (
-      !relative ||
-      relative.startsWith(`..${path.sep}`) ||
-      path.isAbsolute(relative)
-    )
-      return null;
-    const configFile = path.join(packageRoot, "dist/config.js"),
-      queryFile = path.join(packageRoot, "dist/query-helpers.js");
-    if (
-      frames[0].file !== configFile ||
-      !frameLines[0].includes("getElementError") ||
-      frames.slice(1, callsite).some((frame) => frame.file !== queryFile)
-    )
-      return null;
-    const files = [
-      ...Object.keys(libraryQueryInputs).map((name) =>
-        path.join(packageRoot, name),
-      ),
-      path.join(installationRoot, "pnpm-lock.yaml"),
-    ];
-    const inputs = files.map((input) => {
-      const actual = candidatePath(input),
-        bytes = libraryInputBytes(actual);
-      return { file: realpathSync(actual), sha256: sha256(bytes), bytes };
-    });
-    if (
-      inputs
-        .slice(0, 3)
-        .some(
-          (input, index) =>
-            input.sha256 !== Object.values(libraryQueryInputs)[index],
-        )
-    )
-      return null;
-    const pkg = JSON.parse(inputs[2].bytes);
-    if (
-      pkg.name !== "@testing-library/dom" ||
-      pkg.version !== "10.4.1" ||
-      !inputs[3].bytes.toString("utf8").includes("@testing-library/dom@10.4.1")
-    )
-      return null;
-    const helper_frames = frames.slice(0, callsite).map((frame) => ({
-      ...frame,
-      file_sha256: inputs.find((input) => input.file === frame.file).sha256,
-    }));
-    const proof = {
-      rule: "candidate_library_query_error",
-      exception_type: "TestingLibraryElementError",
-      phase: "test",
-      test_id: context.test_id,
-      file: realpathSync(candidatePath(file)),
-      file_sha256: sha256(readFileSync(file)),
-      line: frames[callsite].line,
-      column: frames[callsite].column,
-      library: {
-        name: pkg.name,
-        version: pkg.version,
-        package_json_sha256: inputs[2].sha256,
-        lockfile_sha256: inputs[3].sha256,
-      },
-      helper_frames,
-    };
-    const selectedLines = frameLines.slice(0, callsite + 1);
-    // Only full native frame lines, not a DOM dump or a reconstructed stack.
-    const machine = {
-      ...proof,
-      executing_file: proof.file,
-      exception_name: error.name,
-      test_id: context.test_id,
-      frame_lines: selectedLines,
-      stack_complete: true,
-      frames_complete: true,
-    };
-    if (
-      Buffer.byteLength(JSON.stringify(machine)) > 128 * 1024 ||
-      JSON.stringify(sanitizeDiagnostic(machine)) !== JSON.stringify(machine)
-    )
-      return null;
-    const library_inputs = inputs.map(({ file, sha256, bytes }) => ({
-      file,
-      sha256,
-      artifact: nativeInputArtifact(bytes),
-    }));
-    if (library_inputs.some((input) => !input.artifact)) return null;
-    const ref = nativeArtifact({ ...machine, library_inputs });
-    return ref ? { ...proof, native_artifact: ref } : null;
-  } catch {
-    return null;
-  }
-}
-function candidateRuntimeProof(error, context, file) {
-  if (!["test", "setup", "collection"].includes(context.phase)) return null;
-  const stack = error.stack ?? error.stackStr;
-  if (typeof stack !== "string" || Buffer.byteLength(stack) > 16384)
-    return null;
-  const exception_type =
-    error.name ?? /^(TypeError|ReferenceError|Error):/.exec(stack)?.[1];
-  if (
-    !["TypeError", "ReferenceError", "Error"].includes(exception_type) ||
-    (exception_type === "Error" && context.phase !== "test")
-  )
-    return null;
-  if (!stack.startsWith(`${exception_type}:`)) return null;
-  // Only the first native causal frame, never a later candidate wrapper frame.
-  const frame = stack.split("\n").find((line) => /^\s*at\s/.test(line));
-  const match =
-    /^\s*at (?:.*?\()?((?:file:\/\/)?\/[^\n]+):(\d+):(\d+)\)?$/.exec(
-      frame ?? "",
-    );
-  if (!match) return null;
-  try {
-    const actual = match[1].startsWith("file:")
-      ? fileURLToPath(match[1])
-      : match[1];
-    if (
-      realpathSync(candidatePath(actual)) !== realpathSync(candidatePath(file))
-    )
-      return null;
-    const line = Number(match[2]),
-      column = Number(match[3]);
-    if (
-      ![line, column].every((value) => Number.isSafeInteger(value) && value > 0)
-    )
-      return null;
-    const proof = {
-      rule: "candidate_test_runtime_error",
-      exception_type,
-      file,
-      file_sha256: sha256(readFileSync(file)),
-      line,
-      column,
-      phase: context.phase,
-    };
-    const ref = nativeArtifact({
-      ...proof,
-      executing_file: file,
-      top_frame: { file, line, column },
-      stack,
-      exception_name: exception_type,
-    });
-    return ref ? { ...proof, native_artifact: ref } : null;
-  } catch {
-    return null;
-  }
 }
 export function validReport(report) {
   return (

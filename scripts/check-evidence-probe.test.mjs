@@ -6,7 +6,7 @@ import { test } from "node:test";
 import { produceEvidenceProbe } from "./check-evidence-probe.mjs";
 import { validReport } from "./test-observation.mjs";
 
-test("failure capability probe executes real isolated producers", () => {
+test("explicit diagnostic probe executes real isolated producers", () => {
   const outputRoot = mkdtempSync(path.join(os.tmpdir(), "evidence-probe101-"));
   const binding = {
     invocation_id: "probe",
@@ -47,7 +47,7 @@ test("failure capability probe executes real isolated producers", () => {
         assert.ok(report.failures[0].child_evidence);
       }
       assert.deepEqual(report.binding, item.binding);
-      assert.equal(item.expected, "source_repair");
+      assert.equal(item.expected, "diagnosis_required");
     }
     assert.throws(() => produceEvidenceProbe({ outputRoot, binding }), /exist/);
     assert.throws(
@@ -80,10 +80,7 @@ test("probe @2 adds a real library query while @1 stays backward compatible", ()
       readFileSync(path.join(outputRoot, item.root, item.contract.path)),
     );
     assert.equal(validReport(report), true);
-    assert.equal(
-      report.failures[0].repair_evidence.rule,
-      "candidate_library_query_error",
-    );
+    assert.equal(report.failures[0].repair_evidence, undefined);
     assert.equal(report.failures[0].category, "unclassified");
     assert.throws(
       () => produceEvidenceProbe({ outputRoot, contract: "foreign" }),

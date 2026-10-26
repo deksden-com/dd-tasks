@@ -198,7 +198,7 @@ export function produceEvidenceProbe({
         path: "report.json",
       },
       binding: owner,
-      expected: "source_repair",
+      expected: "diagnosis_required",
     });
   }
   const manifest = { schema_id: contract, cases };
@@ -221,8 +221,8 @@ async function emitRuntime(type = "Error") {
     },
     { file, phase: "test" },
   );
-  if (!failure.repair_evidence)
-    throw new Error("Native runtime error was not attributed");
+  if (failure.message !== message || !failure.stack)
+    throw new Error("Native runtime diagnostic was not retained");
   evidence(
     { name: "native-runtime-probe", version: "1" },
     { passed: 0, failed: 1, skipped: 0 },
@@ -253,10 +253,8 @@ async function produce(id) {
       phase: "test",
       test_id: "native-library-query",
     });
-    if (failure.repair_evidence?.rule !== "candidate_library_query_error")
-      throw new Error(
-        `Actual library query was not attributed: ${failure.classification_reason}`,
-      );
+    if (!error || !failure.message || !failure.stack)
+      throw new Error("Actual library query diagnostic was not retained");
     evidence(
       { name: "vitest-native-query-probe", version: "1" },
       { passed: 0, failed: 1, skipped: 0 },

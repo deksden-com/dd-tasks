@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { createHash } from "node:crypto";
 import {
   mkdtempSync,
   readdirSync,
@@ -22,84 +21,26 @@ import {
   validReport,
 } from "./test-observation.mjs";
 
-test("candidate runtime authority uses exact top frame, native type and executing module", () => {
-  const directory = mkdtempSync(path.join(os.tmpdir(), "runtime-proof-"));
-  const previous = process.env.DD_TASKS_RUNNER_REPORT;
-  process.env.DD_TASKS_RUNNER_REPORT = path.join(directory, "report.json");
-  try {
-    const native = {
-      message: "missing matcher",
-      stack: `TypeError: missing matcher\n    at ${import.meta.filename}:15:3`,
+test("candidate runtime diagnostics do not depend on native type or first frame", () => {
+  for (const name of [
+    "Error",
+    "TypeError",
+    "ReferenceError",
+    "RangeError",
+    "SyntaxError",
+  ]) {
+    const error = {
+      name,
+      message: "failure",
+      stack: `${name}: failure\n    at /dependency.js:1:1`,
     };
-    const context = { file: import.meta.filename, phase: "test" };
-    const failure = normalizeFailure(native, context);
-    assert.equal(failure.repair_evidence.rule, "candidate_test_runtime_error");
-    assert.equal(failure.origin, "candidate");
-    const proof = failure.repair_evidence;
-    const bytes = readFileSync(
-      path.join(directory, proof.native_artifact.relative_path),
-    );
-    assert.equal(
-      createHash("sha256").update(bytes).digest("hex"),
-      proof.native_artifact.sha256,
-    );
-    assert.deepEqual(JSON.parse(bytes).top_frame, {
+    const failure = normalizeFailure(error, {
       file: import.meta.filename,
-      line: 15,
-      column: 3,
+      phase: "test",
     });
-    for (const [error, scope] of [
-      [{ ...native, name: "Error" }, context],
-      [
-        {
-          ...native,
-          stack: `TypeError: missing matcher\n    at /tmp/dependency.js:1:1\n    at ${import.meta.filename}:15:3`,
-        },
-        context,
-      ],
-      [native, { ...context, phase: "teardown" }],
-      [{ message: "TypeError arbitrary stderr" }, context],
-      [{ ...native, name: "RangeError" }, context],
-    ])
-      assert.equal(normalizeFailure(error, scope).repair_evidence, undefined);
-    assert.ok(
-      normalizeFailure(
-        {
-          ...native,
-          name: "ReferenceError",
-          stack: native.stack.replace("TypeError:", "ReferenceError:"),
-        },
-        { ...context, phase: "collection" },
-      ).repair_evidence,
-    );
-    const helperError = {
-      name: "Error",
-      message: "Expected synchronized query lock: UPDATE projects",
-      stack: `Error: Expected synchronized query lock: UPDATE projects\n    at waitForQueryLock (${import.meta.filename}:100:9)`,
-    };
-    assert.equal(
-      normalizeFailure(helperError, context).repair_evidence?.exception_type,
-      "Error",
-    );
-    for (const phase of ["setup", "collection", "teardown", "runner"])
-      assert.equal(
-        normalizeFailure(helperError, { ...context, phase }).repair_evidence,
-        undefined,
-      );
-    assert.equal(
-      normalizeFailure(
-        {
-          ...helperError,
-          stack: `Error: network\n    at /tmp/dependency.js:1:1\n    at ${import.meta.filename}:100:9`,
-        },
-        context,
-      ).repair_evidence,
-      undefined,
-    );
-  } finally {
-    if (previous === undefined) delete process.env.DD_TASKS_RUNNER_REPORT;
-    else process.env.DD_TASKS_RUNNER_REPORT = previous;
-    rmSync(directory, { recursive: true });
+    assert.equal(failure.origin, "unknown");
+    assert.equal(failure.repair_evidence, undefined);
+    assert.equal(failure.stack, error.stack);
   }
 });
 
@@ -305,7 +246,7 @@ test("real outer observer accepts buffered work after lag, but rejects clock dis
     rmSync(directory, { recursive: true });
   }
 });
-test("native Playwright hook Errors never acquire test-body repair authority", async () => {
+test("native Playwright preserves hook and body phases without causal proofs", async () => {
   const directory = mkdtempSync(path.join(root, "scripts/.hooks101-"));
   try {
     const spec = path.join(directory, "hooks.spec.mjs");
@@ -344,16 +285,13 @@ test('ordinary step title is not a native hook',()=>test.step('setup then teardo
         .slice(0, 2)
         .every((item) => !item.repair_evidence && item.origin === "unknown"),
     );
-    assert.equal(
-      observed.failures[2].repair_evidence?.rule,
-      "candidate_test_runtime_error",
-    );
+    assert.equal(observed.failures[2].repair_evidence, undefined);
   } finally {
     rmSync(directory, { recursive: true });
   }
 });
 
-test("native Playwright and Vitest preserve candidate runtime proof, not arbitrary message text", async () => {
+test("native Playwright and Vitest retain runtime diagnostics without stack attribution", async () => {
   const directory = mkdtempSync(path.join(root, "scripts/.runtime097-"));
   try {
     for (const runner of ["playwright", "vitest"]) {
@@ -399,7 +337,7 @@ test("native Playwright and Vitest preserve candidate runtime proof, not arbitra
           (item) =>
             item.repair_evidence?.rule === "candidate_test_runtime_error",
         ).length,
-        2,
+        0,
         JSON.stringify(observed),
       );
       assert.equal(
@@ -418,27 +356,24 @@ test("native Playwright and Vitest preserve candidate runtime proof, not arbitra
           observed.binding,
         );
         assert.ok(accepted, JSON.stringify(observed));
-        const failure = accepted.failures.find(
-          (item) =>
-            item.repair_evidence?.rule === "candidate_test_runtime_error",
-        );
+        const failure = accepted.failures[0];
         assert.equal(
-          engine.checkRepairDisposition({
+          engine.checkDiagnosisDisposition({
             status: "failed",
             exit_code: 1,
             runner_evidence: { ...accepted, failures: [failure] },
             candidate_root: root,
           }),
-          "source_repair",
+          "diagnosis_required",
         );
         assert.equal(
-          engine.checkRepairDisposition({
+          engine.checkDiagnosisDisposition({
             status: "failed",
             exit_code: 1,
             runner_evidence: accepted,
             candidate_root: root,
           }),
-          "unclassified",
+          "diagnosis_required",
         );
       }
     }

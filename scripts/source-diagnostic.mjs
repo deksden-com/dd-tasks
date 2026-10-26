@@ -56,20 +56,6 @@ export function nativeArtifact(value) {
   writeFileSync(file, bytes, { flag: "wx", mode: 0o600 });
   return { relative_path, sha256: sha256(bytes) };
 }
-// Raw library inputs are evidence, never imported executable code. They must not
-// pass through human-diagnostic truncation/redaction and lose their identity.
-export function nativeInputArtifact(bytes) {
-  const report =
-    process.env.DD_FLOW_CHECK_RUNNER_EVIDENCE_PATH ??
-    process.env.DD_TASKS_RUNNER_REPORT;
-  if (!report || !Buffer.isBuffer(bytes) || bytes.length > 2 * 1024 * 1024)
-    return null;
-  const relative_path = `native-input-${randomUUID()}.bin`;
-  const file = path.join(path.dirname(report), relative_path);
-  mkdirSync(path.dirname(file), { recursive: true });
-  writeFileSync(file, bytes, { flag: "wx", mode: 0o600 });
-  return { relative_path, sha256: sha256(bytes) };
-}
 // Observe fatal native errors without intercepting Node's default nonzero exit.
 export function observeToolErrors(runner) {
   process.once("uncaughtExceptionMonitor", (error) => {

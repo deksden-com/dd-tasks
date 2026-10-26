@@ -215,7 +215,7 @@ test("diagnostics redact credentials and preserve UTF8 byte bounds", () => {
   });
   assert.equal(JSON.stringify(diagnostic).includes("private"), false);
 });
-test("owned migrated PostgreSQL world retains real beforeAll SQLSTATE23503 repair proof", {
+test("owned migrated PostgreSQL world retains real beforeAll SQLSTATE23503 diagnostics", {
   skip: !process.env.DD_TASKS_TEST_ADMIN_URL,
 }, async () => {
   const directory = mkdtempSync(path.join(os.tmpdir(), "dd-tasks-sql-native-"));
@@ -263,9 +263,8 @@ test("owned migrated PostgreSQL world retains real beforeAll SQLSTATE23503 repai
     const failure = report.failures[0];
     assert.equal(failure.native_code, "23503");
     assert.equal(failure.phase, "setup");
-    assert.equal(failure.origin, "candidate");
-    assert.equal(failure.repair_evidence.world.ready, true);
-    assert.equal(failure.repair_evidence.world.invocation_id, "native-sql");
+    assert.equal(failure.origin, "unknown");
+    assert.equal(failure.repair_evidence, undefined);
     assert.equal(validReport(report), true);
   } finally {
     rmSync(directory, { recursive: true });

@@ -59,8 +59,11 @@ export function nativeArtifact(value) {
 // Raw library inputs are evidence, never imported executable code. They must not
 // pass through human-diagnostic truncation/redaction and lose their identity.
 export function nativeInputArtifact(bytes) {
-  const report = process.env.DD_FLOW_CHECK_RUNNER_EVIDENCE_PATH ?? process.env.DD_TASKS_RUNNER_REPORT;
-  if (!report || !Buffer.isBuffer(bytes) || bytes.length > 2 * 1024 * 1024) return null;
+  const report =
+    process.env.DD_FLOW_CHECK_RUNNER_EVIDENCE_PATH ??
+    process.env.DD_TASKS_RUNNER_REPORT;
+  if (!report || !Buffer.isBuffer(bytes) || bytes.length > 2 * 1024 * 1024)
+    return null;
   const relative_path = `native-input-${randomUUID()}.bin`;
   const file = path.join(path.dirname(report), relative_path);
   mkdirSync(path.dirname(file), { recursive: true });

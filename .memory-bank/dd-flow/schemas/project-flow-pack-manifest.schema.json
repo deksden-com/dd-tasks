@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "dd-flow/project-flow-pack-manifest@2",
   "title": "Project flow pack manifest",
-  "description": "Manifest for the curated project-local dd-flow pack installed under .memory-bank/dd-flow/.",
+  "description": "Manifest shape for current and retained historical project-local packs. The current producer separately enforces canonical-only exclusions; obsolete included paths remain readable for safe upgrade and preservation.",
   "type": "object",
   "additionalProperties": false,
   "required": [

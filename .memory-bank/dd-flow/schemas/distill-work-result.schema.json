@@ -1,0 +1,428 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dd-flow/distill-work-result@1",
+  "title": "Read-only practice extraction or independent distillation criticism",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_id",
+    "flow_id",
+    "run_id",
+    "work_id",
+    "stage",
+    "aspect_id",
+    "summary",
+    "baseline_summary",
+    "checked",
+    "candidates",
+    "decisions",
+    "external_research",
+    "limitations"
+  ],
+  "properties": {
+    "schema_id": {
+      "const": "dd-flow/distill-work-result@1"
+    },
+    "flow_id": {
+      "const": "mb-distill"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^RUN-[0-9]+-[a-z0-9-]+$"
+    },
+    "work_id": {
+      "type": "string",
+      "pattern": "^WRK-[0-9]+-[a-z0-9-]+$"
+    },
+    "stage": {
+      "enum": [
+        "extract",
+        "review"
+      ]
+    },
+    "aspect_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 16000
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 16000
+    },
+    "baseline_summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 16000
+    },
+    "checked": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 16000
+    },
+    "candidates": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 1000,
+      "items": {
+        "$ref": "#/$defs/candidate"
+      }
+    },
+    "decisions": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 2000,
+      "items": {
+        "$ref": "#/$defs/decision"
+      }
+    },
+    "external_research": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "used",
+        "reason",
+        "questions",
+        "sources",
+        "signal",
+        "effect"
+      ],
+      "properties": {
+        "used": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16000
+        },
+        "questions": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 5,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16000
+          }
+        },
+        "sources": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 64,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "url",
+              "summary"
+            ],
+            "properties": {
+              "url": {
+                "type": "string",
+                "pattern": "^https?://",
+                "maxLength": 4096
+              },
+              "summary": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 16000
+              }
+            }
+          }
+        },
+        "signal": {
+          "enum": [
+            "strong",
+            "medium",
+            "weak",
+            "none"
+          ]
+        },
+        "effect": {
+          "enum": [
+            "strengthens",
+            "weakens",
+            "neutral"
+          ]
+        }
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 256,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 16000
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "stage": {
+            "const": "review"
+          }
+        },
+        "required": [
+          "stage"
+        ],
+        "type": "object"
+      },
+      "then": {
+        "properties": {
+          "candidates": {
+            "maxItems": 0,
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "else": {
+        "properties": {
+          "decisions": {
+            "maxItems": 0,
+            "type": "array"
+          }
+        },
+        "type": "object"
+      }
+    }
+  ],
+  "$defs": {
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "aspect_id",
+        "practice",
+        "source_refs",
+        "usage_refs",
+        "baseline_refs",
+        "delta",
+        "problem_solved",
+        "applicability",
+        "canon_fit",
+        "agent_leverage",
+        "evidence_strength",
+        "adoption_effort",
+        "complexity_risk",
+        "disposition",
+        "value",
+        "suggested_location",
+        "suggested_form",
+        "suggested_wording",
+        "risks",
+        "open_questions"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,99}$"
+        },
+        "aspect_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16000
+        },
+        "practice": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16000
+        },
+        "source_refs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        },
+        "usage_refs": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        },
+        "baseline_refs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        },
+        "delta": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16000
+        },
+        "problem_solved": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16000
+        },
+        "applicability": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16000
+        },
+        "canon_fit": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16000
+        },
+        "agent_leverage": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16000
+        },
+        "evidence_strength": {
+          "enum": [
+            "strong",
+            "medium",
+            "weak"
+          ]
+        },
+        "adoption_effort": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16000
+        },
+        "complexity_risk": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16000
+        },
+        "disposition": {
+          "enum": [
+            "adopt",
+            "adapt",
+            "observe",
+            "duplicate",
+            "reject"
+          ]
+        },
+        "value": {
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ]
+        },
+        "suggested_location": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16000
+        },
+        "suggested_form": {
+          "enum": [
+            "rule",
+            "guide",
+            "template",
+            "prompt",
+            "example"
+          ]
+        },
+        "suggested_wording": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16000
+        },
+        "risks": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 256,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16000
+          }
+        },
+        "open_questions": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 256,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16000
+          }
+        }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidate_id",
+        "disposition",
+        "reason",
+        "source_refs",
+        "baseline_refs"
+      ],
+      "properties": {
+        "candidate_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16000
+        },
+        "disposition": {
+          "enum": [
+            "adopt",
+            "adapt",
+            "observe",
+            "duplicate",
+            "reject"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16000
+        },
+        "source_refs": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        },
+        "baseline_refs": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        }
+      }
+    }
+  }
+}

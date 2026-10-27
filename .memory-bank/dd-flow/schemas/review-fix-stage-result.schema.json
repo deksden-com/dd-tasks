@@ -1,0 +1,210 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dd-flow/review-fix-stage-result@1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_id",
+    "flow_id",
+    "run_id",
+    "stage",
+    "input_sha256",
+    "intake_sha256",
+    "snapshot_sha256",
+    "user_inputs_sha256",
+    "summary",
+    "predecessors",
+    "details"
+  ],
+  "properties": {
+    "schema_id": {
+      "const": "dd-flow/review-fix-stage-result@1"
+    },
+    "flow_id": {
+      "const": "review-fix"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^RUN-[0-9]+-[a-z0-9-]+$"
+    },
+    "stage": {
+      "enum": [
+        "intake",
+        "scope-review",
+        "handoff"
+      ]
+    },
+    "input_sha256": {
+      "$ref": "#/$defs/digest"
+    },
+    "intake_sha256": {
+      "$ref": "#/$defs/digest"
+    },
+    "snapshot_sha256": {
+      "$ref": "#/$defs/digest"
+    },
+    "user_inputs_sha256": {
+      "$ref": "#/$defs/digest"
+    },
+    "summary": {
+      "$ref": "#/$defs/text"
+    },
+    "predecessors": {
+      "type": "array",
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "stage",
+          "path",
+          "sha256"
+        ],
+        "properties": {
+          "stage": {
+            "enum": [
+              "intake",
+              "scope-review"
+            ]
+          },
+          "path": {
+            "$ref": "#/$defs/path"
+          },
+          "sha256": {
+            "$ref": "#/$defs/digest"
+          }
+        }
+      }
+    },
+    "details": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decisions",
+        "review",
+        "limitations"
+      ],
+      "properties": {
+        "decisions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4096,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "finding_id",
+              "disposition",
+              "reason",
+              "approval_source"
+            ],
+            "properties": {
+              "finding_id": {
+                "$ref": "#/$defs/id"
+              },
+              "disposition": {
+                "enum": [
+                  "approved",
+                  "deferred",
+                  "declined"
+                ]
+              },
+              "reason": {
+                "$ref": "#/$defs/text"
+              },
+              "approval_source": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/$defs/user_reference"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "review": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "finding_id",
+              "verdict",
+              "reason"
+            ],
+            "properties": {
+              "finding_id": {
+                "$ref": "#/$defs/id"
+              },
+              "verdict": {
+                "enum": [
+                  "accept",
+                  "revise"
+                ]
+              },
+              "reason": {
+                "$ref": "#/$defs/text"
+              }
+            }
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "maxItems": 4096,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/text"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 16384,
+      "pattern": "^[^\\u0000]+$"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^[^\\u0000]+$"
+    },
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\\\\\u0000]+$"
+    },
+    "user_reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "root",
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "root": {
+          "const": "run"
+        },
+        "path": {
+          "$ref": "#/$defs/path"
+        },
+        "sha256": {
+          "$ref": "#/$defs/digest"
+        }
+      }
+    }
+  }
+}

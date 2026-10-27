@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dd-flow/interactive-stage-result@1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "flow_id", "run_id", "stage", "input_sha256", "baseline_sha256", "user_inputs_sha256", "scope_revision", "file_changes_sha256", "work_collection_sha256", "summary", "predecessors", "details"],
+  "properties": {
+    "schema_id": { "const": "dd-flow/interactive-stage-result@1" },
+    "flow_id": { "const": "interactive" },
+    "run_id": { "type": "string", "pattern": "^RUN-[0-9]+-[a-z0-9-]+$" },
+    "stage": { "enum": ["preflight", "interactive", "consolidation", "hardening", "review", "integration"] },
+    "input_sha256": { "$ref": "#/$defs/digest" },
+    "baseline_sha256": { "$ref": "#/$defs/digest" },
+    "user_inputs_sha256": { "$ref": "#/$defs/digest" },
+    "scope_revision": { "$ref": "#/$defs/digest" },
+    "file_changes_sha256": { "$ref": "#/$defs/digest" },
+    "work_collection_sha256": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/digest" }] },
+    "summary": { "$ref": "#/$defs/text" },
+    "predecessors": {
+      "type": "array", "maxItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["stage", "path", "sha256"],
+        "properties": {
+          "stage": { "enum": ["preflight", "interactive", "consolidation", "hardening", "review"] },
+          "path": { "type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\\\\\u0000]+$" },
+          "sha256": { "$ref": "#/$defs/digest" }
+        }
+      }
+    },
+    "details": {
+      "type": "object", "additionalProperties": false, "required": ["change_summary", "review", "limitations"],
+      "properties": {
+        "change_summary": { "$ref": "#/$defs/text" },
+        "review": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/review" }] },
+        "limitations": { "type": "array", "maxItems": 4096, "uniqueItems": true, "items": { "$ref": "#/$defs/text" } }
+      }
+    }
+  },
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "text": { "type": "string", "minLength": 1, "maxLength": 16384, "pattern": "^[^\\u0000]+$" },
+    "review": {
+      "type": "object", "additionalProperties": false, "required": ["verdict", "summary"],
+      "properties": { "verdict": { "enum": ["accept", "revise"] }, "summary": { "$ref": "#/$defs/text" } }
+    }
+  }
+}

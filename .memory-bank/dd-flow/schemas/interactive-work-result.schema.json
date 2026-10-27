@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dd-flow/interactive-work-result@1",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_id", "run_id", "work_id", "stage", "packet_sha256", "verdict", "summary", "changes", "checks", "issues", "limitations"],
+  "properties": {
+    "schema_id": { "const": "dd-flow/interactive-work-result@1" },
+    "run_id": { "type": "string", "pattern": "^RUN-[0-9]+-[a-z0-9-]+$" },
+    "work_id": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "stage": { "enum": ["hardening", "review"] },
+    "packet_sha256": { "$ref": "#/$defs/digest" },
+    "verdict": { "enum": ["ready", "needs_work", "blocked"] },
+    "summary": { "$ref": "#/$defs/text" },
+    "changes": {
+      "type": "array", "maxItems": 20000,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["path", "before_sha256", "after_sha256"],
+        "dependentRequired": { "before_mode": ["after_mode"], "after_mode": ["before_mode"] },
+        "properties": { "path": { "$ref": "#/$defs/path" }, "before_sha256": { "$ref": "#/$defs/nullable_digest" }, "after_sha256": { "$ref": "#/$defs/nullable_digest" },
+          "before_mode": { "$ref": "#/$defs/mode" }, "after_mode": { "$ref": "#/$defs/mode" } }
+      }
+    },
+    "checks": { "type": "array", "maxItems": 4096, "items": { "$ref": "#/$defs/run_reference" } },
+    "issues": {
+      "type": "array", "maxItems": 4096,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["id", "severity", "summary", "evidence"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1, "maxLength": 200, "pattern": "^[^\\u0000]+$" },
+          "severity": { "enum": ["critical", "major", "minor"] },
+          "summary": { "$ref": "#/$defs/text" },
+          "evidence": { "type": "array", "minItems": 1, "maxItems": 4096, "items": { "$ref": "#/$defs/reference" } }
+        }
+      }
+    },
+    "issue_decisions": {
+      "type": "array", "maxItems": 4096,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["work_id", "issue_id", "outcome", "summary", "evidence"],
+        "properties": {
+          "work_id": { "type": "string", "minLength": 1, "maxLength": 200 },
+          "issue_id": { "type": ["string", "null"], "minLength": 1, "maxLength": 200, "pattern": "^[^\\u0000]+$" },
+          "outcome": { "enum": ["resolved", "still_open", "not_applicable"] },
+          "summary": { "$ref": "#/$defs/text" },
+          "evidence": { "type": "array", "minItems": 1, "maxItems": 4096, "items": { "$ref": "#/$defs/reference" } }
+        }
+      }
+    },
+    "limitations": { "type": "array", "maxItems": 4096, "uniqueItems": true, "items": { "$ref": "#/$defs/text" } }
+  },
+  "$defs": {
+    "mode": { "type": ["integer", "null"], "minimum": 0, "maximum": 4095 },
+    "digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "nullable_digest": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/digest" }] },
+    "text": { "type": "string", "minLength": 1, "maxLength": 16384, "pattern": "^[^\\u0000]+$" },
+    "path": { "type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\\\\\u0000]+$" },
+    "reference": {
+      "type": "object", "additionalProperties": false, "required": ["root", "path", "sha256"],
+      "properties": { "root": { "enum": ["run", "workspace"] }, "path": { "$ref": "#/$defs/path" }, "sha256": { "$ref": "#/$defs/digest" } }
+    },
+    "run_reference": { "allOf": [{ "$ref": "#/$defs/reference" }, { "type": "object", "properties": { "root": { "const": "run" } } }] }
+  }
+}

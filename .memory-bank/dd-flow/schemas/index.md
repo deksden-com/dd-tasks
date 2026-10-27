@@ -2,8 +2,8 @@
 file: '.memory-bank/dd-flow/schemas/index.md'
 description: 'Canonical machine-readable SPC-004/005/006 contracts.'
 purpose: 'Map schema ids to generated runtime artifacts and semantic input.'
-version: '1.4.5'
-date: '2026-10-16'
+version: '1.4.6'
+date: '2026-10-22'
 status: 'DRAFT'
 c4_level: 'schema-catalog'
 parent: '.memory-bank/dd-flow/README.md'
@@ -12,6 +12,9 @@ related_files:
   - ../common/flow-runs.md
 tags: [schemas, dd-flow, spc-004, spc-005, spc-006, plan]
 history:
+  - version: '1.4.6'
+    date: '2026-10-22'
+    changes: 'Indexed draft review-fix scope results without advertising executable flow availability.'
   - version: '1.4.5'
     date: '2026-10-16'
     changes: 'Indexed the CLI-owned six-stage hybrid upgrade result contract.'
@@ -66,6 +69,7 @@ agent author mechanical facts.
 | `dd-flow/engine-manifest@1` | `engine-manifest.schema.json` | immutable engine snapshot and schema registry |
 | `dd-flow/memory-bootstrap-receipt@2` | [memory-bootstrap-receipt-v2.schema.json](memory-bootstrap-receipt-v2.schema.json) | draft E3 bootstrap with independently observed committed/unborn Git state; not semantic Memory Bank acceptance |
 | `dd-flow/mb-upgrade-stage-result@1` | [mb-upgrade-stage-result.schema.json](mb-upgrade-stage-result.schema.json) | CLI-owned six-stage upgrade semantic result; schema validity is not preservation or readiness acceptance |
+| `dd-flow/review-fix-stage-result@1` | [review-fix-stage-result.schema.json](review-fix-stage-result.schema.json) | draft CLI-owned intake/scope-review/handoff proposal; no write or SDLC launch authority; executable admission remains pending |
 
 The existing domain-specific `*-stage-report.schema.json` files remain
 semantic payload profiles for release, review and delivery contours. They are

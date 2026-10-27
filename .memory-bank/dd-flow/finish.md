@@ -1,104 +1,39 @@
-# Finish: завершение интерактивного режима
+---
+file: '.memory-bank/dd-flow/finish.md'
+description: 'Request same-RUN consolidation and independent completion after interactive work.'
+purpose: 'Route explicit user intent through the bound CLI flow without manual runtime mutation.'
+version: '1.0.0'
+date: '2026-10-23'
+status: 'DRAFT'
+c4_level: 'prompt'
+parent: '.memory-bank/dd-flow/index.md'
+tags: [spc-014, hybrid, interactive]
+---
 
-## Выбранный flow и поколение
+# Finish: close intake in the existing interactive RUN
 
-Для выбранного гибридного RUN этот entrypoint — запрос continuation, а не
-разрешение создать новый stage или изменить lifecycle вручную. Выполняй только
-его точный stage packet и returned command с frozen engine binding. Не используй
-legacy hardening/readiness для обхода accepted checks или независимого review.
-Не переводь active vNext в `ready_for_merge` и не ставь legacy queue job по
-одному итоговому докладу. Без поддерживаемого interactive handler/continuation
-остановись с blocker; не превращай существующий RUN в SDLC или новый flow.
-Новый generic interactive handler требует отдельного квалифицированного cutover;
-этот файл его не активирует.
+Flow origin: project-local. Select the actual interactive RUN; do not start a
+second RUN, create a PRT or convert it into SDLC. Read its frozen
+`execution-bundle/interactive/hybrid/index.md` relative to RUN home and the current
+`dd-flow interactive inputs --project-root PROJECT --run RUN --json` output.
 
-## Retained legacy route
+After the user's explicit finish request, preserve that actual message in a
+bounded UTF-8 intake file and call `dd-flow interactive finish` with this RUN,
+a stable request ID, that file and the current `--expected-inputs-sha256`.
+Use `--help` for exact options. Text containing the word finish is not enough;
+the explicit command closes intake. Retry the same identity/bytes after a lost
+response. This is not Git inclusion consent or successful review.
 
-Оставшийся алгоритм применим только к явно выбранному совместимому legacy
-interactive protocol/RUN. Он не определяет active vNext result/transition.
+The ordinary coordinator then settles interactive and continues
+consolidation → hardening → review → integration within the same RUN. Reassess
+the mutation scope after delivered input changes. Resolve original staged/dirty
+file inclusion before review: a later user answer changes the reviewed task.
+Hardening and independent review use registered Work and actual command checks.
+Negative review stays in the same review Stage with separate correction Work.
 
-Этот prompt завершает протокол `mode: interactive`. Он анализирует фактически сделанные изменения, строит hardening plan, выполняет hardening/code/readiness и доводит протокол до того же `ready_for_merge`, что обычный code-flow.
-
-Flow origin policy: `project_local`.
-
-`finish.md` является пользовательским entrypoint-ом, но не добавляет durable stage `finish`. Внутренние логические стадии:
-
-```text
-consolidation -> hardening -> readiness -> ready_for_merge
-```
-
-## Что прочитать сначала
-
-Прочитай:
-
-- `.memory-bank/dd-flow/common/style.md`
-- `.memory-bank/dd-flow/common/runtime-cli.md`
-- `.memory-bank/dd-flow/common/flow-runs.md`
-- `.memory-bank/dd-flow/common/memorybank.md`
-- `.memory-bank/dd-flow/common/sdlc-contours.md`
-- `.memory-bank/dd-flow/common/flow-flags.md`
-- `.memory-bank/dd-flow/common/git-ops.md`
-- `.memory-bank/dd-flow/common/goal-traceability.md`
-- `.memory-bank/dd-flow/common/closure.md`
-- `.memory-bank/dd-flow/code/readiness.md`
-- активный interactive protocol summary
-
-## Consolidation
-
-Восстанови факты:
-
-- исходная цель и rationale из протокола;
-- `base_commit` интерактивной сессии;
-- фактический Git diff/log от `base_commit`;
-- какие пользовательские цели закрывались;
-- какие незапланированные изменения появились;
-- какие checks/evidence уже есть;
-- какие вопросы пользователя или `DEF-*` возникли.
-
-Если перед hardening нужен вопрос пользователя верхнего уровня, переведи протокол в `waiting_for_user` с typed payload:
-
-```yaml
-reason: hardening_user_decision
-question_ids: [Q-...]
-return_to_stage: hardening
-blocks: [code, readiness]
-does_not_block: []
-```
-
-## Hardening
-
-Сформируй и выполни hardening plan:
-
-- привести изменения к стандартам проекта;
-- убрать случайные/сиротские правки;
-- обновить документы Memory Bank, сценарии, ADR или UI/docs, если изменилась долговечная истина;
-- добавить или выполнить проверки;
-- оформить ручные verification deferrals как `DEF-*`, если пользователь выбрал SKIP или проверка невозможна сейчас.
-
-Для больших интерактивных накоплений можно использовать внутренние mini-stages и worker reports, но пользовательский pipeline остаётся protocol-centric.
-
-## Readiness
-
-После hardening выполни `code/readiness.md` как обычный gate:
-
-- fresh checks;
-- review результата;
-- evidence;
-- открытые `DEF-*`;
-- Git/worktree/lock состояние;
-- готовность к merge queue или one-shot merge.
-
-Если verdict положительный, переведи protocol в `ready_for_merge` и добавь job в merge queue тем же механизмом, что `code/readiness.md`.
-
-## Stage report
-
-`finish.md` создаёт code-stage report в текущем `RUN-*`, если run workspace есть. Report должен поддерживать breadcrumbs на предыдущие stage reports и явно показывать:
-
-- источник: `interactive_finish`;
-- consolidation summary;
-- hardening plan/result;
-- checks/evidence;
-- readiness verdict;
-- queue/merge next action.
-
-HTML строится по template code stage report, чтобы пользователь видел тот же стиль, что в обычном code-flow.
+Only accepted current review can reach scoped Git integration. Never mark
+ready_for_merge, enqueue a legacy job, stash/reset unrelated changes or push on
+the strength of a summary. A committed-but-unfinished operation must reconcile
+its original custody, not repeat unknown effects. Report completion only after
+ordinary terminal Stage and RUN settlement; preserve limitations and open issues.
+Historical selected generations continue through their own pinned packets.

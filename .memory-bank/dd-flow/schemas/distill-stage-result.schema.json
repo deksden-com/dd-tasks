@@ -1,0 +1,667 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dd-flow/distill-stage-result@1",
+  "title": "Distillation stage result; promotion/check references require CLI-owned custody",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_id",
+    "flow_id",
+    "run_id",
+    "stage",
+    "input_sha256",
+    "snapshot_sha256",
+    "summary",
+    "predecessors",
+    "details"
+  ],
+  "properties": {
+    "schema_id": {
+      "const": "dd-flow/distill-stage-result@1"
+    },
+    "flow_id": {
+      "const": "mb-distill"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^RUN-[0-9]+-[a-z0-9-]+$"
+    },
+    "stage": {
+      "enum": [
+        "preflight",
+        "extract",
+        "review",
+        "promote",
+        "verify",
+        "finish"
+      ]
+    },
+    "input_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "snapshot_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 16000
+    },
+    "predecessors": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "stage",
+          "path",
+          "sha256"
+        ],
+        "properties": {
+          "stage": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16000
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      }
+    },
+    "details": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "coverage",
+        "candidates",
+        "decisions",
+        "limitations",
+        "write_scope",
+        "promotion_receipt",
+        "verification"
+      ],
+      "properties": {
+        "coverage": {
+          "type": "array",
+          "minItems": 22,
+          "maxItems": 22,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "applicability",
+              "reason",
+              "evidence"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 16000
+              },
+              "applicability": {
+                "enum": [
+                  "applicable",
+                  "not_applicable",
+                  "blocked",
+                  "out_of_scope"
+                ]
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 16000
+              },
+              "evidence": {
+                "type": "array",
+                "minItems": 0,
+                "maxItems": 64,
+                "items": {
+                  "$ref": "#/$defs/source"
+                }
+              }
+            }
+          }
+        },
+        "candidates": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/candidate"
+          }
+        },
+        "decisions": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/decision"
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 256,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16000
+          }
+        },
+        "write_scope": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "destination_root",
+                "candidate_ids",
+                "paths",
+                "approval_source"
+              ],
+              "properties": {
+                "destination_root": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                },
+                "candidate_ids": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 1000,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 16000
+                  },
+                  "uniqueItems": true
+                },
+                "paths": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 4096,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "uniqueItems": true
+                },
+                "approval_source": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "root",
+                    "path",
+                    "sha256"
+                  ],
+                  "properties": {
+                    "root": {
+                      "const": "run"
+                    },
+                    "path": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "sha256": {
+                      "type": "string",
+                      "pattern": "^[a-f0-9]{64}$"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "promotion_receipt": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "root",
+                "path",
+                "sha256"
+              ],
+              "properties": {
+                "root": {
+                  "const": "run"
+                },
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                }
+              }
+            }
+          ]
+        },
+        "verification": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 1000,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "candidate_id",
+              "verdict",
+              "evidence",
+              "summary"
+            ],
+            "properties": {
+              "candidate_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 16000
+              },
+              "verdict": {
+                "enum": [
+                  "verified",
+                  "unresolved"
+                ]
+              },
+              "evidence": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 64,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "root",
+                    "path",
+                    "sha256"
+                  ],
+                  "properties": {
+                    "root": {
+                      "enum": [
+                        "run",
+                        "destination"
+                      ]
+                    },
+                    "path": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "sha256": {
+                      "type": "string",
+                      "pattern": "^[a-f0-9]{64}$"
+                    }
+                  }
+                }
+              },
+              "summary": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 16000
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "stage": {
+            "const": "preflight"
+          }
+        },
+        "required": [
+          "stage"
+        ],
+        "type": "object"
+      },
+      "then": {
+        "properties": {
+          "details": {
+            "properties": {
+              "candidates": {
+                "maxItems": 0,
+                "type": "array"
+              },
+              "decisions": {
+                "maxItems": 0,
+                "type": "array"
+              },
+              "promotion_receipt": {
+                "type": "null"
+              },
+              "verification": {
+                "maxItems": 0,
+                "type": "array"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "stage": {
+            "const": "extract"
+          }
+        },
+        "required": [
+          "stage"
+        ],
+        "type": "object"
+      },
+      "then": {
+        "properties": {
+          "details": {
+            "properties": {
+              "decisions": {
+                "maxItems": 0,
+                "type": "array"
+              },
+              "promotion_receipt": {
+                "type": "null"
+              },
+              "verification": {
+                "maxItems": 0,
+                "type": "array"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "stage": {
+            "const": "review"
+          }
+        },
+        "required": [
+          "stage"
+        ],
+        "type": "object"
+      },
+      "then": {
+        "properties": {
+          "details": {
+            "properties": {
+              "promotion_receipt": {
+                "type": "null"
+              },
+              "verification": {
+                "maxItems": 0,
+                "type": "array"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      }
+    }
+  ],
+  "$defs": {
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "aspect_id",
+        "practice",
+        "source_refs",
+        "usage_refs",
+        "baseline_refs",
+        "delta",
+        "problem_solved",
+        "applicability",
+        "canon_fit",
+        "agent_leverage",
+        "evidence_strength",
+        "adoption_effort",
+        "complexity_risk",
+        "disposition",
+        "value",
+        "suggested_location",
+        "suggested_form",
+        "suggested_wording",
+        "risks",
+        "open_questions"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,99}$"
+        },
+        "aspect_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16000
+        },
+        "practice": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16000
+        },
+        "source_refs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        },
+        "usage_refs": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        },
+        "baseline_refs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        },
+        "delta": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16000
+        },
+        "problem_solved": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16000
+        },
+        "applicability": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16000
+        },
+        "canon_fit": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16000
+        },
+        "agent_leverage": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16000
+        },
+        "evidence_strength": {
+          "enum": [
+            "strong",
+            "medium",
+            "weak"
+          ]
+        },
+        "adoption_effort": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16000
+        },
+        "complexity_risk": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16000
+        },
+        "disposition": {
+          "enum": [
+            "adopt",
+            "adapt",
+            "observe",
+            "duplicate",
+            "reject"
+          ]
+        },
+        "value": {
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ]
+        },
+        "suggested_location": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16000
+        },
+        "suggested_form": {
+          "enum": [
+            "rule",
+            "guide",
+            "template",
+            "prompt",
+            "example"
+          ]
+        },
+        "suggested_wording": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16000
+        },
+        "risks": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 256,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16000
+          }
+        },
+        "open_questions": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 256,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16000
+          }
+        }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidate_id",
+        "disposition",
+        "reason",
+        "source_refs",
+        "baseline_refs"
+      ],
+      "properties": {
+        "candidate_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16000
+        },
+        "disposition": {
+          "enum": [
+            "adopt",
+            "adapt",
+            "observe",
+            "duplicate",
+            "reject"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16000
+        },
+        "source_refs": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        },
+        "baseline_refs": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        }
+      }
+    }
+  }
+}

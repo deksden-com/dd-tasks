@@ -1,0 +1,286 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dd-flow/delivery-stage-result@1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_id",
+    "flow_id",
+    "run_id",
+    "stage",
+    "input_sha256",
+    "user_inputs_sha256",
+    "summary",
+    "predecessors",
+    "details"
+  ],
+  "properties": {
+    "schema_id": {
+      "const": "dd-flow/delivery-stage-result@1"
+    },
+    "flow_id": {
+      "enum": [
+        "release",
+        "deploy",
+        "publish"
+      ]
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 16384,
+      "pattern": "^[^\\u0000]+$"
+    },
+    "stage": {
+      "enum": [
+        "preflight",
+        "version-decision",
+        "target-decision",
+        "prepare",
+        "verify",
+        "publish",
+        "deploy",
+        "finish"
+      ]
+    },
+    "input_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "user_inputs_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 16384,
+      "pattern": "^[^\\u0000]+$"
+    },
+    "predecessors": {
+      "type": "array",
+      "maxItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "stage",
+          "path",
+          "sha256"
+        ],
+        "properties": {
+          "stage": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16384,
+            "pattern": "^[^\\u0000]+$"
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(?:/|$))[^\\\\\\u0000]+$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      }
+    },
+    "details": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision",
+        "artifact",
+        "delivery_scope_sha256",
+        "intent_sha256",
+        "readback_sha256",
+        "verification_sha256",
+        "limitations",
+        "rollback"
+      ],
+      "properties": {
+        "decision": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "operation_id",
+                "version",
+                "binding",
+                "policy"
+              ],
+              "properties": {
+                "operation_id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+                },
+                "version": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16384,
+                  "pattern": "^[^\\u0000]+$"
+                },
+                "binding": {
+                  "type": "object"
+                },
+                "policy": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["path", "sha256"],
+                  "properties": {
+                    "path": {"type": "string", "minLength": 1, "maxLength": 4096},
+                    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+                  }
+                },
+                "rollback": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["strategy", "procedure_ref", "reason"],
+                  "properties": {
+                    "strategy": {"enum": ["rollback", "roll_forward", "operator_handoff"]},
+                    "procedure_ref": {"anyOf": [{"type": "null"}, {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^[^\\u0000]+$"}]},
+                    "reason": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^[^\\u0000]+$"}
+                  },
+                  "allOf": [{
+                    "if": {"properties": {"strategy": {"enum": ["rollback", "roll_forward"]}}},
+                    "then": {"properties": {"procedure_ref": {"type": "string", "minLength": 1}}}
+                  }]
+                }
+              }
+            }
+          ]
+        },
+        "artifact": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "path",
+                "subject_ref",
+                "version",
+                "sha256"
+              ],
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096,
+                  "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(?:/|$))[^\\\\\\u0000]+$"
+                },
+                "subject_ref": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16384,
+                  "pattern": "^[^\\u0000]+$"
+                },
+                "version": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16384,
+                  "pattern": "^[^\\u0000]+$"
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                }
+              }
+            }
+          ]
+        },
+        "delivery_scope_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "intent_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "readback_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "verification_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rollback": {
+          "anyOf": [
+            {"type": "null"},
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["strategy", "status", "reason", "reference"],
+              "properties": {
+                "strategy": {"enum": ["rollback", "roll_forward", "operator_handoff"]},
+                "status": {"enum": ["not_needed", "required", "completed", "failed", "unknown"]},
+                "reason": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^[^\\u0000]+$"},
+                "reference": {
+                  "anyOf": [
+                    {"type": "null"},
+                    {
+                      "type": "object", "additionalProperties": false, "required": ["kind", "id"],
+                      "properties": {
+                        "kind": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^[^\\u0000]+$"},
+                        "id": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^[^\\u0000]+$"}
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "limitations": {
+          "type": "array",
+          "maxItems": 4096,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16384,
+            "pattern": "^[^\\u0000]+$"
+          }
+        }
+      }
+    }
+  }
+}

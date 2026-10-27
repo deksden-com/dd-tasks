@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dd-flow/mb-fix-stage-result@1",
+  "title": "Selected Memory Bank repair result; claims require independent CLI custody",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "flow_id", "run_id", "stage", "input_sha256", "intake_sha256", "source_observation_sha256", "summary", "predecessors", "details"],
+  "properties": {
+    "schema_id": {"const": "dd-flow/mb-fix-stage-result@1"},
+    "flow_id": {"const": "mb-fix"},
+    "run_id": {"type": "string", "pattern": "^RUN-[0-9]+-[a-z0-9-]+$"},
+    "stage": {"enum": ["intake", "repair", "verify", "review", "finish"]},
+    "input_sha256": {"$ref": "#/$defs/hash"},
+    "intake_sha256": {"$ref": "#/$defs/hash"},
+    "source_observation_sha256": {"$ref": "#/$defs/hash"},
+    "summary": {"$ref": "#/$defs/text"},
+    "predecessors": {
+      "type": "array", "maxItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["stage", "path", "sha256"],
+        "properties": {"stage": {"type": "string", "minLength": 1}, "path": {"$ref": "#/$defs/path"}, "sha256": {"$ref": "#/$defs/hash"}}
+      }
+    },
+    "details": {
+      "type": "object", "additionalProperties": false,
+      "required": ["routing", "write_scope", "repair_receipt", "verification", "review", "limitations"],
+      "properties": {
+        "routing": {
+          "type": "array", "minItems": 1, "maxItems": 4096,
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["finding_id", "route", "reason", "write_paths"],
+            "properties": {
+              "finding_id": {"type": "string", "minLength": 1, "maxLength": 256},
+              "route": {"enum": ["memory_repair", "review_fix", "upgrade", "defer"]},
+              "reason": {"$ref": "#/$defs/text"},
+              "write_paths": {"type": "array", "maxItems": 512, "uniqueItems": true, "items": {"$ref": "#/$defs/path"}}
+            }
+          }
+        },
+        "write_scope": {
+          "oneOf": [{"type": "null"}, {
+            "type": "object", "additionalProperties": false,
+            "required": ["finding_ids", "paths", "approval_source", "user_inputs_sha256"],
+            "properties": {
+              "finding_ids": {"type": "array", "minItems": 1, "maxItems": 4096, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+              "paths": {"type": "array", "minItems": 1, "maxItems": 512, "uniqueItems": true, "items": {"$ref": "#/$defs/path"}},
+              "approval_source": {"$ref": "#/$defs/artifact"},
+              "user_inputs_sha256": {"$ref": "#/$defs/hash"}
+            }
+          }]
+        },
+        "repair_receipt": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/artifact"}]},
+        "verification": {
+          "type": "array", "maxItems": 4096,
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["finding_id", "verdict", "summary", "evidence"],
+            "properties": {"finding_id": {"type": "string", "minLength": 1}, "verdict": {"enum": ["resolved", "unresolved"]},
+              "summary": {"$ref": "#/$defs/text"}, "evidence": {"$ref": "#/$defs/evidence"}}
+          }
+        },
+        "review": {
+          "type": "array", "maxItems": 4096,
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["finding_id", "disposition", "summary", "evidence"],
+            "properties": {"finding_id": {"type": "string", "minLength": 1}, "disposition": {"enum": ["accept", "reopen"]},
+              "summary": {"$ref": "#/$defs/text"}, "evidence": {"$ref": "#/$defs/evidence"}}
+          }
+        },
+        "limitations": {"type": "array", "maxItems": 4096, "items": {"$ref": "#/$defs/text"}}
+      }
+    }
+  },
+  "$defs": {
+    "hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "path": {"type": "string", "minLength": 1, "maxLength": 4096},
+    "text": {"type": "string", "minLength": 1, "maxLength": 16000},
+    "artifact": {
+      "type": "object", "additionalProperties": false, "required": ["root", "path", "sha256"],
+      "properties": {"root": {"const": "run"}, "path": {"$ref": "#/$defs/path"}, "sha256": {"$ref": "#/$defs/hash"}}
+    },
+    "evidence": {
+      "type": "array", "maxItems": 512,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["root", "path", "sha256"],
+        "properties": {"root": {"enum": ["project", "run"]}, "path": {"$ref": "#/$defs/path"}, "sha256": {"$ref": "#/$defs/hash"}}
+      }
+    }
+  }
+}

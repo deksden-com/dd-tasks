@@ -1,0 +1,123 @@
+{
+  "schema_id": "dd-flow/flow-descriptor@1",
+  "id": "interactive",
+  "version": "1.0.0",
+  "origin": "project",
+  "entry_stage": "preflight",
+  "terminal_stages": [
+    "integration"
+  ],
+  "stages": [
+    {
+      "id": "preflight",
+      "directory": "01-preflight",
+      "entry_handler": "interactive-stage-entry",
+      "finish_handler": "interactive-stage-finish",
+      "instruction": {
+        "path": "interactive/hybrid/preflight.md",
+        "sha256": "7ed4f22cf96a93376dec29c791bd94fa26952d55b73b5106d32d4c23a4a4d94f"
+      },
+      "result_schema": {
+        "path": "schemas/interactive-stage-result.schema.json",
+        "sha256": "5fe30ecada8d02f83c64e988da10bfefa1033f614adf7a4b99c9e809961e0ba3"
+      }
+    },
+    {
+      "id": "interactive",
+      "directory": "02-interactive",
+      "entry_handler": "interactive-stage-entry",
+      "finish_handler": "interactive-stage-finish",
+      "instruction": {
+        "path": "interactive/hybrid/interactive.md",
+        "sha256": "188e185d19c2abd3eaf5b5ba79951c833c25096d1cf882fb29867fb089ee14a9"
+      },
+      "result_schema": {
+        "path": "schemas/interactive-stage-result.schema.json",
+        "sha256": "5fe30ecada8d02f83c64e988da10bfefa1033f614adf7a4b99c9e809961e0ba3"
+      }
+    },
+    {
+      "id": "consolidation",
+      "directory": "03-consolidation",
+      "entry_handler": "interactive-stage-entry",
+      "finish_handler": "interactive-stage-finish",
+      "instruction": {
+        "path": "interactive/hybrid/consolidation.md",
+        "sha256": "c3cb1f25b0c81fb5f24f603b43d6f8b93d25deb6215f799574fa23203951535f"
+      },
+      "result_schema": {
+        "path": "schemas/interactive-stage-result.schema.json",
+        "sha256": "5fe30ecada8d02f83c64e988da10bfefa1033f614adf7a4b99c9e809961e0ba3"
+      }
+    },
+    {
+      "id": "hardening",
+      "directory": "04-hardening",
+      "entry_handler": "interactive-stage-entry",
+      "finish_handler": "interactive-stage-finish",
+      "instruction": {
+        "path": "interactive/hybrid/hardening.md",
+        "sha256": "7411b13b459d06f7357424f1a3396bb3858db6c3d7cfde0f5ee2edde114b82d4"
+      },
+      "result_schema": {
+        "path": "schemas/interactive-stage-result.schema.json",
+        "sha256": "5fe30ecada8d02f83c64e988da10bfefa1033f614adf7a4b99c9e809961e0ba3"
+      }
+    },
+    {
+      "id": "review",
+      "directory": "05-review",
+      "entry_handler": "interactive-stage-entry",
+      "finish_handler": "interactive-stage-finish",
+      "instruction": {
+        "path": "interactive/hybrid/review.md",
+        "sha256": "d5fb5164980653a98d0de0991d9258a133452c4741731c12a62d4a3b763c0ba1"
+      },
+      "result_schema": {
+        "path": "schemas/interactive-stage-result.schema.json",
+        "sha256": "5fe30ecada8d02f83c64e988da10bfefa1033f614adf7a4b99c9e809961e0ba3"
+      }
+    },
+    {
+      "id": "integration",
+      "directory": "06-integration",
+      "entry_handler": "interactive-stage-entry",
+      "finish_handler": "interactive-stage-finish",
+      "instruction": {
+        "path": "interactive/hybrid/integration.md",
+        "sha256": "187eee00f52d3584eaa3cd3920bc81b9a93f1383c92a353ab0e4b6604e54351f"
+      },
+      "result_schema": {
+        "path": "schemas/interactive-stage-result.schema.json",
+        "sha256": "5fe30ecada8d02f83c64e988da10bfefa1033f614adf7a4b99c9e809961e0ba3"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "preflight",
+      "to": "interactive",
+      "on": "accepted"
+    },
+    {
+      "from": "interactive",
+      "to": "consolidation",
+      "on": "accepted"
+    },
+    {
+      "from": "consolidation",
+      "to": "hardening",
+      "on": "accepted"
+    },
+    {
+      "from": "hardening",
+      "to": "review",
+      "on": "accepted"
+    },
+    {
+      "from": "review",
+      "to": "integration",
+      "on": "accepted"
+    }
+  ]
+}

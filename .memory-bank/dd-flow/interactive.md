@@ -1,77 +1,42 @@
-# Interactive: старт интерактивного режима протокола
+---
+file: '.memory-bank/dd-flow/interactive.md'
+description: 'Explicit project-local hybrid interactive workflow entrypoint.'
+purpose: 'Route explicit user intent through the bound CLI flow without manual runtime mutation.'
+version: '1.0.0'
+date: '2026-10-23'
+status: 'DRAFT'
+c4_level: 'prompt'
+parent: '.memory-bank/dd-flow/index.md'
+tags: [spc-014, hybrid, interactive]
+---
 
-## Выбор flow и формализация
+# Interactive: one request-bound working session
 
-Обычная просьба обсуждать или вносить небольшие правки не разрешает автоматически
-создавать RUN/PRT. Выполняй такую работу в пределах запроса и проектной политики.
-Явная просьба оформить новый SDLC протокол направляется в `vnext/start.md`:
-SPECIFY предшествует PROTOCOLIZE; не создавай PRT заранее.
+Ordinary discussion or a small requested edit does not itself authorize creating
+a RUN/PRT. Use this entrypoint when the user explicitly selects the interactive
+workflow. Explicit SDLC formalization remains `vnext/start.md`, SPECIFY first.
+The interactive descriptor is separate from the seven-stage SDLC catalog.
 
-Для уже выбранного гибридного interactive RUN используй только его frozen
-binding, поддерживаемый handler и точный stage packet/continuation. Этот файл
-не регистрирует новый flow, не превращает его в SDLC и не добавляет stage
-`interactive` в семистадийный SDLC catalog. Если handler не поддерживается или
-binding отсутствует, остановись с blocker, не переходи в legacy lifecycle.
-Generic interactive flow и его finish admission вводятся отдельным
-квалифицированным cutover; этот prompt не активирует их заранее.
+Flow origin: project-local. Read project policy and
+`interactive/hybrid/index.md` from this curated pack. Start with
+`dd-flow flow interactive --help`; select the existing project, request identity,
+original intake file and assigned workspace. Use the configured project Git
+route or an explicitly selected route/integration branch. Do not create a PRT,
+manually write runtime state or switch branches to satisfy a missing selection.
 
-## Retained legacy route
+The default attached route requires the current trusted physical Session and
+an exact observed launch command. A terminal without that binding must report
+the missing binding; use `--execution managed` only when the user selects it.
+Neither installed executable discovery nor environment strings prove attachment.
+Profiles and per-stage routes are frozen before dispatch, not changed mid-RUN.
 
-Оставшийся алгоритм применим только к явно выбранному совместимому legacy
-interactive protocol/RUN. Для создания нового legacy протокола нужна отдельная
-явная просьба пользователя именно об этой поддерживаемой формализации.
+CLI returns one RUN and its immutable contexts. In attached mode start only the
+returned entry Stage using its exact context and ordinary trusted Stage command.
+In managed mode the existing controller owns execution. Continue this RUN with
+`interactive inputs`, `interactive turn` and the issued Stage/Work commands.
+Retain actual user messages verbatim; do not synthesize answers or consent.
 
-Этот маршрут использует `PRT-*` в режиме `interactive`, где пользователь и агент вносят небольшие правки в текущей сессии, а затем отдельный `finish.md` выполняет consolidation/hardening/readiness.
-
-Flow origin policy: `project_local`.
-
-`interactive.md` не является отдельной сущностью runtime. Это обычный протокол с `mode: interactive` и стадией `interactive`.
-
-## Что прочитать сначала
-
-Прочитай:
-
-- `.memory-bank/dd-flow/common/style.md`
-- `.memory-bank/dd-flow/common/runtime-cli.md`
-- `.memory-bank/dd-flow/common/protocol-bootstrap.md`
-- `.memory-bank/dd-flow/common/git-ops.md`
-- `.memory-bank/dd-flow/common/memorybank.md`
-- `.memory-bank/dd-flow/common/flow-flags.md`
-- `.memory-bank/index.md`
-- `.memory-bank/mbb/sdlc-workflow.md`
-- `.memory-bank/mbb/operations-release-guide.md`
-
-## Git contour
-
-Интерактивный режим может работать:
-
-- в feature-ветке/worktree - рекомендуемый режим для накопления серии правок;
-- напрямую в интеграционной ветке - только для маленьких обратимых правок, если проектная Git policy разрешает это.
-
-Если интерактивный режим мутирует главную интеграционную ветку (`main`, `develop` или другую по Git policy), он должен поставить lock той ветки по той же логике, что merge-сессия: в каждый момент времени только один actor мутирует интеграционную ветку.
-
-Зафиксируй `base_commit` до старта интерактивной работы. Новые обычные протоколы могут стартовать от этого стабильного commit-а, если интеграционная ветка сейчас заблокирована интерактивной сессией и проектная политика разрешает такой старт.
-
-## Что фиксировать в протоколе
-
-Во время интерактивной работы агент дописывает в протокол:
-
-- почему правка делалась;
-- какую пользовательскую цель она закрывает;
-- какие решения приняты;
-- какие проверки предполагаются;
-- какие ручные наблюдения пользователя важны;
-- какие изменения нужно будет переосмыслить на `finish`.
-
-Не дублируй Git log. Diff и commit history покажут "что изменилось"; протокол должен объяснить "зачем" и "как проверить".
-
-## Выход
-
-После старта:
-
-- `current_stage: interactive`;
-- `next_action: continue_interactive_work`;
-- HTML stage report не создаётся;
-- пользователь получает краткий навигационный блок и правила ведения интерактивной сессии.
-
-Для завершения интерактивного режима используй `.memory-bank/dd-flow/finish.md`.
+Use `finish.md` to close free-turn intake in this same RUN. Missing handlers or
+an invalid project pack require supported upgrade/repair, not a legacy fallback.
+Historical RUNs use their own supported pinned engine and retained instructions;
+this current entrypoint does not rewrite their lifecycle.

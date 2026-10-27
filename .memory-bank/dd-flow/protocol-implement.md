@@ -31,7 +31,7 @@ diagnostic/recovery выбранного runtime; при неоднозначн�
 - "реализуй следующий протокол из set";
 - новая параллельная сессия должна работать по member protocol из `PSET-*`.
 
-Не используй этот prompt для "оформи протокол", "создай протокол", "сделай протокол по обсуждению". Такие команды запускают `protocol.md`.
+Не используй этот prompt для "оформи протокол", "создай протокол", "сделай протокол по обсуждению". Для новой формализации передай управление `vnext/start.md`: SPECIFY-first, без создания PRT до PROTOCOLIZE. `protocol.md` не является новым legacy-start fallback.
 
 ## Что прочитать сначала
 
@@ -68,7 +68,7 @@ dd-flow protocol implement "<PRT-ID>" --project-root "<project-root>" --json
 ## Guardrails
 
 1. Убедись, что `PRT-ID` явно выбран пользователем или однозначно следует из текущего runtime/сообщения.
-2. Если `PRT-*` markdown отсутствует, остановись: это не protocol-implement, нужен `protocol.md` или исправление ссылки.
+2. Если `PRT-*` markdown отсутствует, остановись: исправь selector/ссылку или используй supported recovery выбранного RUN. Не создавай заменяющий протокол через `protocol.md`; новая формализация требует отдельного явного выбора пользователя и `vnext/start.md`.
 3. Если protocol lifecycle terminal (`MERGED`, `CLOSED`, runtime `closed`, `cancelled`), не запускай реализацию.
 4. Если `blocked_by_protocols` содержит unresolved blockers, остановись с `blocked: protocol_blocked_by_dependencies`, кроме случая явного `--force --reason` and user/operator rationale.
 5. Если другой active session/claim уже держит этот protocol, остановись или запроси осознанный override.

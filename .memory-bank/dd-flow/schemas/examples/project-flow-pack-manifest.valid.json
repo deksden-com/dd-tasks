@@ -50,7 +50,14 @@
   "excluded_canonical_only_flows": [
     "mb-init.md",
     "mb-upgrade.md",
-    "mb-distill.md"
+    "mb-distill.md",
+    "mb-audit.md",
+    "mb-fix.md",
+    "review.md",
+    "review-fix.md",
+    "release.md",
+    "deploy.md",
+    "publish.md"
   ],
   "generated_allow_patterns": [
     ".generated/**"

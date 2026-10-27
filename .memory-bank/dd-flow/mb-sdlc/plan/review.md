@@ -2,8 +2,8 @@
 file: '.memory-bank/dd-flow/mb-sdlc/plan/review.md'
 description: 'Canonical PLAN review and aspect-routing prompt for SPC-005.'
 purpose: 'Select proportional coverage, preserve semantic dependencies and produce one accepted aspect map.'
-version: '2.3.0'
-date: '2026-09-09'
+version: '2.3.1'
+date: '2026-10-07'
 status: 'DRAFT'
 c4_level: 'prompt'
 parent: '../README.md'
@@ -15,6 +15,9 @@ related_files:
   - ../plan-aspects/index.md
 tags: [dd-flow, plan, review, routing, spc-005]
 history:
+  - version: '2.3.1'
+    date: '2026-10-07'
+    changes: 'Bound legacy PLAN review to its selected engine schema rather than the vNext canon copy.'
   - version: '2.3.0'
     date: '2026-09-09'
     changes: 'Made reviewer launch and capacity follow the frozen native or external execution policy.'
@@ -27,6 +30,18 @@ history:
 ---
 
 # PLAN review and routing
+
+## Runtime generation and schema owner
+
+This leaf applies only when the selected historical RUN's pinned engine
+explicitly supplies the legacy PLAN packet. Its frozen plan schema and output
+contract govern the legacy fields below; do not validate them against the
+refreshed canon `protocol-plan@6` vNext copy. Missing binding or generation
+ambiguity fails closed through `go.md`.
+
+For active vNext, execute the exact CLI-issued PLAN and PLAN_REVIEW packets
+instead. This leaf does not override SQLite authority, policy-owned review
+admission, Stage outputs or finish commands.
 
 Read the generated PLAN prompt, accepted specification, protocol-owned
 `plan.json` and the aspect catalog. This review is semantic design work; do not
@@ -136,7 +151,7 @@ current behavior is not updated with a future plan outcome.
 
 Before handing CODE the plan, verify:
 
-- the plan validates with `schemas/protocol-plan.schema.json` and preserves all
+- the plan validates with the selected legacy engine's frozen plan schema and preserves all
   structured semantic fields;
 - every required item has a non-empty summary, execution context and
   implementation guidance and verification contract;

@@ -19,6 +19,10 @@
     "stage_root": {"type": "string", "minLength": 1},
     "archive_path": {"type": ["string", "null"]},
     "prompt_path": {"type": "string", "minLength": 1},
+    "prompt_delivery": {
+      "type": "object", "additionalProperties": false, "required": ["path", "sha256"],
+      "properties": {"path": {"type": "string", "minLength": 1}, "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}}
+    },
     "aliases": {"type": "object", "additionalProperties": {"type": "string"}},
     "resolved_context": {"type": "object", "additionalProperties": true},
     "plan_ref": {"type": "string", "pattern": "^\\.memory-bank/protocol/[^/]+/plan\\.json$"},

@@ -36,7 +36,12 @@
 
 Твоя задача - подготовить контекст, а не начинать реализацию.
 
-Если доступен `dd-flow` CLI и это заметный read-only вход в проект без активной задачи, зарегистрируй session по `common/runtime-cli.md` как `flow_kind: research_no_protocol`, `continuation_policy: none`, `current_stage: priming`. Если CLI недоступен, укажи `runtime_cli_degraded` в итоговом докладе; ручной trace не создавай.
+Priming остаётся read-only независимо от доступности CLI. Не регистрируй
+Session, проект, RUN или Work; не создавай runtime artifacts и ручной trace.
+Наличие CLI не является условием успешного priming. Доступность инструмента
+можно отметить как наблюдаемый факт, но не как обязательный gate или повод
+инициализировать runtime. Новый flow запускается только отдельным явным
+выбором пользователя по правилам `prime.md`.
 
 Разберись:
 
@@ -48,7 +53,7 @@
 Вернись с коротким докладом:
 
 - навигационный блок из `.memory-bank/dd-flow/common/style.md`: `prompt: f.md`, `protocol: not_created`, `current_stage: primed`, `completed_stage: priming`, следующий шаг и блокеры;
-- какие CLI/runtime artifacts доступны и почему ручной trace не создавался;
+- `runtime_state: not_created`; priming не создаёт CLI/runtime artifacts или ручной trace;
 - что является главным входом в проект;
 - какие ключевые разделы Банка памяти ты увидел;
 - где искать продуктовые, системные, инженерные и эксплуатационные правила;

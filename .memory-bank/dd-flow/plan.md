@@ -2,8 +2,8 @@
 file: '.memory-bank/dd-flow/plan.md'
 description: 'Canonical PLAN-stage prompt for SPC-004 v0.2 and SPC-005.'
 purpose: 'Turn an accepted specification into one lossless semantic protocol plan and an honest CODE handoff.'
-version: '2.1.0'
-date: '2026-08-10'
+version: '2.1.1'
+date: '2026-10-07'
 status: 'DRAFT'
 c4_level: 'prompt'
 parent: '.memory-bank/dd-flow/README.md'
@@ -15,6 +15,9 @@ related_files:
   - mb-sdlc/plan/implementation.md
 tags: [dd-flow, plan, spc-004, spc-005, canonical-plan]
 history:
+  - version: '2.1.1'
+    date: '2026-10-07'
+    changes: 'Scoped retained legacy PLAN instructions away from active vNext packets and schema ownership.'
   - version: '2.1.0'
     date: '2026-08-12'
     changes: 'Required self-contained implementation guidance for every newly authored executable plan item.'
@@ -22,9 +25,26 @@ history:
 
 # PLAN
 
+## Runtime generation
+
+For active vNext, execute the exact PLAN packet and finish command returned by
+the selected RUN's CLI. Its stage-specific output contract and frozen schema
+registry are authoritative. Do not pass legacy `--status ready_for_code`, demand
+a fixed envelope, or infer a CODE transition from this wrapper. PLAN_REVIEW
+is resolved by CLI policy; a legal skip requires the actual accepted directive.
+SQLite is runtime authority; JSON projections are not manually writable state.
+
+The remaining sections retain the legacy generated-envelope PLAN route only
+for a confirmed historical RUN and its supported pinned engine. Its plan schema
+must come from that engine binding, not the refreshed canon `protocol-plan@6`
+copy (which belongs to active vNext). Missing binding or generation ambiguity
+fails closed through `go.md`; do not reconstruct lifecycle from protocol files.
+
+## Legacy PLAN route
+
 Read the generated `stage-prompt.md`, the selected protocol summary and fresh
 specification. The CLI-rendered prompt is the only required stage input. It
-contains exactly seven top-level sections; PLAN-specific blocks are nested in
+contains the legacy eight-section envelope; PLAN-specific blocks are nested in
 the applicable-instructions and completion-contract sections.
 
 ## Lifecycle
@@ -49,7 +69,7 @@ Write exactly one semantic plan to:
 .memory-bank/protocol/<PRT-ID>/plan.json
 ```
 
-Validate it against `schemas/protocol-plan.schema.json`. The plan owns the
+Validate it against the selected legacy engine's frozen plan schema. The plan owns the
 goal, constraints, non-goals, versioned specification refs and SHA, task
 assessment, route decision, SDLC contours, executable task graph, semantic
 spines, execution contexts, verification contracts and CODE handoff.

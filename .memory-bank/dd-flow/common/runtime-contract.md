@@ -2,8 +2,8 @@
 file: '.memory-bank/dd-flow/common/runtime-contract.md'
 description: 'Canonical SPC-004/005/006 runtime, stage context, session, report and PLAN contract.'
 purpose: 'Single source for active dd-flow prompts and schemas after the breaking SPC-004 cutover.'
-version: '0.4.1'
-date: '2026-09-21'
+version: '0.4.4'
+date: '2026-10-26'
 status: 'DRAFT'
 c4_level: 'documentation'
 parent: '.memory-bank/dd-flow/README.md'
@@ -20,6 +20,15 @@ related_protocols:
   - .memory-bank/protocol/PRT-003-spc-005-targeted-files-validation.md
 tags: [dd-flow, spc-004, spc-005, runtime-contract, stages, reports, workspaces, plan]
 history:
+  - version: '0.4.4'
+    date: '2026-10-26'
+    changes: 'Managed result submission uses retained assignment binding; native retirement remains separate.'
+  - version: '0.4.3'
+    date: '2026-10-07'
+    changes: 'Scoped frozen flow-contract@6 metadata and legacy prompt envelopes away from active vNext runtime authority.'
+  - version: '0.4.2'
+    date: '2026-10-07'
+    changes: 'Grounded schema ownership, SPECIFY-first allocation, returned stage-specific contracts, logical/native binding and selected-file lint; generic memory-flow remains target work.'
   - version: '0.4.0'
     date: '2026-08-27'
     changes: 'PLAN start now reports and materializes both partially filled semantic drafts with exact validation commands.'
@@ -37,11 +46,33 @@ The canonical follow-up protocol is
 
 ## Ownership
 
-`dd-memorybank` owns this contract, prompts, schemas, templates, examples, eval
-fixtures and navigation. `dd-flow-cli` owns runtime implementation under
-PRT-012. `mb-lint` owns selected-files scanner/progress implementation under
+`dd-memorybank` owns semantic contracts, prompts, templates, illustrative
+examples and navigation. `dd-flow-cli` owns executable runtime schemas and
+validators as well as runtime implementation. Canonical schema mirrors must
+not become a second independently edited executable authority: runtime uses
+the schemas of its bound engine; copied examples are checked at the CLI owner.
+`dd-eval` owns accepted cases, checkpoint identities and Judge qualification.
+`mb-lint` owns selected-files scanner/progress implementation under
 PRT-003. Canonical files describe companion behavior but do not implement
 either companion tool.
+
+## Frozen compatibility metadata
+
+The retained `flow-contract.json` / `dd-flow/flow-contract@6` is read by the
+legacy contract loader and validated against fixed @6 constants. It is not the
+active vNext stage descriptor. Its `run.current_state`, old stage paths and
+eight-section envelope describe the retained compatibility generation; they
+must not be interpreted as authority to write runtime state, skip PROTOCOLIZE
+or substitute a legacy packet for a returned vNext packet.
+
+Active vNext mechanics belong to CLI: its seven-stage catalog, registered
+stage-specific handlers/results, SQLite state and bound engine schemas. The
+@6 loader derives its legacy protocol transition adapter in CLI; it does not
+derive the vNext graph from these metadata fields. Do not rewrite frozen @6
+constants or invent @7 to repair prose: the current loader rejects versions
+above 6. SPC-014 E3 introduces the registered generic descriptor separately;
+E5 owns scoped legacy-wrapper/pack retirement after installed acceptance.
+This is a bounded migration responsibility, not a second permanent authority.
 
 ## One current state
 
@@ -73,19 +104,22 @@ dd-flow stage start <RUN> --stage <stage> --json
 dd-flow stage finish <RUN> --stage <stage> --json
 ```
 
-For a new practical task, the first worker flow command is the bootstrap form:
+For explicitly formalized new SDLC work, the first worker flow command is the
+bootstrap form. Ordinary task discussion does not infer this trigger:
 
 ```bash
 dd-flow stage start --bootstrap --stage specify --project-root <root> \
   --subject <label> --intake-file <path> --json
 ```
 
-The CLI allocates protocol/RUN and materializes their minimum scaffold. A UI
-Goal, when the harness requires one, is the only allowed action before this
-command. Standalone `prime.md` remains a no-task orientation flow, not a
-prerequisite for a stage worker.
+SPECIFY bootstrap allocates RUN/root Work and the initial stage scaffold, not
+a PRT/PSET. PROTOCOLIZE owns durable delivery identities after accepted SPECIFY.
+Use the exact Controller/adapter command and prepared raw-intake path, preserving
+its non-default runtime prefix. Standalone `prime.md` is read-only orientation,
+not a prerequisite or runtime registration step for a stage worker.
 
-`stage start` resolves project, protocol, RUN and workspace, checks containment,
+For the supported legacy generated-envelope route, `stage start` resolves
+project, protocol, RUN and workspace, checks containment,
 archives an existing stage root into the next numeric `try-NNN` directory,
 creates the clean current root, runs exact-target permission probes, records
 CLI-owned Git/time facts, binds the harness session and generates one context
@@ -94,7 +128,13 @@ packet. `stage-prompt.json` is its structured source; the saved
 The response facts are authoritative for the attempt and the worker does not
 repeat CLI discovery, help, Git, compatibility, permission or runtime checks.
 
-The agent writes only semantic completion data to the generated
+The returned completion contract is authoritative for the selected Stage and
+engine. Active vNext handlers use their stage-specific result/outcome schemas;
+material questions use `stage pause`/`stage resume` and infrastructure failures
+use `stage block`/`stage unblock`. Do not turn those into terminal stage finish.
+
+The legacy generated envelope path, when explicitly selected by its supported
+runtime, writes only semantic completion data to the generated
 `@stage/stage-input.json`; the file is validated against
 `dd-flow/stage-finish-input@1`. `stage finish` reads that file and accepts
 semantic agent output only; its `status` is `done`, `waiting_for_user`,
@@ -136,7 +176,10 @@ SQLite semantic `plan_json`, `aspect-job-map.json`, `aspect-graph.json` or
 PLAN start materializes both current semantic drafts before returning control:
 the protocol-owned `plan.json` and the RUN-owned `aspect-map.json`. It reports
 them as `materialized` and `partially_filled`, names every CLI-owned field and
-provides exact validation commands. The CLI fills identity, accepted source
+provides exact validation commands. Active vNext PLAN uses `protocol-plan@6`
+with a single `checks[]` catalog and `check_refs`; runtime schema lookup names
+the CLI-owned `vnext-protocol-plan`, not its legacy `protocol-plan@1` file.
+The CLI fills identity, accepted source
 references and the aspect-catalog identifiers; the agent fills semantic plan,
 applicability, rationale and grouping. Missing draft semantics are never
 treated as accepted defaults, and the agent edits the materialized files in
@@ -148,9 +191,9 @@ The PLAN prompt chooses `local_compact` for tiny work and prefers
 not semantic dependencies. `aspect-map.json` remains the sole semantic
 coverage artifact.
 
-## Generated stage prompt
+## Legacy generated stage prompt
 
-`stage-prompt.md` is the only required stage prompt. It is generated from the
+For the supported legacy envelope, `stage-prompt.md` is generated from the
 same `stage-prompt.json` returned by start and contains exactly these sections,
 in this order:
 
@@ -165,7 +208,12 @@ in this order:
 <completion_contract>...</completion_contract>
 ```
 
-The renderer uses a closed stage-to-fragment allowlist. It physically excludes
+These eight sections are not a mandatory wrapper around active vNext packets.
+Read the entire stage-specific returned packet and follow its typed completion
+contract. Do not reconstruct an envelope, issue legacy transitions or infer
+extra stages from the compatibility metadata.
+
+The legacy renderer uses a closed stage-to-fragment allowlist. It physically excludes
 instructions for other stages: a SPECIFY prompt cannot contain CODE/readiness,
 merge or full-only PLAN instructions. The CLI fragment contains exact stage
 commands; agents do not begin by probing global help. The file-boundary
@@ -174,7 +222,7 @@ is read-only archive history.
 
 ## Generated artifacts and summary
 
-Every successful stage finish always produces:
+For the generated report contract, a completed stage finish produces:
 
 - `stage-report.json` — schema-valid structured data;
 - `stage-report.md` — deterministic human-readable render;
@@ -211,17 +259,21 @@ project/release gate, not a repeated preflight.
 
 ## Sessions and usage
 
-Install one idempotent observing `PreToolUse` hook in each active `CODEX_HOME`.
-The project root is not the hook installation scope. The hook binds the
-trusted orchestrator/worker session to a RUN or job and supports non-overlapping
-time-scoped segments when one session moves between RUNs. It does not pair
-with `PostToolUse`; an observed command is participation, not a successful
-outcome. The CLI owns lifecycle completion and never accepts a model-authored
-session id.
+Use the selected harness's supported observing hook/adapter in its managed
+scope; for Codex the hook home is the active `CODEX_HOME`, not project root.
+Native observation records physical Session/tool evidence. Logical RUN/Work
+binding is admitted by CLI only after successful registration; the hook does
+not validate model payload files, assign logical lifecycle or issue retries.
+Provider-specific before/after observations must not be reduced to a generic
+one-hook convention. Observation is participation, not successful completion.
+The CLI never accepts a model-authored Session id.
 
 The CLI never guesses a model session id. Hooks/controller adapters provide the
-authoritative binding. Expected orchestrator and worker sessions are compared
-at finish and coverage is one of `complete`, `partial` or `unavailable`, with
+authoritative launch binding. Managed finish validates the retained assignment
+and current WorkSession, not a new live tool event. Manual/native commands retain
+their explicit authority path. Follow the selected engine's issued packet; do
+not manufacture a native receipt or bypass a historical engine's guard.
+Coverage is one of `complete`, `partial` or `unavailable`, with
 missing ids/jobs listed honestly. An unrelated Bash command is a no-op and a
 repeated hook event is idempotent.
 
@@ -253,12 +305,28 @@ documentation worktrees `bootstrap_not_required` with a concrete reason.
 
 ## mb-lint boundary
 
-`mb-lint` is not part of stage start or finish. Its CLI always writes bounded,
+Stage workers do not prepend standalone lint to bootstrap or repeat checks from
+their returned packet. The generated legacy finish handler does run selected-file
+mb-lint for changed Memory Bank documents; vNext uses its declared checks and
+accepted receipt contracts. Full lint is a distinct project/release gate.
+The mb-lint CLI always writes bounded,
 throttled progress and heartbeat to `stderr`; `stdout` contains only the final
 selected result. This applies to text and JSON modes. The scanner owns bounded
 async I/O with internal default `32`, deterministic sorting and batched async
 Git subprocesses. This repository specifies that boundary and its fixtures;
 PRT-002 implements it.
+
+## Generic memory-flow target boundary
+
+SPC-014 E1 defines CLI-owned descriptors, execution settings, bootstrap receipts
+and frozen bundles. Current CLI stage catalog remains the seven-stage SDLC
+catalog. Hybrid mb-init/mb-upgrade wrappers and generic handlers activate only
+with E3/E4 installed cutover; this document does not make future commands usable.
+Frozen engine binding does not bypass operation-specific storage admission.
+Semantic result acceptance, physical Session settlement, final obligation coverage
+and independent EVAL Judge verdict remain different evidence boundaries.
+Technical retirement does not revoke an accepted result; follow the
+[accepted-result and resource-conflict rules](lifecycle-guards.md#accepted-results-and-technical-retirement).
 
 ## Breaking-contract rule
 

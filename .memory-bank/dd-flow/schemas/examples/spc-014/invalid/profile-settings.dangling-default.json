@@ -1,0 +1,24 @@
+{
+  "schema_id": "dd-flow/profile-settings@1",
+  "profiles": [
+    {
+      "id": "local",
+      "revision": "03e85447455d113a2df0ac414742304f6fbe6d711b45222ddc63ad35fa7bfade",
+      "profile": {
+        "schema_id": "dd-flow/agent-profile@1",
+        "id": "local",
+        "harness": "codex",
+        "provider": "fixture",
+        "model": "fixture-model",
+        "reasoning": "medium",
+        "mode": "default",
+        "permission": "allow"
+      }
+    }
+  ],
+  "aliases": {
+    "fast": "local"
+  },
+  "default_profile": "missing",
+  "revision": "5220a9eab366de3ca0a6534023f7e81c8dcfb67e17c27af371488e4541714454"
+}

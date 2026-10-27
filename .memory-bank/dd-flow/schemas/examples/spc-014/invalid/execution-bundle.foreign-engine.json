@@ -1,0 +1,66 @@
+{
+  "schema_id": "dd-flow/execution-bundle@1",
+  "run_id": "RUN-001-fixture",
+  "flow_id": "mb-init",
+  "inventory": [
+    {
+      "path": "descriptor.json",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "path": "execution.json",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "path": "profiles.json",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "path": "bootstrap.json",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "path": "engine-binding.json",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "path": "engine-manifest.json",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ],
+  "descriptor": {
+    "path": "descriptor.json",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "execution_settings": {
+    "path": "execution.json",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "profile_settings": {
+    "path": "profiles.json",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "canon": {
+    "version": "4.2.0-preview.1",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "archive_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "project_pack": {
+    "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "source_commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "engine_binding": {
+    "path": "engine-binding.json",
+    "sha256": "9999999999999999999999999999999999999999999999999999999999999999"
+  },
+  "bootstrap_receipts": [
+    {
+      "path": "bootstrap.json",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ],
+  "engine_manifest": {
+    "path": "engine-manifest.json",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+  }
+}

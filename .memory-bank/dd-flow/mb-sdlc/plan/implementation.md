@@ -2,8 +2,8 @@
 file: '.memory-bank/dd-flow/mb-sdlc/plan/implementation.md'
 description: 'Canonical PLAN implementation-design prompt for SPC-005.'
 purpose: 'Turn accepted review findings into one executable, lossless plan and a CODE handoff.'
-version: '2.0.0'
-date: '2026-08-10'
+version: '2.0.1'
+date: '2026-10-07'
 status: 'DRAFT'
 c4_level: 'prompt'
 parent: '../README.md'
@@ -17,8 +17,20 @@ tags: [dd-flow, plan, implementation, spc-005]
 
 # PLAN implementation design
 
+## Runtime generation and schema owner
+
+This leaf applies only when the selected historical RUN's pinned engine
+explicitly supplies the legacy PLAN packet. Use that packet's frozen plan
+schema and output contract; the refreshed canon `protocol-plan@6` is a vNext
+copy, not the schema for the legacy fields below. If the packet does not
+support those fields, do not invent a conversion or discard accepted fields.
+Missing binding or generation ambiguity fails closed through `go.md`.
+
+For active vNext, execute the exact CLI-issued PLAN packet instead. This leaf
+does not override its SQLite plan authority, Stage output or finish command.
+
 Read the generated PLAN prompt, accepted specification, review/aspect map and
-the canonical schema. Produce or update the protocol-owned `plan.json`; do not
+the selected engine's frozen schema. Produce or update the protocol-owned `plan.json`; do not
 split semantic planning between a task folder, a stage report and runtime.
 
 ## Plan item contract

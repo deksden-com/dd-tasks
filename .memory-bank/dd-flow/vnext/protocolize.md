@@ -19,9 +19,11 @@ shape, PRT/PSET topology and durable product links. Do not choose a branch,
 path or bootstrap command. On the finish command, `dd-flow` allocates durable
 ids, validates the already provisioned workspace, registers it, and
 materializes the PRT, PSET and feature documents there. A feature-worktree
-route then starts PLAN in a new session from the returned workspace path. The
+route then starts PLAN using the exact returned Session/workspace directive. The
 finish receipt contains the exact branch, base commit and write workspace;
-that receipt is mandatory input to every later mutating stage.
+that receipt is mandatory input to every later mutating stage. The CLI resolves
+same/new Session from frozen execution policy and profile/workspace compatibility;
+the Git route alone is not a Session selector or authority to launch a successor.
 
 First record `scope_sizing_verdict`:
 
@@ -65,6 +67,9 @@ spans slices, never as blanket duplication. Every member must own at least one
 `AC-*`.
 The primary acceptance is a concise member contract, not a duplicate PLAN.
 The CLI writes the exact accepted statements into the PRT/PSET documents.
+Preserve the distinction between accepted constraints, baseline observations and
+open choices. Do not turn an implementation choice explicitly delegated to
+PLAN/CODE into a new acceptance obligation or a blocking user question.
 
 Preserve the accepted actor/entity/state vocabulary exactly. In particular, do
 not turn a project-owned lifecycle or permission into a task-owned lifecycle
@@ -75,6 +80,14 @@ changes the wording of an already accepted obligation, retain SPECIFY as
 historical input and add exactly one `obligation_amendments` item: target id,
 replacement, reason and returned `HITL-*` reference. PLAN uses that effective
 wording; it never rewrites the original SPECIFY artifact.
+
+Use only a returned HITL reference with an actually delivered user answer in this
+RUN, never a fabricated identifier or an agent recommendation. An amendment can
+replace an existing obligation, not invent a missing R/AC under a convenient id.
+A wholly omitted accepted obligation needs a supported upstream accepted revision;
+if that route is unavailable, report the source-linked blocker rather than hiding
+the loss in a protocol or later PLAN. Conflicting answers require explicit accepted
+resolution; later text is not automatically a superseding decision.
 
 If PROTOCOLIZE itself exposes a material user decision with no reasonable
 default, pause this same PROTOCOLIZE Work, ask the question returned by the

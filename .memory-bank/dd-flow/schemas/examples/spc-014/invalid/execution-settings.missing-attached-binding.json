@@ -1,0 +1,26 @@
+{
+  "schema_id": "dd-flow/execution-settings@1",
+  "flow_id": "mb-init",
+  "descriptor_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "execution": "attached",
+  "attached_session_receipt": null,
+  "stage_session_mode": "new_session",
+  "delegation": {
+    "mode": "external",
+    "max_parallel": 1,
+    "native_capacity_receipt": null
+  },
+  "profiles": [
+    {
+      "id": "local",
+      "revision": "03e85447455d113a2df0ac414742304f6fbe6d711b45222ddc63ad35fa7bfade"
+    }
+  ],
+  "root_profile": "local",
+  "stage_profiles": {
+    "review": "local"
+  },
+  "work_profiles": [
+    "local"
+  ]
+}

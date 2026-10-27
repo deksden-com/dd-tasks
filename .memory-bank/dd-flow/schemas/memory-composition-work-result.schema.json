@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dd-flow/memory-composition-work-result@1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "run_id", "work_id", "packet_sha256", "outcome", "summary", "units"],
+  "properties": {
+    "schema_id": { "const": "dd-flow/memory-composition-work-result@1" },
+    "run_id": { "type": "string", "minLength": 1 },
+    "work_id": { "type": "string", "minLength": 1 },
+    "packet_sha256": { "$ref": "#/$defs/hash" },
+    "outcome": { "enum": ["accepted", "blocked"] },
+    "summary": { "type": "string", "minLength": 1, "maxLength": 16384 },
+    "units": {
+      "type": "array", "minItems": 1, "maxItems": 256,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "summary", "artifacts"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$" },
+          "summary": { "type": "string", "minLength": 1, "maxLength": 16384 },
+          "artifacts": {
+            "type": "array", "minItems": 1, "maxItems": 512,
+            "items": {
+              "type": "object", "additionalProperties": false, "required": ["root", "path", "sha256"],
+              "properties": {
+                "root": { "enum": ["workspace", "run"] },
+                "path": { "type": "string", "minLength": 1, "maxLength": 4096 },
+                "sha256": { "$ref": "#/$defs/hash" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": { "hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" } }
+}

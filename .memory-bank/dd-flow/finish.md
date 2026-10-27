@@ -1,5 +1,22 @@
 # Finish: завершение интерактивного режима
 
+## Выбранный flow и поколение
+
+Для выбранного гибридного RUN этот entrypoint — запрос continuation, а не
+разрешение создать новый stage или изменить lifecycle вручную. Выполняй только
+его точный stage packet и returned command с frozen engine binding. Не используй
+legacy hardening/readiness для обхода accepted checks или независимого review.
+Не переводь active vNext в `ready_for_merge` и не ставь legacy queue job по
+одному итоговому докладу. Без поддерживаемого interactive handler/continuation
+остановись с blocker; не превращай существующий RUN в SDLC или новый flow.
+Новый generic interactive handler требует отдельного квалифицированного cutover;
+этот файл его не активирует.
+
+## Retained legacy route
+
+Оставшийся алгоритм применим только к явно выбранному совместимому legacy
+interactive protocol/RUN. Он не определяет active vNext result/transition.
+
 Этот prompt завершает протокол `mode: interactive`. Он анализирует фактически сделанные изменения, строит hardening plan, выполняет hardening/code/readiness и доводит протокол до того же `ready_for_merge`, что обычный code-flow.
 
 Flow origin policy: `project_local`.

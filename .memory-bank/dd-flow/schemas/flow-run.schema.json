@@ -12,7 +12,35 @@
     "project": {"$ref": "#/definitions/identity"},
     "subject": {"$ref": "#/definitions/identity"},
     "flow_kind": {"type": "string", "minLength": 1},
-    "verification_matrix_contract": {"enum": ["dd-flow/verification-matrix@1"]},
+    "start_request": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema_id", "request_id", "request_sha256", "allocation_sha256"],
+      "properties": {
+        "schema_id": {"const": "dd-flow/run-start-request@1"},
+        "request_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,95}$"},
+        "request_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "allocation_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "publication_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    },
+    "workspace_route": {
+      "type": "object", "additionalProperties": false, "required": ["revision", "sha256"],
+      "properties": {"revision": {"type": "integer", "minimum": 1}, "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}}
+    },
+    "execution_bundle": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema_id", "manifest_sha256", "descriptor_sha256", "admission_sha256", "flow_id"],
+      "properties": {
+        "schema_id": {"const": "dd-flow/run-execution-bundle@1"},
+        "manifest_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "descriptor_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "admission_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "flow_id": {"type": "string", "minLength": 1}
+      }
+    },
+    "verification_matrix_contract": {"const": "dd-flow/verification-matrix@1"},
+    "accepted_intent_contract": {"const": "dd-flow/accepted-intent@1"},
+    "final_check_coverage_contract": {"const": "dd-flow/final-check-coverage@1"},
     "status": {"enum": ["created", "running", "paused", "waiting_for_user", "done", "failed", "blocked", "cancelled", "discarded"]},
     "verdict": {"type": ["string", "null"]},
     "started_at": {"type": "string", "format": "date-time"},

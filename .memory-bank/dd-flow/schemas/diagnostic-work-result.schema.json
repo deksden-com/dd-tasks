@@ -1,0 +1,296 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dd-flow/diagnostic-work-result@1",
+  "title": "Assigned read-only diagnostic aspect or independent critic result",
+  "allOf": [
+    {
+      "if": { "properties": { "stage": { "const": "review" } }, "required": ["stage"] },
+      "then": { "properties": { "findings": { "type": "array", "maxItems": 0 } } },
+      "else": { "properties": { "decisions": { "type": "array", "maxItems": 0 } } }
+    }
+  ],
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_id",
+    "flow_id",
+    "run_id",
+    "work_id",
+    "stage",
+    "aspect_id",
+    "summary",
+    "sources",
+    "findings",
+    "decisions",
+    "limitations"
+  ],
+  "properties": {
+    "schema_id": {
+      "const": "dd-flow/diagnostic-work-result@1"
+    },
+    "flow_id": {
+      "enum": [
+        "mb-audit",
+        "project-review"
+      ]
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^RUN-[0-9]+-[a-z0-9-]+$"
+    },
+    "work_id": {
+      "type": "string",
+      "pattern": "^WRK-[0-9]+-[a-z0-9-]+$"
+    },
+    "stage": {
+      "enum": [
+        "audit",
+        "analyze",
+        "review"
+      ]
+    },
+    "aspect_id": {
+      "$ref": "#/$defs/text"
+    },
+    "summary": {
+      "$ref": "#/$defs/text"
+    },
+    "sources": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {
+        "$ref": "#/$defs/source"
+      }
+    },
+    "findings": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {
+        "$ref": "#/$defs/finding"
+      }
+    },
+    "decisions": {
+      "type": "array",
+      "maxItems": 2000,
+      "items": {
+        "$ref": "#/$defs/decision"
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "maxItems": 256,
+      "items": {
+        "$ref": "#/$defs/text"
+      }
+    }
+  },
+  "$defs": {
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 16000
+    },
+    "hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Path relative to the assigned diagnostic snapshot root, using forward slashes, for example src/index.ts or .memory-bank/index.md. Never an absolute path, dot segment, .git path, intake transport path or canonical support reference. Hash the exact snapshot file bytes.",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "sha256": {
+          "$ref": "#/$defs/hash"
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "applicability",
+        "reason",
+        "evidence"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/text"
+        },
+        "applicability": {
+          "enum": [
+            "applicable",
+            "not_applicable",
+            "blocked",
+            "out_of_scope"
+          ]
+        },
+        "reason": {
+          "$ref": "#/$defs/text"
+        },
+        "evidence": {
+          "type": "array",
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        }
+      }
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "aspect_id",
+        "type",
+        "severity",
+        "confidence",
+        "summary",
+        "impact",
+        "evidence",
+        "recommendation"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,99}$"
+        },
+        "aspect_id": {
+          "$ref": "#/$defs/text"
+        },
+        "type": {
+          "enum": [
+            "project_defect",
+            "spec_drift",
+            "code_drift",
+            "memory_bank_gap",
+            "frontmatter_crosslink_gap",
+            "coding_standards_gap",
+            "policy_process_gap",
+            "evidence_gap",
+            "observation"
+          ]
+        },
+        "severity": {
+          "enum": [
+            "blocking",
+            "major",
+            "minor",
+            "informational"
+          ]
+        },
+        "confidence": {
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ]
+        },
+        "summary": {
+          "$ref": "#/$defs/text"
+        },
+        "impact": {
+          "$ref": "#/$defs/text"
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        },
+        "recommendation": {
+          "$ref": "#/$defs/text"
+        }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "finding_id",
+        "disposition",
+        "severity",
+        "reason",
+        "evidence"
+      ],
+      "properties": {
+        "finding_id": {
+          "$ref": "#/$defs/text"
+        },
+        "disposition": {
+          "enum": [
+            "accepted",
+            "downgraded",
+            "rejected",
+            "duplicate",
+            "def_candidate",
+            "review_fix_candidate"
+          ]
+        },
+        "severity": {
+          "enum": [
+            "blocking",
+            "major",
+            "minor",
+            "informational"
+          ]
+        },
+        "reason": {
+          "$ref": "#/$defs/text"
+        },
+        "evidence": {
+          "type": "array",
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        }
+      }
+    },
+    "focus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "target",
+        "title",
+        "summary"
+      ],
+      "properties": {
+        "mode": {
+          "enum": [
+            "memory_bank",
+            "whole_project",
+            "latest_protocol",
+            "specific_protocol",
+            "protocol_set",
+            "subsystem_or_spec_area",
+            "feature_or_epic",
+            "diff_or_commit_range"
+          ]
+        },
+        "target": {
+          "$ref": "#/$defs/text"
+        },
+        "title": {
+          "$ref": "#/$defs/text"
+        },
+        "summary": {
+          "$ref": "#/$defs/text"
+        }
+      }
+    }
+  }
+}

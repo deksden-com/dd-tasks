@@ -1,0 +1,51 @@
+{
+  "schema_id": "dd-flow/release-manifest@1",
+  "channel": "preview",
+  "version": "4.2.0-preview.1",
+  "canon": {
+    "version": "4.2.0-preview.1",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "archive": {
+      "url": "https://example.invalid/canon.tgz",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "bytes": 123
+    }
+  },
+  "engine": {
+    "package": "@deksden-com/dd-flow-cli",
+    "version": "0.9.0-beta.125",
+    "compatible_range": ">=0.9.0-beta.125 <1.0.0",
+    "archive": {
+      "url": "https://example.invalid/engine.tgz",
+      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bytes": 456
+    }
+  },
+  "min_router_version": "0.9.0-beta.125",
+  "catalog_versions": {
+    "harness": "1.0.0",
+    "model": "1.0.0",
+    "flow": "1.0.0"
+  },
+  "schema_versions": {
+    "descriptor": "dd-flow/flow-descriptor@1",
+    "execution": "dd-flow/execution-settings@1",
+    "bundle": "dd-flow/execution-bundle@1"
+  },
+  "qualified_routes": [
+    {
+      "platform": "darwin-arm64",
+      "harness": "codex",
+      "flow": "mb-init",
+      "delegation": "external",
+      "evidence": {
+        "path": "receipts/route.json",
+        "sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+      }
+    }
+  ],
+  "impact": {
+    "path": "receipts/impact.json",
+    "sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+  }
+}

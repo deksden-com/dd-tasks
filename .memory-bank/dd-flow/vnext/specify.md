@@ -2,8 +2,8 @@
 file: '.memory-bank/dd-flow/vnext/specify.md'
 description: 'Canonical-specify semantic work adapted to the vNext SPECIFY → PROTOCOLIZE order.'
 purpose: 'Produce a portable problem-space contract before any executable protocol is created.'
-version: '0.5.0'
-date: '2026-08-14'
+version: '0.6.0'
+date: '2026-10-27'
 status: 'ACTIVE'
 c4_level: 'prompt'
 parent: '.memory-bank/dd-flow/index.md'
@@ -73,6 +73,20 @@ product decision. Your own earlier recommendation, summary or proposed default
 in this conversation is not evidence that the user accepted it. Keep that
 choice proposed and ask when the distinction changes scope, behaviour or
 acceptance evidence.
+
+Keep current behavior, accepted decisions and open questions distinct in the
+existing sections. Calling a rule "settled" requires its actual user answer
+or normative source; your own heading is not authority. Existing UI text,
+document language and browser locale do not establish a mandatory language for
+a new feature. Preserve explicit user choices of labels without translating
+them or silently adding localization; resolve a real conflicting policy.
+
+Once the required behavior is settled, leave equivalent implementation choices
+to PLAN and CODE. For example, a default for existing records does not itself
+require the user to choose physical backfill versus read-time fallback. Ask
+only if the alternatives change observable behavior, compatibility, permissions,
+irreversible effects or material risk. Explicit delegation of such details is
+not an unresolved product question.
 
 An explicit project policy remains binding unless the user explicitly asks to
 change that policy. Broad product wording (for example “treat these entities
@@ -162,6 +176,16 @@ as `specified` only after every material question is settled.
 
 ## Design aspects, assessment and handoff
 
+Before finishing, compare the original intake and every actually delivered user
+answer with the exact R/AC statements and explained non-goals. Cite source paths
+and question references in the existing sections; do not create another ledger.
+Preserve material actors, operations, surfaces and exceptions: UI plus API is not
+API alone, close plus reopen is not one operation, and an archived-state exception
+is not a happy-path detail. Do not turn an optional choice into an obligation.
+An agent recommendation is not an accepted answer. Preserve the answer sequence;
+only an explicit accepted correction supersedes a prior decision. Resolve material
+conflicts through the existing pause/resume route, not last-text-wins.
+
 Consult `.memory-bank/dd-flow/mb-sdlc/specify/design-aspects/index.md` only
 when a relevant aspect is signalled (for example CLI, AI pipeline/model prompt
 or web UI). For every selected aspect, record applicability, accepted canonical
@@ -182,6 +206,8 @@ The `PROTOCOLIZE handoff` is deliberately small: record material sources,
 any remaining gate and verification seeds. Each fact belongs once in its
 natural section: refer to the settled scope/defaults above rather than copying
 them into the handoff. Do not restate runtime data or implementation details.
+Preserve any explicit implementation delegation as a boundary, not a selected
+technical design or an unanswered product decision.
 
 Use `failed` only for a real execution failure and `cancelled` only when the
 request was cancelled.

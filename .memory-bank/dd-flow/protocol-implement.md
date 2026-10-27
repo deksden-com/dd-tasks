@@ -6,6 +6,21 @@ Flow origin policy: `project_local`.
 
 `protocol-implement.md` не создаёт новый протокол и не переписывает исходную задачу как свежий scope. Он читает существующий `PRT-*`, его `PSET-*` при наличии, runtime state and related context, затем выбирает следующий безопасный stage.
 
+## Выбор runtime перед continuation
+
+Для active vNext продолжай только явно выбранный RUN и его exact trusted
+directive по `go.md`. CLI packet определяет Stage, Work, assigned workspace,
+frozen engine/profile binding и допустимую команду; PRT summary не выбирает
+следующую Stage. Не выполняй legacy preflight и routing из разделов ниже
+перед successor `stage start` или `work start` этого worker Turn.
+
+Разделы ниже относятся только к подтверждённому legacy RUN с supported pinned
+engine. Отсутствующий runtime state или engine binding — blocker, не повод
+выполнять `protocol register`, создавать новый RUN или восстанавливать
+lifecycle вручную. Если известен только PRT, сначала требуется exact scoped
+diagnostic/recovery выбранного runtime; при неоднозначности запроси selector.
+Наличие доступного global CLI не подтверждает compatibility исторического RUN.
+
 ## Когда использовать
 
 Используй этот prompt, если пользователь говорит:
@@ -57,11 +72,9 @@ dd-flow protocol implement "<PRT-ID>" --project-root "<project-root>" --json
 3. Если protocol lifecycle terminal (`MERGED`, `CLOSED`, runtime `closed`, `cancelled`), не запускай реализацию.
 4. Если `blocked_by_protocols` содержит unresolved blockers, остановись с `blocked: protocol_blocked_by_dependencies`, кроме случая явного `--force --reason` and user/operator rationale.
 5. Если другой active session/claim уже держит этот protocol, остановись или запроси осознанный override.
-6. Если runtime state missing, зарегистрируй protocol через CLI before mutating stages:
-
-   ```bash
-   dd-flow protocol register "<PRT-ID>" --project-root "<project-root>" --json
-   ```
+6. Если runtime state missing, останови continuation. Не выполняй
+   `protocol register` как автоматический fallback; восстановление требует
+   selected runtime, supported recovery и отдельно разрешённого действия.
 
 7. Если runtime/filesystem stage evidence расходятся, используй `dd-flow protocol sync-from-run` only when concrete RUN evidence proves the target state. Иначе fail closed.
 8. Если protocol belongs to `PSET-*`, покажи remaining set status and startable protocols.

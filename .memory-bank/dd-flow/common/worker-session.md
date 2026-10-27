@@ -2,8 +2,8 @@
 file: '.memory-bank/dd-flow/common/worker-session.md'
 description: 'Shared session primer for worker, verifier, scout and aspect-review subagents.'
 purpose: 'Read before specialized worker prompts so focused subagents use explicit task packets, light project priming and source-backed reports instead of hidden orchestrator context.'
-version: '0.6.0'
-date: '2026-09-09'
+version: '0.7.0'
+date: '2026-10-26'
 status: 'ACTIVE'
 c4_level: 'documentation'
 parent: '.memory-bank/dd-flow/README.md'
@@ -16,6 +16,9 @@ related_files:
   - .memory-bank/dd-flow/mb-sdlc/plan-aspects/aspect-worker.md
 tags: [dd-flow, subagents, workers, priming, task-packet]
 history:
+  - version: '0.7.0'
+    date: '2026-10-26'
+    changes: 'Accepted dd-flow results end worker activity independently of native session retirement.'
   - version: '0.6.0'
     date: '2026-09-09'
     changes: 'Aligned native/external capacity, bounded qualification and operator safe-point behavior with shared runtime ownership.'
@@ -285,6 +288,14 @@ Read in this order:
 Do not run full `prime.md` from a worker unless the task packet explicitly asks for it.
 
 ## Work Boundaries
+
+Result acceptance and native session shutdown are separate. Use the exact issued
+finish command; a file or native "done" message is not accepted Work. Once
+dd-flow accepts your result, stop writing, running tools and creating tasks, and
+end the Turn. Do not repeat the Work or prompt a model merely because its native
+session/card has not closed. Preserve technical remarks for the controller, which
+owns retirement and conflicting-resource reconciliation. If acceptance is
+unknown, retain the exact command/operation and seek reconciliation, not replay.
 
 - Work only inside the packet's read/write boundaries.
 - Do not revert unrelated or user changes.

@@ -1,0 +1,37 @@
+{
+  "schema_id": "dd-flow/memory-bootstrap-receipt@1",
+  "request_id": "fixture-init",
+  "flow_id": "mb-init",
+  "project_root": "/fixture/project",
+  "workspace": {
+    "path": "/fixture/workspace",
+    "repository": "fixture-repo",
+    "branch": "feat/fixture",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "baseline_sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+  "project_current": null,
+  "upgrade_target": {
+    "canon_version": "4.2.0-preview.1",
+    "pack_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "effective_execution": {
+    "engine_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "canon_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "readiness": "ready",
+  "storage": {
+    "route": "migration",
+    "outcome": "unknown",
+    "compatibility_receipt": {
+      "path": "receipts/compatibility.json",
+      "sha256": "5555555555555555555555555555555555555555555555555555555555555555"
+    },
+    "drain_receipt": null,
+    "backup_receipt": null,
+    "plan_receipt": null,
+    "apply_receipt": null,
+    "verification_receipt": null
+  },
+  "effects": []
+}

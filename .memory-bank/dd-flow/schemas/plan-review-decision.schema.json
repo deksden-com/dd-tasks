@@ -5,6 +5,15 @@
   "additionalProperties": false,
   "required": ["schema_id", "outcome", "summary", "finding_decisions", "correction"],
   "properties": {
+    "accepted_intent_acknowledgement": {
+      "type": "object", "additionalProperties": false,
+      "required": ["reviewed_fingerprint", "current_fingerprint", "clarification_refs"],
+      "properties": {
+        "reviewed_fingerprint": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "current_fingerprint": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "clarification_refs": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^HITL-[A-Za-z0-9._-]+$"}}
+      }
+    },
     "schema_id": {"const": "dd-flow/plan-review-decision@4"},
     "outcome": {"enum": ["accepted", "failed", "cancelled"]},
     "summary": {"type": "string", "minLength": 1},

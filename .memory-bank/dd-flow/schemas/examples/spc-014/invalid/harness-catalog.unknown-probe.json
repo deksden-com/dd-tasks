@@ -1,0 +1,66 @@
+{
+  "schema_id": "dd-flow/harness-catalog@1",
+  "version": "1.0.0",
+  "entries": [
+    {
+      "id": "codex",
+      "executable_candidates": [
+        "codex"
+      ],
+      "probe_module": "arbitrary-shell",
+      "probe_timeout_ms": 3000,
+      "version_range": ">=1.0.0",
+      "protocol_version": "1"
+    },
+    {
+      "id": "zcode",
+      "executable_candidates": [
+        "zcode"
+      ],
+      "probe_module": "zcode-discovery",
+      "probe_timeout_ms": 3000,
+      "version_range": ">=1.0.0",
+      "protocol_version": "1"
+    },
+    {
+      "id": "agy",
+      "executable_candidates": [
+        "agy"
+      ],
+      "probe_module": "agy-discovery",
+      "probe_timeout_ms": 3000,
+      "version_range": ">=1.0.0",
+      "protocol_version": "1"
+    },
+    {
+      "id": "opencode",
+      "executable_candidates": [
+        "opencode"
+      ],
+      "probe_module": "opencode-discovery",
+      "probe_timeout_ms": 3000,
+      "version_range": ">=1.0.0",
+      "protocol_version": "1"
+    },
+    {
+      "id": "grok",
+      "executable_candidates": [
+        "grok"
+      ],
+      "probe_module": "grok-discovery",
+      "probe_timeout_ms": 3000,
+      "version_range": ">=1.0.0",
+      "protocol_version": "1"
+    },
+    {
+      "id": "droid",
+      "executable_candidates": [
+        "droid"
+      ],
+      "probe_module": "droid-discovery",
+      "probe_timeout_ms": 3000,
+      "version_range": ">=1.0.0",
+      "protocol_version": "1"
+    }
+  ]
+}

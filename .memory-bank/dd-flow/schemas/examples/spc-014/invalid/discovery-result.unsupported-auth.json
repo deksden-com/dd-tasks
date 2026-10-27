@@ -1,0 +1,20 @@
+{
+  "schema_id": "dd-flow/discovery-result@1",
+  "request_id": "fixture-discovery",
+  "observed_at": "2026-10-07T12:00:00Z",
+  "probe_scope": "static",
+  "live_authorization_receipt": null,
+  "entries": [
+    {
+      "harness": "codex",
+      "candidates": [],
+      "installed": "unknown",
+      "compatible": "unknown",
+      "protocol": "unknown",
+      "auth": "verified",
+      "qualified": "unknown",
+      "reason": "Fixture has no account or executable observation",
+      "evidence": []
+    }
+  ]
+}

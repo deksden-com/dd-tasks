@@ -20,7 +20,7 @@
           "aspect_id": {"type": "string", "minLength": 1},
           "verdict": {"enum": ["pass", "watch", "needs_changes", "blocked"]},
           "summary": {"type": "string", "minLength": 1},
-          "evidence_refs": {"type": "array", "items": {"type": "string", "minLength": 1}},
+          "evidence_refs": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
           "findings": {
             "type": "array",
             "items": {
@@ -31,7 +31,7 @@
                 "finding_id": {"type": "string", "pattern": "^FIND-[0-9]{3}$"},
                 "severity": {"enum": ["blocker", "high", "medium", "low", "info"]},
                 "summary": {"type": "string", "minLength": 1},
-                "evidence_refs": {"type": "array", "items": {"type": "string", "minLength": 1}}
+                "evidence_refs": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
               }
             }
           }

@@ -10,7 +10,7 @@
     "run_id": {"type": "string", "pattern": "^RUN-[0-9]+-[a-z0-9][a-z0-9-]*$"},
     "project_root": {"type": "string", "minLength": 1},
     "bound_at": {"type": "string", "format": "date-time"},
-    "source": {"enum": ["run_creation", "legacy_recovery"]},
+    "source": {"enum": ["run_creation", "legacy_recovery", "fork_upgrade"]},
     "reason": {"type": "string", "minLength": 1},
     "engine": {
       "type": "object",

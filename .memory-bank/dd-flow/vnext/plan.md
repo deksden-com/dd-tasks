@@ -1,5 +1,15 @@
 # PLAN
 
+Read the original accepted-input paths in the runtime packet as well as SPECIFY
+and effective PROTOCOLIZE amendments. Preserve material actors, operations,
+UI/API surfaces, states and exceptions in owned R/AC, plan items and checks. API
+coverage alone does not prove UI behavior. Report an omitted original obligation
+with its source reference; do not silently repair an immutable SPECIFY in PLAN.
+Keep baseline observations and agent proposals separate from accepted constraints.
+Resolve explicitly delegated implementation choices here within the accepted
+behavior and project policy; do not reopen them as product questions unless
+the choice exposes a material conflict or changes the accepted outcome.
+
 PLAN, not the CLI, selects verification. The project check profile supplies
 reusable `@check/...` aliases, aggregate gates and only those raw commands
 that must use an alias. Declare one top-level `checks[]` catalogue with stable

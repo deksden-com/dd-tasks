@@ -2,8 +2,8 @@
 file: '.memory-bank/dd-flow/mb-sdlc/specify/packet.md'
 description: 'Bounded SPECIFY packet rendered directly into a RUN stage prompt.'
 purpose: 'Give the worker the necessary priming, project grounding and semantic contract once.'
-version: '0.1.0'
-date: '2026-08-14'
+version: '0.1.1'
+date: '2026-10-18'
 status: 'ACTIVE'
 c4_level: 'prompt'
 parent: '.memory-bank/dd-flow/mb-sdlc/specify/stage.md'
@@ -14,15 +14,16 @@ tags: [dd-flow, specify, stage-packet]
 
 ## Project grounding
 
-dd-tasks is a TypeScript task-management product with React/Vite frontend,
-Hono API, Drizzle/Postgres persistence, pnpm, Biome, Vitest and Playwright.
-Its current baseline has authenticated users, workspaces, projects and tasks;
-workspace isolation and task CRUD behavior are already established.
+Establish the current baseline from the selected project's source, README and
+applicable specifications; cite the inspected sources. Use the RUN-local intake
+for the requested change and accepted task decisions. If a fact is not supported
+by those inputs, keep it unknown rather than borrowing another project's stack,
+features or implementation claims. This shared packet supplies no project facts.
 
 ## Goal
 
 Turn the user request and the RUN-local intake into the smallest reliable set
-of unresolved product decisions. Ground each question in the baseline above
+of unresolved product decisions. Ground each question in that inspected baseline
 and the user request. Do not design implementation, select architecture,
 create a worktree, plan, merge, or run checks for a later stage.
 

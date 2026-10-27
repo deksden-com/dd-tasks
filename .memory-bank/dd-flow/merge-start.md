@@ -1,5 +1,17 @@
 # Merge Start: долгоживущий merge worker проекта
 
+## Выбранный движок
+
+Этот entrypoint управляет только retained legacy merge worker при явно выбранном
+совместимом queue/job/lane движке. Наличие CLI не подтверждает совместимость.
+Для active vNext он не регистрирует merge_worker Session, не готовит новый home
+и не запускает старый wait-next: используй точную continuation выбранного RUN
+и его frozen MERGE packet. Server lifecycle также принадлежит выбранному
+движку; этот prompt не выбирает server mode вместо frozen RUN policy.
+Отсутствующий binding или неясный target — blocker, не разрешение на fallback.
+
+## Retained legacy route
+
 Этот prompt стартует или проверяет долгоживущий merge worker для проекта.
 
 Flow origin policy: `project_local`.

@@ -4,7 +4,7 @@ This prompt starts a focused discussion from existing project DEFs.
 
 Flow origin policy: `project_local`.
 
-`fix-def.md` does not fix anything by itself. It prepares the current session to discuss accumulated `DEF-*` / `DEF-MBU-*` obligations and decide what scope should later be materialized through ordinary `protocol.md`.
+`fix-def.md` does not fix anything by itself. It prepares the current session to discuss accumulated `DEF-*` / `DEF-MBU-*` obligations and decide what scope should later be explicitly formalized through `vnext/start.md`.
 
 ## Hard Guardrails
 
@@ -22,7 +22,10 @@ It must not:
 - perform implementation fixes;
 - close DEFs.
 
-If the user asks to actually fix selected DEFs, first finish this prompt's report, then tell the user that the next step is `protocol.md` for the chosen scope.
+If the user asks to actually fix selected DEFs, first finish this read-only
+report. A separate explicit request to formalize that scope uses `vnext/start.md`
+and SPECIFY-first bootstrap; an implementation request alone does not create
+runtime state under this prompt. Do not route new ordinary work to `protocol.md`.
 
 ## What To Read
 
@@ -80,10 +83,12 @@ For each group, state the likely protocol shape:
 
 - one coherent group -> likely one `PRT-*`;
 - several independent groups -> likely one `PSET-*` with member `PRT-*`;
-- user-decision-only group -> likely `protocol.md` creates a protocol that may stop in `specify` or `waiting_for_user`;
+- user-decision-only group -> SPECIFY may pause for a material answer before protocolization;
 - stale/duplicate cleanup group -> likely audit/review or a small protocol, depending on planned coordination areas.
 
-Do not create the protocol. `protocol.md` owns materialization.
+Do not create the protocol or RUN here. After explicit formalization,
+`vnext/start.md` starts SPECIFY; PROTOCOLIZE materializes PRT/PSET from accepted
+requirements. The group shapes above are discussion candidates, not allocated IDs.
 
 ## Final Report
 

@@ -26,10 +26,13 @@ Raw JSON output, rule ids, code identifiers и HTML/CSS/JS шаблоны мог
 
 Твоя задача - запустить или спланировать детерминированную проверку Банка памяти через `mb-lint`.
 
-Если lint запускается внутри активного протокола и доступен `dd-flow` CLI,
-зарегистрируй `flow_kind: memory_flow`, `continuation_policy: memory_flow`,
-`current_stage: mb_lint`, `next_action: run deterministic memory bank lint`.
-Если CLI недоступен, укажи `runtime_cli_degraded`; ручной trace не создавай.
+Standalone lint — diagnostic action, не новый flow. Не регистрируй Session,
+RUN, Stage или `memory_flow` только потому, что доступен `dd-flow` CLI.
+В selected active RUN используй check directive и receipt scope его CLI packet;
+не меняй current_stage или continuation policy вручную. Вне RUN доложи actual
+command/result и `runtime_state: not_created`. Недоступность обязательного CLI
+блокирует runtime check admission, но не запрещает отдельно разрешённую
+диагностику. Ручной trace и model-authored runtime receipt не создавай.
 
 `mb-lint` не является аудитом. Он не решает, хороша ли архитектура и верна ли продуктовая логика. Он проверяет только то, что можно проверить формально: структура, ссылки, frontmatter, идентификаторы, достижимость, открытые `DEF-*`, кодовые ссылки из JSDoc/TSDoc/docstrings.
 

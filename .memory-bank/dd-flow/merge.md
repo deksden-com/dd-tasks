@@ -1,6 +1,28 @@
 # Merge: текущая сессия или статус очереди
 
-Этот root entrypoint является безопасным operator entrypoint-ом для merge stage `mb-sdlc` после `code/readiness.md`.
+## Active vNext и выбор маршрута
+
+Для active vNext используй только точную MERGE continuation выбранного RUN и
+его frozen engine binding. Первым практическим вызовом выполни возвращённую
+команду stage-start. Полный пакет определяет очередь, lock, source/target,
+integration workspace, effective gate и точные apply/repair/finish команды;
+методика — `vnext/merge.md`. Не заменяй их старым one-shot/bundle claim,
+регистрацией merge-job Session или ручным Git merge.
+
+Если binding или continuation отсутствует, остановись с blocker. Не выбирай
+ambient home, не восстанавливай RUN вручную и не переключай active vNext на
+retained legacy route. Status-only наблюдение не даёт права на merge mutation.
+
+Явная просьба оформить новый протокол направляется в `vnext/start.md`:
+SPECIFY предшествует PROTOCOLIZE, который материализует PRT/PSET. Не создавай
+PRT перед SPECIFY и не запускай MERGE вместо нового flow.
+
+## Retained legacy route
+
+Оставшийся алгоритм ниже применим только к явно выбранному совместимому legacy
+движку, поддерживающему queue/job/lane contract. Он не определяет active vNext
+stage admission. Этот маршрут является operator entrypoint-ом для merge stage
+`mb-sdlc` после legacy `code/readiness.md`.
 
 Flow origin policy: `project_local`.
 
@@ -19,7 +41,9 @@ Status-only путь не берёт lock, не claim-ит job, не запус�
 stage_report: N/A - status-only; no merge job ran
 ```
 
-Если пользователь говорит "оформи протокол" / "пропиши протокол" / "сделай протокол" / "создай протокол", `merge.md` не является подходящим entrypoint-ом. Сразу прочитай и выполни `protocol.md`, который создаёт или обновляет `PRT-*` и переводит задачу в `specify`; только после `plan`, `code/readiness` и `ready_for_merge` допустим merge.
+Для продолжения существующего legacy протокола сохраняй его выбранный binding
+и подтверждённое predecessor evidence. Новая формализация не использует этот
+legacy алгоритм; она следует SPECIFY-first маршруту выше.
 
 ## Что прочитать
 

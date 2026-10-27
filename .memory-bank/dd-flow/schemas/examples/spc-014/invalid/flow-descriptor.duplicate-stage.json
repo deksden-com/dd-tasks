@@ -1,0 +1,123 @@
+{
+  "schema_id": "dd-flow/flow-descriptor@1",
+  "id": "mb-init",
+  "version": "1.0.0",
+  "origin": "canon",
+  "entry_stage": "preflight",
+  "terminal_stages": [
+    "finish"
+  ],
+  "stages": [
+    {
+      "id": "preflight",
+      "directory": "01-preflight",
+      "entry_handler": "memory-stage-entry",
+      "finish_handler": "memory-stage-finish",
+      "instruction": {
+        "path": "dd-flow/mb-init/preflight.md",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "result_schema": {
+        "path": "schemas/memory-preflight-result.schema.json",
+        "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+      }
+    },
+    {
+      "id": "preflight",
+      "directory": "02-discover",
+      "entry_handler": "memory-stage-entry",
+      "finish_handler": "memory-stage-finish",
+      "instruction": {
+        "path": "dd-flow/mb-init/discover.md",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "result_schema": {
+        "path": "schemas/memory-discover-result.schema.json",
+        "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+      }
+    },
+    {
+      "id": "compose",
+      "directory": "03-compose",
+      "entry_handler": "memory-stage-entry",
+      "finish_handler": "memory-stage-finish",
+      "instruction": {
+        "path": "dd-flow/mb-init/compose.md",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "result_schema": {
+        "path": "schemas/memory-compose-result.schema.json",
+        "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+      }
+    },
+    {
+      "id": "verify",
+      "directory": "04-verify",
+      "entry_handler": "memory-stage-entry",
+      "finish_handler": "memory-stage-finish",
+      "instruction": {
+        "path": "dd-flow/mb-init/verify.md",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "result_schema": {
+        "path": "schemas/memory-verify-result.schema.json",
+        "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+      }
+    },
+    {
+      "id": "review",
+      "directory": "05-review",
+      "entry_handler": "memory-stage-entry",
+      "finish_handler": "memory-stage-finish",
+      "instruction": {
+        "path": "dd-flow/mb-init/review.md",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "result_schema": {
+        "path": "schemas/memory-review-result.schema.json",
+        "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+      }
+    },
+    {
+      "id": "finish",
+      "directory": "06-finish",
+      "entry_handler": "memory-stage-entry",
+      "finish_handler": "memory-stage-finish",
+      "instruction": {
+        "path": "dd-flow/mb-init/finish.md",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "result_schema": {
+        "path": "schemas/memory-finish-result.schema.json",
+        "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "preflight",
+      "to": "discover",
+      "on": "accepted"
+    },
+    {
+      "from": "discover",
+      "to": "compose",
+      "on": "accepted"
+    },
+    {
+      "from": "compose",
+      "to": "verify",
+      "on": "accepted"
+    },
+    {
+      "from": "verify",
+      "to": "review",
+      "on": "accepted"
+    },
+    {
+      "from": "review",
+      "to": "finish",
+      "on": "accepted"
+    }
+  ]
+}

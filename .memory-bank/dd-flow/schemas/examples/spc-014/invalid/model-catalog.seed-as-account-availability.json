@@ -1,0 +1,29 @@
+{
+  "schema_id": "dd-flow/model-catalog@1",
+  "version": "1.0.0",
+  "entries": [
+    {
+      "harness": "codex",
+      "provider": "fixture",
+      "model": "fixture-model",
+      "settings": {
+        "reasoning": [
+          "medium"
+        ],
+        "mode": [
+          "default"
+        ]
+      },
+      "provenance": {
+        "kind": "reviewed-seed",
+        "source": "https://example.invalid/models",
+        "reviewed_at": "2026-10-07T12:00:00Z"
+      },
+      "availability": "verified",
+      "qualification": {
+        "scope": "seed-only",
+        "evidence": null
+      }
+    }
+  ]
+}

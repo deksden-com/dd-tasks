@@ -1,5 +1,19 @@
 # Merge Stop: остановка долгоживущего merge worker
 
+## Выбранный движок и scope остановки
+
+Этот entrypoint останавливает только retained legacy merge worker при явно
+выбранном совместимом queue/job/lane движке. Он не является stop-командой для
+active vNext RUN/controller или всего harness. Для такого RUN используй его
+точную typed control-команду с выбранным RUN/controller и request identity;
+не подменяй её merge-worker stop, ручным release lock или массовым kill.
+Логическое stop acknowledgement не доказывает physical tree settlement:
+подтверждай owned resources и terminal evidence через выбранный controller.
+Отсутствующий binding или неоднозначный target — blocker, не повод выбрать
+ambient home либо остановить чужую Session.
+
+## Retained legacy route
+
 Этот prompt мягко останавливает project-level merge worker.
 
 Flow origin policy: `project_local`.

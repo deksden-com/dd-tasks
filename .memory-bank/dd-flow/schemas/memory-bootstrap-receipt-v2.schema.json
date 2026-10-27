@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dd-flow/memory-bootstrap-receipt@2",
+  "description": "Bootstrap execution readiness, not semantic Memory Bank acceptance. Unborn HEAD is explicit, never a fabricated commit.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "request_id", "flow_id", "project_root", "workspace", "baseline_sha256", "project_current", "upgrade_target", "effective_execution", "readiness", "storage", "effects"],
+  "properties": {
+    "schema_id": {"const": "dd-flow/memory-bootstrap-receipt@2"},
+    "request_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,95}$"},
+    "flow_id": {"enum": ["mb-init", "mb-upgrade"]},
+    "project_root": {"type": "string", "minLength": 1},
+    "workspace": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "repository", "branch", "commit", "git_state"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "repository": {"type": "string", "minLength": 1},
+        "branch": {"type": "string", "minLength": 1},
+        "commit": {"anyOf": [{"type": "string", "pattern": "^[a-f0-9]{40}$"}, {"type": "null"}]},
+        "git_state": {"enum": ["unborn", "committed"]}
+      },
+      "allOf": [
+        {"if": {"properties": {"git_state": {"const": "unborn"}}}, "then": {"properties": {"commit": {"type": "null"}}}},
+        {"if": {"properties": {"git_state": {"const": "committed"}}}, "then": {"properties": {"commit": {"type": "string", "pattern": "^[a-f0-9]{40}$"}}}}
+      ]
+    },
+    "baseline_sha256": {"$ref": "#/$defs/digest"},
+    "project_current": {"anyOf": [{"$ref": "#/$defs/pack"}, {"type": "null"}]},
+    "upgrade_target": {"$ref": "#/$defs/pack"},
+    "effective_execution": {
+      "type": "object", "additionalProperties": false, "required": ["engine_sha256", "canon_sha256"],
+      "properties": {"engine_sha256": {"$ref": "#/$defs/digest"}, "canon_sha256": {"$ref": "#/$defs/digest"}}
+    },
+    "readiness": {"enum": ["ready", "blocked", "failed", "unknown"]},
+    "storage": {
+      "type": "object", "additionalProperties": false,
+      "required": ["route", "outcome", "compatibility_receipt", "drain_receipt", "backup_receipt", "plan_receipt", "apply_receipt", "verification_receipt"],
+      "properties": {
+        "route": {"enum": ["verified-no-op", "migration"]},
+        "outcome": {"enum": ["no-op", "prepared", "applied", "blocked", "failed", "unknown"]},
+        "compatibility_receipt": {"$ref": "#/$defs/receipt"},
+        "drain_receipt": {"$ref": "#/$defs/optionalReceipt"},
+        "backup_receipt": {"$ref": "#/$defs/optionalReceipt"},
+        "plan_receipt": {"$ref": "#/$defs/optionalReceipt"},
+        "apply_receipt": {"$ref": "#/$defs/optionalReceipt"},
+        "verification_receipt": {"$ref": "#/$defs/optionalReceipt"}
+      }
+    },
+    "effects": {"type": "array", "items": {
+      "type": "object", "additionalProperties": false, "required": ["kind", "receipt"],
+      "properties": {"kind": {"enum": ["scaffold", "pack-install", "storage-apply"]}, "receipt": {"$ref": "#/$defs/receipt"}}
+    }}
+  },
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "pack": {
+      "type": "object", "additionalProperties": false, "required": ["canon_version", "pack_sha256"],
+      "properties": {"canon_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[A-Za-z0-9.-]+)?$"}, "pack_sha256": {"$ref": "#/$defs/digest"}}
+    },
+    "receipt": {
+      "type": "object", "additionalProperties": false, "required": ["path", "sha256"],
+      "properties": {"path": {"type": "string", "pattern": "^[a-zA-Z0-9_-][a-zA-Z0-9_.-]*(/[a-zA-Z0-9_-][a-zA-Z0-9_.-]*)*$"}, "sha256": {"$ref": "#/$defs/digest"}}
+    },
+    "optionalReceipt": {"anyOf": [{"$ref": "#/$defs/receipt"}, {"type": "null"}]}
+  }
+}

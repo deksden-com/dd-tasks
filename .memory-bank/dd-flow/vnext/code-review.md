@@ -21,6 +21,23 @@ database, seed and services with the declared cwd/env. Reliance on prior test
 leftovers is a material verification defect. Reviewers receive empty context;
 a different session identifier alone does not prove independent review.
 
+Compare the original accepted-input paths supplied by the runtime with the
+observable implementation, not only with the PLAN summary. Preserve material
+actors, UI/API surfaces, operations, states and exceptions. API evidence does not
+prove a UI action; an omitted accepted surface is a quality finding even when all
+declared tests passed. Cite original source and R/AC references. An unavailable
+original source is an evidence gap. Do not edit immutable accepted SPECIFY to hide
+loss; require the supported upstream correction/revision, or report an actionable
+blocker when that route is unavailable. Do not invent HITL references or silently
+replace an earlier decision with later conflicting text.
+
+For a clarification accepted in this same review before its decision is frozen,
+use the exact `accepted_intent_acknowledgement` returned by resume/finish, then
+classify and repair through the existing coordinator route. The old independent
+results cover only their prior retained sources. A new upstream decision or a new
+answer after decision freeze needs a supported accepted revision; do not rewrite
+the frozen decision or claim fresh independent coverage.
+
 The coordinator delegates the registered aspect groups to fresh read-only
 workers and never claims a reviewer Work itself. Workers neither edit the
 product nor create child workers. A reviewer may read the complete bounded
@@ -51,7 +68,10 @@ cite its evidence, contain no blocker or deviation, and
 materialize every assigned document update. After that Work completes, invoke
 the same Finish command again: the CLI reruns the same final CODE gate,
 including final `readiness` evidence such as browser checks, and closes the
-stage. Do not repeat the independent review wave.
+stage. Do not repeat the independent review wave for ordinary fixed outcomes.
+An evidence-backed `already_satisfied` or `disputed` proposal is not self-acceptance:
+the CLI dispatches a selective independent review of that proposal before closing
+it. Follow its issued continuation; do not create a duplicate review or cosmetic diff.
 
 If the final aggregate gate fails with `continuation.kind=repair_required`, its
 repair is already registered with all causal receipts. End the coordinator turn
@@ -72,6 +92,7 @@ material finding, not as a stylistic concern.
 
 After repairs the coordinator compares the original problem and required
 outcome with the submitted resolution, its evidence and the final diff before
-closing each accepted finding. Do not repeat the entire review after a bounded repair. A new
+closing each accepted finding. No-change proposals still require the CLI-issued
+selective independent review. Do not repeat the entire review after a bounded repair. A new
 review is warranted only when the repair expands the reviewed surface or opens
 a new security, trust, data, or concurrency boundary, or when the user asks.

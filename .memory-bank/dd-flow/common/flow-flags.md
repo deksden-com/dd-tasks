@@ -2,13 +2,13 @@
 file: '.memory-bank/dd-flow/common/flow-flags.md'
 description: 'SPC-004 v0.2 and SPC-005 flow policy without report/observability switches.'
 purpose: 'Resolve route and verification policy once at RUN start.'
-version: '1.1.0'
-date: '2026-08-10'
+version: '1.1.1'
+date: '2026-10-18'
 status: 'DRAFT'
 c4_level: 'policy'
 parent: '.memory-bank/dd-flow/README.md'
 related_files:
-  - flow-contract.json
+  - ../flow-contract.json
   - runtime-contract.md
 tags: [dd-flow, flags, policy, spc-004, spc-005]
 ---

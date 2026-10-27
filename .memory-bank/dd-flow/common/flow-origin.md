@@ -4,11 +4,19 @@
 
 ## Canonical-only flows
 
-These flows run from the canonical `dd-memorybank` checkout:
+These flows use the selected canonical distribution, never the project pack.
+Retained agent-led routes may resolve a `dd-memorybank` checkout; registered
+hybrid routes use the verified installed canon and frozen execution bundle:
 
 - `mb-init.md`
 - `mb-upgrade.md`
 - `mb-distill.md`
+- `mb-audit.md`
+- `review.md` (registered `project-review`, alias `review`)
+
+Registered hybrid diagnostics execute from the verified installed global canon
+and frozen RUN bundle, not a project pack or mutable checkout. They require no
+project Memory Bank installation. Retained RUNs keep their pinned engine/packet.
 
 Before reading support files, mutating a target project, or running permission preflight, a canonical-only flow must determine:
 
@@ -55,19 +63,17 @@ These flows are installed as a curated project flow pack under `target_project_r
 - `release.md`
 - `deploy.md`
 - `publish.md`
-- `review.md`
 - `review-fix.md`
-- `mb-audit.md`
 - `mb-fix.md`
 - `mb-lint.md`
 
-They may include support folders required by those entrypoints, such as `common/`, `prime/`, `mb-sdlc/`, `aspects/`, `def/`, `workers/`, `mb-audit/`, and `schemas/`. Root compatibility aliases such as `plan/`, `code/`, and `merge/` may exist only when the pack intentionally supports old project-local paths. For merge flows, the curated pack must include `mb-sdlc/merge/job.md`, `mb-sdlc/merge/integrate.md`, and `mb-sdlc/merge/stage-report-template.html` whenever `merge.md`, `merge-start.md`, or `merge-stop.md` is installed.
+They may include support folders required by those entrypoints, such as `common/`, `prime/`, `mb-sdlc/`, `aspects/`, `def/`, `workers/`, and `schemas/`. Root compatibility aliases such as `plan/`, `code/`, and `merge/` may exist only when the pack intentionally supports old project-local paths. For merge flows, the curated pack must include `mb-sdlc/merge/job.md`, `mb-sdlc/merge/integrate.md`, and `mb-sdlc/merge/stage-report-template.html` whenever `merge.md`, `merge-start.md`, or `merge-stop.md` is installed.
 
 Stage-report-enabled project flows must be installed with their templates and schemas:
 
 - generated-matrix consumers include `common/verification-matrix.md` and `schemas/verification-matrix.schema.json`; operative rules come from this pack, not from a potentially older project MBB copy;
 
-- if `plan.md`, `code.md`, any real merge entrypoint, `mb-audit.md`, `mb-fix.md`, `release.md`, `deploy.md` or `publish.md` is installed, include `common/workspace-bootstrap.md` because those consumers may need to prove or explicitly waive checkout readiness before project tooling;
+- if `plan.md`, `code.md`, any real merge entrypoint, `mb-fix.md`, `release.md`, `deploy.md` or `publish.md` is installed, include `common/workspace-bootstrap.md` because those consumers may need to prove or explicitly waive checkout readiness before project tooling;
 - if `protocol.md` is installed, include `mb-sdlc/specify/stage-report-template.html` and `schemas/specification-stage-report.schema.json`;
 - if `plan.md` is installed, include `mb-sdlc/plan/stage-report-template.html`, `mb-sdlc/plan/reflection.md`, `mb-sdlc/plan/review.md`, `mb-sdlc/plan/implementation.md`, `mb-sdlc/plan/operations.md`, `mb-sdlc/plan/scenarios.md` and `schemas/plan-stage-report.schema.json`;
 - if `protocol.md` or `plan.md` is installed for normal coding flow, include `common/worker-session.md`, `workers/knowledge-extraction.md` and `schemas/knowledge-candidates.schema.json`;
@@ -77,13 +83,13 @@ Stage-report-enabled project flows must be installed with their templates and sc
 - if a project flow pack includes prompt/model/agentic runtime review rules, include `workers/repair.md` so invalid model output repair has a standard narrow prompt;
 - if any real merge entrypoint is installed, include `mb-sdlc/merge/stage-report-template.html`, `schemas/merge-stage-report.schema.json`, `workers/knowledge-promotion.md` and `schemas/knowledge-promotion-report.schema.json`;
 - if `release.md`, `deploy.md` or `publish.md` is installed, include `common/delivery-flows.md`, `common/sdlc-contours.md`, `common/changelog.md`, `common/git-ops.md` and `common/flow-runs.md`;
-- if `review.md` is installed, include `mb-sdlc/review.md`, `mb-sdlc/review/index.md`, `mb-sdlc/review/aspects.md`, `mb-sdlc/review/critics/`, `mb-sdlc/review/stage-report-template.html` and `schemas/mb-sdlc-review-report.schema.json`;
+- retained `mb-sdlc/review/` criteria and historical report readers do not authorize manual review lifecycle; new diagnostics use global `review`/`project-review`;
 - if `review-fix.md` is installed, include `mb-sdlc/review-fix.md`, `mb-sdlc/review.md`, `protocol.md` and `protocol-implement.md`;
 - if `protocol-implement.md` or protocol-set support is installed, include `index.md`, `common/lifecycle-guards.md` and schemas required by protocol/runtime status. The same upgrade must also refresh MBB documents that define frontmatter and cross-link rules.
 
 These files are required support files, not optional decoration. If a project flow pack is missing a required stage template or schema, the stage may continue only in degraded mode and must not claim a complete HTML stage report.
 
-Project-local flows must read `.memory-bank/dd-flow/manifest.json` when present. If the manifest is missing, invalid, or old enough to make the pack origin unclear, continue only when the prompt can safely operate with the local files and report `project_flow_pack_degraded`. For `mb-audit` and `mb-fix`, missing manifest is warning-level if the required support files are present; for coding flow it is a handoff risk that must be reported.
+Project-local flows must read `.memory-bank/dd-flow/manifest.json` when present. If the manifest is missing, invalid, or old enough to make the pack origin unclear, continue only when the prompt can safely operate with the local files and report `project_flow_pack_degraded`. For `mb-fix`, missing manifest is warning-level if the required support files are present; for coding flow it is a handoff risk that must be reported.
 
 ## Active Flow Pack Gate
 

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dd-flow/memory-review-correction-plan@1",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_id", "run_id", "wave", "review_sha256", "works"],
+  "properties": {
+    "schema_id": { "const": "dd-flow/memory-review-correction-plan@1" },
+    "run_id": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "wave": { "type": "integer", "minimum": 1, "maximum": 2 },
+    "review_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "works": { "type": "array", "minItems": 1, "maxItems": 256, "items": {
+      "type": "object", "additionalProperties": false,
+      "required": ["key", "task", "unit_ids", "finding_ids", "depends_on", "write_paths", "profile_id"],
+      "properties": {
+        "key": { "$ref": "#/$defs/id" },
+        "task": { "type": "string", "minLength": 1, "maxLength": 16384 },
+        "unit_ids": { "$ref": "#/$defs/nonemptyIds" },
+        "finding_ids": { "$ref": "#/$defs/nonemptyIds" },
+        "depends_on": { "type": "array", "maxItems": 256, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+        "write_paths": { "type": "array", "minItems": 1, "maxItems": 512, "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1, "maxLength": 4096 } },
+        "profile_id": { "type": ["string", "null"], "minLength": 1, "maxLength": 256 }
+      }
+    } }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$" },
+    "nonemptyIds": { "type": "array", "minItems": 1, "maxItems": 1024, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } }
+  }
+}

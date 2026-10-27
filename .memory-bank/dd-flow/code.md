@@ -1,9 +1,9 @@
 ---
 file: '.memory-bank/dd-flow/code.md'
-description: 'Code/readiness entrypoint for the SPC-004 v0.2 and SPC-005 generated stage contract.'
+description: 'Selected-engine CODE wrapper with an explicitly scoped legacy readiness route.'
 purpose: 'Route an accepted plan to implementation or rerun readiness without merging.'
-version: '1.1.0'
-date: '2026-08-10'
+version: '1.1.1'
+date: '2026-10-07'
 status: 'DRAFT'
 c4_level: 'prompt'
 parent: '.memory-bank/dd-flow/README.md'
@@ -18,6 +18,26 @@ tags: [dd-flow, code, readiness, spc-004, spc-005]
 ---
 
 # Code and readiness
+
+## Active vNext
+
+For active vNext, use only the exact CODE continuation returned for the selected
+RUN and its frozen engine binding. Execute the supplied stage-start command as
+the first practical command; its complete packet owns Work dispatch, workspace,
+bootstrap, checks, repair and result admission. `vnext/code.md` is methodology
+included by that packet, not an alternative manual dispatcher.
+
+Do not infer a transition from legacy `ready_for_merge`. CODE-REVIEW is entered
+or skipped only through the accepted frozen policy and the actual CLI directive.
+Do not call legacy readiness or merge-job prompts to bypass that directive.
+Missing binding, packet or predecessor evidence is a blocker, not permission to
+register a new RUN, reconstruct runtime state or switch to another home.
+
+## Retained legacy route
+
+The instructions below apply only to an explicitly selected compatible legacy
+RUN. They do not define active vNext result schemas or stage transitions. Use
+the selected engine's schema, not a refreshed canon schema from another generation.
 
 Read `common/runtime-contract.md`, `common/flow-runs.md`,
 `common/runtime-cli.md`, `common/lifecycle-guards.md`, `common/style.md`, the

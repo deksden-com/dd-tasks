@@ -43,6 +43,23 @@ item. Check that each proof exercises its named failure mechanism; sequential
 negative evidence is not concurrency evidence, and a proof limit cannot erase
 an accepted obligation.
 
+Read the original accepted-input paths in the generated packet, not just their
+SPECIFY summary. Trace material accepted obligations through SPECIFY and its
+effective amendments into owned R/AC, PLAN and checks. Preserve applicable actors,
+UI/API surfaces, operations, state transitions and exceptions; an API check does
+not prove an accepted UI action. Cite the original source and affected R/AC in a
+material finding. Missing original sources are an evidence gap, not proof that the
+summary is complete. Never edit an immutable accepted SPECIFY or fabricate a HITL
+reference. Use the supported upstream correction/revision route; if none exists,
+report an actionable blocker rather than concealing the contradiction in PLAN.
+
+If a user clarification arrives after independent review started, use the exact
+`accepted_intent_acknowledgement` returned by resume/finish in the coordinator
+decision. Apply the clarification through the existing correction path. The old
+independent results cover only their retained earlier inputs, not this new answer.
+New upstream decisions require a supported accepted revision; do not restart review
+automatically or fabricate an acknowledgement to bypass that boundary.
+
 PLAN performs semantic grouping using the effective limit in its packet:
 qualified native capacity or explicit external concurrency. PLAN-REVIEW does
 not regroup or re-probe. Execute the ready portion of the Work graph in waves:

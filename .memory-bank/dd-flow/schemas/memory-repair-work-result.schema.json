@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dd-flow/memory-repair-work-result@1",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_id", "run_id", "work_id", "packet_sha256", "wave", "outcome", "summary", "changes", "resolutions"],
+  "properties": {
+    "schema_id": { "const": "dd-flow/memory-repair-work-result@1" },
+    "run_id": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "work_id": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "packet_sha256": { "$ref": "#/$defs/hash" },
+    "wave": { "type": "integer", "minimum": 1, "maximum": 2 },
+    "outcome": { "enum": ["accepted", "reconciled", "blocked"] },
+    "summary": { "type": "string", "minLength": 1, "maxLength": 16384 },
+    "changes": {
+      "type": "array", "maxItems": 512,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["path", "before_sha256", "after_sha256"],
+        "properties": {
+          "path": { "type": "string", "minLength": 1, "maxLength": 4096 },
+          "before_sha256": { "anyOf": [{ "$ref": "#/$defs/hash" }, { "type": "null" }] },
+          "after_sha256": { "anyOf": [{ "$ref": "#/$defs/hash" }, { "type": "null" }] }
+        }
+      }
+    },
+    "resolutions": {
+      "type": "array", "maxItems": 1024,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["finding_id", "summary", "delta_paths", "evidence"],
+        "properties": {
+          "finding_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+          "summary": { "type": "string", "minLength": 1, "maxLength": 16384 },
+          "delta_paths": { "type": "array", "maxItems": 512, "uniqueItems": true, "items": { "type": "string", "minLength": 1, "maxLength": 4096 } },
+          "evidence": { "type": "array", "minItems": 1, "maxItems": 256, "items": { "$ref": "#/$defs/reference" } }
+        }
+      }
+    }
+  },
+  "allOf": [
+    { "if": { "properties": { "outcome": { "const": "accepted" } } },
+      "then": { "properties": { "changes": { "type": "array", "minItems": 1 }, "resolutions": { "type": "array", "minItems": 1, "items": { "type": "object", "properties": { "delta_paths": { "type": "array", "minItems": 1 } } } } } } },
+    { "if": { "properties": { "outcome": { "const": "reconciled" } } },
+      "then": { "properties": { "changes": { "type": "array", "maxItems": 0 }, "resolutions": { "type": "array", "minItems": 1,
+        "items": { "type": "object", "properties": { "delta_paths": { "type": "array", "maxItems": 0 } } } } } } }
+  ],
+  "$defs": {
+    "hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "reference": {
+      "type": "object", "additionalProperties": false, "required": ["root", "path", "sha256"],
+      "properties": {
+        "root": { "enum": ["run", "workspace"] },
+        "path": { "type": "string", "minLength": 1, "maxLength": 4096 },
+        "sha256": { "$ref": "#/$defs/hash" }
+      }
+    }
+  }
+}

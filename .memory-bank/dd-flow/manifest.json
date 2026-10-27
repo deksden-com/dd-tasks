@@ -5,10 +5,10 @@
   "canon_root": "/Users/deksden/Documents/_Projects/_worktrees/dd-canon-cp260-manifest",
   "canon_memory_bank_root": "/Users/deksden/Documents/_Projects/_worktrees/dd-canon-cp260-manifest/.memory-bank",
   "canon_flow_root": "/Users/deksden/Documents/_Projects/_worktrees/dd-canon-cp260-manifest/.memory-bank/dd-flow",
-  "source_commit": "7533057d9071cc3710cb24997803b1620a9a222d",
+  "source_commit": "052ffdf0fff642a46485d2decc79bf78b1970d5e",
   "canon_version_at_source_commit": "4.1.3",
   "flow_contract": "dd-flow-canonical-2026-08",
-  "installed_at": "2026-10-27T17:33:03.707Z",
+  "installed_at": "2026-10-27T17:43:19.022Z",
   "included_files": [
     "README.md",
     "code.md",
@@ -380,7 +380,7 @@
   "generated_allow_patterns": [
     ".generated/**"
   ],
-  "notes": "CP260 canonical managed refresh to 4.1.3 / 7533057d9071cc3710cb24997803b1620a9a222d. Three-way merged project adaptations: none. Project-owned execution/workspace policies and directory aliases retained outside the managed file inventory. Product baseline unchanged. Static sync is not runtime qualification.",
+  "notes": "CP260 canonical managed refresh to 4.1.3 / 052ffdf0fff642a46485d2decc79bf78b1970d5e. Three-way merged project adaptations: none. Project-owned execution/workspace policies and directory aliases retained outside the managed file inventory. Product baseline unchanged. Static sync is not runtime qualification.",
   "file_hashes": {
     "README.md": "a59aa1189007003f04272021524b4556dca0a46477d6be7be646aab08d7aaeb6",
     "code.md": "dceec3cde67312973fa8520a9cb47bab135d50d1cff2fa55e610e6942df6165a",
@@ -419,7 +419,7 @@
     "common/worker-session.md": "4f57d5fa952fd49b45612f4fc8c3fcdcb431acee144e7b8ae45e6520eb4f3ff3",
     "common/workspace-bootstrap.md": "fe6c069c70566aa93694d982e94145a7e99b3e2564db5e9530875ee186cb2e8d",
     "common/workspace-layout.md": "a7ff7a95392bf4e560f633526b4409240661bcdd50c2116f8d1794d6d77275d9",
-    "compatibility.json": "409b49de41f45b1f34f728ef9d99c778ea48a772b048bfd1ff761daba4bca6ed",
+    "compatibility.json": "6c8f82f5b85741c3fedcd7458d1b8932136931956b634499d80c212bccb269b5",
     "dashboard/global-dashboard-template.html": "fbbb1419eb11c11f60d58e66454618634e8ae4a6f108226dd1c80a86e813ee0a",
     "dashboard/project-dashboard-template.html": "c5d55457dab101433e45ef1dc9735b1e3f7a2af0e98c46567e6d791250db149c",
     "dashboard/protocol-page-template.html": "89aed26cbd087e05b10cf031de8c78d718e04ed1ba7182e1d616dc72e1fbd7a9",

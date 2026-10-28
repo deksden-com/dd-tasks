@@ -43,6 +43,14 @@ item. Check that each proof exercises its named failure mechanism; sequential
 negative evidence is not concurrency evidence, and a proof limit cannot erase
 an accepted obligation.
 
+Challenge stop conditions as part of the same review. Reject a condition that
+stops merely because accepted behavior differs from today's implementation or
+turns planned paths into a hard ownership boundary. A condition must protect a
+real accepted decision, safety boundary or specific unavailable proof; an empty
+list is valid. A model-authored condition cannot override the accepted goal.
+For limited browser evidence, identify the exact affected criterion and its
+escalation; do not prohibit unrelated implementation or declare the proof passed.
+
 Read the original accepted-input paths in the generated packet, not just their
 SPECIFY summary. Trace material accepted obligations through SPECIFY and its
 effective amendments into owned R/AC, PLAN and checks. Preserve applicable actors,

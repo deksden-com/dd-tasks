@@ -102,9 +102,7 @@
           ".memory-bank/dd-flow/schemas/examples"
         ],
         "planned_write_areas": [],
-        "stop_conditions": [
-          "Selected owner contract conflicts with the accepted scope."
-        ]
+        "stop_conditions": []
       },
       "verification": {
         "check_refs": [

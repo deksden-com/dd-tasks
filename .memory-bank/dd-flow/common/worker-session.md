@@ -228,8 +228,12 @@ Replace `--plan-item` with `--task-file "<RUN-home>/<stage>/.../worker-task.json
 The plan item supplies only task-specific `execution_context`: `prompt_profile`, `required_read`, `discovery_boundary`, `planned_write_areas` and `checks`. It also carries the selected `semantic_spine`. The profile supplies stable worker rules; RUN facts supply the concrete workspace and report location. Do not duplicate common primer, Git or recovery prose in `execution_context`.
 
 The execution context has deliberately different strengths. `workspace_root`,
-accepted requirements, non-goals and stop conditions are **hard**: the worker
-must not write outside the selected RUN workspace or override them.
+accepted requirements and non-goals are **hard**: the worker must not write
+outside the selected RUN workspace or override accepted decisions. The current
+implementation is the starting state; its mismatch with the goal is normally the
+work to perform. Optional stop conditions protect specific accepted decisions,
+safety or evidence actions, not new user prohibitions. Retain genuine conflicts
+for coordinator resolution rather than treating every mismatch as a failed Work.
 `required_read` is mandatory starting material, not a read allowlist.
 `discovery_boundary` and `planned_write_areas` are **soft**: they help a worker
 find relevant code and help concurrent workers avoid collisions. They neither

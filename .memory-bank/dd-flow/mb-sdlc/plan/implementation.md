@@ -67,9 +67,13 @@ verification_contract:
 
 `planned_write_areas` is optional and soft: use a stable file or directory
 only when it helps schedule concurrent Works. It does not own a path and never
-becomes a write allowlist. The frozen RUN workspace, accepted requirements,
-non-goals and stop conditions are the hard boundaries; `required_read` is
-mandatory starting material, not a complete read boundary.
+becomes a write allowlist. The frozen RUN workspace, accepted requirements and
+non-goals are hard boundaries; `required_read` is mandatory starting material,
+not a complete read boundary. Stop conditions may be empty. Include one only
+for a specific accepted-decision, safety or unavailable-evidence boundary; never
+stop merely because today's implementation differs from the accepted goal or a
+necessary project-local edit crosses a planned area. An unsupported proof limits
+its exact operation, not independent implementation or other accepted evidence.
 
 The plan owns intended work and proof design. It does not contain mutable
 status, progress, worker/session ids, timestamps, Git facts or actual evidence.

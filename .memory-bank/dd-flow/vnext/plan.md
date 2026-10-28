@@ -127,7 +127,17 @@ Do not create, edit, or describe `code-work-batch.json`. The CLI projects its
 CODE Works from validated plan items at finish. Make each item self-sufficient:
 give it concrete project-relative `required_read` paths and, when useful for
 parallel coordination, stable `planned_write_areas` hints,
-checks, stop conditions, requirement references, and observable verification.
+checks, requirement references, and observable verification. `stop_conditions` may
+be empty: do not invent one to fill the plan. The current implementation is the
+starting state, not an extra accepted requirement. A mismatch with the accepted
+goal is normally what CODE must fix, not a reason to stop. Any stop condition must
+protect a specific accepted decision, prohibited action or unavailable evidence;
+include its affected action and route the unresolved diagnosis to the coordinator.
+A model-authored stop condition cannot introduce a new user prohibition. Necessary
+project-local edits in another layer are coordination drift, not new scope.
+An unsupported browser capability applies only to its exact operation/environment:
+plan independent implementation normally, retain that criterion as unverified, and
+never substitute semantic selection for keyboard evidence.
 Every `required_read` path must already exist when its Work starts; use an
 accepted predecessor result rather than predicting a future input from an area
 hint.

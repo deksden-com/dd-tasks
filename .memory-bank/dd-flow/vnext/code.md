@@ -70,14 +70,27 @@ cancelled and its turn has settled. After every accepted completion, use the
 returned graph to dispatch newly ready Works.
 
 The packet separates hard boundaries from planning hints. The immutable RUN
-`workspace_root`, accepted requirements, non-goals and stop conditions are
-hard. `required_read` is mandatory starting material, but not a read allowlist.
+`workspace_root`, accepted requirements and non-goals are hard. Current code is
+the starting state: a mismatch with the accepted goal normally requires a fix,
+not a failed Work. `stop_conditions` protect specific accepted decisions, safety
+or evidence boundaries; they do not create new user prohibitions. If one appears
+to veto the accepted goal, retain the exact conflict for coordinator resolution.
+`required_read` is mandatory starting material, but not a read allowlist.
 `discovery_boundary` and `planned_write_areas` are soft coordination hints:
 they help find code and avoid concurrent collisions, but never grant or deny a
 necessary project-local edit. If a necessary changed path was not predicted,
 complete the Work and report it as `coordination.drift`; do not fail or hide it.
-A successful CODE Work still has no unresolved blockers or deviations and
-materializes every assigned durable document update.
+A successful CODE Work has no unresolved blockers and materializes every assigned
+durable document update. Descriptive deviations are review notes, not failures by
+themselves; they must not hide an unmet accepted requirement.
+
+An explicit `work fail` ends one attempt, not automatically the Stage. The
+controller returns the retained diagnosis to the coordinator for a bound
+retry/block/pause/fail decision. Do not silently retry a failed Work, rewrite
+accepted requirements or rerun an accepted predecessor. A browser capability
+limit affects only its recorded operation/environment; continue independent
+implementation and retain the exact required proof as unverified. `selectOption`
+is not keyboard evidence. Required evidence is never waived by this rule.
 
 A repairable engine, harness or environment failure is an external blocker,
 not a user question and not a terminal CODE result. Use the exact `stage block`
